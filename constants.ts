@@ -1,3 +1,4 @@
+
 import { RoleDefinition, Sentence } from './types';
 
 export const ROLES: RoleDefinition[] = [
@@ -1443,7 +1444,7 @@ export const SENTENCES: Sentence[] = [
       { id: "s84t2", text: "opa", role: "ow" },
       { id: "s84t3", text: "is", role: "pv" },
       { id: "s84t4", text: "nog", role: "bwb" },
-      { id: "s84t5", text: "steeds", role: "bwb" },
+      { id: "s84t5", text: "steeds", role: "bwb", newChunk: true },
       { id: "s84t6", text: "erg", role: "nwd", subRole: "bijv_bep" },
       { id: "s84t7", text: "fit.", role: "nwd" }
     ]
