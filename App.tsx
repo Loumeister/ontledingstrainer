@@ -445,11 +445,11 @@ export default function App() {
                            <div className="flex flex-col gap-2">
                                 <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'WG' ? 'bg-blue-50 border-blue-500 text-blue-800' : 'hover:bg-slate-50 border-slate-200'}`}>
                                     <input type="radio" name="pred" className="w-4 h-4 text-blue-600" checked={predicateMode === 'WG'} onChange={() => setPredicateMode('WG')} />
-                                    <span className="font-bold text-sm">Alleen Werkwoordelijk (WG)</span>
+                                    <span className="font-bold text-sm">Alleen werkwoordelijk gezegde (WG)</span>
                                 </label>
                                 <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'NG' ? 'bg-yellow-50 border-yellow-500 text-yellow-800' : 'hover:bg-slate-50 border-slate-200'}`}>
                                     <input type="radio" name="pred" className="w-4 h-4 text-yellow-600" checked={predicateMode === 'NG'} onChange={() => setPredicateMode('NG')} />
-                                    <span className="font-bold text-sm">Alleen Naamwoordelijk (NG)</span>
+                                    <span className="font-bold text-sm">Alleen naamwoordelijk gezegde (NG)</span>
                                 </label>
                                 <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'ALL' ? 'bg-indigo-50 border-indigo-500 text-indigo-800' : 'hover:bg-slate-50 border-slate-200'}`}>
                                     <input type="radio" name="pred" className="w-4 h-4 text-indigo-600" checked={predicateMode === 'ALL'} onChange={() => setPredicateMode('ALL')} />
