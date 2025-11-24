@@ -245,6 +245,20 @@ export const SENTENCES: Sentence[] = [
     ]
   },
   {
+    id: 16,
+    label: "Zin 16: Spekglad",
+    predicateType: 'NG',
+    level: 2,
+    tokens: [
+      { id: "s16t1", text: "De", role: "ow" },
+      { id: "s16t2", text: "regen", role: "ow" },
+      { id: "s16t3", text: "maakt", role: "pv" },
+      { id: "s16t4", text: "de", role: "lv" },
+      { id: "s16t5", text: "straat", role: "lv" },
+      { id: "s16t6", text: "spekglad.", role: "nwd" }
+    ]
+  },
+  {
     id: 17,
     label: "Zin 17: Hotel",
     predicateType: 'WG',
@@ -1279,16 +1293,16 @@ export const SENTENCES: Sentence[] = [
       { id: "s76t1", text: "De", role: "ow" },
       { id: "s76t2", text: "onderzoekers", role: "ow" },
       { id: "s76t3", text: "noemen", role: "pv" },
-      { id: "s76t4", text: "deze", role: "lv", subRole: "bijv_bep" }, 
+      { id: "s76t4", text: "deze", role: "lv", subRole: "bijv_bep" }, // User called it LV, technically Obj1
       { id: "s76t5", text: "onverwachte", role: "lv", subRole: "bijv_bep" },
       { id: "s76t6", text: "uitkomst", role: "lv" },
       { id: "s76t7", text: "in", role: "bwb" },
       { id: "s76t8", text: "hun", role: "bwb", subRole: "bijv_bep" },
       { id: "s76t9", text: "publicatie", role: "bwb" },
-      { id: "s76t10", text: "een", role: "bwb" }, 
+      { id: "s76t10", text: "een", role: "bwb", newChunk: true }, // Treating as BWB/Predicative Adjunct to fit user schema of LV/MV
       { id: "s76t11", text: "belangrijke", role: "bwb", subRole: "bijv_bep" },
       { id: "s76t12", text: "kanteling", role: "bwb" },
-      { id: "s76t13", text: "in", role: "bwb" },
+      { id: "s76t13", text: "in", role: "bwb", newChunk: true },
       { id: "s76t14", text: "het", role: "bwb" },
       { id: "s76t15", text: "debat.", role: "bwb" }
     ]
@@ -1444,7 +1458,7 @@ export const SENTENCES: Sentence[] = [
       { id: "s84t2", text: "opa", role: "ow" },
       { id: "s84t3", text: "is", role: "pv" },
       { id: "s84t4", text: "nog", role: "bwb" },
-      { id: "s84t5", text: "steeds", role: "bwb", newChunk: true },
+      { id: "s84t5", text: "steeds", role: "bwb" },
       { id: "s84t6", text: "erg", role: "nwd", subRole: "bijv_bep" },
       { id: "s84t7", text: "fit.", role: "nwd" }
     ]
@@ -1691,8 +1705,7 @@ export const SENTENCES: Sentence[] = [
       { id: "s98t8", text: "kwetsend.", role: "nwd" }
     ]
   },
-  // 1. GEBIEDENDE WIJS (Imperative)
-  {
+    {
     id: 99,
     label: "Zin 99: Lever in",
     predicateType: 'WG',
@@ -1753,11 +1766,11 @@ export const SENTENCES: Sentence[] = [
   },
   {
     id: 103,
-    label: "Zin 103: Wees stil",
+    label: "Zin 103: Ben stil",
     predicateType: 'NG',
-    level: 2,
+    level: 3,
     tokens: [
-      { id: "s103t1", text: "Wees", role: "pv" },
+      { id: "s103t1", text: "Ben", role: "pv" },
       { id: "s103t2", text: "eens", role: "bwb" },
       { id: "s103t3", text: "even", role: "bwb", newChunk: true },
       { id: "s103t4", text: "stil.", role: "nwd" }
@@ -1903,7 +1916,6 @@ export const SENTENCES: Sentence[] = [
       { id: "s112t7", text: "goed.", role: "bwb", newChunk: true }
     ]
   },
-  
 
   // 4. TOPICALISATIE (LV Vooraan)
   {

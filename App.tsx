@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { SENTENCES, ROLES } from './constants';
 import { Sentence, PlacementMap, RoleKey, Token, RoleDefinition, DifficultyLevel } from './types';
@@ -394,6 +395,7 @@ export default function App() {
     setMode('free');
     setSessionQueue([]);
     setValidationResult(null);
+    setIsSessionFinished(false);
   };
 
   const userChunks = getUserChunks();
