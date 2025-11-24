@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { SENTENCES, ROLES } from './constants';
 import { Sentence, PlacementMap, RoleKey, Token, RoleDefinition, DifficultyLevel } from './types';
@@ -445,11 +444,11 @@ export default function App() {
                            <div className="flex flex-col gap-2">
                                 <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'WG' ? 'bg-blue-50 border-blue-500 text-blue-800' : 'hover:bg-slate-50 border-slate-200'}`}>
                                     <input type="radio" name="pred" className="w-4 h-4 text-blue-600" checked={predicateMode === 'WG'} onChange={() => setPredicateMode('WG')} />
-                                    <span className="font-bold text-sm">Alleen werkwoordelijk gezegde (WG)</span>
+                                    <span className="font-bold text-sm">Alleen Werkwoordelijk (WG)</span>
                                 </label>
                                 <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'NG' ? 'bg-yellow-50 border-yellow-500 text-yellow-800' : 'hover:bg-slate-50 border-slate-200'}`}>
                                     <input type="radio" name="pred" className="w-4 h-4 text-yellow-600" checked={predicateMode === 'NG'} onChange={() => setPredicateMode('NG')} />
-                                    <span className="font-bold text-sm">Alleen naamwoordelijk gezegde (NG)</span>
+                                    <span className="font-bold text-sm">Alleen Naamwoordelijk (NG)</span>
                                 </label>
                                 <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'ALL' ? 'bg-indigo-50 border-indigo-500 text-indigo-800' : 'hover:bg-slate-50 border-slate-200'}`}>
                                     <input type="radio" name="pred" className="w-4 h-4 text-indigo-600" checked={predicateMode === 'ALL'} onChange={() => setPredicateMode('ALL')} />
@@ -752,8 +751,8 @@ export default function App() {
                  
                  {/* Toolbar with Roles */}
                  {!showAnswerMode && (
-                   <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 sticky top-2 z-20">
-                      <div className="flex flex-col gap-4">
+                   <div className="bg-white p-3 md:p-4 -mx-4 md:mx-0 px-4 md:px-4 rounded-b-xl md:rounded-xl shadow-md border-y md:border border-slate-200 sticky top-0 md:top-4 z-50 transition-all">
+                      <div className="flex flex-col gap-2 md:gap-4">
                         <div>
                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Zinsdelen & Gezegde:</p>
                            <div className="flex flex-wrap gap-2">
