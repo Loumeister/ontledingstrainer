@@ -1,4 +1,3 @@
-
 import { RoleDefinition, Sentence } from './types';
 
 export const ROLES: RoleDefinition[] = [
@@ -242,20 +241,6 @@ export const SENTENCES: Sentence[] = [
       { id: "s15t5", text: "een", role: "lv" },
       { id: "s15t6", text: "kans", role: "lv" },
       { id: "s15t7", text: "gegeven?", role: "wg" }
-    ]
-  },
-  {
-    id: 16,
-    label: "Zin 16: Spekglad",
-    predicateType: 'NG',
-    level: 2,
-    tokens: [
-      { id: "s16t1", text: "De", role: "ow" },
-      { id: "s16t2", text: "regen", role: "ow" },
-      { id: "s16t3", text: "maakt", role: "pv" },
-      { id: "s16t4", text: "de", role: "lv" },
-      { id: "s16t5", text: "straat", role: "lv" },
-      { id: "s16t6", text: "spekglad.", role: "nwd" }
     ]
   },
   {
@@ -938,7 +923,7 @@ export const SENTENCES: Sentence[] = [
       { id: "s56t2", text: "mensen", role: "ow" },
       { id: "s56t3", text: "hebben", role: "pv" },
       { id: "s56t4", text: "nog", role: "bwb" },
-      { id: "s56t5", text: "nooit", role: "bwb", newChunk: true },
+      { id: "s56t5", text: "nooit", role: "bwb" },
       { id: "s56t6", text: "vrijwilligerswerk", role: "lv" },
       { id: "s56t7", text: "gedaan.", role: "wg" }
     ]
@@ -1008,7 +993,7 @@ export const SENTENCES: Sentence[] = [
       { id: "s60t3", text: "snor", role: "bwb" },
       { id: "s60t4", text: "lijkt", role: "pv" },
       { id: "s60t5", text: "hij", role: "ow" },
-      { id: "s60t6", text: "heel", role: "bwb", newChunk: true },
+      { id: "s60t6", text: "heel", role: "bwb" },
       { id: "s60t7", text: "erg", role: "bwb" },
       { id: "s60t8", text: "op", role: "vv" },
       { id: "s60t9", text: "zo’n", role: "vv", subRole: "bijv_bep" },
