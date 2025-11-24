@@ -81,3 +81,4 @@ De applicatie is gebouwd met:
 *   **React**: Voor de gebruikersinterface en logica.
 *   **TypeScript**: Voor type-veiligheid en structuur.
 *   **Tailwind CSS**: Voor de styling.
+
