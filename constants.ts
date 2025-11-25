@@ -341,9 +341,9 @@ export const SENTENCES: Sentence[] = [
       { id: "s17t4", text: "een", role: "vv" },
       { id: "s17t5", text: "rustig", role: "vv", subRole: "bijv_bep" },
       { id: "s17t6", text: "hotel", role: "vv" },
-      { id: "s17t7", text: "aan", role: "bwb" },
-      { id: "s17t8", text: "het", role: "bwb" },
-      { id: "s17t9", text: "strand.", role: "bwb" }
+      { id: "s17t7", text: "aan", role: "vv" },
+      { id: "s17t8", text: "het", role: "vv" },
+      { id: "s17t9", text: "strand.", role: "vv" }
     ]
   },
   {
@@ -759,7 +759,7 @@ export const SENTENCES: Sentence[] = [
       { id: "s42t2", text: "vinden", role: "pv" },
       { id: "s42t3", text: "het", role: "lv" },
       { id: "s42t4", text: "soms", role: "bwb" },
-      { id: "s42t5", text: "lastig", role: "nwd" },
+      { id: "s42t5", text: "lastig", role: "bwb", newChunk: true },
       { id: "s42t6", text: "om", role: "vv" },
       { id: "s42t7", text: "iedereen", role: "vv" },
       { id: "s42t8", text: "tegelijk", role: "vv", subRole: "bijv_bep" },

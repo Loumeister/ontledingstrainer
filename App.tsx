@@ -87,10 +87,6 @@ export default function App() {
       const isBijzinTarget = focusBijzin && s.tokens.some(t => t.role === 'bijzin');
 
       // 3. Complexity Filters based on Level
-      // Logic: If Level is High (3) or All (null), we DO NOT exclude complex parts (Bijst, VV) even if checkboxes are off.
-      // If Level is Low (1), we exclude them unless checked.
-      // If Level is Mid (2), we include VV (standard for lvl 2) but exclude Bijst.
-
       const isLevelHighOrAll = selectedLevel === 3 || selectedLevel === null;
       const isLevelMid = selectedLevel === 2;
       const isLevelLow = selectedLevel === 1;
@@ -101,7 +97,6 @@ export default function App() {
       }
       
       // Filter VV: Exclude if (Low) AND not checked AND not focused/target
-      // (Level 2+ includes VV natively)
       if (isLevelLow && !includeVV && !focusVV && !isBijzinTarget && s.tokens.some(t => t.role === 'vv')) {
           return false;
       }
@@ -266,38 +261,47 @@ export default function App() {
     
     const usedRoles = Object.values(chunkLabels);
     
+    // 1. Priority: Persoonsvorm
     if (!usedRoles.includes('pv')) {
         setHintMessage(HINTS.MISSING_PV);
         return;
     }
     
+    // 2. Priority: Onderwerp
     if (!usedRoles.includes('ow')) {
         setHintMessage(HINTS.MISSING_OW);
         return;
     }
 
-    if (currentSentence.predicateType === 'WG' && !usedRoles.includes('wg')) {
+    // 3. Check what roles are ACTUALLY in the sentence tokens
+    const actualRolesInSentence = new Set<RoleKey>();
+    currentSentence.tokens.forEach(t => {
+        actualRolesInSentence.add(t.role);
+    });
+
+    // Only hint for WG if there are actual 'wg' tokens (parts of the verb other than PV)
+    if (actualRolesInSentence.has('wg') && !usedRoles.includes('wg')) {
         setHintMessage(HINTS.MISSING_WG);
         return;
     }
 
-    if (currentSentence.predicateType === 'NG' && !usedRoles.includes('nwd')) {
+    // Only hint for NG if there are actual 'nwd' tokens
+    if (actualRolesInSentence.has('nwd') && !usedRoles.includes('nwd')) {
         setHintMessage(HINTS.MISSING_NG);
         return;
     }
 
-    const missingRoles = new Set<RoleKey>();
-    currentSentence.tokens.forEach(t => {
-        if (!usedRoles.includes(t.role)) {
-            missingRoles.add(t.role);
-        }
-    });
-
-    if (missingRoles.has('lv')) {
+    // 4. Objects & Others
+    if (actualRolesInSentence.has('lv') && !usedRoles.includes('lv')) {
         setHintMessage(HINTS.MISSING_LV);
-    } else if (missingRoles.size > 0) {
-        const firstMissing = Array.from(missingRoles)[0];
-        const roleDef = ROLES.find(r => r.key === firstMissing);
+        return;
+    }
+
+    // 5. Fallback: Find first missing role in sentence
+    const remainingMissing = Array.from(actualRolesInSentence).find(r => !usedRoles.includes(r));
+
+    if (remainingMissing) {
+        const roleDef = ROLES.find(r => r.key === remainingMissing);
         if (roleDef) {
             setHintMessage(HINTS.generic(roleDef.label));
         }
@@ -562,7 +566,7 @@ export default function App() {
 
                         <div>
                             <h3 className="font-bold text-slate-700 mb-2">Onderdelen (Moeilijkheid)</h3>
-                            <p className="text-xs text-slate-400 mb-2">Vink aan om zinnen met deze onderdelen te laten zien.</p>
+                            <p className="text-xs text-slate-400 mb-2">Vink aan om te oefenen met het benoemen van deze zinsdelen</p>
                             <div className="space-y-2">
                                 <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
                                     <span className="font-bold text-slate-700 block text-sm">Bijstelling</span>
@@ -572,11 +576,6 @@ export default function App() {
                                 <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
                                     <span className="font-bold text-slate-700 block text-sm">Bijvoeglijke Bepaling</span>
                                     <input type="checkbox" className="w-5 h-5 text-blue-600 rounded" checked={includeBB} onChange={(e) => setIncludeBB(e.target.checked)} />
-                                </label>
-
-                                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-                                    <span className="font-bold text-slate-700 block text-sm">Voorzetselvoorwerp</span>
-                                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded" checked={includeVV} onChange={(e) => setIncludeVV(e.target.checked)} />
                                 </label>
                             </div>
                         </div>
@@ -735,6 +734,8 @@ export default function App() {
                            <div className="flex flex-wrap gap-2">
                             {ROLES.filter(r => !r.isSubOnly)
                                   .filter(r => (includeVV || focusVV) || r.key !== 'vv')
+                                  .filter(r => (includeLV || focusLV) || r.key !== 'lv')
+                                  .filter(r => (includeMV || focusMV) || r.key !== 'mv')
                                   .filter(r => r.key !== 'bijzin' || focusBijzin || selectedLevel === 3)
                                   .map(role => (
                               <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} />
