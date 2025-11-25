@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Token, RoleDefinition, ValidationState } from '../types';
 
@@ -99,11 +98,12 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
       }}
       onDragLeave={handleDragLeaveChunk}
     >
-      {/* Tooltip for Feedback */}
+      {/* Tooltip for Feedback - MOVED TO BOTTOM */}
       {feedbackMessage && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-xs rounded shadow-lg z-50 text-center pointer-events-none animate-in fade-in slide-in-from-bottom-1">
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 p-2 bg-slate-800 text-white text-xs rounded shadow-lg z-[200] text-center pointer-events-none animate-in fade-in slide-in-from-top-1">
           {feedbackMessage}
-          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+          {/* Arrow pointing up */}
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-slate-800"></div>
         </div>
       )}
 

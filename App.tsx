@@ -690,12 +690,6 @@ export default function App() {
                </div>
             )}
             
-            {hintMessage && !validationResult && (
-               <div className="p-4 rounded-xl text-center font-bold text-lg bg-yellow-50 text-yellow-800 border border-yellow-200 animate-in slide-in-from-top-2 duration-300">
-                 💡 {hintMessage}
-               </div>
-            )}
-
             {showAnswerMode && <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg text-center font-bold">Dit is de juiste oplossing.</div>}
 
             {/* STEP 1: SPLITTING VIEW */}
@@ -734,8 +728,6 @@ export default function App() {
                            <div className="flex flex-wrap gap-2">
                             {ROLES.filter(r => !r.isSubOnly)
                                   .filter(r => (includeVV || focusVV) || r.key !== 'vv')
-                                  .filter(r => (includeLV || focusLV) || r.key !== 'lv')
-                                  .filter(r => (includeMV || focusMV) || r.key !== 'mv')
                                   .filter(r => r.key !== 'bijzin' || focusBijzin || selectedLevel === 3)
                                   .map(role => (
                               <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} />
@@ -796,6 +788,12 @@ export default function App() {
                       );
                     })}
                  </div>
+
+                 {hintMessage && !validationResult && (
+                    <div className="p-4 rounded-xl text-center font-bold text-lg bg-yellow-50 text-yellow-800 border border-yellow-200 animate-in slide-in-from-bottom-2 duration-300">
+                        💡 {hintMessage}
+                    </div>
+                 )}
 
                  <div className="flex justify-between items-center bg-slate-100 p-4 rounded-xl border border-slate-200 mt-8">
                     <button onClick={handleBackStep} className="text-slate-500 font-medium hover:text-slate-800 flex items-center gap-2 px-4 py-2 hover:bg-slate-200 rounded-lg transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg>Terug</button>
