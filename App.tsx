@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { SENTENCES, ROLES, FEEDBACK_MATRIX, FEEDBACK_STRUCTURE, HINTS } from './constants';
 import { Sentence, PlacementMap, RoleKey, Token, RoleDefinition, DifficultyLevel, ValidationState } from './types';
 import { DraggableRole } from './components/WordChip';
 import { SentenceChunk } from './components/DropZone';
+import { HelpModal } from './components/HelpModal';
 
 type AppStep = 'split' | 'label';
 type Mode = 'free' | 'session';
@@ -24,8 +24,6 @@ export default function App() {
   const [focusLV, setFocusLV] = useState(false);
   const [focusMV, setFocusMV] = useState(false);
   const [focusVV, setFocusVV] = useState(false);
-  
-  // Compound Sentences Filter (This is now a primary filter, not just focus)
   const [focusBijzin, setFocusBijzin] = useState(false); 
 
   // Complexity Filters (Exclude complex parts if unchecked)
@@ -48,6 +46,9 @@ export default function App() {
   // Current Sentence State
   const [currentSentence, setCurrentSentence] = useState<Sentence | null>(null);
   const [step, setStep] = useState<AppStep>('split');
+  
+  // UI State
+  const [showHelp, setShowHelp] = useState(false);
   
   // Splitting State: Set of indices where split occurs AFTER token[index]
   const [splitIndices, setSplitIndices] = useState<Set<number>>(new Set());
@@ -501,15 +502,28 @@ export default function App() {
   // --- HOME SCREEN ---
   if (!currentSentence && !isSessionFinished) {
       return (
-        <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans flex items-center justify-center">
+        <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans flex items-center justify-center relative">
+            
+            {/* Help Modal */}
+            <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
+
             <main className="max-w-6xl w-full bg-white p-8 rounded-2xl shadow-lg space-y-8 border border-slate-200">
-                <div className="text-center border-b pb-6">
+                <div className="text-center border-b pb-6 relative">
                     <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight mb-2">
                         <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
                         Zinsontledingstrainer
                         </span>
                     </h1>
                     <p className="text-slate-500 text-lg">Stel je training samen:</p>
+                    
+                    {/* Help Button in Header */}
+                    <button 
+                        onClick={() => setShowHelp(true)}
+                        className="absolute right-0 top-0 w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                        title="Instructies"
+                    >
+                        ?
+                    </button>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -535,12 +549,7 @@ export default function App() {
                         </div>
                         <div>
                            <h3 className="font-bold text-slate-700 mb-2">Soort Zinnen & Gezegde</h3>
-                           <div className="flex flex-col gap-3">
-                                <label className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${focusBijzin ? 'bg-purple-50 border-purple-500 text-purple-900' : 'hover:bg-slate-50 border-slate-200'}`}>
-                                    <span className="font-bold text-sm">Samengestelde zinnen (hoofd- en bijzin)</span>
-                                    <input type="checkbox" className="w-5 h-5 text-purple-600 rounded" checked={focusBijzin} onChange={(e) => setFocusBijzin(e.target.checked)} />
-                                </label>
-                                <div className="h-[1px] bg-slate-200 my-1"></div>
+                           <div className="flex flex-col gap-2">
                                 <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'WG' ? 'bg-blue-50 border-blue-500 text-blue-800' : 'hover:bg-slate-50 border-slate-200'}`}>
                                     <input type="radio" name="pred" className="w-4 h-4 text-blue-600" checked={predicateMode === 'WG'} onChange={() => setPredicateMode('WG')} />
                                     <span className="font-bold text-sm">Alleen Werkwoordelijk (WG)</span>
@@ -576,6 +585,11 @@ export default function App() {
                                 <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
                                     <span className="font-bold text-slate-700 block text-sm">Voorzetselvoorwerp</span>
                                     <input type="checkbox" className="w-5 h-5 text-blue-600 rounded" checked={focusVV} onChange={(e) => setFocusVV(e.target.checked)} />
+                                </label>
+
+                                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                                    <span className="font-bold text-slate-700 block text-sm">Samengestelde zinnen (hoofd- en bijzin)</span>
+                                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded" checked={focusBijzin} onChange={(e) => setFocusBijzin(e.target.checked)} />
                                 </label>
                             </div>
                         </div>
@@ -621,6 +635,17 @@ export default function App() {
                         </div>
                     </div>
                 </div>
+                
+                <div className="text-center pt-6 border-t border-slate-100">
+                   <button 
+                     onClick={() => setShowHelp(true)} 
+                     className="text-slate-400 hover:text-blue-600 text-sm font-medium flex items-center justify-center gap-2 mx-auto transition-colors"
+                   >
+                     <span className="w-4 h-4 rounded-full border border-current flex items-center justify-center text-[10px]">i</span>
+                     Instructies & Uitleg
+                   </button>
+                </div>
+
             </main>
         </div>
       );
@@ -661,13 +686,24 @@ export default function App() {
   // --- ACTIVE TRAINER UI ---
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans">
+      
+      {/* Help Modal In Game */}
+      <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
+
       <main className="max-w-6xl mx-auto space-y-8">
         
         {/* Header */}
         <header className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div>
+          <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Zinsontledingstrainer</h1>
-            {mode === 'session' && <p className="text-sm text-slate-500">Zin {sessionIndex + 1} van {sessionQueue.length}</p>}
+            <button 
+                onClick={() => setShowHelp(true)}
+                className="w-6 h-6 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 text-sm font-bold transition-colors"
+                title="Hulp"
+            >
+                ?
+            </button>
+            {mode === 'session' && <p className="text-sm text-slate-500 border-l border-slate-200 pl-3 ml-1">Zin {sessionIndex + 1} van {sessionQueue.length}</p>}
           </div>
           
           <div className="flex items-center gap-4 text-sm font-medium text-slate-500 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-100">
@@ -706,6 +742,7 @@ export default function App() {
                </div>
             )}
             
+            {/* Hint Message (Moved ABOVE controls) */}
             {hintMessage && !validationResult && (
                <div className="p-4 rounded-xl text-center font-bold text-lg bg-yellow-50 text-yellow-800 border border-yellow-200 animate-in slide-in-from-bottom-2 duration-300">
                  💡 {hintMessage}
@@ -814,12 +851,6 @@ export default function App() {
                       );
                     })}
                  </div>
-
-                 {hintMessage && !validationResult && (
-                    <div className="p-4 rounded-xl text-center font-bold text-lg bg-yellow-50 text-yellow-800 border border-yellow-200 animate-in slide-in-from-bottom-2 duration-300">
-                        💡 {hintMessage}
-                    </div>
-                 )}
 
                  <div className="flex justify-between items-center bg-slate-100 p-4 rounded-xl border border-slate-200 mt-8">
                     <button onClick={handleBackStep} className="text-slate-500 font-medium hover:text-slate-800 flex items-center gap-2 px-4 py-2 hover:bg-slate-200 rounded-lg transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg>Terug</button>
