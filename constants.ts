@@ -7,50 +7,50 @@ export const ROLES: RoleDefinition[] = [
     key: 'pv', 
     label: 'Persoonsvorm', 
     shortLabel: 'PV', 
-    colorClass: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200', 
-    borderColorClass: 'border-red-300 dark:border-red-700' 
+    colorClass: 'bg-red-50 text-red-700 dark:bg-red-900/40 dark:text-red-100', 
+    borderColorClass: 'border-red-200 dark:border-red-700' 
   },
   { 
     key: 'ow', 
     label: 'Onderwerp', 
     shortLabel: 'OW', 
-    colorClass: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200', 
-    borderColorClass: 'border-blue-300 dark:border-blue-700' 
+    colorClass: 'bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-100', 
+    borderColorClass: 'border-blue-200 dark:border-blue-700' 
   },
   { 
     key: 'lv', 
     label: 'Lijdend Voorwerp', 
     shortLabel: 'LV', 
-    colorClass: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200', 
-    borderColorClass: 'border-green-300 dark:border-green-700' 
+    colorClass: 'bg-green-50 text-green-700 dark:bg-green-900/40 dark:text-green-100', 
+    borderColorClass: 'border-green-200 dark:border-green-700' 
   },
   { 
     key: 'mv', 
     label: 'Meewerkend Voorwerp', 
     shortLabel: 'MV', 
-    colorClass: 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-200', 
-    borderColorClass: 'border-violet-300 dark:border-violet-700' 
+    colorClass: 'bg-purple-50 text-purple-700 dark:bg-purple-900/40 dark:text-purple-100', 
+    borderColorClass: 'border-purple-200 dark:border-purple-700' 
   },
   { 
     key: 'bwb', 
     label: 'Bijwoordelijke Bepaling', 
     shortLabel: 'BWB', 
-    colorClass: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200', 
-    borderColorClass: 'border-amber-300 dark:border-amber-700' 
+    colorClass: 'bg-orange-50 text-orange-700 dark:bg-orange-900/40 dark:text-orange-100', 
+    borderColorClass: 'border-orange-200 dark:border-orange-700' 
   },
   { 
     key: 'vv', 
     label: 'Voorzetselvoorwerp', 
     shortLabel: 'VV', 
-    colorClass: 'bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-200', 
-    borderColorClass: 'border-teal-300 dark:border-teal-700' 
+    colorClass: 'bg-pink-50 text-pink-700 dark:bg-pink-900/40 dark:text-pink-100', 
+    borderColorClass: 'border-pink-200 dark:border-pink-700' 
   },
   { 
     key: 'bijst', 
     label: 'Bijstelling', 
     shortLabel: 'BIJST', 
-    colorClass: 'bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-200', 
-    borderColorClass: 'border-pink-300 dark:border-pink-700' 
+    colorClass: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-100', 
+    borderColorClass: 'border-indigo-200 dark:border-indigo-700' 
   },
   
   // Predicate Parts (WG/NG)
@@ -58,15 +58,15 @@ export const ROLES: RoleDefinition[] = [
     key: 'wg', 
     label: 'Werkwoordelijk Gezegde', 
     shortLabel: 'WG', 
-    colorClass: 'bg-rose-200 text-rose-800 dark:bg-rose-900/50 dark:text-rose-200', 
-    borderColorClass: 'border-rose-300 dark:border-rose-700' 
+    colorClass: 'bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-100', 
+    borderColorClass: 'border-rose-300 dark:border-rose-600' 
   },
   { 
     key: 'nwd', 
     label: 'Naamwoordelijk Gezegde', 
     shortLabel: 'NG', 
-    colorClass: 'bg-yellow-200 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200', 
-    borderColorClass: 'border-yellow-300 dark:border-yellow-700' 
+    colorClass: 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-100', 
+    borderColorClass: 'border-yellow-200 dark:border-yellow-600' 
   },
 
   // Structural/Clause Roles
@@ -74,15 +74,15 @@ export const ROLES: RoleDefinition[] = [
     key: 'bijzin', 
     label: 'Bijzin', 
     shortLabel: 'BIJZIN', 
-    colorClass: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-200', 
-    borderColorClass: 'border-indigo-300 dark:border-indigo-700' 
+    colorClass: 'bg-purple-100 text-purple-800 dark:bg-fuchsia-900/40 dark:text-fuchsia-100', 
+    borderColorClass: 'border-purple-300 dark:border-fuchsia-700' 
   },
   { 
     key: 'vw_neven', 
     label: 'Nevenschikkend VW', 
     shortLabel: 'NEVEN', 
-    colorClass: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200', 
-    borderColorClass: 'border-slate-300 dark:border-slate-600' 
+    colorClass: 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-200', 
+    borderColorClass: 'border-stone-300 dark:border-stone-600' 
   },
   
   // Internal Structure (Sub-roles)
@@ -90,16 +90,16 @@ export const ROLES: RoleDefinition[] = [
     key: 'bijv_bep', 
     label: 'Bijvoeglijke Bepaling', 
     shortLabel: 'BB', 
-    colorClass: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200', 
-    borderColorClass: 'border-emerald-300 dark:border-emerald-700', 
+    colorClass: 'bg-teal-50 text-teal-700 dark:bg-teal-900/40 dark:text-teal-100', 
+    borderColorClass: 'border-teal-200 dark:border-teal-700', 
     isSubOnly: true 
   },
   { 
     key: 'vw_onder', 
     label: 'Onderschikkend VW', 
     shortLabel: 'ONDER', 
-    colorClass: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200', 
-    borderColorClass: 'border-neutral-300 dark:border-neutral-600', 
+    colorClass: 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-200', 
+    borderColorClass: 'border-stone-300 dark:border-stone-600', 
     isSubOnly: true 
   },
 ];
