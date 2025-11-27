@@ -143,7 +143,6 @@ export default function App() {
       }
 
       const isLevelHighOrAll = selectedLevel === 3 || selectedLevel === null;
-      // Removed isLevelMid as it was unused and causing TS error
       const isLevelLow = selectedLevel === 1;
 
       if (!isCompound && !isLevelHighOrAll && !includeBijst && s.tokens.some(t => t.role === 'bijst')) {
@@ -338,8 +337,7 @@ export default function App() {
 
   const handleCheck = () => {
     if (!currentSentence) return;
-    // ... (Validation logic remains the same, condensed for brevity as requested to change UI/Flow)
-    // I'm re-using the exact logic from previous steps, just ensuring variables are correct.
+    
     const userChunks = getUserChunks();
     const chunkStatus: Record<number, ValidationState> = {};
     const chunkFeedback: Record<number, string> = {};
@@ -520,8 +518,8 @@ export default function App() {
                     
                     {/* Top Right Controls */}
                     <div className="flex gap-2 mt-4 md:mt-0">
-                        <button onClick={() => setLargeFont(!largeFont)} className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold transition-all border ${largeFont ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200' : 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600'}`} title="Lettergrootte">aA</button>
-                        <button onClick={() => setDarkMode(!darkMode)} className="w-9 h-9 rounded-lg bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-all" title="Donkere modus">
+                        <button onClick={() => setLargeFont(!largeFont)} className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold transition-all border ${largeFont ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200' : 'bg-white text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600'}`} title="Lettergrootte">aA</button>
+                        <button onClick={() => setDarkMode(!darkMode)} className="w-9 h-9 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-all" title="Donkere modus">
                             {darkMode ? (
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" strokeWidth="2"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
                             ) : (
@@ -532,7 +530,10 @@ export default function App() {
                     </div>
                 </div>
 
+                {/* ... (Filter Grid - Remains same as previous, ensures Checkboxes have explicit light bg on mobile) ... */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                     {/* ... (Code for filters omitted for brevity, same as previous but ensure checkbox bg-gray-100 is present) ... */}
+                     {/* Re-inserting full grid content for correctness */}
                     <div className="space-y-4">
                         <div>
                            <h3 className="font-bold text-slate-700 dark:text-slate-200 mb-2 text-sm uppercase tracking-wider">Moeilijkheidsgraad</h3>
@@ -635,8 +636,9 @@ export default function App() {
 
   // --- SCORE SCREEN ---
   if (isSessionFinished) {
-     // ... Score screen code (remains mostly same, ensure dark mode classes)
-    const scorePercentage = sessionStats.total > 0 ? Math.round((sessionStats.correct / sessionStats.total) * 100) : 0;
+      // ... Same as above
+      // Re-using Score Screen Logic from previous
+      const scorePercentage = sessionStats.total > 0 ? Math.round((sessionStats.correct / sessionStats.total) * 100) : 0;
     const topMistakes = Object.entries(mistakeStats).sort((a, b) => (b[1] as number) - (a[1] as number)).slice(0, 3);
 
     return (
@@ -686,7 +688,7 @@ export default function App() {
       
       <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
 
-      <main className="max-w-6xl mx-auto w-full flex flex-col gap-4 flex-1">
+      <main className="max-w-6xl mx-auto w-full flex flex-col gap-4 flex-1 mb-20"> {/* Add mb-20 for bottom bar space */}
         
         {/* Header */}
         <header className="flex items-center justify-between">
@@ -697,7 +699,7 @@ export default function App() {
           <div className="flex gap-2">
                <button onClick={() => setLargeFont(!largeFont)} className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold transition-all border ${largeFont ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200' : 'bg-white text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600'}`} title="Lettergrootte">aA</button>
                 <button onClick={() => setDarkMode(!darkMode)} className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-all" title="Donkere modus">
-                  {darkMode ? <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" strokeWidth="2"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg> : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>}
+                  {darkMode ? <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" strokeWidth="2"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg> : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>}
                 </button>
                 <button onClick={() => setShowHelp(true)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 transition-colors" title="Instructies">?</button>
           </div>
@@ -716,22 +718,7 @@ export default function App() {
               </div>
         </div>
 
-        {/* Info Bar */}
-        <div className="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-between">
-          <div className="font-medium text-slate-700 dark:text-slate-200">{currentSentence && currentSentence.label}</div>
-          <div className="flex gap-2">
-              {!showAnswerMode && !validationResult?.isPerfect && (
-                 <button onClick={handleShowAnswerRequest} className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium px-3 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">Toon antwoord</button>
-              )}
-              <div className="flex gap-2">
-                {mode === 'free' && <button onClick={() => loadSentence(currentSentence!)} className="text-sm text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 underline decoration-red-200 dark:decoration-red-900">Reset</button>}
-                <button onClick={handleAbortRequest} className="text-sm text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600 px-3 py-1 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
-                   {mode === 'free' ? 'Stop' : 'Afbreken'}
-                </button>
-              </div>
-          </div>
-        </div>
-
+        {/* --- Main Content Area --- */}
         <div className="space-y-4 flex-1 flex flex-col">
             {/* Feedback Block */}
             {validationResult && (
@@ -740,7 +727,7 @@ export default function App() {
                </div>
             )}
             
-            {/* Hint Message */}
+            {/* Hint Message (Moved ABOVE controls) */}
             {hintMessage && !validationResult && (
                <div className="p-3 rounded-xl text-center font-bold bg-yellow-50 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800 animate-in slide-in-from-bottom-2 duration-300">
                  💡 {hintMessage}
@@ -849,49 +836,92 @@ export default function App() {
                       );
                     })}
                  </div>
-
-                 <div className="flex justify-between items-center bg-slate-100 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 mt-4">
-                    <button onClick={handleBackStep} className="text-slate-500 dark:text-slate-400 font-medium hover:text-slate-800 dark:hover:text-white flex items-center gap-2 px-4 py-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg>Terug</button>
-
-                    {!showAnswerMode && (
-                      <div className="flex gap-2">
-                        <button 
-                            onClick={handleHint}
-                            disabled={!currentSentence}
-                            className="px-6 py-3 bg-yellow-400 text-yellow-900 rounded-xl font-bold shadow-lg hover:bg-yellow-500 hover:-translate-y-0.5 transition-all"
-                        >
-                            Geef Hint
-                        </button>
-                        <button 
-                            onClick={handleCheck}
-                            disabled={Object.keys(chunkLabels).length === 0}
-                            className="px-8 py-3 bg-green-600 text-white rounded-xl font-bold shadow-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-green-200 hover:-translate-y-0.5 transition-all"
-                        >
-                            Controleren
-                        </button>
-                      </div>
-                    )}
-
-                    {mode === 'session' && (validationResult || showAnswerMode) && (
-                        <button onClick={nextSessionSentence} className="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:bg-blue-700 hover:-translate-y-0.5 transition-all flex items-center gap-2">Volgende Zin<span>→</span></button>
-                    )}
-                 </div>
               </div>
             )}
           </div>
 
-          {/* Bottom Progress Bar for Session */}
-          {mode === 'session' && (
-             <div className="fixed bottom-0 left-0 w-full bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-3 text-center text-sm font-medium text-slate-600 dark:text-slate-400 shadow-lg z-[100]">
-                 Zin {sessionIndex + 1} van {sessionQueue.length}
-                 <div className="w-full max-w-md mx-auto h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full mt-2 overflow-hidden">
-                    <div 
-                       className="h-full bg-blue-500 transition-all duration-300"
-                       style={{ width: `${((sessionIndex + 1) / sessionQueue.length) * 100}%` }}
-                    ></div>
+          {/* --- NEW BOTTOM BAR --- */}
+          <footer className="fixed bottom-0 left-0 w-full bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-[500] p-3">
+             <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+                 
+                 {/* Left: Sentence Label */}
+                 <div className="font-medium text-slate-800 dark:text-white text-sm md:text-base truncate max-w-[50%]">
+                     {currentSentence ? currentSentence.label : "Geen zin geselecteerd"}
+                 </div>
+
+                 {/* Center: Session Progress (Only in session mode) */}
+                 {mode === 'session' && (
+                     <div className="flex flex-col items-center w-full md:w-auto">
+                         <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                             Zin {sessionIndex + 1} / {sessionQueue.length}
+                         </div>
+                         <div className="w-32 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                             <div 
+                                className="h-full bg-blue-500 transition-all duration-300"
+                                style={{ width: `${((sessionIndex + 1) / sessionQueue.length) * 100}%` }}
+                             ></div>
+                         </div>
+                     </div>
+                 )}
+
+                 {/* Right: Actions */}
+                 <div className="flex gap-2">
+                    {step === 'split' ? (
+                        <div className="flex gap-2">
+                            <button onClick={handleBackStep} className="hidden"></button> {/* Dummy for alignment if needed */}
+                            <button onClick={handleNextStep} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors text-sm">
+                                Naar benoemen →
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="flex gap-2">
+                             <button onClick={handleBackStep} className="px-3 py-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium text-sm transition-colors">
+                                ← Terug
+                             </button>
+                             
+                             {!showAnswerMode && (
+                                <>
+                                    <button 
+                                        onClick={handleHint}
+                                        className="px-3 py-2 bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-200 dark:hover:bg-yellow-900/50 font-bold rounded-lg transition-colors text-sm"
+                                    >
+                                        Hint
+                                    </button>
+                                    <button 
+                                        onClick={handleCheck}
+                                        disabled={Object.keys(chunkLabels).length === 0}
+                                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                                    >
+                                        Check
+                                    </button>
+                                </>
+                             )}
+
+                             {mode === 'session' && (validationResult || showAnswerMode) && (
+                                <button onClick={nextSessionSentence} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors text-sm">
+                                    Volgende
+                                </button>
+                             )}
+
+                             {!showAnswerMode && !validationResult?.isPerfect && (
+                                <button onClick={handleShowAnswerRequest} className="px-3 py-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20 rounded-lg font-medium text-sm transition-colors">
+                                    Antwoord
+                                </button>
+                             )}
+                        </div>
+                    )}
+                    
+                    <div className="w-px h-8 bg-slate-200 dark:bg-slate-600 mx-2"></div>
+
+                    <button 
+                        onClick={handleAbortRequest} 
+                        className="px-3 py-2 text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-lg font-medium text-sm transition-colors"
+                    >
+                        {mode === 'free' ? 'Stop' : 'Afbreken'}
+                    </button>
                  </div>
              </div>
-          )}
+          </footer>
 
       </main>
     </div>
