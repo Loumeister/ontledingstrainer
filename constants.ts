@@ -3,25 +3,105 @@ import { RoleDefinition, Sentence } from './types';
 
 export const ROLES: RoleDefinition[] = [
   // Core Constituents
-  { key: 'pv', label: 'Persoonsvorm', shortLabel: 'PV', colorClass: 'bg-red-50 text-red-700', borderColorClass: 'border-red-200' },
-  { key: 'ow', label: 'Onderwerp', shortLabel: 'OW', colorClass: 'bg-blue-50 text-blue-700', borderColorClass: 'border-blue-200' },
-  { key: 'lv', label: 'Lijdend Voorwerp', shortLabel: 'LV', colorClass: 'bg-green-50 text-green-700', borderColorClass: 'border-green-200' },
-  { key: 'mv', label: 'Meewerkend Voorwerp', shortLabel: 'MV', colorClass: 'bg-purple-50 text-purple-700', borderColorClass: 'border-purple-200' },
-  { key: 'bwb', label: 'Bijwoordelijke Bepaling', shortLabel: 'BWB', colorClass: 'bg-orange-50 text-orange-700', borderColorClass: 'border-orange-200' },
-  { key: 'vv', label: 'Voorzetselvoorwerp', shortLabel: 'VV', colorClass: 'bg-pink-50 text-pink-700', borderColorClass: 'border-pink-200' },
-  { key: 'bijst', label: 'Bijstelling', shortLabel: 'BIJST', colorClass: 'bg-indigo-50 text-indigo-700', borderColorClass: 'border-indigo-200' },
+  { 
+    key: 'pv', 
+    label: 'Persoonsvorm', 
+    shortLabel: 'PV', 
+    colorClass: 'bg-red-50 text-red-700 dark:bg-red-900/40 dark:text-red-100', 
+    borderColorClass: 'border-red-200 dark:border-red-700' 
+  },
+  { 
+    key: 'ow', 
+    label: 'Onderwerp', 
+    shortLabel: 'OW', 
+    colorClass: 'bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-100', 
+    borderColorClass: 'border-blue-200 dark:border-blue-700' 
+  },
+  { 
+    key: 'lv', 
+    label: 'Lijdend Voorwerp', 
+    shortLabel: 'LV', 
+    colorClass: 'bg-green-50 text-green-700 dark:bg-green-900/40 dark:text-green-100', 
+    borderColorClass: 'border-green-200 dark:border-green-700' 
+  },
+  { 
+    key: 'mv', 
+    label: 'Meewerkend Voorwerp', 
+    shortLabel: 'MV', 
+    colorClass: 'bg-purple-50 text-purple-700 dark:bg-purple-900/40 dark:text-purple-100', 
+    borderColorClass: 'border-purple-200 dark:border-purple-700' 
+  },
+  { 
+    key: 'bwb', 
+    label: 'Bijwoordelijke Bepaling', 
+    shortLabel: 'BWB', 
+    colorClass: 'bg-orange-50 text-orange-700 dark:bg-orange-900/40 dark:text-orange-100', 
+    borderColorClass: 'border-orange-200 dark:border-orange-700' 
+  },
+  { 
+    key: 'vv', 
+    label: 'Voorzetselvoorwerp', 
+    shortLabel: 'VV', 
+    colorClass: 'bg-pink-50 text-pink-700 dark:bg-pink-900/40 dark:text-pink-100', 
+    borderColorClass: 'border-pink-200 dark:border-pink-700' 
+  },
+  { 
+    key: 'bijst', 
+    label: 'Bijstelling', 
+    shortLabel: 'BIJST', 
+    colorClass: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-100', 
+    borderColorClass: 'border-indigo-200 dark:border-indigo-700' 
+  },
   
   // Predicate Parts (WG/NG)
-  { key: 'wg', label: 'Werkwoordelijk Gezegde', shortLabel: 'WG', colorClass: 'bg-rose-100 text-rose-800', borderColorClass: 'border-rose-300' },
-  { key: 'nwd', label: 'Naamwoordelijk Gezegde', shortLabel: 'NG', colorClass: 'bg-yellow-50 text-yellow-700', borderColorClass: 'border-yellow-200' },
+  { 
+    key: 'wg', 
+    label: 'Werkwoordelijk Gezegde', 
+    shortLabel: 'WG', 
+    colorClass: 'bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-100', 
+    borderColorClass: 'border-rose-300 dark:border-rose-600' 
+  },
+  { 
+    key: 'nwd', 
+    label: 'Naamwoordelijk Gezegde', 
+    shortLabel: 'NG', 
+    colorClass: 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-100', 
+    borderColorClass: 'border-yellow-200 dark:border-yellow-600' 
+  },
 
   // Structural/Clause Roles
-  { key: 'bijzin', label: 'Bijzin', shortLabel: 'BIJZIN', colorClass: 'bg-purple-100 text-purple-800', borderColorClass: 'border-purple-300' },
-  { key: 'vw_neven', label: 'Nevenschikkend VW', shortLabel: 'NEVEN', colorClass: 'bg-stone-100 text-stone-700', borderColorClass: 'border-stone-300' },
+  { 
+    key: 'bijzin', 
+    label: 'Bijzin', 
+    shortLabel: 'BIJZIN', 
+    colorClass: 'bg-purple-100 text-purple-800 dark:bg-fuchsia-900/40 dark:text-fuchsia-100', 
+    borderColorClass: 'border-purple-300 dark:border-fuchsia-700' 
+  },
+  { 
+    key: 'vw_neven', 
+    label: 'Nevenschikkend VW', 
+    shortLabel: 'NEVEN', 
+    colorClass: 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-200', 
+    borderColorClass: 'border-stone-300 dark:border-stone-600' 
+  },
   
   // Internal Structure (Sub-roles)
-  { key: 'bijv_bep', label: 'Bijvoeglijke Bepaling', shortLabel: 'BB', colorClass: 'bg-teal-50 text-teal-700', borderColorClass: 'border-teal-200', isSubOnly: true },
-  { key: 'vw_onder', label: 'Onderschikkend VW', shortLabel: 'ONDER', colorClass: 'bg-stone-100 text-stone-700', borderColorClass: 'border-stone-300', isSubOnly: true },
+  { 
+    key: 'bijv_bep', 
+    label: 'Bijvoeglijke Bepaling', 
+    shortLabel: 'BB', 
+    colorClass: 'bg-teal-50 text-teal-700 dark:bg-teal-900/40 dark:text-teal-100', 
+    borderColorClass: 'border-teal-200 dark:border-teal-700', 
+    isSubOnly: true 
+  },
+  { 
+    key: 'vw_onder', 
+    label: 'Onderschikkend VW', 
+    shortLabel: 'ONDER', 
+    colorClass: 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-200', 
+    borderColorClass: 'border-stone-300 dark:border-stone-600', 
+    isSubOnly: true 
+  },
 ];
 
 // Feedback for structural errors (Step 1)
@@ -32,7 +112,6 @@ export const FEEDBACK_STRUCTURE = {
 };
 
 // Matrix for Role Mismatch Feedback (Step 2)
-// Structure: [UserChoice] -> [CorrectRole] -> Message
 export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
   'ow': {
     'lv': "Ondergaat dit zinsdeel de handeling? Check: Wie of wat + gezegde + onderwerp?",
@@ -90,7 +169,7 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
 };
 
 export const HINTS = {
-  MISSING_PV: "Tip: Zoek eerst de persoonsvorm. Gebruik de tijds- of getalsproef.",
+  MISSING_PV: "Tip: Zoek eerst de persoonsvorm. Maak de zin vragend of verander de tijd.",
   MISSING_OW: "Tip: Zoek het onderwerp. Vraag: Wie of wat + persoonsvorm?",
   MISSING_WG: "Tip: Maak het gezegde compleet. Welke andere werkwoorden staan er in de zin?",
   MISSING_NG: "Tip: Dit is een zin met een koppelwerkwoord. Zoek het Naamwoordelijk Gezegde (wat wordt er gezegd over het onderwerp?).",

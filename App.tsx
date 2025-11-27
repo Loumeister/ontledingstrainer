@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { SENTENCES, ROLES, FEEDBACK_MATRIX, FEEDBACK_STRUCTURE, HINTS } from './constants';
 import { Sentence, PlacementMap, RoleKey, Token, RoleDefinition, DifficultyLevel, ValidationState } from './types';
 import { DraggableRole } from './components/WordChip';
@@ -49,6 +50,8 @@ export default function App() {
   
   // UI State
   const [showHelp, setShowHelp] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const [largeFont, setLargeFont] = useState(false);
   
   // Splitting State: Set of indices where split occurs AFTER token[index]
   const [splitIndices, setSplitIndices] = useState<Set<number>>(new Set());
@@ -68,25 +71,25 @@ export default function App() {
   const [showAnswerMode, setShowAnswerMode] = useState(false);
   const [hintMessage, setHintMessage] = useState<string | null>(null);
 
+  // --- Effects ---
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
   // --- Session Logic ---
 
   const getFilteredSentences = () => {
     return SENTENCES.filter(s => {
-      // Determine if sentence is compound (Level 4)
       const isCompound = s.level === 4;
-
-      // --- GATEKEEPER 1: Compound Sentences ---
-      // Compound sentences are ONLY shown if explicitly checked.
-      // If checked, they are INCLUDED. If only compound is checked (and no other focus), show ONLY compound.
-      
-      // If compound checkbox is OFF, hide all level 4 sentences
       if (isCompound && !focusBijzin) return false;
 
-      // 1. Predicate Type Filter (Applies to all)
       if (predicateMode === 'WG' && s.predicateType !== 'WG') return false;
       if (predicateMode === 'NG' && s.predicateType !== 'NG') return false;
       
-      // 2. Focus Filters (OR Logic)
       const specificFocusActive = focusLV || focusMV || focusVV;
       
       if (specificFocusActive) {
@@ -94,37 +97,28 @@ export default function App() {
             (focusLV && s.tokens.some(t => t.role === 'lv')) ||
             (focusMV && s.tokens.some(t => t.role === 'mv')) ||
             (focusVV && s.tokens.some(t => t.role === 'vv')) ||
-            (focusBijzin && isCompound) // If compound is selected, it matches the "focus" criteria
+            (focusBijzin && isCompound)
         );
         if (!matchesFocus) return false;
       } else if (focusBijzin) {
-         // If ONLY focusBijzin is checked, show ONLY compound sentences
          if (!isCompound) return false;
       }
 
-      // 3. Complexity Filters based on Level (Only for non-compound)
-      // Level 4 is effectively "Expert", so standard complexity filters don't really apply.
-      
       const isLevelHighOrAll = selectedLevel === 3 || selectedLevel === null;
       const isLevelMid = selectedLevel === 2;
       const isLevelLow = selectedLevel === 1;
 
-      // Filter Bijstelling: Exclude if (Low or Mid) AND not checked
       if (!isCompound && !isLevelHighOrAll && !includeBijst && s.tokens.some(t => t.role === 'bijst')) {
           return false;
       }
       
-      // Filter VV: Exclude if (Low) AND not checked AND not focused
       if (!isCompound && isLevelLow && !includeVV && !focusVV && s.tokens.some(t => t.role === 'vv')) {
           return false;
       }
       
-      // 4. Level Filter (Excludes Level 4 from standard 1-3 selection)
       if (selectedLevel !== null) {
           if (s.level !== selectedLevel) return false;
       } else {
-          // If "Alles" (null) is selected, we typically show 1-3. 
-          // Level 4 is only included if focusBijzin is true (handled at Gatekeeper 1)
           if (s.level === 4 && !focusBijzin) return false;
       }
 
@@ -135,7 +129,7 @@ export default function App() {
   const startSession = () => {
     const pool = getFilteredSentences();
     if (pool.length === 0) {
-      alert("Geen zinnen beschikbaar met de huidige filters. Probeer minder filters te selecteren of vink 'Samengestelde zinnen' aan.");
+      alert("Geen zinnen beschikbaar met de huidige filters.");
       return;
     }
     const shuffled = [...pool].sort(() => 0.5 - Math.random());
@@ -284,46 +278,33 @@ export default function App() {
     if (!currentSentence) return;
     
     const usedRoles = Object.values(chunkLabels);
-    
-    // 1. Priority: Persoonsvorm
     if (!usedRoles.includes('pv')) {
         setHintMessage(HINTS.MISSING_PV);
         return;
     }
-    
-    // 2. Priority: Onderwerp
     if (!usedRoles.includes('ow')) {
         setHintMessage(HINTS.MISSING_OW);
         return;
     }
 
-    // 3. Check what roles are ACTUALLY in the sentence tokens
     const actualRolesInSentence = new Set<RoleKey>();
     currentSentence.tokens.forEach(t => {
         actualRolesInSentence.add(t.role);
     });
 
-    // Only hint for WG if there are actual 'wg' tokens (parts of the verb other than PV)
     if (actualRolesInSentence.has('wg') && !usedRoles.includes('wg')) {
         setHintMessage(HINTS.MISSING_WG);
         return;
     }
-
-    // Only hint for NG if there are actual 'nwd' tokens
     if (actualRolesInSentence.has('nwd') && !usedRoles.includes('nwd')) {
         setHintMessage(HINTS.MISSING_NG);
         return;
     }
-
-    // 4. Objects & Others
     if (actualRolesInSentence.has('lv') && !usedRoles.includes('lv')) {
         setHintMessage(HINTS.MISSING_LV);
         return;
     }
-
-    // 5. Fallback: Find first missing role in sentence
     const remainingMissing = Array.from(actualRolesInSentence).find(r => !usedRoles.includes(r));
-
     if (remainingMissing) {
         const roleDef = ROLES.find(r => r.key === remainingMissing);
         if (roleDef) {
@@ -347,8 +328,6 @@ export default function App() {
     userChunks.forEach((chunk, idx) => {
       const chunkTokens = chunk.tokens;
       const firstTokenId = chunkTokens[0].id;
-      
-      // 1. Structure Logic
       const firstTokenRole = chunkTokens[0].role;
       const missedInternalSplit = chunkTokens.slice(1).some(t => t.newChunk);
       const isConsistentRole = chunkTokens.every(t => t.role === firstTokenRole);
@@ -374,7 +353,6 @@ export default function App() {
             chunkFeedback[idx] = "De verdeling klopt niet.";
         }
       } else {
-        // 2. Main Role Logic
         const userLabel = chunkLabels[firstTokenId];
         const isMainRoleCorrect = userLabel === firstTokenRole;
         
@@ -401,7 +379,6 @@ export default function App() {
       }
     });
     
-    // Subrole check
     let subRoleMismatch = false;
     currentSentence.tokens.forEach(t => {
        const userSub = subLabels[t.id];
@@ -509,44 +486,62 @@ export default function App() {
   // --- HOME SCREEN ---
   if (!currentSentence && !isSessionFinished) {
       return (
-        <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans flex items-center justify-center relative">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-2 md:p-4 font-sans flex items-center justify-center relative transition-colors duration-300">
             
             {/* Help Modal */}
             <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
 
-            <main className="max-w-6xl w-full bg-white p-8 rounded-2xl shadow-lg space-y-8 border border-slate-200">
-                <div className="text-center border-b pb-6 relative">
-                    <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight mb-2">
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                        Zinsontledingstrainer
-                        </span>
-                    </h1>
-                    <p className="text-slate-500 text-lg">Stel je training samen:</p>
+            <main className="max-w-6xl w-full bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg space-y-6 border border-slate-200 dark:border-slate-700 transition-colors duration-300">
+                <div className="flex flex-col md:flex-row justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-4">
+                    <div>
+                      <h1 className="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight mb-1">
+                          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                          Zinsontledingstrainer
+                          </span>
+                      </h1>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm">Stel je training samen:</p>
+                    </div>
                     
-                    {/* Help Button in Header */}
-                    <button 
-                        onClick={() => setShowHelp(true)}
-                        className="absolute right-0 top-0 w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
-                        title="Instructies"
-                    >
-                        ?
-                    </button>
+                    {/* Top Right Controls */}
+                    <div className="flex gap-2 mt-4 md:mt-0">
+                        <button 
+                          onClick={() => setLargeFont(!largeFont)}
+                          className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold transition-all border ${largeFont ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200' : 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600'}`}
+                          title="Lettergrootte"
+                        >
+                          aA
+                        </button>
+                        <button 
+                          onClick={() => setDarkMode(!darkMode)}
+                          className="w-10 h-10 rounded-lg bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-all"
+                          title="Donkere modus"
+                        >
+                          {darkMode ? '🌙' : '☀️'}
+                        </button>
+                        <button 
+                            onClick={() => setShowHelp(true)}
+                            className="w-10 h-10 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 transition-colors"
+                            title="Instructies"
+                        >
+                            ?
+                        </button>
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Filters */}
-                    <div className="space-y-6">
+                    <div className="space-y-4">
                         <div>
-                           <h3 className="font-bold text-slate-700 mb-2">Moeilijkheidsgraad</h3>
+                           <h3 className="font-bold text-slate-700 dark:text-slate-200 mb-2 text-sm uppercase tracking-wider">Moeilijkheidsgraad</h3>
                            <div className="flex gap-2">
                               {[null, 1, 2, 3].map((lvl) => (
                                 <button 
                                   key={lvl || 'all'}
                                   onClick={() => setSelectedLevel(lvl as DifficultyLevel)}
-                                  className={`flex-1 py-2 text-xs md:text-sm font-bold rounded-lg border transition-all
+                                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all
                                     ${selectedLevel === lvl 
                                       ? 'bg-blue-600 text-white border-blue-600 shadow-md' 
-                                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}
+                                      : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'}
                                   `}
                                 >
                                   {lvl === null ? 'Alles' : lvl === 1 ? 'Basis' : lvl === 2 ? 'Middel' : 'Hoog'}
@@ -555,25 +550,25 @@ export default function App() {
                            </div>
                         </div>
                         <div>
-                           <h3 className="font-bold text-slate-700 mb-2">Soort Zinnen & Gezegde</h3>
+                           <h3 className="font-bold text-slate-700 dark:text-slate-200 mb-2 text-sm uppercase tracking-wider">Soort Zinnen & Gezegde</h3>
                            <div className="flex flex-col gap-2">
-                                <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'WG' ? 'bg-blue-50 border-blue-500 text-blue-800' : 'hover:bg-slate-50 border-slate-200'}`}>
-                                    <input type="radio" name="pred" className="w-4 h-4 text-blue-600" checked={predicateMode === 'WG'} onChange={() => setPredicateMode('WG')} />
+                                <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'WG' ? 'bg-blue-50 border-blue-500 text-blue-800 dark:bg-blue-900/30 dark:text-blue-100 dark:border-blue-500' : 'hover:bg-slate-50 dark:hover:bg-slate-750 border-slate-200 dark:border-slate-600 dark:text-slate-300'}`}>
+                                    <input type="radio" name="pred" className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500" checked={predicateMode === 'WG'} onChange={() => setPredicateMode('WG')} />
                                     <span className="font-bold text-sm">Alleen Werkwoordelijk (WG)</span>
                                 </label>
-                                <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'NG' ? 'bg-yellow-50 border-yellow-500 text-yellow-800' : 'hover:bg-slate-50 border-slate-200'}`}>
-                                    <input type="radio" name="pred" className="w-4 h-4 text-yellow-600" checked={predicateMode === 'NG'} onChange={() => setPredicateMode('NG')} />
+                                <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'NG' ? 'bg-yellow-50 border-yellow-500 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-100 dark:border-yellow-500' : 'hover:bg-slate-50 dark:hover:bg-slate-750 border-slate-200 dark:border-slate-600 dark:text-slate-300'}`}>
+                                    <input type="radio" name="pred" className="w-4 h-4 text-yellow-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500" checked={predicateMode === 'NG'} onChange={() => setPredicateMode('NG')} />
                                     <span className="font-bold text-sm">Alleen Naamwoordelijk (NG)</span>
                                 </label>
-                                <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'ALL' ? 'bg-indigo-50 border-indigo-500 text-indigo-800' : 'hover:bg-slate-50 border-slate-200'}`}>
-                                    <input type="radio" name="pred" className="w-4 h-4 text-indigo-600" checked={predicateMode === 'ALL'} onChange={() => setPredicateMode('ALL')} />
+                                <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'ALL' ? 'bg-indigo-50 border-indigo-500 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-100 dark:border-indigo-500' : 'hover:bg-slate-50 dark:hover:bg-slate-750 border-slate-200 dark:border-slate-600 dark:text-slate-300'}`}>
+                                    <input type="radio" name="pred" className="w-4 h-4 text-indigo-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500" checked={predicateMode === 'ALL'} onChange={() => setPredicateMode('ALL')} />
                                     <span className="font-bold text-sm">Allebei (Mix)</span>
                                 </label>
                            </div>
-                           <div className="mt-3 pt-3 border-t border-slate-100">
-                                <label className="flex items-center justify-between p-3 rounded-lg border border-blue-100 bg-blue-50 hover:bg-blue-100 cursor-pointer">
-                                    <span className="font-bold text-blue-900 block text-sm">Samengestelde zinnen (hoofd- en bijzin)</span>
-                                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded" checked={focusBijzin} onChange={(e) => setFocusBijzin(e.target.checked)} />
+                           <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                                <label className="flex items-center justify-between p-3 rounded-lg border border-blue-100 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:border-blue-800 dark:hover:bg-blue-900/40 cursor-pointer transition-colors">
+                                    <span className="font-bold text-blue-900 dark:text-blue-200 block text-sm">Samengestelde zinnen</span>
+                                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500" checked={focusBijzin} onChange={(e) => setFocusBijzin(e.target.checked)} />
                                 </label>
                            </div>
                         </div>
@@ -582,38 +577,38 @@ export default function App() {
                     {/* Settings */}
                     <div className="space-y-6">
                         <div>
-                            <h3 className="font-bold text-slate-700 mb-2">Specifiek Oefenen (Focus)</h3>
-                            <p className="text-xs text-slate-400 mb-2">Vink aan om alleen zinnen te tonen met dit onderdeel.</p>
+                            <h3 className="font-bold text-slate-700 dark:text-slate-200 mb-2 text-sm uppercase tracking-wider">Specifiek Oefenen (Focus)</h3>
+                            <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Vink aan om alleen zinnen te tonen met dit onderdeel.</p>
                             <div className="space-y-2">
-                                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-                                    <span className="font-bold text-slate-700 block text-sm">Lijdend Voorwerp</span>
-                                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded" checked={focusLV} onChange={(e) => setFocusLV(e.target.checked)} />
+                                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-750 cursor-pointer transition-colors">
+                                    <span className="font-bold text-slate-700 dark:text-slate-300 block text-sm">Lijdend Voorwerp</span>
+                                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-gray-100 border-slate-300" checked={focusLV} onChange={(e) => setFocusLV(e.target.checked)} />
                                 </label>
 
-                                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-                                    <span className="font-bold text-slate-700 block text-sm">Meewerkend Voorwerp</span>
-                                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded" checked={focusMV} onChange={(e) => setFocusMV(e.target.checked)} />
+                                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-750 cursor-pointer transition-colors">
+                                    <span className="font-bold text-slate-700 dark:text-slate-300 block text-sm">Meewerkend Voorwerp</span>
+                                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-gray-100 border-slate-300" checked={focusMV} onChange={(e) => setFocusMV(e.target.checked)} />
                                 </label>
 
-                                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-                                    <span className="font-bold text-slate-700 block text-sm">Voorzetselvoorwerp</span>
-                                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded" checked={focusVV} onChange={(e) => setFocusVV(e.target.checked)} />
+                                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-750 cursor-pointer transition-colors">
+                                    <span className="font-bold text-slate-700 dark:text-slate-300 block text-sm">Voorzetselvoorwerp</span>
+                                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-gray-100 border-slate-300" checked={focusVV} onChange={(e) => setFocusVV(e.target.checked)} />
                                 </label>
                             </div>
                         </div>
 
                         <div>
-                            <h3 className="font-bold text-slate-700 mb-2">Onderdelen (Moeilijkheid)</h3>
-                            <p className="text-xs text-slate-400 mb-2">Vink aan om te oefenen met het benoemen van deze zinsdelen</p>
+                            <h3 className="font-bold text-slate-700 dark:text-slate-200 mb-2 text-sm uppercase tracking-wider">Onderdelen (Moeilijkheid)</h3>
+                            <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Vink aan om te oefenen met het benoemen van deze zinsdelen</p>
                             <div className="space-y-2">
-                                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-                                    <span className="font-bold text-slate-700 block text-sm">Bijstelling</span>
-                                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded" checked={includeBijst} onChange={(e) => setIncludeBijst(e.target.checked)} />
+                                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-750 cursor-pointer transition-colors">
+                                    <span className="font-bold text-slate-700 dark:text-slate-300 block text-sm">Bijstelling</span>
+                                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-gray-100 border-slate-300" checked={includeBijst} onChange={(e) => setIncludeBijst(e.target.checked)} />
                                 </label>
 
-                                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-                                    <span className="font-bold text-slate-700 block text-sm">Bijvoeglijke Bepaling</span>
-                                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded" checked={includeBB} onChange={(e) => setIncludeBB(e.target.checked)} />
+                                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-750 cursor-pointer transition-colors">
+                                    <span className="font-bold text-slate-700 dark:text-slate-300 block text-sm">Bijvoeglijke Bepaling</span>
+                                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-gray-100 border-slate-300" checked={includeBB} onChange={(e) => setIncludeBB(e.target.checked)} />
                                 </label>
                             </div>
                         </div>
@@ -621,20 +616,31 @@ export default function App() {
 
                     {/* Actions */}
                     <div className="flex flex-col gap-6">
-                        <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 text-center flex flex-col justify-center flex-1">
-                            <h3 className="font-bold text-blue-800 text-xl mb-2">Start Oefensessie</h3>
-                            <div className="text-sm text-blue-600 mb-4 font-medium">{availableSentences.length} zinnen beschikbaar</div>
+                        <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-100 dark:border-blue-800 text-center flex flex-col justify-center flex-1">
+                            <h3 className="font-bold text-blue-800 dark:text-blue-200 text-xl mb-2">Start Oefensessie</h3>
+                            <div className="text-sm text-blue-600 dark:text-blue-300 mb-4 font-medium">{availableSentences.length} zinnen beschikbaar</div>
                             <div className="flex flex-col items-center gap-3">
-                                <div className="flex flex-col items-center gap-1">
-                                    <label className="text-xs font-bold text-blue-800 uppercase">Aantal zinnen</label>
-                                    <input type="number" min="1" max={availableSentences.length} value={customSessionCount} onChange={(e) => setCustomSessionCount(Math.max(1, Math.min(availableSentences.length, parseInt(e.target.value) || 1)))} className="w-full px-3 py-2 text-lg font-bold text-center border-2 border-blue-200 rounded-lg focus:border-blue-500 outline-none text-blue-900" />
+                                <div className="flex flex-col items-center gap-1 w-full">
+                                    <label className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase">Aantal zinnen</label>
+                                    <input 
+                                      type="number" 
+                                      min="1" 
+                                      max={availableSentences.length} 
+                                      value={customSessionCount} 
+                                      onChange={(e) => setCustomSessionCount(Math.max(1, Math.min(availableSentences.length, parseInt(e.target.value) || 1)))} 
+                                      className="w-full px-3 py-3 text-lg font-bold text-center border-2 border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-800 text-blue-900 dark:text-blue-100 rounded-lg focus:border-blue-500 outline-none" 
+                                    />
                                 </div>
                                 <button onClick={startSession} className="w-full h-[46px] px-8 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">Start</button>
                             </div>
                         </div>
-                        <div className="bg-white p-6 rounded-xl border border-slate-200 flex flex-col justify-center">
-                            <h3 className="font-bold text-slate-700 mb-2 text-center">Kies één zin</h3>
-                            <select className="w-full px-4 py-2 rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-500 outline-none text-slate-700" onChange={(e) => handleSentenceSelect(Number(e.target.value))} defaultValue="">
+                        <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-center">
+                            <h3 className="font-bold text-slate-700 dark:text-slate-200 mb-2 text-center">Kies één zin</h3>
+                            <select 
+                              className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" 
+                              onChange={(e) => handleSentenceSelect(Number(e.target.value))} 
+                              defaultValue=""
+                            >
                                 <option value="" disabled>-- Selecteer --</option>
                                 {availableSentences.map(s => (
                                 <option key={s.id} value={s.id}>{s.label}</option>
@@ -644,10 +650,10 @@ export default function App() {
                     </div>
                 </div>
                 
-                <div className="text-center pt-6 border-t border-slate-100">
+                <div className="text-center pt-6 border-t border-slate-100 dark:border-slate-700">
                    <button 
                      onClick={() => setShowHelp(true)} 
-                     className="text-slate-400 hover:text-blue-600 text-sm font-medium flex items-center justify-center gap-2 mx-auto transition-colors"
+                     className="text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 text-sm font-medium flex items-center justify-center gap-2 mx-auto transition-colors"
                    >
                      <span className="w-4 h-4 rounded-full border border-current flex items-center justify-center text-[10px]">i</span>
                      Instructies & Uitleg
@@ -665,17 +671,17 @@ export default function App() {
     const topMistakes = Object.entries(mistakeStats).sort((a, b) => (b[1] as number) - (a[1] as number)).slice(0, 3);
 
     return (
-        <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans flex items-center justify-center">
-            <main className="max-w-xl w-full bg-white p-8 rounded-2xl shadow-lg text-center border border-slate-200 animate-in zoom-in-95 duration-300">
-                <h2 className="text-3xl font-bold text-slate-800 mb-6">Sessie Voltooid! 🎉</h2>
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-4 md:p-8 font-sans flex items-center justify-center transition-colors duration-300">
+            <main className="max-w-xl w-full bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg text-center border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-300">
+                <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-6">Sessie Voltooid! 🎉</h2>
                 <div className="mb-8">
-                    <div className={`text-6xl font-black mb-2 ${scorePercentage >= 80 ? 'text-green-600' : scorePercentage >= 55 ? 'text-blue-600' : 'text-orange-600'}`}>{scorePercentage}%</div>
-                    <p className="text-slate-500">Je hebt {sessionStats.correct} van de {sessionStats.total} zinsdelen goed benoemd.</p>
+                    <div className={`text-6xl font-black mb-2 ${scorePercentage >= 80 ? 'text-green-600 dark:text-green-400' : scorePercentage >= 55 ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400'}`}>{scorePercentage}%</div>
+                    <p className="text-slate-500 dark:text-slate-400">Je hebt {sessionStats.correct} van de {sessionStats.total} zinsdelen goed benoemd.</p>
                 </div>
                 {topMistakes.length > 0 && (
-                   <div className="mb-8 bg-orange-50 p-4 rounded-xl border border-orange-100 text-left">
-                     <h3 className="font-bold text-orange-800 mb-2">Aandachtspunten:</h3>
-                     <ul className="list-disc list-inside space-y-1 text-sm text-orange-800">
+                   <div className="mb-8 bg-orange-50 dark:bg-orange-900/20 p-4 rounded-xl border border-orange-100 dark:border-orange-800 text-left">
+                     <h3 className="font-bold text-orange-800 dark:text-orange-200 mb-2">Aandachtspunten:</h3>
+                     <ul className="list-disc list-inside space-y-1 text-sm text-orange-800 dark:text-orange-200">
                         {topMistakes.map(([role, count]) => (
                            <li key={role}><span className="font-semibold">{role}</span>: {count}x fout</li>
                         ))}
@@ -683,7 +689,7 @@ export default function App() {
                    </div>
                 )}
                 <div className="flex justify-center gap-4">
-                    <button onClick={resetToHome} className="px-8 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors">Terug naar Home</button>
+                    <button onClick={resetToHome} className="px-8 py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Terug naar Home</button>
                     <button onClick={startSession} className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:bg-blue-700 transition-colors">Nog een keer</button>
                 </div>
             </main>
@@ -693,51 +699,75 @@ export default function App() {
 
   // --- ACTIVE TRAINER UI ---
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-4 md:p-8 font-sans transition-colors duration-300">
       
       {/* Help Modal In Game */}
       <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
 
-      <main className="max-w-6xl mx-auto space-y-8">
+      <main className="max-w-6xl mx-auto space-y-6 md:space-y-8">
         
         {/* Header */}
         <header className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Zinsontledingstrainer</h1>
-            <button 
-                onClick={() => setShowHelp(true)}
-                className="w-6 h-6 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 text-sm font-bold transition-colors"
-                title="Hulp"
-            >
-                ?
-            </button>
-            {mode === 'session' && <p className="text-sm text-slate-500 border-l border-slate-200 pl-3 ml-1">Zin {sessionIndex + 1} van {sessionQueue.length}</p>}
-          </div>
-          
-          <div className="flex items-center gap-4 text-sm font-medium text-slate-500 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-100">
-             <div className={`flex items-center gap-2 cursor-pointer transition-colors ${step === 'split' ? 'text-blue-600 font-bold' : 'text-slate-400'}`} onClick={() => !showAnswerMode && setStep('split')}>
-               <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs border ${step === 'split' ? 'border-blue-600 bg-blue-50' : 'border-slate-300'}`}>1</span>Verdelen
-             </div>
-             <span className="text-slate-300">→</span>
-             <div className={`flex items-center gap-2 cursor-pointer transition-colors ${step === 'label' ? 'text-blue-600 font-bold' : 'text-slate-400'}`}>
-               <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs border ${step === 'label' ? 'border-blue-600 bg-blue-50' : 'border-slate-300'}`}>2</span>Benoemen
-             </div>
+            <h1 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">Zinsontledingstrainer</h1>
+            
+            {mode === 'session' && <p className="text-sm text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-slate-700 pl-3 ml-1">Zin {sessionIndex + 1} van {sessionQueue.length}</p>}
           </div>
 
+          {/* Top Right Controls In-Game */}
           <div className="flex gap-2">
-             {mode === 'free' && <button onClick={resetToHome} className="text-sm font-medium text-slate-500 hover:text-slate-800 px-3 py-1 bg-white border border-slate-200 rounded-lg">Stoppen</button>}
-             {mode === 'session' && <button onClick={resetToHome} className="text-sm font-medium text-red-400 hover:text-red-600 px-3 py-1">Afbreken</button>}
+               <button 
+                  onClick={() => setLargeFont(!largeFont)}
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold transition-all border ${largeFont ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200' : 'bg-white text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600'}`}
+                  title="Lettergrootte"
+                >
+                  aA
+                </button>
+                <button 
+                  onClick={() => setDarkMode(!darkMode)}
+                  className="w-9 h-9 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-all"
+                  title="Donkere modus"
+                >
+                  {darkMode ? '🌙' : '☀️'}
+                </button>
+                <button 
+                    onClick={() => setShowHelp(true)}
+                    className="w-9 h-9 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 transition-colors"
+                    title="Instructies"
+                >
+                    ?
+                </button>
           </div>
         </header>
+        
+        {/* Progress Stepper - Centered */}
+        <div className="flex justify-center">
+             <div className="flex items-center gap-4 text-sm font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 px-4 py-2 rounded-full shadow-sm border border-slate-100 dark:border-slate-700">
+                 <div className={`flex items-center gap-2 cursor-pointer transition-colors ${step === 'split' ? 'text-blue-600 dark:text-blue-400 font-bold' : ''}`} onClick={() => !showAnswerMode && setStep('split')}>
+                   <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs border ${step === 'split' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/50 dark:border-blue-400' : 'border-slate-300 dark:border-slate-600'}`}>1</span>Verdelen
+                 </div>
+                 <span className="text-slate-300 dark:text-slate-600">→</span>
+                 <div className={`flex items-center gap-2 cursor-pointer transition-colors ${step === 'label' ? 'text-blue-600 dark:text-blue-400 font-bold' : ''}`}>
+                   <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs border ${step === 'label' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/50 dark:border-blue-400' : 'border-slate-300 dark:border-slate-600'}`}>2</span>Benoemen
+                 </div>
+              </div>
+        </div>
 
         {/* Info Bar */}
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
-          <div className="font-medium text-slate-700">{currentSentence && currentSentence.label}</div>
+        <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row gap-4 items-center justify-between">
+          <div className="font-medium text-slate-700 dark:text-slate-200">{currentSentence && currentSentence.label}</div>
           <div className="flex gap-3">
               {!showAnswerMode && !validationResult?.isPerfect && (
-                 <button onClick={handleShowAnswer} className="text-sm text-blue-600 hover:text-blue-800 font-medium px-3 py-1 rounded hover:bg-blue-50 transition-colors">Toon antwoord</button>
+                 <button onClick={handleShowAnswer} className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium px-3 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">Toon antwoord</button>
               )}
-              {mode === 'free' && <button onClick={() => loadSentence(currentSentence!)} className="text-sm text-slate-500 hover:text-red-500 underline decoration-red-200">Reset zin</button>}
+              <div className="flex gap-2">
+                {mode === 'free' && <button onClick={() => loadSentence(currentSentence!)} className="text-sm text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 underline decoration-red-200 dark:decoration-red-900">Reset</button>}
+                {mode === 'free' ? (
+                     <button onClick={resetToHome} className="text-sm text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600 px-3 py-1 rounded hover:bg-slate-50 dark:hover:bg-slate-700">Stop</button>
+                ) : (
+                     <button onClick={resetToHome} className="text-sm text-red-500 dark:text-red-400 hover:underline">Afbreken</button>
+                )}
+              </div>
           </div>
         </div>
 
@@ -745,34 +775,34 @@ export default function App() {
             
             {/* Feedback Block */}
             {validationResult && (
-               <div className={`p-4 rounded-xl text-center font-bold text-lg animate-in slide-in-from-top-2 duration-300 ${validationResult.isPerfect ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-orange-50 text-orange-800 border border-orange-200'}`}>
+               <div className={`p-4 rounded-xl text-center font-bold text-lg animate-in slide-in-from-top-2 duration-300 ${validationResult.isPerfect ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200 border border-green-200 dark:border-green-800' : 'bg-orange-50 text-orange-800 dark:bg-orange-900/40 dark:text-orange-200 border border-orange-200 dark:border-orange-800'}`}>
                  {validationResult.isPerfect ? "🎉 Perfect! Alles goed verdeeld en benoemd." : `Je hebt ${validationResult.score} van de ${validationResult.total} zinsdelen goed.`}
                </div>
             )}
             
             {/* Hint Message (Moved ABOVE controls) */}
             {hintMessage && !validationResult && (
-               <div className="p-4 rounded-xl text-center font-bold text-lg bg-yellow-50 text-yellow-800 border border-yellow-200 animate-in slide-in-from-bottom-2 duration-300">
+               <div className="p-4 rounded-xl text-center font-bold text-lg bg-yellow-50 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800 animate-in slide-in-from-bottom-2 duration-300">
                  💡 {hintMessage}
                </div>
             )}
 
-            {showAnswerMode && <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg text-center font-bold">Dit is de juiste oplossing.</div>}
+            {showAnswerMode && <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200 px-4 py-2 rounded-lg text-center font-bold">Dit is de juiste oplossing.</div>}
 
             {/* STEP 1: SPLITTING VIEW */}
             {step === 'split' && currentSentence && (
-              <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-200 text-center animate-in fade-in duration-300">
-                <h2 className="text-xl font-bold text-slate-700 mb-2">Stap 1: Verdelen</h2>
-                <p className="text-slate-500 mb-8">Klik tussen de woorden om de zin in zinsdelen te knippen.</p>
+              <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 text-center animate-in fade-in duration-300">
+                <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200 mb-2">Stap 1: Verdelen</h2>
+                <p className="text-slate-500 dark:text-slate-400 mb-8">Klik tussen de woorden om de zin in zinsdelen te knippen.</p>
                 
-                <div className="flex flex-wrap items-center justify-center gap-y-6 text-xl md:text-2xl leading-loose select-none py-4">
+                <div className={`flex flex-wrap items-center justify-center gap-y-6 select-none py-4 ${largeFont ? 'text-2xl md:text-3xl leading-relaxed' : 'text-xl md:text-2xl leading-loose'}`}>
                   {currentSentence.tokens.map((token, idx) => (
                     <React.Fragment key={token.id}>
-                      <span className="px-2 py-2 hover:bg-slate-50 rounded text-slate-800 font-medium transition-colors">{token.text}</span>
+                      <span className="px-2 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded text-slate-800 dark:text-slate-100 font-medium transition-colors">{token.text}</span>
                       {idx < currentSentence.tokens.length - 1 && (
                         <div onClick={() => toggleSplit(idx)} className="group relative w-10 h-12 mx-0 cursor-pointer flex items-center justify-center transition-all">
-                          <div className={`w-1 h-8 rounded-full transition-all duration-200 ${splitIndices.has(idx) ? 'bg-blue-500 h-10 shadow-[0_0_12px_rgba(59,130,246,0.6)]' : 'bg-slate-200 group-hover:bg-slate-300'}`}></div>
-                          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-7 h-7 bg-white rounded-full shadow-md border flex items-center justify-center text-sm transition-all duration-200 pointer-events-none z-10 ${splitIndices.has(idx) ? 'opacity-100 border-blue-500 text-blue-500 scale-100' : 'opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 text-slate-400'}`}>✂️</div>
+                          <div className={`w-1 h-8 rounded-full transition-all duration-200 ${splitIndices.has(idx) ? 'bg-blue-500 h-10 shadow-[0_0_12px_rgba(59,130,246,0.6)]' : 'bg-slate-200 dark:bg-slate-600 group-hover:bg-slate-300 dark:group-hover:bg-slate-500'}`}></div>
+                          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-7 h-7 bg-white dark:bg-slate-700 rounded-full shadow-md border dark:border-slate-600 flex items-center justify-center text-sm transition-all duration-200 pointer-events-none z-10 ${splitIndices.has(idx) ? 'opacity-100 border-blue-500 text-blue-500 scale-100' : 'opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 text-slate-400'}`}>✂️</div>
                         </div>
                       )}
                     </React.Fragment>
@@ -788,29 +818,29 @@ export default function App() {
             {step === 'label' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                  {!showAnswerMode && (
-                   <div className="bg-white p-3 md:p-4 -mx-4 md:mx-0 px-4 md:px-4 rounded-b-xl md:rounded-xl shadow-md border-y md:border border-slate-200 sticky top-0 z-[100] transition-all">
+                   <div className="bg-white dark:bg-slate-800 p-3 md:p-4 -mx-4 md:mx-0 px-4 md:px-4 rounded-b-xl md:rounded-xl shadow-md border-y md:border border-slate-200 dark:border-slate-700 sticky top-0 z-[100] transition-all">
                       <div className="flex flex-col gap-2 md:gap-4">
                         <div>
-                           <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Zinsdelen & Gezegde:</p>
+                           <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Zinsdelen & Gezegde:</p>
                            <div className="flex flex-wrap gap-2">
                             {ROLES.filter(r => !r.isSubOnly)
                                   .filter(r => (includeVV || focusVV || selectedLevel === 2 || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.role === 'vv'))) || r.key !== 'vv')
                                   .filter(r => r.key !== 'bijzin' || focusBijzin || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.role === 'bijzin')))
                                   .filter(r => r.key !== 'vw_neven' || focusBijzin || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.role === 'vw_neven')))
                                   .map(role => (
-                              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} />
+                              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} />
                             ))}
                            </div>
                         </div>
                         {includeBB && (
-                        <div className="border-t pt-3">
-                           <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sleep op specifieke woorden:</p>
+                        <div className="border-t border-slate-100 dark:border-slate-700 pt-3">
+                           <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Sleep op specifieke woorden:</p>
                            <div className="flex flex-wrap gap-2">
                             {ROLES.filter(r => r.isSubOnly)
                                   // Ensure vw_onder is only shown when relevant (like bijzin)
                                   .filter(r => r.key !== 'vw_onder' || focusBijzin || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.subRole === 'vw_onder')))
                                   .map(role => (
-                              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} />
+                              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} />
                             ))}
                            </div>
                         </div>
@@ -848,11 +878,12 @@ export default function App() {
                             onToggleSplit={toggleSplit}
                             validationState={validationResult?.chunkStatus[idx]}
                             feedbackMessage={validationResult?.chunkFeedback[idx]}
+                            isLargeFont={largeFont}
                           />
                           
                           {idx < userChunks.length - 1 && (
                             <div className="flex items-center self-center px-1">
-                              <button onClick={() => toggleSplit(mergeIndex)} disabled={showAnswerMode} className="w-6 h-6 rounded-full bg-slate-100 hover:bg-blue-100 text-slate-300 hover:text-blue-500 border border-slate-200 hover:border-blue-300 flex items-center justify-center transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed" title="Samenvoegen"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg></button>
+                              <button onClick={() => toggleSplit(mergeIndex)} disabled={showAnswerMode} className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-100 dark:hover:bg-blue-900 text-slate-300 dark:text-slate-500 hover:text-blue-500 border border-slate-200 dark:border-slate-600 hover:border-blue-300 flex items-center justify-center transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed" title="Samenvoegen"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg></button>
                             </div>
                           )}
                         </React.Fragment>
@@ -860,8 +891,8 @@ export default function App() {
                     })}
                  </div>
 
-                 <div className="flex justify-between items-center bg-slate-100 p-4 rounded-xl border border-slate-200 mt-8">
-                    <button onClick={handleBackStep} className="text-slate-500 font-medium hover:text-slate-800 flex items-center gap-2 px-4 py-2 hover:bg-slate-200 rounded-lg transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg>Terug</button>
+                 <div className="flex justify-between items-center bg-slate-100 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 mt-8">
+                    <button onClick={handleBackStep} className="text-slate-500 dark:text-slate-400 font-medium hover:text-slate-800 dark:hover:text-white flex items-center gap-2 px-4 py-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg>Terug</button>
 
                     {!showAnswerMode && (
                       <div className="flex gap-2">

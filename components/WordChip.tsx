@@ -5,24 +5,29 @@ import { RoleDefinition } from '../types';
 interface DraggableRoleProps {
   role: RoleDefinition;
   onDragStart: (e: React.DragEvent<HTMLDivElement>, roleKey: string) => void;
+  isLargeFont?: boolean;
 }
 
 export const DraggableRole: React.FC<DraggableRoleProps> = ({ 
   role, 
-  onDragStart
+  onDragStart,
+  isLargeFont = false
 }) => {
   return (
     <div
       draggable
       onDragStart={(e) => onDragStart(e, role.key)}
       className={`
-        relative px-3 py-1.5 border-2 rounded-lg cursor-move select-none transition-all duration-200
-        text-xs font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5
+        relative border-2 rounded-lg cursor-move select-none transition-all duration-200
+        font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5
         flex items-center justify-center whitespace-nowrap
+        ${isLargeFont ? 'px-5 py-3 text-base md:text-lg' : 'px-3 py-1.5 text-xs md:text-sm'}
         ${role.colorClass} ${role.borderColorClass}
       `}
     >
-      <span className="mr-1.5 opacity-60 text-[10px] uppercase tracking-wide hidden md:inline-block">{role.shortLabel}</span>
+      <span className={`mr-1.5 opacity-60 uppercase tracking-wide hidden md:inline-block ${isLargeFont ? 'text-xs' : 'text-[10px]'}`}>
+        {role.shortLabel}
+      </span>
       {role.label}
     </div>
   );
