@@ -847,11 +847,12 @@ export const SENTENCES: Sentence[] = [
       { id: "s42t3", text: "het", role: "lv" },
       { id: "s42t4", text: "soms", role: "bwb" },
       { id: "s42t5", text: "lastig", role: "bwb" },
-      { id: "s42t6", text: "om", role: "vv" },
-      { id: "s42t7", text: "iedereen", role: "vv" },
-      { id: "s42t8", text: "tegelijk", role: "vv", subRole: "bijv_bep" },
-      { id: "s42t9", text: "te", role: "vv" },
-      { id: "s42t10", text: "helpen.", role: "vv" }
+      { id: "s42t6", text: "om", role: "wg" },
+      { id: "s42t7", text: "aan", role: "vv" },
+      { id: "s42t8", text: "ons", role: "vv", subRole: "bijv_bep" },
+      { id: "s42t9", text: "huiswerk", role: "vv" },
+      { id: "s42t10", text: "te", role: "wg" },
+      { id: "s42t11", text: "werken.", role: "wg" }
     ]
   },
   {
