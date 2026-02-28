@@ -14,7 +14,7 @@ import type { Sentence } from '../types';
 const EDITOR_PIN = '1234';
 const PIN_SESSION_KEY = 'editor-pin-ok';
 
-type EditorPhase = 'pin' | 'list' | 'input' | 'split' | 'label' | 'meta' | 'preview';
+type EditorPhase = 'list' | 'input' | 'edit' | 'meta' | 'preview';
 
 interface SentenceEditorScreenProps {
   onBack: () => void;
@@ -109,14 +109,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     setSplitIndices(new Set());
     setChunkLabels({});
     setSubLabels({});
-    setPhase('split');
-  };
-
-  const toggleSplit = (idx: number) => {
-    const next = new Set(splitIndices);
-    if (next.has(idx)) next.delete(idx);
-    else next.add(idx);
-    setSplitIndices(next);
+    setPhase('edit');
   };
 
   // Build chunks from words + splits
@@ -132,6 +125,41 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
       }
     });
     return chunks;
+  };
+
+  const getChunksFromSplits = (splits: Set<number>): { words: string[]; indices: number[] }[] => {
+    const chunks: { words: string[]; indices: number[] }[] = [];
+    let current: { words: string[]; indices: number[] } = { words: [], indices: [] };
+    words.forEach((w, i) => {
+      current.words.push(w);
+      current.indices.push(i);
+      if (splits.has(i) || i === words.length - 1) {
+        chunks.push(current);
+        current = { words: [], indices: [] };
+      }
+    });
+    return chunks;
+  };
+
+  const toggleSplit = (idx: number) => {
+    const oldChunks = getChunks();
+
+    const next = new Set(splitIndices);
+    if (next.has(idx)) next.delete(idx);
+    else next.add(idx);
+    setSplitIndices(next);
+
+    // Recompute chunks and remap labels
+    const newChunks = getChunksFromSplits(next);
+    const newLabels: Record<string, RoleKey> = {};
+    newChunks.forEach((newChunk, newIdx) => {
+      const firstWordIdx = newChunk.indices[0];
+      const oldChunkIdx = oldChunks.findIndex(c => c.indices.includes(firstWordIdx));
+      if (oldChunkIdx >= 0 && chunkLabels[oldChunkIdx]) {
+        newLabels[newIdx] = chunkLabels[oldChunkIdx];
+      }
+    });
+    setChunkLabels(newLabels);
   };
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, roleKey: string) => {
@@ -185,7 +213,6 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
         };
         const sub = subLabels[`w${wordIdx}`];
         if (sub) token.subRole = sub;
-        // Set newChunk if same role as previous token but in a different chunk
         if (i === 0 && prevRole === role && chunkIdx > 0) {
           token.newChunk = true;
         }
@@ -275,7 +302,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     setSplitIndices(newSplits);
     setChunkLabels(newChunkLabels);
     setSubLabels(newSubLabels);
-    setPhase('split');
+    setPhase('edit');
   };
 
   const handleDeleteSentence = (id: number) => {
@@ -380,7 +407,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
             disabled={!sentenceText.trim()}
             className="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Verder naar verdelen
+            Verdelen & Benoemen
           </button>
         </div>
       </div>
@@ -389,55 +416,20 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
 
   const chunks = getChunks();
 
-  // SPLIT phase
-  if (phase === 'split') {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-2 md:p-4">
-        <div className="max-w-4xl mx-auto space-y-4">
-          <div className="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-slate-800 dark:text-white">Stap 1: Verdelen</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Klik tussen de woorden om de zin in zinsdelen te knippen.</p>
-              </div>
-              <button onClick={() => setPhase('input')} className="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Terug naar invoer</button>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-y-6 select-none py-4 text-xl md:text-2xl leading-loose">
-              {words.map((word, idx) => (
-                <React.Fragment key={idx}>
-                  <span className="px-2 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded text-slate-800 dark:text-slate-100 font-medium transition-colors">{word}</span>
-                  {idx < words.length - 1 && (
-                    <div onClick={() => toggleSplit(idx)} className="group relative w-10 h-12 mx-0 cursor-pointer flex items-center justify-center transition-all">
-                      <div className={`w-1 h-8 rounded-full transition-all duration-200 ${splitIndices.has(idx) ? 'bg-blue-500 h-10 shadow-[0_0_12px_rgba(59,130,246,0.6)]' : 'bg-slate-200 dark:bg-slate-600 group-hover:bg-slate-300 dark:group-hover:bg-slate-500'}`}></div>
-                      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-7 h-7 bg-white dark:bg-slate-700 rounded-full shadow-md border dark:border-slate-600 flex items-center justify-center text-sm transition-all duration-200 pointer-events-none z-10 ${splitIndices.has(idx) ? 'opacity-100 border-blue-500 text-blue-500 scale-100' : 'opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 text-slate-400'}`}>✂️</div>
-                    </div>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-
-            <div className="text-center text-sm text-slate-500 dark:text-slate-400">
-              {chunks.length} zinsdeel{chunks.length !== 1 ? 'en' : ''}
-            </div>
-
-            <div className="flex justify-center gap-3">
-              <button onClick={() => { resetEditor(); setPhase('list'); }} className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Annuleer</button>
-              <button onClick={() => setPhase('label')} className="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all">
-                Naar benoemen →
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // LABEL phase
-  if (phase === 'label') {
+  // EDIT phase — combined split + label
+  if (phase === 'edit') {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-2 md:p-4 pb-24">
         <div className="max-w-5xl mx-auto space-y-4">
+          {/* Header */}
+          <div className="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-slate-800 dark:text-white">Verdelen & Benoemen</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Knip de zin in zinsdelen en sleep er labels op.</p>
+            </div>
+            <button onClick={() => setPhase('input')} className="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors px-3 py-1">Wijzig tekst</button>
+          </div>
+
           {/* Role toolbar */}
           <div className="bg-white dark:bg-slate-800 p-3 md:p-4 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 sticky top-0 z-[100]">
             <div className="flex flex-col gap-2 md:gap-4">
@@ -460,24 +452,40 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
             </div>
           </div>
 
-          {/* Chunks */}
-          <div className="flex flex-wrap gap-y-6 gap-x-3 justify-center items-start pt-2 px-1">
+          {/* Chunks with split controls */}
+          <div className="flex flex-wrap gap-y-6 gap-x-2 justify-center items-start pt-2 px-1">
             {chunks.map((chunk, chunkIdx) => {
               const assignedRoleKey = chunkLabels[chunkIdx];
               const roleDef = assignedRoleKey ? ROLES.find(r => r.key === assignedRoleKey) || null : null;
+              const lastWordIdx = chunk.indices[chunk.indices.length - 1];
 
               return (
-                <EditorChunk
-                  key={chunkIdx}
-                  chunk={chunk}
-                  chunkIdx={chunkIdx}
-                  roleDef={roleDef}
-                  subLabels={subLabels}
-                  onDropChunk={handleDropChunk}
-                  onDropWord={handleDropWord}
-                  onRemoveChunkLabel={removeChunkLabel}
-                  onRemoveSubLabel={removeSubLabel}
-                />
+                <React.Fragment key={chunkIdx}>
+                  <EditorChunk
+                    chunk={chunk}
+                    chunkIdx={chunkIdx}
+                    roleDef={roleDef}
+                    subLabels={subLabels}
+                    onDropChunk={handleDropChunk}
+                    onDropWord={handleDropWord}
+                    onRemoveChunkLabel={removeChunkLabel}
+                    onRemoveSubLabel={removeSubLabel}
+                    onToggleSplit={toggleSplit}
+                  />
+
+                  {/* Merge button between chunks */}
+                  {chunkIdx < chunks.length - 1 && (
+                    <div className="flex items-center self-center px-1">
+                      <button
+                        onClick={() => toggleSplit(lastWordIdx)}
+                        className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-100 dark:hover:bg-blue-900 text-slate-300 dark:text-slate-500 hover:text-blue-500 border border-slate-200 dark:border-slate-600 hover:border-blue-300 flex items-center justify-center transition-all shadow-sm"
+                        title="Samenvoegen"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                      </button>
+                    </div>
+                  )}
+                </React.Fragment>
               );
             })}
           </div>
@@ -485,9 +493,9 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
           {/* Footer */}
           <div className="fixed bottom-0 left-0 w-full bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-[500] p-3">
             <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
-              <button onClick={() => setPhase('split')} className="px-3 py-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium text-sm transition-colors">← Terug</button>
+              <button onClick={() => { resetEditor(); setPhase('list'); }} className="px-3 py-2 text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-lg font-medium text-sm transition-colors">Annuleer</button>
               <div className="text-xs text-slate-400 dark:text-slate-500">
-                {Object.keys(chunkLabels).length} / {chunks.length} benoemd
+                {chunks.length} zinsdeel{chunks.length !== 1 ? 'en' : ''} | {Object.keys(chunkLabels).length} benoemd
               </div>
               <button
                 onClick={() => setPhase('meta')}
@@ -508,7 +516,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-2 md:p-4 flex items-center justify-center">
         <div className="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 max-w-lg w-full space-y-6">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white">Stap 3: Eigenschappen</h2>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white">Eigenschappen</h2>
 
           <div>
             <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Label (naam van de zin)</label>
@@ -540,7 +548,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
           </div>
 
           <div className="flex gap-3">
-            <button onClick={() => setPhase('label')} className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">← Terug</button>
+            <button onClick={() => setPhase('edit')} className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">← Terug</button>
             <button onClick={() => setPhase('preview')} className="flex-1 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors">Voorbeeld bekijken</button>
           </div>
         </div>
@@ -612,11 +620,12 @@ interface EditorChunkProps {
   onDropWord: (e: React.DragEvent<HTMLSpanElement>, wordIdx: number) => void;
   onRemoveChunkLabel: (chunkIdx: number) => void;
   onRemoveSubLabel: (wordIdx: number) => void;
+  onToggleSplit: (wordIdx: number) => void;
 }
 
 const EditorChunk: React.FC<EditorChunkProps> = ({
   chunk, chunkIdx, roleDef, subLabels,
-  onDropChunk, onDropWord, onRemoveChunkLabel, onRemoveSubLabel,
+  onDropChunk, onDropWord, onRemoveChunkLabel, onRemoveSubLabel, onToggleSplit,
 }) => {
   const [isOver, setIsOver] = useState(false);
   const [hoveredWord, setHoveredWord] = useState<number | null>(null);
@@ -653,7 +662,7 @@ const EditorChunk: React.FC<EditorChunkProps> = ({
         )}
       </div>
 
-      {/* Words */}
+      {/* Words with inline splitters */}
       <div className="p-3 flex flex-wrap gap-y-4 gap-x-0 justify-center items-end min-h-[60px] text-lg leading-tight">
         {chunk.words.map((word, i) => {
           const wordIdx = chunk.indices[i];
@@ -662,30 +671,44 @@ const EditorChunk: React.FC<EditorChunkProps> = ({
           const isHovered = hoveredWord === wordIdx;
 
           return (
-            <div key={wordIdx} className="relative flex flex-col items-center group/word">
-              {subRole && (
-                <div
-                  className={`absolute -top-6 text-[9px] px-1.5 py-0.5 rounded-md border shadow-sm whitespace-nowrap z-10 cursor-pointer ${subRole.colorClass} ${subRole.borderColorClass}`}
-                  onClick={() => onRemoveSubLabel(wordIdx)}
-                  title="Klik om te verwijderen"
+            <React.Fragment key={wordIdx}>
+              <div className="relative flex flex-col items-center group/word">
+                {subRole && (
+                  <div
+                    className={`absolute -top-6 text-[9px] px-1.5 py-0.5 rounded-md border shadow-sm whitespace-nowrap z-10 cursor-pointer ${subRole.colorClass} ${subRole.borderColorClass}`}
+                    onClick={() => onRemoveSubLabel(wordIdx)}
+                    title="Klik om te verwijderen"
+                  >
+                    {subRole.shortLabel}
+                  </div>
+                )}
+                <span
+                  className={`text-slate-800 dark:text-slate-200 font-medium px-1 py-1 rounded transition-colors duration-200 border border-transparent ${isHovered ? 'bg-yellow-100 dark:bg-yellow-900/50 border-yellow-300 dark:border-yellow-600 shadow-sm' : ''} ${!isHovered && !subRole ? 'hover:bg-slate-100 dark:hover:bg-slate-700' : ''}`}
+                  onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
+                  onDragEnter={e => { e.preventDefault(); e.stopPropagation(); setHoveredWord(wordIdx); setIsOver(false); }}
+                  onDragLeave={e => { e.preventDefault(); e.stopPropagation(); setHoveredWord(null); }}
+                  onDrop={e => {
+                    e.preventDefault(); e.stopPropagation();
+                    onDropWord(e, wordIdx);
+                    setHoveredWord(null);
+                  }}
                 >
-                  {subRole.shortLabel}
+                  {word}
+                </span>
+              </div>
+
+              {/* Splitter between words within this chunk */}
+              {i < chunk.words.length - 1 && (
+                <div
+                  className="w-4 h-8 flex items-center justify-center cursor-pointer group/splitter mx-[-2px] z-10 hover:w-6 transition-all"
+                  onClick={e => { e.stopPropagation(); onToggleSplit(wordIdx); }}
+                  title="Splits hier"
+                >
+                  <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 group-hover/splitter:bg-blue-400 transition-colors"></div>
+                  <div className="absolute opacity-0 group-hover/splitter:opacity-100 text-[10px] transform -translate-y-4 bg-blue-600 text-white px-1 rounded">✂️</div>
                 </div>
               )}
-              <span
-                className={`text-slate-800 dark:text-slate-200 font-medium px-1 py-1 rounded transition-colors duration-200 border border-transparent ${isHovered ? 'bg-yellow-100 dark:bg-yellow-900/50 border-yellow-300 dark:border-yellow-600 shadow-sm' : ''} ${!isHovered && !subRole ? 'hover:bg-slate-100 dark:hover:bg-slate-700' : ''}`}
-                onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
-                onDragEnter={e => { e.preventDefault(); e.stopPropagation(); setHoveredWord(wordIdx); setIsOver(false); }}
-                onDragLeave={e => { e.preventDefault(); e.stopPropagation(); setHoveredWord(null); }}
-                onDrop={e => {
-                  e.preventDefault(); e.stopPropagation();
-                  onDropWord(e, wordIdx);
-                  setHoveredWord(null);
-                }}
-              >
-                {word}
-              </span>
-            </div>
+            </React.Fragment>
           );
         })}
       </div>
