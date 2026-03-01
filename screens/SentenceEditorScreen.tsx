@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Token, RoleKey, PredicateType, DifficultyLevel, RoleDefinition } from '../types';
 import { ROLES } from '../constants';
 import { DraggableRole } from '../components/WordChip';
@@ -9,7 +9,10 @@ import {
   exportCustomSentences,
   getNextCustomId,
 } from '../data/customSentenceStore';
+import { loadAllSentences } from '../data/sentenceLoader';
 import type { Sentence } from '../types';
+
+type ListFilter = 'all' | 'builtin' | 'custom';
 
 const EDITOR_PIN = '1234';
 const PIN_SESSION_KEY = 'editor-pin-ok';
@@ -40,9 +43,49 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
 
   // List state
   const [sentences, setSentences] = useState<Sentence[]>(getCustomSentences());
+  const [builtInSentences, setBuiltInSentences] = useState<Sentence[]>([]);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
+  const [listFilter, setListFilter] = useState<ListFilter>('all');
+  const [levelFilter, setLevelFilter] = useState<DifficultyLevel | null>(null);
 
   const refreshList = () => setSentences(getCustomSentences());
+
+  useEffect(() => {
+    loadAllSentences().then(setBuiltInSentences);
+  }, []);
+
+  const filteredSentences = (() => {
+    let list: (Sentence & { _isBuiltIn?: boolean })[] = [];
+    if (listFilter === 'all' || listFilter === 'custom') {
+      list.push(...sentences.map(s => ({ ...s, _isBuiltIn: false })));
+    }
+    if (listFilter === 'all' || listFilter === 'builtin') {
+      list.push(...builtInSentences.map(s => ({ ...s, _isBuiltIn: true })));
+    }
+    if (levelFilter !== null) {
+      list = list.filter(s => s.level === levelFilter);
+    }
+    // Sort: custom first, then built-in, both by id
+    list.sort((a, b) => {
+      if (a._isBuiltIn !== b._isBuiltIn) return a._isBuiltIn ? 1 : -1;
+      return a.id - b.id;
+    });
+    return list;
+  })();
+
+  const handleDuplicateSentence = (s: Sentence) => {
+    const newId = getNextCustomId();
+    const copy: Sentence = {
+      ...s,
+      id: newId,
+      label: `${s.label} (kopie)`,
+      tokens: s.tokens.map((t, i) => ({ ...t, id: `c${newId}t${i + 1}` })),
+    };
+    saveCustomSentence(copy);
+    refreshList();
+    setStatusMsg('Zin gekopieerd naar eigen zinnen!');
+    setTimeout(() => setStatusMsg(null), 2500);
+  };
 
   // PIN check
   const handlePinSubmit = (e: React.FormEvent) => {
@@ -326,6 +369,9 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
 
   // LIST phase
   if (phase === 'list') {
+    const builtInCount = builtInSentences.length;
+    const customCount = sentences.length;
+
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-2 md:p-4">
         <div className="max-w-4xl mx-auto space-y-4">
@@ -333,7 +379,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Zinnen-editor</h1>
-                <p className="text-sm text-slate-500 dark:text-slate-400">{sentences.length} eigen zinnen</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{builtInCount} ingebouwde + {customCount} eigen zinnen</p>
               </div>
               <button onClick={onBack} className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors">Terug</button>
             </div>
@@ -342,34 +388,82 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
               <div className="p-3 mb-4 rounded-lg bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-200 text-sm font-medium border border-green-200 dark:border-green-800">{statusMsg}</div>
             )}
 
-            <div className="flex gap-2 mb-6">
+            <div className="flex gap-2 mb-4">
               <button onClick={startNewSentence} className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors">Nieuwe zin</button>
               {sentences.length > 0 && (
                 <button onClick={handleExport} className="px-4 py-2 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 font-medium rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">Exporteren</button>
               )}
             </div>
 
-            {sentences.length === 0 ? (
+            {/* Filter tabs */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              <div className="flex rounded-lg border border-slate-200 dark:border-slate-600 overflow-hidden">
+                {([['all', 'Alle'], ['custom', 'Eigen'], ['builtin', 'Ingebouwd']] as const).map(([key, label]) => (
+                  <button
+                    key={key}
+                    onClick={() => setListFilter(key)}
+                    className={`px-3 py-1.5 text-xs font-medium transition-colors ${listFilter === key ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex rounded-lg border border-slate-200 dark:border-slate-600 overflow-hidden">
+                <button
+                  onClick={() => setLevelFilter(null)}
+                  className={`px-3 py-1.5 text-xs font-medium transition-colors ${levelFilter === null ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                >
+                  Alle niveaus
+                </button>
+                {([1, 2, 3, 4] as DifficultyLevel[]).map(lvl => (
+                  <button
+                    key={lvl}
+                    onClick={() => setLevelFilter(lvl)}
+                    className={`px-3 py-1.5 text-xs font-medium transition-colors ${levelFilter === lvl ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                  >
+                    {lvl}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">{filteredSentences.length} zinnen</p>
+
+            {filteredSentences.length === 0 ? (
               <div className="text-center py-12 text-slate-400 dark:text-slate-500">
-                <p className="text-lg font-medium mb-1">Nog geen eigen zinnen</p>
-                <p className="text-sm">Klik op 'Nieuwe zin' om te beginnen.</p>
+                <p className="text-lg font-medium mb-1">Geen zinnen gevonden</p>
+                <p className="text-sm">Pas de filters aan of maak een nieuwe zin.</p>
               </div>
             ) : (
-              <div className="space-y-2">
-                {sentences.map(s => (
-                  <div key={s.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-slate-800 dark:text-white text-sm truncate">{s.label}</p>
-                      <p className="text-xs text-slate-400 dark:text-slate-500">
-                        Niveau {s.level} | {s.predicateType} | {s.tokens.length} woorden
-                      </p>
+              <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+                {filteredSentences.map(s => {
+                  const isBuiltIn = (s as { _isBuiltIn?: boolean })._isBuiltIn;
+                  return (
+                    <div key={`${isBuiltIn ? 'b' : 'c'}-${s.id}`} className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${isBuiltIn ? 'border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-750' : 'border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-750'}`}>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-slate-800 dark:text-white text-sm truncate">{s.label}</p>
+                          {isBuiltIn && (
+                            <span className="shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600">ingebouwd</span>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-400 dark:text-slate-500">
+                          Niveau {s.level} | {s.predicateType} | {s.tokens.length} woorden
+                        </p>
+                      </div>
+                      <div className="flex gap-2 ml-3">
+                        {isBuiltIn ? (
+                          <button onClick={() => handleDuplicateSentence(s)} className="px-3 py-1 text-xs font-medium rounded border border-purple-300 dark:border-purple-700 text-purple-600 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">Kopieer</button>
+                        ) : (
+                          <>
+                            <button onClick={() => handleEditSentence(s)} className="px-3 py-1 text-xs font-medium rounded border border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">Bewerk</button>
+                            <button onClick={() => handleDeleteSentence(s.id)} className="px-3 py-1 text-xs font-medium rounded border border-red-300 dark:border-red-700 text-red-600 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Verwijder</button>
+                          </>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex gap-2 ml-3">
-                      <button onClick={() => handleEditSentence(s)} className="px-3 py-1 text-xs font-medium rounded border border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">Bewerk</button>
-                      <button onClick={() => handleDeleteSentence(s.id)} className="px-3 py-1 text-xs font-medium rounded border border-red-300 dark:border-red-700 text-red-600 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Verwijder</button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
