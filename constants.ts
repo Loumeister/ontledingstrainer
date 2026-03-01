@@ -191,11 +191,11 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
 
   // BIJZIN
   'bijzin': {
-    'bwb': "Staat de PV achteraan in dit zinsdeel? Zo niet, geeft het dan extra info over tijd, plaats of manier?",
-    'ow': "Staat de PV achteraan in dit zinsdeel? Zo niet, wie of wat voert de actie dan uit?",
-    'lv': "Staat de PV achteraan in dit zinsdeel? Zo niet, wat ondergaat de handeling dan?",
-    'mv': "Staat de PV achteraan in dit zinsdeel? Zo niet, aan of voor wie is de handeling dan gericht?",
-    'vv': "Staat de PV achteraan in dit zinsdeel? Zo niet, hoort het voorzetsel dan vast bij het werkwoord?"
+    'bwb': "Staan er woorden tussen het onderwerp en de PV? Zo niet, geeft het dan extra info over tijd, plaats of manier?",
+    'ow': "Staan er woorden tussen het onderwerp en de PV? Zo niet, wie of wat voert de actie dan uit?",
+    'lv': "Staan er woorden tussen het onderwerp en de PV? Zo niet, wat ondergaat de handeling dan?",
+    'mv': "Staan er woorden tussen het onderwerp en de PV? Zo niet, aan of voor wie is de handeling dan gericht?",
+    'vv': "Staan er woorden tussen het onderwerp en de PV? Zo niet, hoort het voorzetsel dan vast bij het werkwoord?"
   },
 
   // ONDERSCHIKKEND VOEGWOORD
