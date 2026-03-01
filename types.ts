@@ -34,3 +34,14 @@ export type PlacementMap = Record<string, RoleKey>; // key is the id of the firs
 
 // Update validation state to include 'warning'
 export type ValidationState = 'correct' | 'incorrect-role' | 'incorrect-split' | 'warning' | null;
+
+export interface SentenceUsageData {
+  attempts: number;                    // Times a student checked this sentence (first check only)
+  perfectCount: number;                // Times answered perfectly on first check
+  showAnswerCount: number;             // Times show-answer was used without checking
+  roleErrors: Record<string, number>;  // roleName -> count of wrong role assignments
+  splitErrors: number;                 // Cumulative incorrect-split chunks across attempts
+  flagged: boolean;                    // Teacher-flagged as suspect (possible label error)
+  note: string;                        // Teacher note
+  lastAttempted: string;               // ISO date string
+}

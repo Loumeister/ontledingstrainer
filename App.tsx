@@ -4,6 +4,8 @@ import { Sentence, PlacementMap, RoleKey, Token, RoleDefinition, DifficultyLevel
 import { DraggableRole } from './components/WordChip';
 import { SentenceChunk } from './components/DropZone';
 import { HelpModal } from './components/HelpModal';
+import { EditorView } from './components/EditorView';
+import { recordAttempt, recordShowAnswer } from './usageData';
 
 type AppStep = 'split' | 'label';
 type Mode = 'free' | 'session';
@@ -52,6 +54,9 @@ const ConfirmationModal = ({
     </div>
   );
 };
+
+// Detect ?editor in URL (hidden teacher entry point)
+const isEditorUrl = new URLSearchParams(window.location.search).has('editor');
 
 export default function App() {
   const [mode, setMode] = useState<Mode>('free');
@@ -362,26 +367,27 @@ export default function App() {
         if (!isConsistentRole || missedInternalSplit) chunkFeedback[idx] = FEEDBACK_STRUCTURE.INCONSISTENT;
         else if (splitTooEarly || startedTooLate) chunkFeedback[idx] = FEEDBACK_STRUCTURE.TOO_MANY_SPLITS;
         else chunkFeedback[idx] = "De verdeling klopt niet.";
+        currentMistakes['Verdeling'] = (currentMistakes['Verdeling'] || 0) + 1;
       } else {
         const userLabel = chunkLabels[firstTokenId];
         if (userLabel === firstTokenRole) {
           chunkStatus[idx] = 'correct';
           correctChunksCount++;
         } else {
+          const correctRoleName = ROLES.find(r => r.key === firstTokenRole)?.label || firstTokenRole;
           if (firstTokenRole === 'pv' && userLabel === 'wg') {
              chunkStatus[idx] = 'warning';
              chunkFeedback[idx] = FEEDBACK_MATRIX['wg'] && FEEDBACK_MATRIX['wg']['pv'] ? FEEDBACK_MATRIX['wg']['pv'] : "Dit hoort bij het gezegde.";
+             currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
           } else {
              chunkStatus[idx] = 'incorrect-role';
              if (userLabel && FEEDBACK_MATRIX[userLabel] && FEEDBACK_MATRIX[userLabel][firstTokenRole]) {
                  chunkFeedback[idx] = FEEDBACK_MATRIX[userLabel][firstTokenRole];
              } else {
                  const userRoleName = ROLES.find(r => r.key === userLabel)?.label || "Gekozen";
-                 const correctRoleName = ROLES.find(r => r.key === firstTokenRole)?.label || "Juiste";
                  chunkFeedback[idx] = `Dit is niet ${userRoleName}, maar het ${correctRoleName}.`;
              }
-             const roleName = ROLES.find(r => r.key === firstTokenRole)?.label || firstTokenRole;
-             currentMistakes[roleName] = (currentMistakes[roleName] || 0) + 1;
+             currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
           }
         }
       }
@@ -410,7 +416,10 @@ export default function App() {
       isPerfect: reallyPerfect
     });
 
-    if (mode === 'session') {
+    // Only update session stats and record usage data on the FIRST check of this sentence.
+    // This prevents inflated totals when the student clicks "Controleer" multiple times.
+    if (!validationResult) {
+      if (mode === 'session') {
         const newTotal = sessionStats.total + realChunkCount;
         const newCorrect = sessionStats.correct + correctChunksCount;
         setSessionStats({ correct: newCorrect, total: newTotal });
@@ -419,6 +428,11 @@ export default function App() {
            newMistakeStats[role] = (newMistakeStats[role] || 0) + count;
         });
         setMistakeStats(newMistakeStats);
+      }
+      if (currentSentence) {
+        const splitErrorCount = Object.values(chunkStatus).filter(s => s === 'incorrect-split').length;
+        recordAttempt(currentSentence.id, reallyPerfect, currentMistakes, splitErrorCount);
+      }
     }
   };
 
@@ -470,12 +484,15 @@ export default function App() {
       }
     });
 
-    if (mode === 'session' && !validationResult) {
-        let realChunkCount = 0;
-        currentSentence.tokens.forEach((t, i) => {
-            if (i === 0 || t.role !== currentSentence.tokens[i-1].role || t.newChunk) realChunkCount++;
-        });
+    if (!validationResult) {
+      let realChunkCount = 0;
+      currentSentence.tokens.forEach((t, i) => {
+          if (i === 0 || t.role !== currentSentence.tokens[i-1].role || t.newChunk) realChunkCount++;
+      });
+      if (mode === 'session') {
         setSessionStats(prev => ({ correct: prev.correct, total: prev.total + realChunkCount }));
+      }
+      recordShowAnswer(currentSentence.id);
     }
 
     setChunkLabels(correctChunkLabels);
@@ -496,6 +513,11 @@ export default function App() {
 
   const userChunks = getUserChunks();
   const availableSentences = getFilteredSentences();
+
+  // --- EDITOR / TEACHER VIEW ---
+  if (isEditorUrl) {
+    return <EditorView darkMode={darkMode} />;
+  }
 
   // --- HOME SCREEN ---
   if (!currentSentence && !isSessionFinished) {
