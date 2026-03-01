@@ -191,11 +191,11 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
 
   // BIJZIN
   'bijzin': {
-    'bwb': "Deze bijzin functioneert als BWB, maar noem het hier bijzin.",
-    'ow': "Deze zin functioneert als OW, maar noem het hier bijzin.",
-    'lv': "Deze zin functioneert als LV, maar noem het hier bijzin.",
-    'mv': "Deze zin functioneert als MV, maar noem het hier bijzin.",
-    'vv': "Deze zin functioneert als VZV, maar noem het hier bijzin."
+    'bwb': "Heeft dit zinsdeel een eigen PV? Zo niet, geeft het dan extra info over tijd, plaats of manier?",
+    'ow': "Heeft dit zinsdeel een eigen PV? Zo niet, wie of wat voert de actie dan uit?",
+    'lv': "Heeft dit zinsdeel een eigen PV? Zo niet, wat ondergaat de handeling dan?",
+    'mv': "Heeft dit zinsdeel een eigen PV? Zo niet, aan of voor wie is de handeling dan gericht?",
+    'vv': "Heeft dit zinsdeel een eigen PV? Zo niet, hoort het voorzetsel dan vast bij het werkwoord?"
   },
 
   // ONDERSCHIKKEND VOEGWOORD
