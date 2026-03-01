@@ -118,7 +118,8 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'pv': "Is dit een werkwoord? Check: Wie of wat + PV?",
     'lv': "Ondergaat dit de handeling, of voert het die uit? Check: Wie of wat + PV?",
     'mv': "Ontvangt dit iets, of doet het zelf iets? Check: Wie of wat + PV?",
-    'bwb': "Geeft dit plaats/tijd/manier aan? Of is het antwoord op: Wie of wat + PV?"
+    'bwb': "Geeft dit plaats/tijd/manier aan? Of is het antwoord op: Wie of wat + PV?",
+    'wg': "Is dit de uitvoerder van de handeling, of drukt het de handeling zelf uit?"
   },
 
   // PERSOONSVORM
@@ -131,14 +132,17 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
   'wg': {
     'pv': "Dit is maar één woord. Welke werkwoorden horen er nog bij?",
     'ng': "Drukt het werkwoord iets uit wat er wordt gedaan, of iets wat er is of wordt?",
-    'lv': "Is dit een 'ding'/'persoon', of een werkwoordsvorm die bij het gezegde hoort?"
+    'lv': "Is dit een 'ding'/'persoon', of een werkwoordsvorm die bij het gezegde hoort?",
+    'bwb': "Is dit een werkwoord, of geeft het extra info over tijd, plaats of manier?",
+    'ow': "Is dit de handeling zelf, of de uitvoerder ervan?"
   },
 
   // NAAMWOORDELIJK GEZEGDE
   'ng': {
     'wg': "Drukt het werkwoord iets uit wat er wordt gedaan, of iets wat er is of wordt?",
     'lv': "Beschrijft dit een eigenschap van het OW, of ondergaat het een handeling?",
-    'bwb': "Zegt dit iets over de toestand van het OW, of geeft het aan hoe iets gebeurt?"
+    'bwb': "Zegt dit iets over de toestand van het OW, of geeft het aan hoe iets gebeurt?",
+    'ow': "Voert dit de actie uit? Check: Wie of wat + PV?"
   },
 
   // LIJDEND VOORWERP
@@ -146,14 +150,17 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'ow': "Voert dit de actie uit of ondergaat het die? Check: Wie of wat + PV?",
     'vv': "Begint dit met een voorzetsel dat vast bij het werkwoord hoort?",
     'bwb': "Geeft dit info over waar, wanneer of waarom?",
-    'mv': "Kun je 'aan' of 'voor' voor dit zinsdeel denken?"
+    'mv': "Kun je 'aan' of 'voor' voor dit zinsdeel denken?",
+    'ng': "Drukt het werkwoord iets uit wat er is of wordt, of een actie?",
+    'bijst': "Is dit een andere naam voor een eerder zinsdeel? Kun je het weglaten?"
   },
 
   // MEEWERKEND VOORWERP
   'mv': {
     'ow': "Voert dit de actie uit? Check: Wie of wat + PV?",
     'lv': "Wie/wat ondergaat de handeling, of aan/voor wie?",
-    'vv': "Kun je 'aan'/'voor' weglaten, of zit het voorzetsel vast bij het werkwoord?"
+    'vv': "Kun je 'aan'/'voor' weglaten, of zit het voorzetsel vast bij het werkwoord?",
+    'bwb': "Geeft dit extra info over hoe, waar of wanneer, of ontvangt het de handeling?"
   },
 
   // VOORZETSELVOORWERP
@@ -168,7 +175,10 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'vv': "Hoort dit voorzetsel vast bij het werkwoord?",
     'lv': "Ondergaat dit zinsdeel de actie?",
     'ow': "Kun je 'Wie of wat + PV?' beantwoorden met dit zinsdeel?",
-    'bijzin': "Heeft dit zinsdeel een eigen PV?"
+    'bijzin': "Heeft dit zinsdeel een eigen PV?",
+    'mv': "Kun je 'aan' of 'voor' voor dit zinsdeel denken?",
+    'ng': "Zegt dit iets over de toestand van het OW via het werkwoord?",
+    'bijst': "Staat dit tussen komma's als andere naam voor een eerder zinsdeel?"
   },
 
   // BIJSTELLING
@@ -183,7 +193,9 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
   'bijzin': {
     'bwb': "Deze bijzin functioneert als BWB, maar noem het hier bijzin.",
     'ow': "Deze zin functioneert als OW, maar noem het hier bijzin.",
-    'lv': "Deze zin functioneert als LV, maar noem het hier bijzin."
+    'lv': "Deze zin functioneert als LV, maar noem het hier bijzin.",
+    'mv': "Deze zin functioneert als MV, maar noem het hier bijzin.",
+    'vv': "Deze zin functioneert als VZV, maar noem het hier bijzin."
   },
 
   // ONDERSCHIKKEND VOEGWOORD
