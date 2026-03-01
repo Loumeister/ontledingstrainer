@@ -359,7 +359,8 @@ export default function App() {
 
       if (!isValidSplit) {
         chunkStatus[idx] = 'incorrect-split';
-        if (!isConsistentRole || missedInternalSplit) chunkFeedback[idx] = FEEDBACK_STRUCTURE.INCONSISTENT;
+        if (missedInternalSplit) chunkFeedback[idx] = FEEDBACK_STRUCTURE.MISSING_SPLIT;
+        else if (!isConsistentRole) chunkFeedback[idx] = FEEDBACK_STRUCTURE.INCONSISTENT;
         else if (splitTooEarly || startedTooLate) chunkFeedback[idx] = FEEDBACK_STRUCTURE.TOO_MANY_SPLITS;
         else chunkFeedback[idx] = "De verdeling klopt niet.";
       } else {
