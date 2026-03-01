@@ -59,3 +59,32 @@ export function getNextCustomId(): number {
   const maxId = existing.reduce((max, s) => Math.max(max, s.id), 10000);
   return maxId + 1;
 }
+
+// --- Sharing via URL ---
+
+export function encodeForSharing(sentences: Sentence[]): string {
+  try {
+    // encodeURIComponent makes JSON ASCII-safe; btoa for compact URL encoding
+    return btoa(encodeURIComponent(JSON.stringify(sentences)))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+  } catch {
+    return '';
+  }
+}
+
+export function decodeShared(encoded: string): Sentence[] {
+  try {
+    const padded = encoded.replace(/-/g, '+').replace(/_/g, '/');
+    const pad = (4 - (padded.length % 4)) % 4;
+    return JSON.parse(decodeURIComponent(atob(padded + '='.repeat(pad))));
+  } catch {
+    return [];
+  }
+}
+
+export function buildShareUrl(sentences: Sentence[]): string {
+  const encoded = encodeForSharing(sentences);
+  return `${window.location.origin}${window.location.pathname}?zinnen=${encoded}`;
+}

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { DifficultyLevel } from '../types';
+import { DifficultyLevel, Sentence } from '../types';
 import { HelpModal } from '../components/HelpModal';
 import { TrainerState } from '../hooks/useTrainer';
 import { importCustomSentences, getCustomSentences } from '../data/customSentenceStore';
@@ -23,7 +23,10 @@ type HomeScreenProps = Pick<TrainerState,
   | 'refreshCustomSentences'
   | 'startSession'
   | 'handleSentenceSelect'
->;
+  | 'startSharedSession'
+> & {
+  sharedSentences: Sentence[];
+};
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   predicateMode, setPredicateMode,
@@ -44,6 +47,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   refreshCustomSentences,
   startSession,
   handleSentenceSelect,
+  startSharedSession,
+  sharedSentences,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importMsg, setImportMsg] = useState<string | null>(null);
@@ -94,6 +99,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <button onClick={() => setShowHelp(true)} className="w-9 h-9 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 transition-colors" title="Instructies">?</button>
           </div>
         </div>
+
+        {/* Shared sentences banner */}
+        {sharedSentences.length > 0 && (
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 text-center">
+            <p className="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider mb-1">Zinnen van je docent</p>
+            <p className="text-sm text-amber-800 dark:text-amber-200 mb-3">
+              Je docent heeft {sharedSentences.length} {sharedSentences.length === 1 ? 'zin' : 'zinnen'} voor je klaargezet.
+            </p>
+            <button
+              onClick={() => startSharedSession(sharedSentences)}
+              className="w-full py-2.5 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
+            >
+              Oefenen met docentzinnen
+            </button>
+          </div>
+        )}
 
         {/* Filter Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
