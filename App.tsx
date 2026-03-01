@@ -5,10 +5,20 @@ import { ScoreScreen } from './screens/ScoreScreen';
 import { TrainerScreen } from './screens/TrainerScreen';
 import { SentenceEditorScreen } from './screens/SentenceEditorScreen';
 import { preloadCommonLevels } from './data/sentenceLoader';
+import { decodeShared } from './data/customSentenceStore';
+import type { Sentence } from './types';
+
+// Detect ?editor URL param → stats + sentence management overview (password: docent2025)
+const isEditorUrl = new URLSearchParams(window.location.search).has('editor');
+
+// Decode teacher-shared sentences from ?zinnen= URL param
+const sharedParam = new URLSearchParams(window.location.search).get('zinnen');
+const initialSharedSentences: Sentence[] = sharedParam ? decodeShared(sharedParam) : [];
 
 export default function App() {
   const trainer = useTrainer();
   const [showEditor, setShowEditor] = useState(() => window.location.hash === '#/editor');
+  const [sharedSentences] = useState<Sentence[]>(initialSharedSentences);
 
   // Preload common sentence levels
   useEffect(() => {
@@ -59,6 +69,8 @@ export default function App() {
         refreshCustomSentences={trainer.refreshCustomSentences}
         startSession={trainer.startSession}
         handleSentenceSelect={trainer.handleSentenceSelect}
+        sharedSentences={sharedSentences}
+        startSharedSession={trainer.startSharedSession}
       />
     );
   }

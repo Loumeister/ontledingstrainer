@@ -3,6 +3,7 @@ import { ROLES, FEEDBACK_MATRIX, FEEDBACK_STRUCTURE, HINTS } from '../constants'
 import { Sentence, PlacementMap, RoleKey, Token, DifficultyLevel, ValidationState } from '../types';
 import { useSentences } from './useSentences';
 import { getCustomSentences } from '../data/customSentenceStore';
+import { recordAttempt, recordShowAnswer } from '../usageData';
 
 export type AppStep = 'split' | 'label';
 export type Mode = 'free' | 'session';
@@ -86,6 +87,7 @@ export interface TrainerState {
   // Actions
   refreshCustomSentences: () => void;
   startSession: () => void;
+  startSharedSession: (sentences: Sentence[]) => void;
   nextSessionSentence: () => void;
   handleSentenceSelect: (sentenceId: number) => void;
   toggleSplit: (tokenIndex: number) => void;
@@ -249,6 +251,18 @@ export function useTrainer(): TrainerState {
     setIsSessionFinished(false);
     setMode('session');
     loadSentence(selected[0]);
+  };
+
+  const startSharedSession = (sentences: Sentence[]) => {
+    if (sentences.length === 0) return;
+    const shuffled = [...sentences].sort(() => 0.5 - Math.random());
+    setSessionQueue(shuffled);
+    setSessionIndex(0);
+    setSessionStats({ correct: 0, total: 0 });
+    setMistakeStats({});
+    setIsSessionFinished(false);
+    setMode('session');
+    loadSentence(shuffled[0]);
   };
 
   const nextSessionSentence = () => {
@@ -428,26 +442,27 @@ export function useTrainer(): TrainerState {
         if (!isConsistentRole || missedInternalSplit) chunkFeedback[idx] = FEEDBACK_STRUCTURE.INCONSISTENT;
         else if (splitTooEarly || startedTooLate) chunkFeedback[idx] = FEEDBACK_STRUCTURE.TOO_MANY_SPLITS;
         else chunkFeedback[idx] = "De verdeling klopt niet.";
+        currentMistakes['Verdeling'] = (currentMistakes['Verdeling'] || 0) + 1;
       } else {
         const userLabel = chunkLabels[firstTokenId];
         if (userLabel === firstTokenRole) {
           chunkStatus[idx] = 'correct';
           correctChunksCount++;
         } else {
+          const correctRoleName = ROLES.find(r => r.key === firstTokenRole)?.label || firstTokenRole;
           if (firstTokenRole === 'pv' && userLabel === 'wg') {
              chunkStatus[idx] = 'warning';
              chunkFeedback[idx] = FEEDBACK_MATRIX['wg'] && FEEDBACK_MATRIX['wg']['pv'] ? FEEDBACK_MATRIX['wg']['pv'] : "Dit hoort bij het gezegde.";
+             currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
           } else {
              chunkStatus[idx] = 'incorrect-role';
              if (userLabel && FEEDBACK_MATRIX[userLabel] && FEEDBACK_MATRIX[userLabel][firstTokenRole]) {
                  chunkFeedback[idx] = FEEDBACK_MATRIX[userLabel][firstTokenRole];
              } else {
                  const userRoleName = ROLES.find(r => r.key === userLabel)?.label || "Gekozen";
-                 const correctRoleName = ROLES.find(r => r.key === firstTokenRole)?.label || "Juiste";
                  chunkFeedback[idx] = `Dit is niet ${userRoleName}, maar het ${correctRoleName}.`;
              }
-             const roleName = ROLES.find(r => r.key === firstTokenRole)?.label || firstTokenRole;
-             currentMistakes[roleName] = (currentMistakes[roleName] || 0) + 1;
+             currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
           }
         }
       }
@@ -476,7 +491,10 @@ export function useTrainer(): TrainerState {
       isPerfect: reallyPerfect
     });
 
-    if (mode === 'session') {
+    // Guard: only update stats and record usage on the FIRST check per sentence.
+    // Prevents double-counting when the student clicks Controleer multiple times.
+    if (!validationResult) {
+      if (mode === 'session') {
         const newTotal = sessionStats.total + realChunkCount;
         const newCorrect = sessionStats.correct + correctChunksCount;
         setSessionStats({ correct: newCorrect, total: newTotal });
@@ -485,6 +503,9 @@ export function useTrainer(): TrainerState {
            newMistakeStats[role] = (newMistakeStats[role] || 0) + count;
         });
         setMistakeStats(newMistakeStats);
+      }
+      const splitErrorCount = Object.values(chunkStatus).filter(s => s === 'incorrect-split').length;
+      recordAttempt(currentSentence.id, reallyPerfect, currentMistakes, splitErrorCount);
     }
   };
 
@@ -536,12 +557,15 @@ export function useTrainer(): TrainerState {
       }
     });
 
-    if (mode === 'session' && !validationResult) {
-        let realChunkCount = 0;
-        currentSentence.tokens.forEach((t, i) => {
-            if (i === 0 || t.role !== currentSentence.tokens[i-1].role || t.newChunk) realChunkCount++;
-        });
+    if (!validationResult) {
+      let realChunkCount = 0;
+      currentSentence.tokens.forEach((t, i) => {
+          if (i === 0 || t.role !== currentSentence.tokens[i-1].role || t.newChunk) realChunkCount++;
+      });
+      if (mode === 'session') {
         setSessionStats(prev => ({ correct: prev.correct, total: prev.total + realChunkCount }));
+      }
+      recordShowAnswer(currentSentence.id);
     }
 
     setChunkLabels(correctChunkLabels);
@@ -605,7 +629,7 @@ export function useTrainer(): TrainerState {
 
     // Actions
     refreshCustomSentences,
-    startSession, nextSessionSentence,
+    startSession, startSharedSession, nextSessionSentence,
     handleSentenceSelect, toggleSplit,
     handleNextStep, handleBackStep,
     handleDragStart, handleDropChunk, handleDropWord,
