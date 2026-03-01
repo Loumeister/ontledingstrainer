@@ -184,7 +184,8 @@ export function useTrainer(): TrainerState {
   const getFilteredSentences = (): Sentence[] => {
     return allSentences.filter(s => {
       const isCompound = s.level === 4;
-      if (isCompound && !focusBijzin) return false;
+      const explicitlySelectedCompoundLevel = selectedLevel === 4;
+      if (isCompound && !focusBijzin && !explicitlySelectedCompoundLevel) return false;
 
       if (predicateMode === 'WG' && s.predicateType !== 'WG') return false;
       if (predicateMode === 'NG' && s.predicateType !== 'NG') return false;

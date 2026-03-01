@@ -123,9 +123,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <div>
               <h3 className="font-bold text-slate-700 dark:text-slate-200 mb-2 text-sm uppercase tracking-wider">Moeilijkheidsgraad</h3>
               <div className="flex gap-2">
-                {[null, 1, 2, 3].map((lvl) => (
+                {[null, 1, 2, 3, 4].map((lvl) => (
                   <button key={lvl || 'all'} onClick={() => setSelectedLevel(lvl as DifficultyLevel)} className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${selectedLevel === lvl ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'}`}>
-                    {lvl === null ? 'Alles' : lvl === 1 ? 'Basis' : lvl === 2 ? 'Middel' : 'Hoog'}
+                    {lvl === null ? 'Alles' : lvl === 1 ? 'Basis' : lvl === 2 ? 'Middel' : lvl === 3 ? 'Hoog' : 'Expert'}
                   </button>
                 ))}
               </div>
