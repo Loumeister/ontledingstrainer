@@ -115,124 +115,112 @@ export const FEEDBACK_STRUCTURE = {
 // Structure: FEEDBACK_MATRIX[userLabel][correctRole]
 export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
 
-  // student labeled as OW
   'ow': {
-    'pv': "Tijdsproef: welk woord verandert bij verleden tijd?",
+    'pv': "Tijdsproef?",
     'lv': "OW: wie/wat + PV? LV: wie/wat + OW + PV?",
     'mv': "OW: wie/wat + PV? MV: aan/voor wie + PV?",
-    'bwb': "OW: wie/wat + PV? Geeft dit extra info over tijd/plaats/manier/reden?",
-    'vv': "Begint dit met een vast voorzetsel van het werkwoord?",
-    'wg': "Zijn dit werkwoorden? Het OW is nooit een werkwoord.",
-    'nwd': "OW: wie/wat + PV? Of beschrijft dit een eigenschap via een koppelwerkwoord?",
-    'bijst': "Staat dit tussen komma's als alternatieve naam, of is het de actor?",
-    'bijzin': "Heeft dit zinsdeel een eigen persoonsvorm?",
+    'bwb': "OW: wie/wat + PV?",
+    'vv': "Begint dit met een voorzetsel?",
+    'wg': "Zijn dit werkwoorden?",
+    'nwd': "OW: wie/wat + PV?",
+    'bijst': "Staat dit tussen komma's als hernoemer?",
+    'bijzin': "Eigen PV?",
   },
 
-  // student labeled as PV
   'pv': {
-    'wg': "Tijdsproef: is dit het ene woord dat verandert, of zijn dit meer werkwoorden?",
-    'ow': "Is dit een werkwoord? Doe de tijdsproef.",
-    'lv': "Is dit een werkwoord of een zelfstandig naamwoord?",
-    'nwd': "De PV is het koppelwerkwoord zelf — niet het beschrijvende deel erna.",
-    'bwb': "Is dit een werkwoord of extra info over tijd/plaats/manier?",
+    'wg': "Tijdsproef: is dit het ene werkwoord dat verandert?",
+    'ow': "Is dit een werkwoord?",
+    'lv': "Is dit een werkwoord?",
+    'nwd': "Is dit het koppelwerkwoord zelf?",
+    'bwb': "Is dit een werkwoord?",
   },
 
-  // student labeled as WG
   'wg': {
-    'pv': "De PV is een aparte categorie. Zijn er ook infinitieven of deelwoorden?",
-    'nwd': "Is het werkwoord een koppelwerkwoord (zijn, worden, lijken…)?",
-    'lv': "LV: wat + PV + OW? Zijn dit werkwoorden of een zelfstandig naamwoord?",
-    'ow': "OW: wie/wat + PV? Zijn dit werkwoorden?",
-    'bwb': "Zijn dit werkwoorden, of extra info over tijd/plaats/manier?",
-    'vv': "Het WG bestaat uit werkwoorden. Begint dit met een voorzetsel?",
-    'mv': "MV: aan/voor wie + PV? Werkwoorden drukken uit — ze ontvangen niet.",
+    'pv': "PV = apart label. Zijn er ook andere werkwoorden?",
+    'nwd': "Koppelwerkwoord (zijn/worden/lijken…)?",
+    'lv': "Zijn dit werkwoorden?",
+    'ow': "Zijn dit werkwoorden?",
+    'bwb': "Zijn dit werkwoorden?",
+    'vv': "Begint dit met een voorzetsel?",
+    'mv': "Zijn dit werkwoorden?",
   },
 
-  // student labeled as NWD
   'nwd': {
-    'wg': "Is er een koppelwerkwoord (zijn, worden, lijken…)?",
-    'lv': "LV: wat + PV + OW? Ondergaat dit de handeling, of beschrijft het een eigenschap?",
-    'bwb': "Beschrijft dit een eigenschap via een koppelwerkwoord, of extra info die je kunt weglaten?",
-    'ow': "OW: wie/wat + PV? Of beschrijft dit een eigenschap van de actor?",
+    'wg': "Koppelwerkwoord aanwezig?",
+    'lv': "Ondergaat of beschrijft dit?",
+    'bwb': "Via koppelwerkwoord, of weglasbaar?",
+    'ow': "OW: wie/wat + PV?",
   },
 
-  // student labeled as LV
   'lv': {
-    'ow': "OW: wie/wat + PV? LV: wie/wat + OW + PV? Voert dit uit of ondergaat het?",
-    'vv': "Begint dit met een vast voorzetsel van het werkwoord (bijv. 'wachten op')?",
-    'bwb': "LV: wie/wat + PV + OW? Of is dit extra info over tijd/plaats/manier/reden?",
+    'ow': "OW: wie/wat + PV? LV: wie/wat + OW + PV?",
+    'vv': "Vast voorzetsel bij het werkwoord?",
+    'bwb': "LV: wie/wat + PV + OW?",
     'mv': "LV: wie/wat + PV + OW? MV: aan/voor wie + PV + OW?",
-    'nwd': "Ondergaat dit de handeling, of beschrijft het een eigenschap via een koppelwerkwoord?",
-    'bijst': "Kun je dit weglaten zonder de kernbetekenis te verliezen?",
-    'wg': "Zijn dit werkwoorden of een zelfstandig naamwoord dat de handeling ondergaat?",
-    'bijzin': "Heeft dit zinsdeel een eigen persoonsvorm?",
+    'nwd': "Ondergaat of beschrijft dit?",
+    'bijst': "Weglasbaar zonder betekenisverlies?",
+    'wg': "Zijn dit werkwoorden?",
+    'bijzin': "Eigen PV?",
   },
 
-  // student labeled as MV
   'mv': {
-    'ow': "OW: wie/wat + PV? MV: aan/voor wie + PV? Voert dit uit of ontvangt het?",
+    'ow': "OW: wie/wat + PV? MV: aan/voor wie + PV?",
     'lv': "LV: wie/wat + PV + OW? MV: aan/voor wie + PV + OW?",
-    'vv': "Kun je het voorzetsel door 'aan'/'voor' vervangen? Of hoort het vast bij het werkwoord?",
-    'bwb': "MV: aan/voor wie + PV? Of is dit extra info over tijd/plaats/manier?",
-    'pv': "Tijdsproef: verandert dit woord bij verleden tijd? Het MV is nooit een werkwoord.",
-    'nwd': "Ontvangt dit iets, of beschrijft het een eigenschap via een koppelwerkwoord?",
+    'vv': "Vervangbaar door 'aan'/'voor'?",
+    'bwb': "MV: aan/voor wie + PV?",
+    'pv': "Tijdsproef?",
+    'nwd': "Ontvangt of beschrijft dit?",
   },
 
-  // student labeled as VZV
   'vv': {
-    'bwb': "Hoort het voorzetsel figuurlijk vast bij het werkwoord (bijv. 'wachten op')? Of geeft het letterlijk een plaats/tijd aan?",
-    'lv': "LV: wat + PV + OW? Is het voorzetsel los (geen vast deel van het werkwoord)?",
-    'mv': "MV: aan/voor wie + PV? Kun je het voorzetsel door 'aan'/'voor' vervangen?",
-    'ow': "OW: wie/wat + PV? Is dit de actor, of begint het met een voorzetsel?",
-    'nwd': "Begint dit met een vast voorzetsel, of beschrijft het een eigenschap via een koppelwerkwoord?",
+    'bwb': "Figuurlijk of letterlijk voorzetsel?",
+    'lv': "Voorzetsel vast of los?",
+    'mv': "Vervangbaar door 'aan'/'voor'?",
+    'ow': "OW: wie/wat + PV?",
+    'nwd': "Vast voorzetsel, of beschrijving via koppelwerkwoord?",
   },
 
-  // student labeled as BWB
   'bwb': {
-    'vv': "Hoort het voorzetsel figuurlijk vast bij het werkwoord (bijv. 'dromen van')?",
-    'lv': "LV: wie/wat + PV + OW? Geeft dit een direct object aan?",
-    'ow': "OW: wie/wat + PV? Is dit de actor?",
-    'bijzin': "Heeft dit zinsdeel een eigen persoonsvorm?",
-    'mv': "MV: aan/voor wie + PV? Of is dit extra informatie?",
-    'nwd': "Beschrijft dit een eigenschap via een koppelwerkwoord, of extra info die je kunt weglaten?",
-    'bijst': "Staat dit tussen komma's als alternatieve naam, of als extra info over de handeling?",
-    'pv': "Tijdsproef: verandert dit woord bij verleden tijd?",
-    'wg': "Zijn dit werkwoorden van het gezegde, of extra informatie?",
+    'vv': "Figuurlijk vast voorzetsel bij het werkwoord?",
+    'lv': "LV: wie/wat + PV + OW?",
+    'ow': "OW: wie/wat + PV?",
+    'bijzin': "Eigen PV?",
+    'mv': "MV: aan/voor wie + PV?",
+    'nwd': "Via koppelwerkwoord?",
+    'bijst': "Tussen komma's als hernoemer?",
+    'pv': "Tijdsproef?",
+    'wg': "Zijn dit werkwoorden?",
   },
 
-  // student labeled as bijstelling
   'bijst': {
-    'ow': "OW: wie/wat + PV? Staat dit als alternatieve naam, of is het de actor?",
-    'lv': "LV: wat + PV + OW? Kun je dit weglaten zonder de kernbetekenis te verliezen?",
-    'bwb': "Staat dit tussen komma's als alternatieve naam, of geeft het extra informatie?",
-    'nwd': "Beschrijft dit een eigenschap via een koppelwerkwoord, of staat het als alternatieve naam?",
-    'vv': "Begint dit met een vast voorzetsel, of staat het als alternatieve naam?",
-    'bijzin': "Heeft dit zinsdeel een eigen persoonsvorm?",
-    'wg': "Zijn dit werkwoorden, of staan ze als alternatieve naam?",
+    'ow': "OW: wie/wat + PV?",
+    'lv': "Weglasbaar zonder betekenisverlies?",
+    'bwb': "Extra info, of hernoemer?",
+    'nwd': "Via koppelwerkwoord, of hernoemer?",
+    'vv': "Vast voorzetsel, of hernoemer?",
+    'bijzin': "Eigen PV?",
+    'wg': "Werkwoorden, of hernoemer?",
   },
 
-  // student labeled as bijzin
   'bijzin': {
-    'bwb': "Heeft dit zinsdeel een eigen persoonsvorm? Of geeft het info zonder eigen PV?",
-    'ow': "Heeft dit zinsdeel een eigen persoonsvorm? Of is het de actor?",
-    'lv': "Heeft dit zinsdeel een eigen persoonsvorm? Of is het een direct object?",
-    'bijst': "Heeft dit zinsdeel een eigen persoonsvorm? Of staat het als alternatieve naam?",
-    'vv': "Heeft dit zinsdeel een eigen persoonsvorm? Of begint het met een vast voorzetsel?",
+    'bwb': "Eigen PV?",
+    'ow': "Eigen PV?",
+    'lv': "Eigen PV?",
+    'bijst': "Eigen PV?",
+    'vv': "Eigen PV?",
   },
 
-  // student labeled as vw_onder
   'vw_onder': {
-    'vw_neven': "Leidt dit een bijzin in (afhankelijk), of verbindt het twee gelijkwaardige zinnen?",
-    'bwb': "Is dit één inleidend woord van een bijzin, of een zelfstandig zinsdeel?",
-    'ow': "Is dit de actor, of een woord dat een bijzin inleidt?",
-    'lv': "LV: wat + PV + OW? Of leidt dit een bijzin in?",
+    'vw_neven': "Afhankelijk of gelijkwaardig?",
+    'bwb': "Inleidend woord of zelfstandig zinsdeel?",
+    'ow': "OW: wie/wat + PV?",
+    'lv': "Is dit een inhoudswoord?",
   },
 
-  // student labeled as vw_neven
   'vw_neven': {
-    'vw_onder': "Verbindt dit twee gelijkwaardige zinnen, of leidt het een afhankelijke bijzin in?",
-    'bwb': "Verbindt dit twee zinnen, of geeft het extra informatie?",
-    'ow': "OW: wie/wat + PV? Of verbindt dit woord twee zinnen?",
+    'vw_onder': "Twee gelijkwaardige zinnen of afhankelijke bijzin?",
+    'bwb': "Verbindingswoord of inhoudelijk zinsdeel?",
+    'ow': "OW: wie/wat + PV?",
   }
 };
 
