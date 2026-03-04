@@ -48,3 +48,42 @@ Wil je extra trainen op één onderdeel? Vink deze dan aan. De app zoekt dan all
 Hiermee kun je bepaalde lastige onderdelen "uitzetten" als je ze nog niet hebt gehad in de les.
 *   **Bijstelling:** (Jan, *mijn broer*, komt langs).
 *   **Bijvoeglijke bepaling:** (De *rode* auto).
+
+---
+
+## 👩‍🏫 Docentenmodus (Eigen zinnen maken)
+
+De app heeft een ingebouwde editor waarmee docenten eigen zinnen kunnen aanmaken en delen met leerlingen.
+
+### Toegang
+
+Navigeer naar de volgende URL (niet gelinkt in de interface voor leerlingen):
+```
+<app-url>/editor
+```
+of de hash-variant: `<app-url>/#/editor`
+
+De editor vraagt om een pincode. De standaard pincode is **1234**. Vraag je schoolbeheerder als de pincode is gewijzigd.
+
+### Wat kun je in de editor?
+
+*   **Nieuwe zin aanmaken:** Typ een zin in, deel hem op in zinsdelen en ken grammaticale rollen toe aan elk zinsdeel.
+*   **Bestaande zinnen bekijken en kopiëren:** Je kunt alle ingebouwde zinnen inzien en als basis voor eigen varianten gebruiken.
+*   **Eigen zinnen bewerken of verwijderen:** Gemaakte zinnen zijn te bewerken en te verwijderen via de lijst.
+*   **Exporteren:** Download je eigen zinnen als een `.json`-bestand (`docent-zinnen.json`).
+*   **Delen via URL:** Genereer een deellink. Leerlingen openen die link en kunnen direct oefenen met jouw zinnen — zonder account of installatie.
+
+### Workflow: zinnen delen met leerlingen
+
+1.  Open de editor door naar `<app-url>/editor` te navigeren.
+2.  Maak één of meer zinnen aan.
+3.  Klik op **Kopieer deellink** (of exporteer het `.json`-bestand).
+4.  Stuur de link (of het bestand) naar je leerlingen:
+    *   **Via link:** Leerlingen openen de link in de browser en zien bovenaan een gele banner "Zinnen van je docent". Ze klikken op **Oefenen met docentzinnen**.
+    *   **Via bestand:** Leerlingen klikken op **Importeer zinnen (.json)** op het startscherm en laden het bestand in.
+
+### Technische details
+
+*   Eigen zinnen worden lokaal opgeslagen in de browser (`localStorage`). Ze zijn alleen zichtbaar op het apparaat waarop ze zijn aangemaakt.
+*   Via de deellink worden de zinnen versleuteld meegestuurd in de URL. Er is geen server of account nodig.
+*   De pincode beschermt de editor tegen onbedoeld gebruik door leerlingen op een gedeeld apparaat. Hij biedt geen volledige beveiliging; gebruik hem niet voor gevoelige gegevens.

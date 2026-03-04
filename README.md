@@ -35,9 +35,43 @@ De app moet gebuild worden omdat browsers geen TypeScript (`.tsx`) begrijpen.
 
 ---
 
+## 👩‍🏫 Docentenmodus
+
+De app bevat een PIN-beveiligde editor waarmee docenten eigen oefen­zinnen kunnen aanmaken en met leerlingen delen.
+
+### Toegang
+
+*   Navigeer naar `<app-url>/editor` of `<app-url>/#/editor` (geen link in de interface voor leerlingen).
+*   De standaard pincode is **`1234`**.
+
+### Functies
+
+*   Nieuwe zinnen aanmaken via een visuele stap-voor-stap editor (tekst → opdelen → rollen toekennen).
+*   Ingebouwde zinnen inzien en als sjabloon kopiëren.
+*   Eigen zinnen exporteren als `.json` (`docent-zinnen.json`).
+*   Deellink genereren: zinnen worden versleuteld meegestuurd als `?zinnen=`-parameter. Leerlingen zien een banner op het startscherm en oefenen direct.
+
+### Werkwijze
+
+```
+Docent:  Editor → Maak zinnen → Kopieer deellink
+Leerling: Opent link → Banner "Zinnen van je docent" → Klik "Oefenen"
+```
+
+---
+
 ## 📝 Content Management (Nieuwe zinnen toevoegen)
 
-Alle zinnen en regels staan in `constants.ts`.
+De ingebouwde zinnen staan verdeeld over vier JSON-bestanden in `data/`:
+
+| Bestand | Niveau |
+|---------|--------|
+| `data/sentences-level-1.json` | Basis |
+| `data/sentences-level-2.json` | Middel |
+| `data/sentences-level-3.json` | Hoog |
+| `data/sentences-level-4.json` | Samengesteld (Expert) |
+
+> **Tip voor docenten:** Gebruik de [Docentenmodus](#-docentenmodus) om zinnen aan te maken zonder de broncode aan te passen.
 
 ### 1. Datastructuur van een zin
 Voeg nieuwe zinnen toe aan de `SENTENCES` array:
