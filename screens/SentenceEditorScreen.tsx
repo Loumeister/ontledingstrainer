@@ -36,6 +36,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
   const [splitIndices, setSplitIndices] = useState<Set<number>>(new Set());
   const [chunkLabels, setChunkLabels] = useState<Record<string, RoleKey>>({});
   const [subLabels, setSubLabels] = useState<Record<string, RoleKey>>({});
+  const [bijzinFunctieLabels, setBijzinFunctieLabels] = useState<Record<string, RoleKey>>({});
   const [predicateType, setPredicateType] = useState<PredicateType>('WG');
   const [level, setLevel] = useState<DifficultyLevel>(1);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -133,6 +134,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     setSplitIndices(new Set());
     setChunkLabels({});
     setSubLabels({});
+    setBijzinFunctieLabels({});
     setPredicateType('WG');
     setLevel(1);
     setEditingId(null);
@@ -152,6 +154,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     setSplitIndices(new Set());
     setChunkLabels({});
     setSubLabels({});
+    setBijzinFunctieLabels({});
     setPhase('edit');
   };
 
@@ -195,14 +198,19 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     // Recompute chunks and remap labels
     const newChunks = getChunksFromSplits(next);
     const newLabels: Record<string, RoleKey> = {};
+    const newBijzinFunctie: Record<string, RoleKey> = {};
     newChunks.forEach((newChunk, newIdx) => {
       const firstWordIdx = newChunk.indices[0];
       const oldChunkIdx = oldChunks.findIndex(c => c.indices.includes(firstWordIdx));
       if (oldChunkIdx >= 0 && chunkLabels[oldChunkIdx]) {
         newLabels[newIdx] = chunkLabels[oldChunkIdx];
       }
+      if (oldChunkIdx >= 0 && bijzinFunctieLabels[oldChunkIdx]) {
+        newBijzinFunctie[newIdx] = bijzinFunctieLabels[oldChunkIdx];
+      }
     });
     setChunkLabels(newLabels);
+    setBijzinFunctieLabels(newBijzinFunctie);
   };
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, roleKey: string) => {
@@ -239,6 +247,20 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     setSubLabels(next);
   };
 
+  const handleDropBijzinFunctie = (e: React.DragEvent<HTMLDivElement>, chunkIdx: number) => {
+    e.preventDefault();
+    const roleKey = e.dataTransfer.getData('text/role') as RoleKey;
+    if (roleKey) {
+      setBijzinFunctieLabels(prev => ({ ...prev, [chunkIdx]: roleKey }));
+    }
+  };
+
+  const removeBijzinFunctieLabel = (chunkIdx: number) => {
+    const next = { ...bijzinFunctieLabels };
+    delete next[chunkIdx];
+    setBijzinFunctieLabels(next);
+  };
+
   // Build sentence object from editor state
   const buildSentence = (): Sentence => {
     const chunks = getChunks();
@@ -248,6 +270,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
 
     chunks.forEach((chunk, chunkIdx) => {
       const role = chunkLabels[chunkIdx];
+      const bijzinFunc = bijzinFunctieLabels[chunkIdx];
       chunk.indices.forEach((wordIdx, i) => {
         const token: Token = {
           id: `c${id}t${wordIdx + 1}`,
@@ -256,6 +279,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
         };
         const sub = subLabels[`w${wordIdx}`];
         if (sub) token.subRole = sub;
+        if (i === 0 && bijzinFunc && role === 'bijzin') token.bijzinFunctie = bijzinFunc;
         if (i === 0 && prevRole === role && chunkIdx > 0) {
           token.newChunk = true;
         }
@@ -327,8 +351,10 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     const newSplits = new Set<number>();
     const newChunkLabels: Record<string, RoleKey> = {};
     const newSubLabels: Record<string, RoleKey> = {};
+    const newBijzinFunctieLabels: Record<string, RoleKey> = {};
     let chunkIdx = 0;
     newChunkLabels[0] = s.tokens[0].role;
+    if (s.tokens[0].bijzinFunctie) newBijzinFunctieLabels[0] = s.tokens[0].bijzinFunctie;
 
     s.tokens.forEach((t, i) => {
       if (t.subRole) newSubLabels[`w${i}`] = t.subRole;
@@ -338,6 +364,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
           newSplits.add(i - 1);
           chunkIdx++;
           newChunkLabels[chunkIdx] = t.role;
+          if (t.bijzinFunctie) newBijzinFunctieLabels[chunkIdx] = t.bijzinFunctie;
         }
       }
     });
@@ -345,6 +372,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     setSplitIndices(newSplits);
     setChunkLabels(newChunkLabels);
     setSubLabels(newSubLabels);
+    setBijzinFunctieLabels(newBijzinFunctieLabels);
     setPhase('edit');
   };
 
@@ -551,6 +579,8 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
             {chunks.map((chunk, chunkIdx) => {
               const assignedRoleKey = chunkLabels[chunkIdx];
               const roleDef = assignedRoleKey ? ROLES.find(r => r.key === assignedRoleKey) || null : null;
+              const bijzinFunctieKey = bijzinFunctieLabels[chunkIdx];
+              const bijzinFunctieDef = bijzinFunctieKey ? ROLES.find(r => r.key === bijzinFunctieKey) || null : null;
               const lastWordIdx = chunk.indices[chunk.indices.length - 1];
 
               return (
@@ -559,10 +589,13 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
                     chunk={chunk}
                     chunkIdx={chunkIdx}
                     roleDef={roleDef}
+                    bijzinFunctieDef={bijzinFunctieDef}
                     subLabels={subLabels}
                     onDropChunk={handleDropChunk}
+                    onDropBijzinFunctie={handleDropBijzinFunctie}
                     onDropWord={handleDropWord}
                     onRemoveChunkLabel={removeChunkLabel}
+                    onRemoveBijzinFunctie={removeBijzinFunctieLabel}
                     onRemoveSubLabel={removeSubLabel}
                     onToggleSplit={toggleSplit}
                   />
@@ -709,20 +742,25 @@ interface EditorChunkProps {
   chunk: { words: string[]; indices: number[] };
   chunkIdx: number;
   roleDef: RoleDefinition | null;
+  bijzinFunctieDef: RoleDefinition | null;
   subLabels: Record<string, RoleKey>;
   onDropChunk: (e: React.DragEvent<HTMLDivElement>, chunkIdx: number) => void;
+  onDropBijzinFunctie: (e: React.DragEvent<HTMLDivElement>, chunkIdx: number) => void;
   onDropWord: (e: React.DragEvent<HTMLSpanElement>, wordIdx: number) => void;
   onRemoveChunkLabel: (chunkIdx: number) => void;
+  onRemoveBijzinFunctie: (chunkIdx: number) => void;
   onRemoveSubLabel: (wordIdx: number) => void;
   onToggleSplit: (wordIdx: number) => void;
 }
 
 const EditorChunk: React.FC<EditorChunkProps> = ({
-  chunk, chunkIdx, roleDef, subLabels,
-  onDropChunk, onDropWord, onRemoveChunkLabel, onRemoveSubLabel, onToggleSplit,
+  chunk, chunkIdx, roleDef, bijzinFunctieDef, subLabels,
+  onDropChunk, onDropBijzinFunctie, onDropWord, onRemoveChunkLabel, onRemoveBijzinFunctie, onRemoveSubLabel, onToggleSplit,
 }) => {
   const [isOver, setIsOver] = useState(false);
+  const [isOverBijzinFunctie, setIsOverBijzinFunctie] = useState(false);
   const [hoveredWord, setHoveredWord] = useState<number | null>(null);
+  const showBijzinFunctieRow = roleDef?.key === 'bijzin';
 
   let borderColor = 'border-slate-300 dark:border-slate-600';
   let bgColor = 'bg-white dark:bg-slate-800';
@@ -755,6 +793,27 @@ const EditorChunk: React.FC<EditorChunkProps> = ({
           'Sleep zinsdeel hier'
         )}
       </div>
+
+      {/* Bijzin Function Row */}
+      {showBijzinFunctieRow && (
+        <div
+          className={`h-8 border-b border-dashed border-slate-200 dark:border-slate-600 flex items-center justify-center text-[11px] cursor-pointer transition-all ${isOverBijzinFunctie ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-400' : ''} ${bijzinFunctieDef ? bijzinFunctieDef.colorClass + ' font-bold hover:opacity-80' : 'text-slate-400 dark:text-slate-500 italic'}`}
+          onDragOver={e => { e.preventDefault(); e.stopPropagation(); setIsOverBijzinFunctie(true); setIsOver(false); }}
+          onDragLeave={() => setIsOverBijzinFunctie(false)}
+          onDrop={e => { e.preventDefault(); e.stopPropagation(); setIsOverBijzinFunctie(false); onDropBijzinFunctie(e, chunkIdx); }}
+          onClick={() => bijzinFunctieDef && onRemoveBijzinFunctie(chunkIdx)}
+        >
+          {bijzinFunctieDef ? (
+            <div className="flex items-center gap-2 w-full justify-center px-2 relative group/functie">
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 mr-1">functie:</span>
+              <span>{bijzinFunctieDef.label}</span>
+              <button onClick={e => { e.stopPropagation(); onRemoveBijzinFunctie(chunkIdx); }} className="hidden group-hover/functie:flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-4 h-4 items-center justify-center transition-colors text-[10px]">×</button>
+            </div>
+          ) : (
+            <span className="text-[10px]">Sleep functie hier (bijv. LV, BWB)</span>
+          )}
+        </div>
+      )}
 
       {/* Words with inline splitters */}
       <div className="p-3 flex flex-wrap gap-y-4 gap-x-0 justify-center items-end min-h-[60px] text-lg leading-tight">
