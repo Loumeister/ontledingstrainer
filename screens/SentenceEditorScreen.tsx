@@ -315,7 +315,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
         const sub = subLabels[`w${wordIdx}`];
         if (sub) token.subRole = sub;
         if (i === 0 && bijzinFunc && role === 'bijzin') token.bijzinFunctie = bijzinFunc;
-        if (i === 0 && bijzinFunc === 'bijv_bep' && bijvBepLinks[chunkIdx] !== undefined) {
+        if (i === 0 && role === 'bijzin' && bijzinFunc === 'bijv_bep' && bijvBepLinks[chunkIdx] !== undefined) {
           token.bijvBepTarget = `c${id}t${bijvBepLinks[chunkIdx] + 1}`;
         }
         if (i === 0 && prevRole === role && chunkIdx > 0) {
@@ -634,7 +634,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
           {linkingBijvBepIdx !== null && (
             <div className="bg-teal-50 dark:bg-teal-900/30 border border-teal-300 dark:border-teal-700 rounded-xl p-3 flex items-center justify-between">
               <p className="text-sm font-medium text-teal-800 dark:text-teal-200">
-                Klik op een woord in een <strong>ander</strong> zinsdeel om de bijvoeglijke bepaling te koppelen.
+                Klik op het woord waar deze bijzin bij hoort om de bijvoeglijke bepaling te koppelen.
               </p>
               <button
                 onClick={cancelBijvBepLinking}
@@ -908,20 +908,20 @@ const EditorChunk: React.FC<EditorChunkProps> = ({
         <div className="h-8 border-b border-dashed border-slate-200 dark:border-slate-600 flex items-center justify-center text-[11px] px-2">
           {bijvBepTargetText ? (
             <div className="flex items-center gap-1 group/bvblink">
-              <span className="text-teal-600 dark:text-teal-400">verwijst naar: '{bijvBepTargetText}'</span>
+              <span className="text-teal-600 dark:text-teal-400">hoort bij: '{bijvBepTargetText}'</span>
               <button
                 onClick={() => onRemoveBijvBepLink(chunkIdx)}
                 className="hidden group-hover/bvblink:inline-flex hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-4 h-4 items-center justify-center transition-colors text-[10px] text-red-500"
               >×</button>
             </div>
           ) : isLinkingSource ? (
-            <span className="text-teal-600 dark:text-teal-400 animate-pulse">← Klik op het woord in een ander zinsdeel</span>
+            <span className="text-teal-600 dark:text-teal-400 animate-pulse">← Klik op het woord waar deze bijzin bij hoort</span>
           ) : (
             <button
               onClick={() => onStartBijvBepLinking(chunkIdx)}
               className="text-teal-500 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors"
             >
-              Klik hier om het woord aan te wijzen →
+              Wijs het woord aan waar deze bijzin bij hoort →
             </button>
           )}
         </div>

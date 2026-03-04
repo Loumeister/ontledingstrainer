@@ -169,7 +169,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
               {/* Banner for bijv_bep linking mode */}
               {linkingBijvBepId && (
                 <div className="w-full flex items-center justify-center gap-3 px-4 py-2 bg-teal-50 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-700 rounded-lg text-sm text-teal-700 dark:text-teal-300">
-                  <span>Klik op het woord waar de bijzin naar verwijst</span>
+                  <span>Klik op het woord waar deze bijzin bij hoort</span>
                   <button
                     onClick={cancelBijvBepLinking}
                     className="px-2 py-0.5 text-xs rounded bg-teal-100 dark:bg-teal-800 hover:bg-teal-200 dark:hover:bg-teal-700 transition-colors"

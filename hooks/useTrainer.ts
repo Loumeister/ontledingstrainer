@@ -589,11 +589,11 @@ export function useTrainer(): TrainerState {
           if (userTarget !== firstToken.bijvBepTarget) {
             bijvBepLinkMismatch = true;
             if (!userTarget) {
-              chunkFeedback[idx] = "Goed! Klik nu op het woord waar deze bijzin naar verwijst.";
+              chunkFeedback[idx] = "Goed! Wijs nu het woord aan waar deze bijzin bij hoort.";
               chunkStatus[idx] = 'warning';
             } else {
               const expectedTarget = currentSentence.tokens.find(t => t.id === firstToken.bijvBepTarget);
-              chunkFeedback[idx] = `De bijzin verwijst naar '${expectedTarget?.text || '?'}', niet het woord dat je hebt gekozen.`;
+              chunkFeedback[idx] = `De bijzin hoort bij '${expectedTarget?.text || '?'}', niet het woord dat je hebt gekozen.`;
               chunkStatus[idx] = 'warning';
             }
           }

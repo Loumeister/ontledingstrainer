@@ -227,7 +227,7 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
         <div className="h-7 border-b border-dashed border-slate-200 dark:border-slate-600 flex items-center justify-center text-[10px] px-2">
           {bijvBepTargetText ? (
             <div className="flex items-center gap-1 group/link">
-              <span className="text-slate-400 dark:text-slate-500">verwijst naar:</span>
+              <span className="text-slate-400 dark:text-slate-500">hoort bij:</span>
               <span className="font-bold text-teal-700 dark:text-teal-300">'{bijvBepTargetText}'</span>
               {!validationState && (
                 <button
@@ -239,14 +239,14 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
             </div>
           ) : isLinkingSource ? (
             <span className="text-blue-500 dark:text-blue-400 animate-pulse font-medium">
-              ← Klik op het woord in een ander zinsdeel
+              ← Klik op het woord waar deze bijzin bij hoort
             </span>
           ) : !validationState ? (
             <button
               onClick={(e) => { e.stopPropagation(); onStartBijvBepLinking(chunkId); }}
               className="text-teal-600 dark:text-teal-400 hover:underline cursor-pointer"
             >
-              Klik hier om het woord aan te wijzen →
+              Wijs het woord aan waar deze bijzin bij hoort →
             </button>
           ) : null}
         </div>
