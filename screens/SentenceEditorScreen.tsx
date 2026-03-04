@@ -37,6 +37,8 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
   const [chunkLabels, setChunkLabels] = useState<Record<string, RoleKey>>({});
   const [subLabels, setSubLabels] = useState<Record<string, RoleKey>>({});
   const [bijzinFunctieLabels, setBijzinFunctieLabels] = useState<Record<string, RoleKey>>({});
+  const [bijvBepLinks, setBijvBepLinks] = useState<Record<string, number>>({});
+  const [linkingBijvBepIdx, setLinkingBijvBepIdx] = useState<number | null>(null);
   const [predicateType, setPredicateType] = useState<PredicateType>('WG');
   const [level, setLevel] = useState<DifficultyLevel>(1);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -135,6 +137,8 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     setChunkLabels({});
     setSubLabels({});
     setBijzinFunctieLabels({});
+    setBijvBepLinks({});
+    setLinkingBijvBepIdx(null);
     setPredicateType('WG');
     setLevel(1);
     setEditingId(null);
@@ -155,6 +159,8 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     setChunkLabels({});
     setSubLabels({});
     setBijzinFunctieLabels({});
+    setBijvBepLinks({});
+    setLinkingBijvBepIdx(null);
     setPhase('edit');
   };
 
@@ -199,6 +205,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     const newChunks = getChunksFromSplits(next);
     const newLabels: Record<string, RoleKey> = {};
     const newBijzinFunctie: Record<string, RoleKey> = {};
+    const newBijvBepLinks: Record<string, number> = {};
     newChunks.forEach((newChunk, newIdx) => {
       const firstWordIdx = newChunk.indices[0];
       const oldChunkIdx = oldChunks.findIndex(c => c.indices.includes(firstWordIdx));
@@ -208,9 +215,13 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
       if (oldChunkIdx >= 0 && bijzinFunctieLabels[oldChunkIdx]) {
         newBijzinFunctie[newIdx] = bijzinFunctieLabels[oldChunkIdx];
       }
+      if (oldChunkIdx >= 0 && bijvBepLinks[oldChunkIdx] !== undefined) {
+        newBijvBepLinks[newIdx] = bijvBepLinks[oldChunkIdx];
+      }
     });
     setChunkLabels(newLabels);
     setBijzinFunctieLabels(newBijzinFunctie);
+    setBijvBepLinks(newBijvBepLinks);
   };
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, roleKey: string) => {
@@ -259,6 +270,30 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     const next = { ...bijzinFunctieLabels };
     delete next[chunkIdx];
     setBijzinFunctieLabels(next);
+    // Also remove any bijvBepLink if the function is removed
+    const nextLinks = { ...bijvBepLinks };
+    delete nextLinks[chunkIdx];
+    setBijvBepLinks(nextLinks);
+  };
+
+  const startBijvBepLinking = (chunkIdx: number) => {
+    setLinkingBijvBepIdx(chunkIdx);
+  };
+
+  const completeBijvBepLink = (wordIdx: number) => {
+    if (linkingBijvBepIdx === null) return;
+    setBijvBepLinks(prev => ({ ...prev, [linkingBijvBepIdx]: wordIdx }));
+    setLinkingBijvBepIdx(null);
+  };
+
+  const cancelBijvBepLinking = () => {
+    setLinkingBijvBepIdx(null);
+  };
+
+  const removeBijvBepLink = (chunkIdx: number) => {
+    const next = { ...bijvBepLinks };
+    delete next[chunkIdx];
+    setBijvBepLinks(next);
   };
 
   // Build sentence object from editor state
@@ -280,6 +315,9 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
         const sub = subLabels[`w${wordIdx}`];
         if (sub) token.subRole = sub;
         if (i === 0 && bijzinFunc && role === 'bijzin') token.bijzinFunctie = bijzinFunc;
+        if (i === 0 && bijzinFunc === 'bijv_bep' && bijvBepLinks[chunkIdx] !== undefined) {
+          token.bijvBepTarget = `c${id}t${bijvBepLinks[chunkIdx] + 1}`;
+        }
         if (i === 0 && prevRole === role && chunkIdx > 0) {
           token.newChunk = true;
         }
@@ -359,9 +397,15 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     const newChunkLabels: Record<string, RoleKey> = {};
     const newSubLabels: Record<string, RoleKey> = {};
     const newBijzinFunctieLabels: Record<string, RoleKey> = {};
+    const newBijvBepLinks: Record<string, number> = {};
     let chunkIdx = 0;
     newChunkLabels[0] = s.tokens[0].role;
     if (s.tokens[0].bijzinFunctie) newBijzinFunctieLabels[0] = s.tokens[0].bijzinFunctie;
+    if (s.tokens[0].bijvBepTarget) {
+      // Extract wordIdx from token ID pattern c{id}t{wordIdx+1}
+      const match = s.tokens[0].bijvBepTarget.match(/t(\d+)$/);
+      if (match) newBijvBepLinks[0] = parseInt(match[1], 10) - 1;
+    }
 
     s.tokens.forEach((t, i) => {
       if (t.subRole) newSubLabels[`w${i}`] = t.subRole;
@@ -372,6 +416,10 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
           chunkIdx++;
           newChunkLabels[chunkIdx] = t.role;
           if (t.bijzinFunctie) newBijzinFunctieLabels[chunkIdx] = t.bijzinFunctie;
+          if (t.bijvBepTarget) {
+            const match = t.bijvBepTarget.match(/t(\d+)$/);
+            if (match) newBijvBepLinks[chunkIdx] = parseInt(match[1], 10) - 1;
+          }
         }
       }
     });
@@ -380,6 +428,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     setChunkLabels(newChunkLabels);
     setSubLabels(newSubLabels);
     setBijzinFunctieLabels(newBijzinFunctieLabels);
+    setBijvBepLinks(newBijvBepLinks);
     setPhase('edit');
   };
 
@@ -581,6 +630,21 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
             </div>
           </div>
 
+          {/* Linking mode banner */}
+          {linkingBijvBepIdx !== null && (
+            <div className="bg-teal-50 dark:bg-teal-900/30 border border-teal-300 dark:border-teal-700 rounded-xl p-3 flex items-center justify-between">
+              <p className="text-sm font-medium text-teal-800 dark:text-teal-200">
+                🔗 Klik op een woord in een <strong>ander</strong> zinsdeel om de bijvoeglijke bepaling te koppelen.
+              </p>
+              <button
+                onClick={cancelBijvBepLinking}
+                className="px-3 py-1 text-xs font-bold rounded-lg border border-teal-400 dark:border-teal-600 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-800 transition-colors"
+              >
+                Annuleer
+              </button>
+            </div>
+          )}
+
           {/* Chunks with split controls */}
           <div className="flex flex-wrap gap-y-6 gap-x-2 justify-center items-start pt-2 px-1">
             {chunks.map((chunk, chunkIdx) => {
@@ -589,6 +653,8 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
               const bijzinFunctieKey = bijzinFunctieLabels[chunkIdx];
               const bijzinFunctieDef = bijzinFunctieKey ? ROLES.find(r => r.key === bijzinFunctieKey) || null : null;
               const lastWordIdx = chunk.indices[chunk.indices.length - 1];
+              const linkedWordIdx = bijvBepLinks[chunkIdx];
+              const bijvBepTargetText = linkedWordIdx !== undefined ? words[linkedWordIdx] : undefined;
 
               return (
                 <React.Fragment key={chunkIdx}>
@@ -605,6 +671,12 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
                     onRemoveBijzinFunctie={removeBijzinFunctieLabel}
                     onRemoveSubLabel={removeSubLabel}
                     onToggleSplit={toggleSplit}
+                    bijvBepTargetText={bijvBepTargetText}
+                    isLinkingMode={linkingBijvBepIdx !== null}
+                    isLinkingSource={linkingBijvBepIdx === chunkIdx}
+                    onStartBijvBepLinking={startBijvBepLinking}
+                    onRemoveBijvBepLink={removeBijvBepLink}
+                    onWordClick={completeBijvBepLink}
                   />
 
                   {/* Merge button between chunks */}
@@ -715,6 +787,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
                   <span className="opacity-60 ml-1">{rd?.shortLabel}</span>
                   {t.subRole && <span className="opacity-50 ml-0.5">({ROLES.find(r => r.key === t.subRole)?.shortLabel})</span>}
                   {t.bijzinFunctie && <span className="opacity-50 ml-0.5">[fn:{ROLES.find(r => r.key === t.bijzinFunctie)?.shortLabel}]</span>}
+                  {t.bijvBepTarget && <span className="opacity-50 ml-0.5">[→{t.bijvBepTarget}]</span>}
                   {t.newChunk && <span className="opacity-50 ml-0.5">[NC]</span>}
                 </span>
               );
@@ -759,11 +832,18 @@ interface EditorChunkProps {
   onRemoveBijzinFunctie: (chunkIdx: number) => void;
   onRemoveSubLabel: (wordIdx: number) => void;
   onToggleSplit: (wordIdx: number) => void;
+  bijvBepTargetText?: string;
+  isLinkingMode: boolean;
+  isLinkingSource: boolean;
+  onStartBijvBepLinking: (chunkIdx: number) => void;
+  onRemoveBijvBepLink: (chunkIdx: number) => void;
+  onWordClick: (wordIdx: number) => void;
 }
 
 const EditorChunk: React.FC<EditorChunkProps> = ({
   chunk, chunkIdx, roleDef, bijzinFunctieDef, subLabels,
   onDropChunk, onDropBijzinFunctie, onDropWord, onRemoveChunkLabel, onRemoveBijzinFunctie, onRemoveSubLabel, onToggleSplit,
+  bijvBepTargetText, isLinkingMode, isLinkingSource, onStartBijvBepLinking, onRemoveBijvBepLink, onWordClick,
 }) => {
   const [isOver, setIsOver] = useState(false);
   const [isOverBijzinFunctie, setIsOverBijzinFunctie] = useState(false);
@@ -823,6 +903,30 @@ const EditorChunk: React.FC<EditorChunkProps> = ({
         </div>
       )}
 
+      {/* BijvBep Link Row */}
+      {showBijzinFunctieRow && bijzinFunctieDef?.key === 'bijv_bep' && (
+        <div className="h-8 border-b border-dashed border-slate-200 dark:border-slate-600 flex items-center justify-center text-[11px] px-2">
+          {bijvBepTargetText ? (
+            <div className="flex items-center gap-1 group/bvblink">
+              <span className="text-teal-600 dark:text-teal-400">verwijst naar: &apos;{bijvBepTargetText}&apos;</span>
+              <button
+                onClick={() => onRemoveBijvBepLink(chunkIdx)}
+                className="hidden group-hover/bvblink:inline-flex hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-4 h-4 items-center justify-center transition-colors text-[10px] text-red-500"
+              >×</button>
+            </div>
+          ) : isLinkingSource ? (
+            <span className="text-teal-600 dark:text-teal-400 animate-pulse">← Klik op het woord in een ander zinsdeel</span>
+          ) : (
+            <button
+              onClick={() => onStartBijvBepLinking(chunkIdx)}
+              className="text-teal-500 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors"
+            >
+              Klik hier om het woord aan te wijzen →
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Words with inline splitters */}
       <div className="p-3 flex flex-wrap gap-y-4 gap-x-0 justify-center items-end min-h-[60px] text-lg leading-tight">
         {chunk.words.map((word, i) => {
@@ -830,6 +934,7 @@ const EditorChunk: React.FC<EditorChunkProps> = ({
           const subKey = `w${wordIdx}`;
           const subRole = subLabels[subKey] ? ROLES.find(r => r.key === subLabels[subKey]) : null;
           const isHovered = hoveredWord === wordIdx;
+          const isClickableTarget = isLinkingMode && !isLinkingSource;
 
           return (
             <React.Fragment key={wordIdx}>
@@ -844,7 +949,7 @@ const EditorChunk: React.FC<EditorChunkProps> = ({
                   </div>
                 )}
                 <span
-                  className={`text-slate-800 dark:text-slate-200 font-medium px-1 py-1 rounded transition-colors duration-200 border border-transparent ${isHovered ? 'bg-yellow-100 dark:bg-yellow-900/50 border-yellow-300 dark:border-yellow-600 shadow-sm' : ''} ${!isHovered && !subRole ? 'hover:bg-slate-100 dark:hover:bg-slate-700' : ''}`}
+                  className={`text-slate-800 dark:text-slate-200 font-medium px-1 py-1 rounded transition-colors duration-200 border border-transparent ${isHovered ? 'bg-yellow-100 dark:bg-yellow-900/50 border-yellow-300 dark:border-yellow-600 shadow-sm' : ''} ${!isHovered && !subRole && !isClickableTarget ? 'hover:bg-slate-100 dark:hover:bg-slate-700' : ''} ${isClickableTarget ? 'cursor-pointer ring-2 ring-teal-400 dark:ring-teal-500 hover:bg-teal-50 dark:hover:bg-teal-900/30 hover:ring-teal-500' : ''}`}
                   onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
                   onDragEnter={e => { e.preventDefault(); e.stopPropagation(); setHoveredWord(wordIdx); setIsOver(false); }}
                   onDragLeave={e => { e.preventDefault(); e.stopPropagation(); setHoveredWord(null); }}
@@ -853,6 +958,7 @@ const EditorChunk: React.FC<EditorChunkProps> = ({
                     onDropWord(e, wordIdx);
                     setHoveredWord(null);
                   }}
+                  onClick={isClickableTarget ? () => onWordClick(wordIdx) : undefined}
                 >
                   {word}
                 </span>
