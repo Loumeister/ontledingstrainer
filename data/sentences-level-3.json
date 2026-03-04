@@ -19,7 +19,8 @@
         "id": "s4t3",
         "text": "mijn",
         "role": "bijst",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s4t4"
       },
       {
         "id": "s4t4",
@@ -50,7 +51,8 @@
         "id": "s4t9",
         "text": "verse",
         "role": "lv",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s4t10"
       },
       {
         "id": "s4t10",
@@ -137,7 +139,8 @@
         "id": "s31t6",
         "text": "14-jarige",
         "role": "ow",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s31t7"
       },
       {
         "id": "s31t7",
@@ -228,7 +231,8 @@
         "id": "s35t9",
         "text": "geweldige",
         "role": "ow",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s35t10"
       },
       {
         "id": "s35t10",
@@ -287,7 +291,8 @@
         "id": "s36t8",
         "text": "nieuwe",
         "role": "lv",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s36t9"
       },
       {
         "id": "s36t9",
@@ -303,7 +308,8 @@
         "id": "s36t11",
         "text": "zijn",
         "role": "vv",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s36t12"
       },
       {
         "id": "s36t12",
@@ -518,7 +524,8 @@
         "id": "s41t10",
         "text": "heel",
         "role": "nwd",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s41t11"
       },
       {
         "id": "s41t11",
@@ -573,7 +580,8 @@
         "id": "s42t8",
         "text": "ons",
         "role": "vv",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s42t9"
       },
       {
         "id": "s42t9",
@@ -617,7 +625,8 @@
         "id": "s45t4",
         "text": "ervaren",
         "role": "bijst",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s45t5"
       },
       {
         "id": "s45t5",
@@ -643,7 +652,8 @@
         "id": "s45t9",
         "text": "zijn",
         "role": "mv",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s45t10"
       },
       {
         "id": "s45t10",
@@ -659,7 +669,8 @@
         "id": "s45t12",
         "text": "nieuwe",
         "role": "lv",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s45t13"
       },
       {
         "id": "s45t13",
@@ -678,7 +689,8 @@
         "id": "s62t1",
         "text": "Twee",
         "role": "ow",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s62t2"
       },
       {
         "id": "s62t2",
@@ -689,19 +701,22 @@
         "id": "s62t3",
         "text": "op",
         "role": "ow",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s62t2"
       },
       {
         "id": "s62t4",
         "text": "een",
         "role": "ow",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s62t2"
       },
       {
         "id": "s62t5",
         "text": "sneeuwscooter",
         "role": "ow",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s62t2"
       },
       {
         "id": "s62t6",
@@ -712,7 +727,8 @@
         "id": "s62t7",
         "text": "vorige",
         "role": "bwb",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s62t8"
       },
       {
         "id": "s62t8",
@@ -754,7 +770,8 @@
         "id": "s62t15",
         "text": "enorme",
         "role": "mv",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s62t16"
       },
       {
         "id": "s62t16",
@@ -793,7 +810,8 @@
         "id": "s76t5",
         "text": "onverwachte",
         "role": "lv",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s76t6"
       },
       {
         "id": "s76t6",
@@ -809,7 +827,8 @@
         "id": "s76t8",
         "text": "hun",
         "role": "bwb",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s76t9"
       },
       {
         "id": "s76t9",
@@ -826,7 +845,8 @@
         "id": "s76t11",
         "text": "belangrijke",
         "role": "bwb",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s76t12"
       },
       {
         "id": "s76t12",
@@ -900,7 +920,8 @@
         "id": "s78t9",
         "text": "zware",
         "role": "bwb",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s78t10"
       },
       {
         "id": "s78t10",
@@ -934,7 +955,8 @@
         "id": "s96t1",
         "text": "Jouw",
         "role": "ow",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s96t2"
       },
       {
         "id": "s96t2",
@@ -970,13 +992,15 @@
         "id": "s96t8",
         "text": "meest",
         "role": "nwd",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s96t10"
       },
       {
         "id": "s96t9",
         "text": "realistische",
         "role": "nwd",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s96t10"
       },
       {
         "id": "s96t10",
@@ -1027,7 +1051,8 @@
         "id": "s101t7",
         "text": "jouw",
         "role": "vv",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s101t8"
       },
       {
         "id": "s101t8",
@@ -1085,13 +1110,15 @@
         "id": "s107t3",
         "text": "drie",
         "role": "ow",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s107t5"
       },
       {
         "id": "s107t4",
         "text": "belangrijke",
         "role": "ow",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s107t5"
       },
       {
         "id": "s107t5",
@@ -1255,13 +1282,15 @@
         "id": "s118t1",
         "text": "Dat",
         "role": "lv",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s118t3"
       },
       {
         "id": "s118t2",
         "text": "prachtige",
         "role": "lv",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s118t3"
       },
       {
         "id": "s118t3",
@@ -1277,7 +1306,8 @@
         "id": "s118t5",
         "text": "mijn",
         "role": "ow",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s118t6"
       },
       {
         "id": "s118t6",
@@ -1306,7 +1336,8 @@
         "id": "s125t1",
         "text": "Mijn",
         "role": "ow",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s125t2"
       },
       {
         "id": "s125t2",
@@ -1322,7 +1353,8 @@
         "id": "s125t4",
         "text": "mijn",
         "role": "mv",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s125t5"
       },
       {
         "id": "s125t5",
@@ -1338,7 +1370,8 @@
         "id": "s125t7",
         "text": "mooie",
         "role": "lv",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s125t8"
       },
       {
         "id": "s125t8",
