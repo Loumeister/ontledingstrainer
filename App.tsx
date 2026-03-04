@@ -8,9 +8,6 @@ import { preloadCommonLevels } from './data/sentenceLoader';
 import { decodeShared } from './data/customSentenceStore';
 import type { Sentence } from './types';
 
-// Detect ?editor URL param → stats + sentence management overview (password: docent2025)
-const isEditorUrl = new URLSearchParams(window.location.search).has('editor');
-
 // Decode teacher-shared sentences from ?zinnen= URL param
 const sharedParam = new URLSearchParams(window.location.search).get('zinnen');
 const initialSharedSentences: Sentence[] = sharedParam ? decodeShared(sharedParam) : [];

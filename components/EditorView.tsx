@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { SENTENCES, ROLES } from '../constants';
+import { ROLES } from '../constants';
+import { loadAllSentences } from '../data/sentenceLoader';
 import { SentenceUsageData } from '../types';
 import {
   loadUsageData,
@@ -33,6 +34,10 @@ export function EditorView({ darkMode }: Props) {
   // ── Navigation ──────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<Tab>('stats');
 
+  // ── All sentences (loaded async) ──────────────────────────────
+  const [allSentences, setAllSentences] = useState<Sentence[]>([]);
+  const [loadingSentences, setLoadingSentences] = useState(false);
+
   // ── Stats tab state ─────────────────────────────────────────
   const [usageData, setUsageData] = useState<Record<number, SentenceUsageData>>({});
   const [sortKey, setSortKey] = useState<SortKey>('errorRate');
@@ -59,7 +64,15 @@ export function EditorView({ darkMode }: Props) {
   const refreshCustom = useCallback(() => setCustomSentences(getCustomSentences()), []);
 
   useEffect(() => {
-    if (authed) { refreshStats(); refreshCustom(); }
+    if (authed) {
+      refreshStats();
+      refreshCustom();
+      setLoadingSentences(true);
+      loadAllSentences()
+        .then(setAllSentences)
+        .catch((err) => console.error('Failed to load sentences:', err))
+        .finally(() => setLoadingSentences(false));
+    }
   }, [authed, refreshStats, refreshCustom]);
 
   // ── Auth ─────────────────────────────────────────────────────
@@ -168,6 +181,8 @@ export function EditorView({ darkMode }: Props) {
       {/* ── TAB: STATISTIEKEN ─────────────────────────────────── */}
       {activeTab === 'stats' && (
         <StatsTab
+          allSentences={allSentences}
+          loadingSentences={loadingSentences}
           usageData={usageData}
           sortKey={sortKey} setSortKey={setSortKey}
           sortDesc={sortDesc} setSortDesc={setSortDesc}
@@ -203,6 +218,8 @@ export function EditorView({ darkMode }: Props) {
 // ─── Stats Tab ─────────────────────────────────────────────────────────────────
 
 interface StatsTabProps {
+  allSentences: Sentence[];
+  loadingSentences: boolean;
   usageData: Record<number, SentenceUsageData>;
   sortKey: SortKey; setSortKey: (k: SortKey) => void;
   sortDesc: boolean; setSortDesc: (v: boolean) => void;
@@ -219,7 +236,7 @@ interface StatsTabProps {
 }
 
 function StatsTab({
-  usageData, sortKey, setSortKey, sortDesc, setSortDesc,
+  allSentences, loadingSentences, usageData, sortKey, setSortKey, sortDesc, setSortDesc,
   filterFlagged, setFilterFlagged, search, setSearch,
   expandedId, setExpandedId, editingNote, setEditingNote,
   confirmClear, setConfirmClear,
@@ -239,13 +256,13 @@ function StatsTab({
 
   const levelLabel = (l: number) => ['', 'Basis', 'Middel', 'Hoog', 'Expert'][l] ?? String(l);
 
-  const rows = SENTENCES.map(s => {
+  const rows = allSentences.map(s => {
     const u = usageData[s.id];
     const attempts = u?.attempts ?? 0;
     const perfectCount = u?.perfectCount ?? 0;
     const showAnswerCount = u?.showAnswerCount ?? 0;
     const splitErrors = u?.splitErrors ?? 0;
-    const roleErrors = u?.roleErrors ?? {};
+    const roleErrors: Record<string, number> = u?.roleErrors ?? {};
     const errorRate = attempts > 0 ? (attempts - perfectCount) / attempts : null;
     const topError = Object.entries(roleErrors).sort((a, b) => b[1] - a[1])[0] ?? null;
     const flagged = u?.flagged ?? false;
@@ -316,7 +333,9 @@ function StatsTab({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-            {sorted.map(({ s, attempts, perfectCount, showAnswerCount, splitErrors, roleErrors, errorRate, topError, flagged, note, lastAttempted }) => (
+            {loadingSentences ? (
+              <tr><td colSpan={9} className="px-3 py-8 text-center text-slate-400 dark:text-slate-500">Zinnen laden…</td></tr>
+            ) : sorted.map(({ s, attempts, perfectCount, showAnswerCount, splitErrors, roleErrors, errorRate, topError, flagged, note, lastAttempted }) => (
               <React.Fragment key={s.id}>
                 <tr className={`hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors ${flagged ? 'bg-orange-50 dark:bg-orange-900/10' : ''}`} onClick={() => setExpandedId(expandedId === s.id ? null : s.id)}>
                   <td className="px-3 py-2.5 text-slate-400 dark:text-slate-500 font-mono text-xs">{s.id}</td>
@@ -340,8 +359,8 @@ function StatsTab({
                   <td className="px-3 py-2.5 max-w-[140px]">
                     {editingNote?.id === s.id ? (
                       <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                        <input autoFocus value={editingNote.text} onChange={e => setEditingNote({ id: s.id, text: e.target.value })} onKeyDown={e => { if (e.key === 'Enter') saveNote(s.id, editingNote.text); if (e.key === 'Escape') setEditingNote(null); }} className="text-xs px-2 py-1 rounded border border-blue-400 bg-white dark:bg-slate-700 text-slate-800 dark:text-white outline-none w-full" />
-                        <button onClick={() => saveNote(s.id, editingNote.text)} className="text-xs text-blue-600 font-bold px-1">✓</button>
+                        <input autoFocus value={editingNote!.text} onChange={e => setEditingNote({ id: s.id, text: e.target.value })} onKeyDown={e => { if (e.key === 'Enter') saveNote(s.id, editingNote!.text); if (e.key === 'Escape') setEditingNote(null); }} className="text-xs px-2 py-1 rounded border border-blue-400 bg-white dark:bg-slate-700 text-slate-800 dark:text-white outline-none w-full" />
+                        <button onClick={() => saveNote(s.id, editingNote!.text)} className="text-xs text-blue-600 font-bold px-1">✓</button>
                       </div>
                     ) : (
                       <button onClick={e => { e.stopPropagation(); setEditingNote({ id: s.id, text: note }); }} className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 text-left truncate max-w-full" title={note || 'Voeg notitie toe'}>
