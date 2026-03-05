@@ -5,6 +5,7 @@ import { ScoreScreen } from './screens/ScoreScreen';
 import { TrainerScreen } from './screens/TrainerScreen';
 import { SentenceEditorScreen } from './screens/SentenceEditorScreen';
 import { EditorView } from './components/EditorView';
+import { UsageLogScreen } from './screens/UsageLogScreen';
 import { preloadCommonLevels } from './data/sentenceLoader';
 import { decodeShared } from './data/customSentenceStore';
 import type { Sentence } from './types';
@@ -17,6 +18,7 @@ export default function App() {
   const trainer = useTrainer();
   const [showEditor, setShowEditor] = useState(() => window.location.hash === '#/editor');
   const [showDocent, setShowDocent] = useState(() => window.location.hash === '#/docent');
+  const [showUsageLog, setShowUsageLog] = useState(() => window.location.hash === '#/usage');
   const [sharedSentences] = useState<Sentence[]>(initialSharedSentences);
 
   // Preload common sentence levels
@@ -29,10 +31,23 @@ export default function App() {
     const onHashChange = () => {
       setShowEditor(window.location.hash === '#/editor');
       setShowDocent(window.location.hash === '#/docent');
+      setShowUsageLog(window.location.hash === '#/usage');
     };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
+
+  // Usage log screen (hidden route)
+  if (showUsageLog) {
+    return (
+      <UsageLogScreen
+        onBack={() => {
+          window.location.hash = '';
+          setShowUsageLog(false);
+        }}
+      />
+    );
+  }
 
   // Editor screen (hidden route)
   if (showEditor) {

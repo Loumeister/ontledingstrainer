@@ -1,26 +1,25 @@
 import { useState, useEffect, useMemo } from 'react';
+import { ROLES, HINTS } from '../constants';
+import { Sentence, PlacementMap, RoleKey, DifficultyLevel } from '../types';
 import { ROLES, FEEDBACK_MATRIX, FEEDBACK_STRUCTURE, FEEDBACK_SWAP, FEEDBACK_BIJZIN_FUNCTIE, HINTS } from '../constants';
 import { Sentence, PlacementMap, RoleKey, Token, DifficultyLevel, ValidationState } from '../types';
 import { useSentences } from './useSentences';
 import { getCustomSentences } from '../data/customSentenceStore';
 import { recordAttempt, recordShowAnswer } from '../usageData';
+import { logInteraction } from '../interactionLog';
+import {
+  buildUserChunks,
+  countRealChunks,
+  computeCorrectSplits,
+  validateAnswer,
+  ChunkData,
+  ValidationResult,
+} from '../validation';
 
+export type { ChunkData, ValidationResult };
 export type AppStep = 'split' | 'label';
 export type Mode = 'free' | 'session';
 export type PredicateMode = 'ALL' | 'WG' | 'NG';
-
-export interface ChunkData {
-  tokens: Token[];
-  originalIndices: number[];
-}
-
-export interface ValidationResult {
-  score: number;
-  total: number;
-  chunkStatus: Record<number, ValidationState>;
-  chunkFeedback: Record<number, string>;
-  isPerfect: boolean;
-}
 
 export interface TrainerState {
   // Config
@@ -236,6 +235,7 @@ export function useTrainer(): TrainerState {
   };
 
   const loadSentence = (sentence: Sentence) => {
+    logInteraction('sentence_start', sentence.id);
     setCurrentSentence(sentence);
     setStep('split');
     setSplitIndices(new Set());
@@ -266,6 +266,7 @@ export function useTrainer(): TrainerState {
     setMistakeStats({});
     setIsSessionFinished(false);
     setMode('session');
+    logInteraction('session_start', undefined, `count=${count}`);
     loadSentence(selected[0]);
   };
 
@@ -278,6 +279,7 @@ export function useTrainer(): TrainerState {
     setMistakeStats({});
     setIsSessionFinished(false);
     setMode('session');
+    logInteraction('session_start', undefined, `shared,count=${shuffled.length}`);
     loadSentence(shuffled[0]);
   };
 
@@ -287,6 +289,7 @@ export function useTrainer(): TrainerState {
       setSessionIndex(nextIndex);
       loadSentence(sessionQueue[nextIndex]);
     } else {
+      logInteraction('session_finish');
       setIsSessionFinished(true);
       setCurrentSentence(null);
     }
@@ -315,6 +318,7 @@ export function useTrainer(): TrainerState {
     if (showAnswerMode) return;
     if (validationResult) setValidationResult(null);
     setHintMessage(null);
+    logInteraction('split_toggle', currentSentence?.id, `index=${tokenIndex}`);
 
     const newSplits = new Set(splitIndices);
     if (newSplits.has(tokenIndex)) {
@@ -326,12 +330,14 @@ export function useTrainer(): TrainerState {
   };
 
   const handleNextStep = () => {
+    logInteraction('step_forward', currentSentence?.id);
     setStep('label');
     setValidationResult(null);
     setHintMessage(null);
   };
 
   const handleBackStep = () => {
+    logInteraction('step_back', currentSentence?.id);
     setStep('split');
     setValidationResult(null);
     setHintMessage(null);
@@ -339,24 +345,7 @@ export function useTrainer(): TrainerState {
 
   const getUserChunks = (): ChunkData[] => {
     if (!currentSentence) return [];
-    const chunks: ChunkData[] = [];
-    let currentChunkTokens: Token[] = [];
-    let currentChunkIndices: number[] = [];
-
-    currentSentence.tokens.forEach((token, index) => {
-      currentChunkTokens.push(token);
-      currentChunkIndices.push(index);
-
-      if (splitIndices.has(index) || index === currentSentence.tokens.length - 1) {
-        chunks.push({
-          tokens: currentChunkTokens,
-          originalIndices: currentChunkIndices
-        });
-        currentChunkTokens = [];
-        currentChunkIndices = [];
-      }
-    });
-    return chunks;
+    return buildUserChunks(currentSentence.tokens, splitIndices);
   };
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, roleKey: string) => {
@@ -369,6 +358,7 @@ export function useTrainer(): TrainerState {
     if (showAnswerMode) return;
     const roleKey = e.dataTransfer.getData("text/role") as RoleKey;
     if (roleKey) {
+      logInteraction('label_drop', currentSentence?.id, `chunk=${chunkId},role=${roleKey}`);
       setChunkLabels(prev => ({ ...prev, [chunkId]: roleKey }));
       setValidationResult(null);
       setHintMessage(null);
@@ -380,6 +370,7 @@ export function useTrainer(): TrainerState {
     if (showAnswerMode) return;
     const roleKey = e.dataTransfer.getData("text/role") as RoleKey;
     if (roleKey) {
+      logInteraction('sub_label_drop', currentSentence?.id, `token=${tokenId},role=${roleKey}`);
       setSubLabels(prev => ({ ...prev, [tokenId]: roleKey }));
       setValidationResult(null);
       setHintMessage(null);
@@ -388,6 +379,7 @@ export function useTrainer(): TrainerState {
 
   const removeLabel = (chunkId: string) => {
     if (showAnswerMode) return;
+    logInteraction('label_remove', currentSentence?.id, `chunk=${chunkId}`);
     const newLabels = { ...chunkLabels };
     delete newLabels[chunkId];
     setChunkLabels(newLabels);
@@ -397,6 +389,7 @@ export function useTrainer(): TrainerState {
 
   const removeSubLabel = (tokenId: string) => {
     if (showAnswerMode) return;
+    logInteraction('sub_label_remove', currentSentence?.id, `token=${tokenId}`);
     const newLabels = { ...subLabels };
     delete newLabels[tokenId];
     setSubLabels(newLabels);
@@ -409,6 +402,7 @@ export function useTrainer(): TrainerState {
     if (showAnswerMode) return;
     const roleKey = e.dataTransfer.getData("text/role") as RoleKey;
     if (roleKey) {
+      logInteraction('bijzin_functie_drop', currentSentence?.id, `chunk=${chunkId},role=${roleKey}`);
       setBijzinFunctieLabels(prev => ({ ...prev, [chunkId]: roleKey }));
       setValidationResult(null);
       setHintMessage(null);
@@ -417,6 +411,7 @@ export function useTrainer(): TrainerState {
 
   const removeBijzinFunctieLabel = (chunkId: string) => {
     if (showAnswerMode) return;
+    logInteraction('bijzin_functie_remove', currentSentence?.id, `chunk=${chunkId}`);
     const newLabels = { ...bijzinFunctieLabels };
     delete newLabels[chunkId];
     setBijzinFunctieLabels(newLabels);
@@ -435,6 +430,7 @@ export function useTrainer(): TrainerState {
 
   const completeBijvBepLink = (targetTokenId: string) => {
     if (!linkingBijvBepId) return;
+    logInteraction('bijvbep_link', currentSentence?.id, `source=${linkingBijvBepId},target=${targetTokenId}`);
     setBijvBepLinks(prev => ({ ...prev, [linkingBijvBepId]: targetTokenId }));
     setLinkingBijvBepId(null);
     setValidationResult(null);
@@ -447,6 +443,7 @@ export function useTrainer(): TrainerState {
 
   const removeBijvBepLink = (sourceId: string) => {
     if (showAnswerMode) return;
+    logInteraction('bijvbep_unlink', currentSentence?.id, `source=${sourceId}`);
     const newLinks = { ...bijvBepLinks };
     delete newLinks[sourceId];
     setBijvBepLinks(newLinks);
@@ -456,6 +453,7 @@ export function useTrainer(): TrainerState {
 
   const handleHint = () => {
     if (!currentSentence) return;
+    logInteraction('hint', currentSentence.id);
 
     const usedRoles = Object.values(chunkLabels);
     if (!usedRoles.includes('pv')) { setHintMessage(HINTS.MISSING_PV); return; }
@@ -495,59 +493,29 @@ export function useTrainer(): TrainerState {
 
   const handleCheck = () => {
     if (!currentSentence) return;
+    logInteraction('check', currentSentence.id);
 
-    const userChunks = getUserChunks();
-    const chunkStatus: Record<number, ValidationState> = {};
-    const chunkFeedback: Record<number, string> = {};
-    let correctChunksCount = 0;
-    const currentMistakes: Record<string, number> = {};
+    const { result: vResult, mistakes: currentMistakes } = validateAnswer(
+      currentSentence, splitIndices, chunkLabels, subLabels, includeBB,
+      bijzinFunctieLabels, bijvBepLinks
+    );
 
-    userChunks.forEach((chunk, idx) => {
-      const chunkTokens = chunk.tokens;
-      const firstTokenId = chunkTokens[0].id;
-      const firstTokenRole = chunkTokens[0].role;
-      const missedInternalSplit = chunkTokens.slice(1).some(t => t.newChunk);
-      const isConsistentRole = chunkTokens.every(t => t.role === firstTokenRole);
-      const lastTokenId = chunkTokens[chunkTokens.length - 1].id;
-      const lastTokenIndex = currentSentence.tokens.findIndex(t => t.id === lastTokenId);
-      const nextToken = currentSentence.tokens[lastTokenIndex + 1];
-      const splitTooEarly = nextToken && nextToken.role === firstTokenRole && !nextToken.newChunk;
-      const firstTokenIndexInSent = currentSentence.tokens.findIndex(t => t.id === firstTokenId);
-      const prevToken = currentSentence.tokens[firstTokenIndexInSent - 1];
-      const startedTooLate = prevToken && prevToken.role === firstTokenRole && !chunkTokens[0].newChunk;
-      const isValidSplit = isConsistentRole && !splitTooEarly && !startedTooLate && !missedInternalSplit;
+    setValidationResult(vResult);
 
-      if (!isValidSplit) {
-        chunkStatus[idx] = 'incorrect-split';
-        if (!isConsistentRole || missedInternalSplit) chunkFeedback[idx] = FEEDBACK_STRUCTURE.INCONSISTENT;
-        else if (splitTooEarly || startedTooLate) chunkFeedback[idx] = FEEDBACK_STRUCTURE.TOO_MANY_SPLITS;
-        else chunkFeedback[idx] = "De verdeling klopt niet.";
-        currentMistakes['Verdeling'] = (currentMistakes['Verdeling'] || 0) + 1;
-      } else {
-        const userLabel = chunkLabels[firstTokenId];
-        if (userLabel === firstTokenRole) {
-          chunkStatus[idx] = 'correct';
-          correctChunksCount++;
-        } else {
-          const correctRoleName = ROLES.find(r => r.key === firstTokenRole)?.label || firstTokenRole;
-          if (firstTokenRole === 'pv' && userLabel === 'wg') {
-             chunkStatus[idx] = 'warning';
-             chunkFeedback[idx] = FEEDBACK_MATRIX['wg'] && FEEDBACK_MATRIX['wg']['pv'] ? FEEDBACK_MATRIX['wg']['pv'] : "Dit hoort bij het gezegde.";
-             currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
-          } else {
-             chunkStatus[idx] = 'incorrect-role';
-             if (userLabel && FEEDBACK_MATRIX[userLabel] && FEEDBACK_MATRIX[userLabel][firstTokenRole]) {
-                 chunkFeedback[idx] = FEEDBACK_MATRIX[userLabel][firstTokenRole];
-             } else {
-                 const userRoleName = ROLES.find(r => r.key === userLabel)?.label || "Gekozen";
-                 chunkFeedback[idx] = `Dit is niet ${userRoleName}, maar het ${correctRoleName}.`;
-             }
-             currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
-          }
-        }
+    // Log individual errors for diagnostics
+    for (const [idx, status] of Object.entries(vResult.chunkStatus)) {
+      if (status === 'incorrect-split') {
+        logInteraction('error_split', currentSentence.id, `chunk=${idx}`);
+      } else if (status === 'incorrect-role') {
+        const feedback = vResult.chunkFeedback[Number(idx)] || '';
+        logInteraction('error_role', currentSentence.id, `chunk=${idx},feedback=${feedback}`);
       }
-    });
+    }
+    for (const idx of vResult.bijzinWarningChunks) {
+      logInteraction('error_bijzin_functie', currentSentence.id, `chunk=${idx}`);
+    }
 
+    const realChunkCount = countRealChunks(currentSentence.tokens);
     // --- Bijzin double-role detection: when a student labels a bijzin chunk with its function ---
     // E.g. they put "LV" on a chunk that should be "Bijzin" (with function LV).
     // This is a UI/UX confusion, not a grammatical error, so give specific guidance.
@@ -639,7 +607,7 @@ export function useTrainer(): TrainerState {
     if (!validationResult) {
       if (mode === 'session') {
         const newTotal = sessionStats.total + realChunkCount;
-        const newCorrect = sessionStats.correct + correctChunksCount;
+        const newCorrect = sessionStats.correct + vResult.score;
         setSessionStats({ correct: newCorrect, total: newTotal });
         const newMistakeStats = { ...mistakeStats };
         Object.entries(currentMistakes).forEach(([role, count]) => {
@@ -647,8 +615,8 @@ export function useTrainer(): TrainerState {
         });
         setMistakeStats(newMistakeStats);
       }
-      const splitErrorCount = Object.values(chunkStatus).filter(s => s === 'incorrect-split').length;
-      recordAttempt(currentSentence.id, reallyPerfect, currentMistakes, splitErrorCount);
+      const splitErrorCount = Object.values(vResult.chunkStatus).filter(s => s === 'incorrect-split').length;
+      recordAttempt(currentSentence.id, vResult.isPerfect, currentMistakes, splitErrorCount);
     }
   };
 
@@ -675,12 +643,9 @@ export function useTrainer(): TrainerState {
 
   const executeShowAnswer = () => {
     if (!currentSentence) return;
+    logInteraction('show_answer', currentSentence.id);
     setHintMessage(null);
-    const correctSplits = new Set<number>();
-    currentSentence.tokens.forEach((t, i) => {
-      const next = currentSentence.tokens[i + 1];
-      if (next && (t.role !== next.role || next.newChunk)) correctSplits.add(i);
-    });
+    const correctSplits = computeCorrectSplits(currentSentence.tokens);
     setSplitIndices(correctSplits);
     setStep('label');
 
@@ -691,7 +656,6 @@ export function useTrainer(): TrainerState {
     let currentChunkStartId = currentSentence.tokens[0].id;
     correctChunkLabels[currentChunkStartId] = currentSentence.tokens[0].role;
     if (currentSentence.tokens[0].bijzinFunctie) {
-      // Skip bijv_bep function when includeBB is off
       if (currentSentence.tokens[0].bijzinFunctie !== 'bijv_bep' || includeBB) {
         correctBijzinFunctieLabels[currentChunkStartId] = currentSentence.tokens[0].bijzinFunctie;
         if (currentSentence.tokens[0].bijvBepTarget) {
@@ -721,10 +685,7 @@ export function useTrainer(): TrainerState {
     });
 
     if (!validationResult) {
-      let realChunkCount = 0;
-      currentSentence.tokens.forEach((t, i) => {
-          if (i === 0 || t.role !== currentSentence.tokens[i-1].role || t.newChunk) realChunkCount++;
-      });
+      const realChunkCount = countRealChunks(currentSentence.tokens);
       if (mode === 'session') {
         setSessionStats(prev => ({ correct: prev.correct, total: prev.total + realChunkCount }));
       }
@@ -741,6 +702,7 @@ export function useTrainer(): TrainerState {
   };
 
   const resetToHome = () => {
+    logInteraction('abort', currentSentence?.id);
     setCurrentSentence(null);
     setMode('free');
     setSessionQueue([]);
