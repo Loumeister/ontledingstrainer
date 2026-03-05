@@ -118,7 +118,9 @@
       {
         "id": "s31t2",
         "text": "zijn",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s31t3"
       },
       {
         "id": "s31t3",
@@ -195,7 +197,9 @@
       {
         "id": "s35t2",
         "text": "die",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s35t3"
       },
       {
         "id": "s35t3",
@@ -357,7 +361,9 @@
       {
         "id": "s39t5",
         "text": "zijn",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s39t6"
       },
       {
         "id": "s39t6",
@@ -387,7 +393,9 @@
       {
         "id": "s39t11",
         "text": "zijn",
-        "role": "ow"
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s39t12"
       },
       {
         "id": "s39t12",
@@ -609,7 +617,9 @@
       {
         "id": "s45t1",
         "text": "Mijn",
-        "role": "ow"
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s45t2"
       },
       {
         "id": "s45t2",
@@ -804,7 +814,9 @@
       {
         "id": "s76t4",
         "text": "deze",
-        "role": "lv"
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s76t6"
       },
       {
         "id": "s76t5",
@@ -931,12 +943,16 @@
       {
         "id": "s78t11",
         "text": "politiek",
-        "role": "nwd"
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s78t13"
       },
       {
         "id": "s78t12",
         "text": "zeer",
-        "role": "nwd"
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s78t13"
       },
       {
         "id": "s78t13",
@@ -976,7 +992,9 @@
       {
         "id": "s96t5",
         "text": "dit",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s96t6"
       },
       {
         "id": "s96t6",
@@ -1133,7 +1151,9 @@
       {
         "id": "s107t7",
         "text": "dit",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s107t8"
       },
       {
         "id": "s107t8",
@@ -1166,7 +1186,9 @@
       {
         "id": "s108t4",
         "text": "dit",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s108t5"
       },
       {
         "id": "s108t5",
@@ -1252,7 +1274,9 @@
       {
         "id": "s112t4",
         "text": "dat",
-        "role": "lv"
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s112t5"
       },
       {
         "id": "s112t5",

@@ -232,7 +232,9 @@
       {
         "id": "s13t2",
         "text": "onze",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s13t3"
       },
       {
         "id": "s13t3",
@@ -344,7 +346,8 @@
         "id": "s21t3",
         "text": "waarom",
         "role": "bijzin",
-        "bijzinFunctie": "lv"
+        "bijzinFunctie": "lv",
+        "subRole": "vw_onder"
       },
       {
         "id": "s21t4",
@@ -377,7 +380,9 @@
       {
         "id": "s22t1",
         "text": "Mijn",
-        "role": "ow"
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s22t2"
       },
       {
         "id": "s22t2",
@@ -402,7 +407,9 @@
       {
         "id": "s22t6",
         "text": "haar",
-        "role": "lv"
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s22t7"
       },
       {
         "id": "s22t7",
@@ -992,7 +999,9 @@
       {
         "id": "s84t6",
         "text": "erg",
-        "role": "nwd"
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s84t7"
       },
       {
         "id": "s84t7",
@@ -1020,20 +1029,23 @@
       {
         "id": "s85t3",
         "text": "boven",
-        "role": "bwb",
-        "subRole": "bijv_bep"
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s85t2"
       },
       {
         "id": "s85t4",
         "text": "de",
-        "role": "bwb",
-        "subRole": "bijv_bep"
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s85t2"
       },
       {
         "id": "s85t5",
         "text": "stad",
-        "role": "bwb",
-        "subRole": "bijv_bep"
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s85t2"
       },
       {
         "id": "s85t6",
@@ -1143,7 +1155,9 @@
       {
         "id": "s116t1",
         "text": "Die",
-        "role": "lv"
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s116t2"
       },
       {
         "id": "s116t2",
@@ -1254,7 +1268,9 @@
       {
         "id": "s126t1",
         "text": "Die",
-        "role": "ow"
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s126t2"
       },
       {
         "id": "s126t2",
