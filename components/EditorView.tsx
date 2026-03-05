@@ -16,6 +16,82 @@ import {
 } from '../data/customSentenceStore';
 import type { Sentence } from '../types';
 
+// ─── Thresholds ───────────────────────────────────────────────────────────────
+const ERROR_RATE_HIGH = 0.6;   // ≥60% errors → too difficult
+const ERROR_RATE_MEDIUM = 0.3; // ≥30% errors → needs attention
+const ERROR_RATE_LOW = 0.2;    // <20% errors → doing well (for average)
+const ATTEMPTS_HIGH = 20;      // ≥20 attempts → well-practised
+const ATTEMPTS_MEDIUM = 5;     // ≥5 attempts → some practice
+const SHOW_ANSWER_THRESHOLD = 0.5; // ≥50% of attempts used show-answer → needed help
+// Mini progress bar: scale each error count so ~10 errors fills the bar
+const ERROR_BAR_SCALE = 10;
+
+// ─── Small reusable visual helpers ────────────────────────────────────────────
+
+function ErrorBar({ rate }: { rate: number }) {
+  const pct = Math.round(rate * 100);
+  const color = rate >= ERROR_RATE_HIGH ? 'bg-red-500' : rate >= ERROR_RATE_MEDIUM ? 'bg-orange-400' : 'bg-green-500';
+  return (
+    <div className="flex items-center gap-1.5 min-w-[80px]">
+      <div className="flex-1 h-2 rounded-full bg-slate-200 dark:bg-slate-600 overflow-hidden">
+        <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className={`text-xs font-bold tabular-nums ${rate >= ERROR_RATE_HIGH ? 'text-red-600 dark:text-red-400' : rate >= ERROR_RATE_MEDIUM ? 'text-orange-500 dark:text-orange-400' : 'text-green-600 dark:text-green-400'}`}>{pct}%</span>
+    </div>
+  );
+}
+
+function AttemptsBadge({ count }: { count: number }) {
+  if (count === 0) return <span className="text-slate-300 dark:text-slate-600 text-xs">—</span>;
+  const dot = count >= ATTEMPTS_HIGH ? '🟢' : count >= ATTEMPTS_MEDIUM ? '🟡' : '🔵';
+  return <span className="text-xs tabular-nums text-slate-700 dark:text-slate-200">{dot} {count}×</span>;
+}
+
+function ShowAnswerBadge({ count }: { count: number }) {
+  if (count === 0) return <span className="text-slate-300 dark:text-slate-600 text-xs">—</span>;
+  return (
+    <span className="inline-flex items-center gap-1 text-xs tabular-nums text-amber-700 dark:text-amber-400">
+      👁️ {count}×
+    </span>
+  );
+}
+
+function SentenceInterpretation({ errorRate, showAnswerCount, attempts, topError }: {
+  errorRate: number | null; showAnswerCount: number; attempts: number; topError: [string, number] | null;
+}) {
+  const lines: { emoji: string; text: string; color: string }[] = [];
+
+  if (errorRate === null) {
+    lines.push({ emoji: '📭', text: 'Nog niet geoefend door leerlingen.', color: 'text-slate-400 dark:text-slate-500' });
+  } else if (errorRate === 0) {
+    lines.push({ emoji: '✅', text: 'Leerlingen begrijpen deze zin goed — geen fouten gemaakt.', color: 'text-green-700 dark:text-green-400' });
+  } else if (errorRate < ERROR_RATE_MEDIUM) {
+    lines.push({ emoji: '👍', text: 'Relatief weinig fouten — de meeste leerlingen snappen het.', color: 'text-green-600 dark:text-green-400' });
+  } else if (errorRate < ERROR_RATE_HIGH) {
+    lines.push({ emoji: '⚠️', text: 'Leerlingen maken regelmatig fouten bij deze zin. Extra aandacht aanbevolen.', color: 'text-orange-600 dark:text-orange-400' });
+  } else {
+    lines.push({ emoji: '🔴', text: 'Deze zin is te moeilijk — leerlingen maken heel vaak fouten. Overweeg extra uitleg of een makkelijkere variant.', color: 'text-red-600 dark:text-red-400' });
+  }
+
+  if (showAnswerCount > 0 && attempts > 0 && showAnswerCount / attempts >= SHOW_ANSWER_THRESHOLD) {
+    lines.push({ emoji: '💡', text: 'Leerlingen hadden regelmatig hulp nodig (antwoord bekeken).', color: 'text-amber-600 dark:text-amber-400' });
+  }
+
+  if (topError) {
+    lines.push({ emoji: '🔁', text: `Leerlingen verwarren vaak de rol '${topError[0]}' (${topError[1]}× fout).`, color: 'text-blue-600 dark:text-blue-400' });
+  }
+
+  return (
+    <div className="space-y-1">
+      {lines.map((l, i) => (
+        <p key={i} className={`text-xs flex items-start gap-1.5 ${l.color}`}>
+          <span>{l.emoji}</span><span>{l.text}</span>
+        </p>
+      ))}
+    </div>
+  );
+}
+
 const EDITOR_PASSWORD = 'docent2025';
 
 type Tab = 'stats' | 'sentences';
@@ -119,12 +195,6 @@ export function EditorView({ darkMode }: Props) {
     URL.revokeObjectURL(url);
   };
 
-  const handleOpenEditor = () => {
-    window.location.hash = '#/editor';
-    // Let App.tsx's hashchange listener take over
-    window.dispatchEvent(new HashChangeEvent('hashchange'));
-  };
-
   // ── PASSWORD SCREEN ───────────────────────────────────────────
   if (!authed) {
     return (
@@ -208,7 +278,6 @@ export function EditorView({ darkMode }: Props) {
           onDelete={handleDelete}
           onCopyShareUrl={handleCopyShareUrl}
           onExport={handleExport}
-          onOpenEditor={handleOpenEditor}
         />
       )}
     </div>
@@ -287,6 +356,21 @@ function StatsTab({
     return sortDesc ? -diff : diff;
   });
 
+  // ── Samenvatting data ──────────────────────────────────────────
+  const practiced = rows.filter(r => r.attempts > 0);
+  const notPracticed = rows.length - practiced.length;
+  const avgErrorRate = practiced.length > 0
+    ? practiced.reduce((sum, r) => sum + (r.errorRate ?? 0), 0) / practiced.length
+    : null;
+  const hardSentences = practiced.filter(r => (r.errorRate ?? 0) >= ERROR_RATE_HIGH).length;
+  const allRoleErrors: Record<string, number> = {};
+  rows.forEach(r => {
+    Object.entries(r.roleErrors).forEach(([role, count]) => {
+      allRoleErrors[role] = (allRoleErrors[role] ?? 0) + count;
+    });
+  });
+  const topGlobalError = Object.entries(allRoleErrors).sort((a, b) => b[1] - a[1])[0] ?? null;
+
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6">
       {confirmClear && (
@@ -298,6 +382,53 @@ function StatsTab({
               <button onClick={() => setConfirmClear(false)} className="px-4 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg font-medium transition-colors">Annuleer</button>
               <button onClick={onClearStats} className="px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors">Ja, wissen</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Samenvatting ───────────────────────────────────────── */}
+      {!loadingSentences && (
+        <div className="mb-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 md:p-5">
+          <h2 className="text-base font-bold text-slate-800 dark:text-white mb-3">📊 Samenvatting</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 text-center">
+              <div className="text-2xl font-black text-blue-600 dark:text-blue-400">{practiced.length}</div>
+              <div className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">zinnen geoefend</div>
+            </div>
+            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 text-center">
+              <div className="text-2xl font-black text-slate-400 dark:text-slate-500">{notPracticed}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">nog niet geprobeerd</div>
+            </div>
+            <div className={`rounded-lg p-3 text-center ${hardSentences > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-green-50 dark:bg-green-900/20'}`}>
+              <div className={`text-2xl font-black ${hardSentences > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>{hardSentences}</div>
+              <div className={`text-xs mt-0.5 ${hardSentences > 0 ? 'text-red-700 dark:text-red-300' : 'text-green-700 dark:text-green-300'}`}>te moeilijke zinnen 🔴</div>
+            </div>
+            <div className={`rounded-lg p-3 text-center ${avgErrorRate === null ? 'bg-slate-50 dark:bg-slate-700/50' : avgErrorRate >= ERROR_RATE_HIGH ? 'bg-red-50 dark:bg-red-900/20' : avgErrorRate >= ERROR_RATE_MEDIUM ? 'bg-orange-50 dark:bg-orange-900/20' : 'bg-green-50 dark:bg-green-900/20'}`}>
+              <div className={`text-2xl font-black ${avgErrorRate === null ? 'text-slate-400' : avgErrorRate >= ERROR_RATE_HIGH ? 'text-red-600 dark:text-red-400' : avgErrorRate >= ERROR_RATE_MEDIUM ? 'text-orange-500 dark:text-orange-400' : 'text-green-600 dark:text-green-400'}`}>
+                {avgErrorRate === null ? '—' : `${Math.round(avgErrorRate * 100)}%`}
+              </div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">gemiddelde fout %</div>
+            </div>
+          </div>
+          <div className="space-y-1.5 text-sm">
+            {practiced.length === 0 && (
+              <p className="text-slate-400 dark:text-slate-500 italic text-xs">📭 Nog geen oefendata beschikbaar. Leerlingen hebben nog geen zinnen geoefend op dit apparaat.</p>
+            )}
+            {hardSentences > 0 && (
+              <p className="text-red-600 dark:text-red-400 text-xs flex items-start gap-1.5">
+                <span>🔴</span><span>{hardSentences} {hardSentences === 1 ? 'zin is' : 'zinnen zijn'} erg moeilijk — leerlingen maken hier heel vaak fouten. Bekijk deze zinnen en overweeg extra uitleg.</span>
+              </p>
+            )}
+            {topGlobalError && (
+              <p className="text-blue-600 dark:text-blue-400 text-xs flex items-start gap-1.5">
+                <span>🔁</span><span>Meest verwarring over de rol <strong>'{topGlobalError[0]}'</strong> ({topGlobalError[1]} fouten in totaal).</span>
+              </p>
+            )}
+            {avgErrorRate !== null && avgErrorRate < ERROR_RATE_LOW && practiced.length >= ATTEMPTS_MEDIUM && (
+              <p className="text-green-600 dark:text-green-400 text-xs flex items-start gap-1.5">
+                <span>✅</span><span>Leerlingen doen het over het algemeen goed — het gemiddelde foutenpercentage is laag.</span>
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -323,12 +454,12 @@ function StatsTab({
             <tr>
               <SortHeader label="#" k="id" />
               <th className="px-3 py-2 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Zin</th>
-              <th className="px-3 py-2 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Niv.</th>
-              <SortHeader label="Pogingen" k="attempts" />
-              <SortHeader label="Foutrate" k="errorRate" />
-              <SortHeader label="Antw.getoond" k="showAnswer" />
-              <th className="px-3 py-2 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Topfout</th>
-              <SortHeader label="Vlag" k="flagged" />
+              <th className="px-3 py-2 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Niveau</th>
+              <SortHeader label="Keren geoefend" k="attempts" />
+              <SortHeader label="Fout %" k="errorRate" />
+              <SortHeader label="Antwoord gezien" k="showAnswer" />
+              <th className="px-3 py-2 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Meest verward</th>
+              <SortHeader label="🚩" k="flagged" />
               <th className="px-3 py-2 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Notitie</th>
             </tr>
           </thead>
@@ -340,17 +471,23 @@ function StatsTab({
                 <tr className={`hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors ${flagged ? 'bg-orange-50 dark:bg-orange-900/10' : ''}`} onClick={() => setExpandedId(expandedId === s.id ? null : s.id)}>
                   <td className="px-3 py-2.5 text-slate-400 dark:text-slate-500 font-mono text-xs">{s.id}</td>
                   <td className="px-3 py-2.5 text-slate-700 dark:text-slate-200 max-w-xs"><span className="line-clamp-1">{s.label}</span></td>
-                  <td className="px-3 py-2.5"><span className="text-xs px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">{levelLabel(s.level)}</span></td>
-                  <td className="px-3 py-2.5 text-slate-700 dark:text-slate-200 font-mono">{attempts || '—'}</td>
                   <td className="px-3 py-2.5">
-                    {errorRate === null ? <span className="text-slate-400 dark:text-slate-600">—</span> : (
-                      <span className={`font-bold ${errorRate >= 0.6 ? 'text-red-600 dark:text-red-400' : errorRate >= 0.3 ? 'text-orange-500 dark:text-orange-400' : 'text-green-600 dark:text-green-400'}`}>
-                        {Math.round(errorRate * 100)}%
-                      </span>
-                    )}
+                    <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${s.level === 1 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : s.level === 2 ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : s.level === 3 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'}`}>
+                      {levelLabel(s.level)}
+                    </span>
                   </td>
-                  <td className="px-3 py-2.5 text-slate-700 dark:text-slate-200 font-mono">{showAnswerCount || '—'}</td>
-                  <td className="px-3 py-2.5 text-slate-600 dark:text-slate-400 text-xs">{topError ? <><span className="font-semibold">{topError[0]}</span> ({topError[1]}×)</> : '—'}</td>
+                  <td className="px-3 py-2.5"><AttemptsBadge count={attempts} /></td>
+                  <td className="px-3 py-2.5">
+                    {errorRate === null
+                      ? <span className="text-slate-300 dark:text-slate-600 text-xs">—</span>
+                      : <ErrorBar rate={errorRate} />}
+                  </td>
+                  <td className="px-3 py-2.5"><ShowAnswerBadge count={showAnswerCount} /></td>
+                  <td className="px-3 py-2.5 text-slate-600 dark:text-slate-400 text-xs">
+                    {topError
+                      ? <span className="inline-flex items-center gap-1"><span className="font-semibold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">{topError[0]}</span><span className="text-slate-400">({topError[1]}×)</span></span>
+                      : <span className="text-slate-300 dark:text-slate-600">—</span>}
+                  </td>
                   <td className="px-3 py-2.5">
                     <button onClick={e => { e.stopPropagation(); toggleFlag(s.id); }} title={flagged ? 'Vlag verwijderen' : 'Markeer als verdacht'} className={`text-lg transition-transform hover:scale-125 ${flagged ? 'opacity-100' : 'opacity-30 hover:opacity-70'}`}>
                       {flagged ? '🚩' : '⚑'}
@@ -373,6 +510,16 @@ function StatsTab({
                 {expandedId === s.id && (
                   <tr className="bg-slate-50 dark:bg-slate-800/50">
                     <td colSpan={9} className="px-4 py-4">
+                      {/* Plain-language interpretation */}
+                      <div className="mb-4 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <div className="font-semibold text-slate-600 dark:text-slate-300 mb-1.5 text-xs uppercase tracking-wider">Wat vertellen de gegevens?</div>
+                        <SentenceInterpretation
+                          errorRate={errorRate}
+                          showAnswerCount={showAnswerCount}
+                          attempts={attempts}
+                          topError={topError}
+                        />
+                      </div>
                       <div className="flex flex-wrap gap-6 text-sm">
                         <div className="flex-1 min-w-60">
                           <div className="font-semibold text-slate-600 dark:text-slate-300 mb-2">Correcte ontleding</div>
@@ -394,12 +541,12 @@ function StatsTab({
                           </div>
                         </div>
                         <div className="min-w-48">
-                          <div className="font-semibold text-slate-600 dark:text-slate-300 mb-2">Statistieken</div>
+                          <div className="font-semibold text-slate-600 dark:text-slate-300 mb-2">Cijfers op een rij</div>
                           <dl className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
-                            <div className="flex gap-2"><dt className="font-medium w-32">Pogingen:</dt><dd>{attempts}</dd></div>
-                            <div className="flex gap-2"><dt className="font-medium w-32">Foutloos (1e keer):</dt><dd>{perfectCount}</dd></div>
-                            <div className="flex gap-2"><dt className="font-medium w-32">Antw. getoond:</dt><dd>{showAnswerCount}</dd></div>
-                            {lastAttempted && <div className="flex gap-2"><dt className="font-medium w-32">Laatste poging:</dt><dd>{new Date(lastAttempted).toLocaleDateString('nl-NL')}</dd></div>}
+                            <div className="flex gap-2"><dt className="font-medium w-36">Keren geoefend:</dt><dd>{attempts}</dd></div>
+                            <div className="flex gap-2"><dt className="font-medium w-36">In één keer goed:</dt><dd>{perfectCount}</dd></div>
+                            <div className="flex gap-2"><dt className="font-medium w-36">Antwoord bekeken:</dt><dd>{showAnswerCount}</dd></div>
+                            {lastAttempted && <div className="flex gap-2"><dt className="font-medium w-36">Laatste poging:</dt><dd>{new Date(lastAttempted).toLocaleDateString('nl-NL')}</dd></div>}
                           </dl>
                         </div>
                         {(Object.keys(roleErrors).length > 0 || splitErrors > 0) && (
@@ -407,9 +554,20 @@ function StatsTab({
                             <div className="font-semibold text-slate-600 dark:text-slate-300 mb-2">Fouten per rol</div>
                             <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
                               {Object.entries(roleErrors).sort((a, b) => b[1] - a[1]).map(([role, count]) => (
-                                <li key={role} className="flex justify-between gap-4"><span>{role}</span><span className="font-bold text-red-600 dark:text-red-400">{count}×</span></li>
+                                <li key={role} className="flex items-center justify-between gap-4">
+                                  <span className="font-medium text-blue-700 dark:text-blue-400">{role}</span>
+                                  <span className="flex items-center gap-1">
+                                    <span className="inline-block w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-600 overflow-hidden"><span className="block h-full rounded-full bg-red-500" style={{ width: `${Math.min(100, count * ERROR_BAR_SCALE)}%` }} /></span>
+                                    <span className="font-bold text-red-600 dark:text-red-400">{count}×</span>
+                                  </span>
+                                </li>
                               ))}
-                              {splitErrors > 0 && <li className="flex justify-between gap-4"><span>Verdeling</span><span className="font-bold text-red-600 dark:text-red-400">{splitErrors}×</span></li>}
+                              {splitErrors > 0 && (
+                                <li className="flex items-center justify-between gap-4">
+                                  <span className="font-medium text-slate-500">Verdeling</span>
+                                  <span className="font-bold text-red-600 dark:text-red-400">{splitErrors}×</span>
+                                </li>
+                              )}
                             </ul>
                           </div>
                         )}
@@ -441,12 +599,11 @@ interface SentencesTabProps {
   onDelete: (id: number) => void;
   onCopyShareUrl: () => void;
   onExport: () => void;
-  onOpenEditor: () => void;
 }
 
 function SentencesTab({
   customSentences, confirmDeleteId, setConfirmDeleteId,
-  copySuccess, onDelete, onCopyShareUrl, onExport, onOpenEditor,
+  copySuccess, onDelete, onCopyShareUrl, onExport,
 }: SentencesTabProps) {
   const levelLabel = (l: number) => ['', 'Basis', 'Middel', 'Hoog'][l] ?? String(l);
 
@@ -470,24 +627,19 @@ function SentencesTab({
           Mijn zinnen
           <span className="ml-2 text-sm font-normal text-slate-400 dark:text-slate-500">{customSentences.length} opgeslagen</span>
         </h2>
-        <div className="flex flex-wrap gap-2">
-          <button onClick={onOpenEditor} className="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition-colors">
-            + Zinnen maken / bewerken
-          </button>
-          {customSentences.length > 0 && (
-            <>
-              <button
-                onClick={onCopyShareUrl}
-                className={`px-4 py-2 text-sm font-semibold rounded-lg border transition-colors ${copySuccess ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700' : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600'}`}
-              >
-                {copySuccess ? '✓ Link gekopieerd!' : 'Deel met leerlingen'}
-              </button>
-              <button onClick={onExport} className="px-4 py-2 text-sm font-semibold bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                Exporteer JSON
-              </button>
-            </>
-          )}
-        </div>
+        {customSentences.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={onCopyShareUrl}
+              className={`px-4 py-2 text-sm font-semibold rounded-lg border transition-colors ${copySuccess ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700' : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600'}`}
+            >
+              {copySuccess ? '✓ Link gekopieerd!' : 'Deel met leerlingen'}
+            </button>
+            <button onClick={onExport} className="px-4 py-2 text-sm font-semibold bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+              Exporteer JSON
+            </button>
+          </div>
+        )}
       </div>
 
       {customSentences.length > 0 && (
@@ -498,10 +650,8 @@ function SentencesTab({
 
       {customSentences.length === 0 ? (
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 p-12 text-center">
-          <p className="text-slate-500 dark:text-slate-400 mb-4">Nog geen zinnen gemaakt.</p>
-          <button onClick={onOpenEditor} className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">
-            Open zinneneditor
-          </button>
+          <p className="text-slate-500 dark:text-slate-400 mb-2">Nog geen eigen zinnen geladen.</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">Importeer een JSON-bestand via het beginscherm om eigen zinnen te gebruiken.</p>
         </div>
       ) : (
         <div className="space-y-3">

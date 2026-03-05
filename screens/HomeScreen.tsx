@@ -236,8 +236,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
           </div>
         </div>
-        <div className="text-center pt-6 border-t border-slate-100 dark:border-slate-700">
+        <div className="text-center pt-6 border-t border-slate-100 dark:border-slate-700 flex flex-col items-center gap-2">
           <button onClick={() => setShowHelp(true)} className="text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 text-sm font-medium flex items-center justify-center gap-2 mx-auto transition-colors"><span className="w-4 h-4 rounded-full border border-current flex items-center justify-center text-[10px]">i</span>Instructies & Uitleg</button>
+          <a href="#/docent" className="text-slate-300 dark:text-slate-600 hover:text-slate-400 dark:hover:text-slate-500 text-xs transition-colors">Docentenomgeving</a>
         </div>
       </main>
     </div>
