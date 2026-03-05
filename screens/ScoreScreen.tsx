@@ -51,7 +51,13 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
 
   const handleCopyCode = () => {
     if (reportCode) {
-      navigator.clipboard.writeText(reportCode).then(() => setCopied(true));
+      navigator.clipboard.writeText(reportCode)
+        .then(() => setCopied(true))
+        .catch(() => {
+          // Fallback: select the text in the input so user can copy manually
+          const input = document.querySelector<HTMLInputElement>('input[readonly]');
+          if (input) { input.select(); input.setSelectionRange(0, input.value.length); }
+        });
     }
   };
 

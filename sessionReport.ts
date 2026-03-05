@@ -32,9 +32,9 @@ const STORAGE_KEY = 'zinsontleding_reports_v1';
 
 export function encodeReport(report: SessionReport): string {
   const json = JSON.stringify(report);
-  // btoa works on latin1; encodeURIComponent handles unicode names
-  const base64 = btoa(unescape(encodeURIComponent(json)));
-  return `v1:${base64}`;
+  const bytes = new TextEncoder().encode(json);
+  const binary = Array.from(bytes, b => String.fromCharCode(b)).join('');
+  return `v1:${btoa(binary)}`;
 }
 
 export function decodeReport(code: string): SessionReport | null {
@@ -42,7 +42,9 @@ export function decodeReport(code: string): SessionReport | null {
     const trimmed = code.trim();
     if (!trimmed.startsWith('v1:')) return null;
     const base64 = trimmed.slice(3);
-    const json = decodeURIComponent(escape(atob(base64)));
+    const binary = atob(base64);
+    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+    const json = new TextDecoder().decode(bytes);
     const parsed = JSON.parse(json);
     if (parsed.v !== 1 || typeof parsed.c !== 'number' || typeof parsed.t !== 'number') {
       return null;
@@ -132,7 +134,8 @@ export function computeAggregateStats(reports: SessionReport[]): AggregateStats 
   const reportsPerDay: Record<string, number> = {};
 
   for (const r of reports) {
-    if (r.name) names.add(r.name.toLowerCase().trim());
+    const trimmedName = r.name.trim().toLowerCase();
+    if (trimmedName) names.add(trimmedName);
     totalCorrect += r.c;
     totalChunks += r.t;
 

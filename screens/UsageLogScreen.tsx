@@ -9,7 +9,8 @@ import type { SentenceUsageData } from '../types';
 const DOCENT_PIN = '1234';
 const EIGENAAR_PIN = '4321';
 const PIN_SESSION_KEY = 'editor-pin-ok';
-const EIGENAAR_SESSION_KEY = 'dev-pin-ok';
+// Keep legacy key name for backward compat with existing browser sessions
+const EIGENAAR_SESSION_KEY = 'eigenaar-pin-ok';
 
 type SortField = 'id' | 'attempts' | 'perfectRate' | 'showAnswer' | 'splitErrors' | 'lastAttempted';
 type SortDir = 'asc' | 'desc';
@@ -454,24 +455,33 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
               <p className="text-slate-400 text-sm italic">Nog geen fouten gemaakt!</p>
             ) : (
               <div className="space-y-3">
-                <div>
-                  <div className="flex items-center justify-between mb-0.5">
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Verdeelfouten</span>
-                    <span className="text-xs text-slate-400">{totalSplitErrors}</span>
-                  </div>
-                  <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-orange-300 to-orange-500 rounded-full transition-all" style={{ width: `${(totalSplitErrors + totalRoleErrorCount > 0) ? (totalSplitErrors / (totalSplitErrors + totalRoleErrorCount)) * 100 : 0}%` }} />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex items-center justify-between mb-0.5">
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Benoemfouten</span>
-                    <span className="text-xs text-slate-400">{totalRoleErrorCount}</span>
-                  </div>
-                  <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-red-300 to-red-500 rounded-full transition-all" style={{ width: `${(totalSplitErrors + totalRoleErrorCount > 0) ? (totalRoleErrorCount / (totalSplitErrors + totalRoleErrorCount)) * 100 : 0}%` }} />
-                  </div>
-                </div>
+                {(() => {
+                  const errorTotal = totalSplitErrors + totalRoleErrorCount;
+                  const splitPct = errorTotal > 0 ? (totalSplitErrors / errorTotal) * 100 : 0;
+                  const rolePct = errorTotal > 0 ? (totalRoleErrorCount / errorTotal) * 100 : 0;
+                  return (
+                    <>
+                      <div>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Verdeelfouten</span>
+                          <span className="text-xs text-slate-400">{totalSplitErrors}</span>
+                        </div>
+                        <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-orange-300 to-orange-500 rounded-full transition-all" style={{ width: `${splitPct}%` }} />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Benoemfouten</span>
+                          <span className="text-xs text-slate-400">{totalRoleErrorCount}</span>
+                        </div>
+                        <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-red-300 to-red-500 rounded-full transition-all" style={{ width: `${rolePct}%` }} />
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">
                   {totalSplitErrors > totalRoleErrorCount
                     ? '💡 Leerlingen hebben meer moeite met het verdelen van zinnen in zinsdelen.'
