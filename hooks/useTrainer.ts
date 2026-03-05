@@ -465,6 +465,11 @@ export function useTrainer(): TrainerState {
     if (actualRolesInSentence.has('wg') && !usedRoles.includes('wg')) { setHintMessage(HINTS.MISSING_WG); return; }
     if (actualRolesInSentence.has('nwd') && !usedRoles.includes('nwd')) { setHintMessage(HINTS.MISSING_NG); return; }
     if (actualRolesInSentence.has('lv') && !usedRoles.includes('lv')) { setHintMessage(HINTS.MISSING_LV); return; }
+    if (actualRolesInSentence.has('mv') && !usedRoles.includes('mv')) { setHintMessage(HINTS.MISSING_MV); return; }
+    if (actualRolesInSentence.has('vv') && !usedRoles.includes('vv')) { setHintMessage(HINTS.MISSING_VV); return; }
+    if (actualRolesInSentence.has('bwb') && !usedRoles.includes('bwb')) { setHintMessage(HINTS.MISSING_BWB); return; }
+    if (actualRolesInSentence.has('bijzin') && !usedRoles.includes('bijzin')) { setHintMessage(HINTS.MISSING_BIJZIN); return; }
+    if (actualRolesInSentence.has('bijst') && !usedRoles.includes('bijst')) { setHintMessage(HINTS.MISSING_BIJST); return; }
 
     // Check for missing bijzin function labels
     const userChunks = getUserChunks();
@@ -485,7 +490,7 @@ export function useTrainer(): TrainerState {
         const roleDef = ROLES.find(r => r.key === remainingMissing);
         if (roleDef) { setHintMessage(HINTS.generic(roleDef.label)); }
     } else {
-        setHintMessage("Je hebt alle labels gebruikt. Controleer of ze op de juiste plek staan!");
+        setHintMessage(HINTS.ALL_PLACED);
     }
   };
 

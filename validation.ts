@@ -146,7 +146,7 @@ export function validateAnswer(
       chunkStatus[idx] = 'incorrect-split';
       if (!isConsistentRole || missedInternalSplit) chunkFeedback[idx] = FEEDBACK_STRUCTURE.INCONSISTENT;
       else if (splitTooEarly || startedTooLate) chunkFeedback[idx] = FEEDBACK_STRUCTURE.TOO_MANY_SPLITS;
-      else chunkFeedback[idx] = "De verdeling klopt niet.";
+      else chunkFeedback[idx] = FEEDBACK_STRUCTURE.MISSING_SPLIT;
       currentMistakes['Verdeling'] = (currentMistakes['Verdeling'] || 0) + 1;
     } else {
       let userLabel = chunkLabels[firstTokenId];
@@ -205,7 +205,7 @@ export function validateAnswer(
         } else if (!userLabel) {
           // No label assigned at all: give constructive feedback
           chunkStatus[idx] = 'incorrect-role';
-          chunkFeedback[idx] = `Vergeet niet dit zinsdeel te benoemen. Sleep een label naar dit blokje.`;
+          chunkFeedback[idx] = `Vergeet niet dit zinsdeel te benoemen. Sleep een label hiernaartoe – welk zinsdeel zou dit kunnen zijn?`;
           currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
         } else {
           chunkStatus[idx] = 'incorrect-role';
@@ -213,7 +213,7 @@ export function validateAnswer(
             chunkFeedback[idx] = FEEDBACK_MATRIX[userLabel][firstTokenRole];
           } else {
             const userRoleName = ROLES.find(r => r.key === userLabel)?.label || userLabel;
-            chunkFeedback[idx] = `Dit is niet het ${userRoleName}. Kijk nog eens goed: welk zinsdeel is dit?`;
+            chunkFeedback[idx] = `Dit zinsdeel is niet het ${userRoleName}. Kijk nog eens goed – welk type zinsdeel past hier? Denk aan de vragen die je bij elk zinsdeel kunt stellen.`;
           }
           currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
         }
@@ -262,11 +262,11 @@ export function validateAnswer(
             bijvBepLinkMismatch = true;
             bijzinWarningChunks.push(idx);
             if (!userTarget) {
-              chunkFeedback[idx] = "Goed! Wijs nu het woord aan waar deze bijzin bij hoort.";
+              chunkFeedback[idx] = "Goed! Wijs nu het woord aan waar deze bijvoeglijke bijzin bij hoort. Welk woord wordt er nader bepaald?";
               chunkStatus[idx] = 'warning';
             } else {
               const expectedTarget = sentence.tokens.find(t => t.id === firstToken.bijvBepTarget);
-              chunkFeedback[idx] = `De bijzin hoort bij '${expectedTarget?.text || '?'}', niet het woord dat je hebt gekozen.`;
+              chunkFeedback[idx] = `Deze bijzin bepaalt het woord '${expectedTarget?.text || '?'}' nader, niet het woord dat je hebt gekozen. Welk woord krijgt een eigenschap?`;
               chunkStatus[idx] = 'warning';
             }
           }

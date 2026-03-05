@@ -112,7 +112,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
           {/* Feedback Block */}
           {validationResult && (
             <div className={`p-3 rounded-xl text-center font-bold animate-in slide-in-from-top-2 duration-300 ${validationResult.isPerfect ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200 border border-green-200 dark:border-green-800' : 'bg-orange-50 text-orange-800 dark:bg-orange-900/40 dark:text-orange-200 border border-orange-200 dark:border-orange-800'}`}>
-              {validationResult.isPerfect ? "🎉 Perfect! Alles goed verdeeld en benoemd." : `Je hebt ${validationResult.score} van de ${validationResult.total} zinsdelen goed.`}
+              {validationResult.isPerfect ? "🎉 Uitstekend! Je hebt alle zinsdelen goed verdeeld en benoemd." : `Je hebt ${validationResult.score} van de ${validationResult.total} zinsdelen goed. Bekijk de feedback hieronder en probeer het opnieuw.`}
             </div>
           )}
 
@@ -123,7 +123,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
             </div>
           )}
 
-          {showAnswerMode && <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200 px-4 py-2 rounded-lg text-center font-bold">Dit is de juiste oplossing.</div>}
+          {showAnswerMode && <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200 px-4 py-2 rounded-lg text-center font-bold">Dit is het juiste antwoord. Bestudeer de verdeling en labels goed – zo leer je het voor de volgende keer.</div>}
 
           {/* STEP 1: SPLITTING VIEW */}
           {step === 'split' && (
