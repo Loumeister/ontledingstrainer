@@ -227,7 +227,9 @@
       {
         "id": "c4t6",
         "text": "mijn",
-        "role": "bijst"
+        "role": "bijst",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "c4t7"
       },
       {
         "id": "c4t7",
@@ -310,15 +312,10 @@
       },
       {
         "id": "c5t6",
-        "text": "daardoor",
+        "text": "waardoor",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bwb"
-      },
-      {
-        "id": "c5t7",
-        "text": "wordt",
-        "role": "bijzin"
       },
       {
         "id": "c5t8",
@@ -332,7 +329,12 @@
       },
       {
         "id": "c5t10",
-        "text": "bedrogen.",
+        "text": "bedrogen",
+        "role": "bijzin"
+      },
+      {
+        "id": "c5t11",
+        "text": "wordt.",
         "role": "bijzin"
       }
     ]

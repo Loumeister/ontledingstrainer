@@ -430,7 +430,9 @@
       {
         "id": "s19t1",
         "text": "Mijn",
-        "role": "ow"
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s19t2"
       },
       {
         "id": "s19t2",
@@ -1053,12 +1055,12 @@
       {
         "id": "s43t4",
         "text": "de",
-        "role": "mv"
+        "role": "lv"
       },
       {
         "id": "s43t5",
         "text": "politicus",
-        "role": "mv"
+        "role": "lv"
       },
       {
         "id": "s43t6",
@@ -1078,19 +1080,19 @@
       {
         "id": "s43t9",
         "text": "een",
-        "role": "lv"
+        "role": "bwb"
       },
       {
         "id": "s43t10",
         "text": "gevaarlijke",
-        "role": "lv",
+        "role": "bwb",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s43t11"
       },
       {
         "id": "s43t11",
         "text": "populist.",
-        "role": "lv"
+        "role": "bwb"
       }
     ]
   },
@@ -2208,7 +2210,7 @@
   {
     "id": 74,
     "label": "Zin 74: Luchtkwaliteit",
-    "predicateType": "WG",
+    "predicateType": "NG",
     "level": 2,
     "tokens": [
       {
@@ -2268,7 +2270,9 @@
       {
         "id": "s74t11",
         "text": "aanzienlijk",
-        "role": "nwd"
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s74t12"
       },
       {
         "id": "s74t12",
@@ -2802,7 +2806,9 @@
       {
         "id": "s83t10",
         "text": "onvoldoende",
-        "role": "nwd"
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s83t11"
       },
       {
         "id": "s83t11",
@@ -2981,7 +2987,9 @@
       {
         "id": "s88t10",
         "text": "behoorlijk",
-        "role": "nwd"
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s88t11"
       },
       {
         "id": "s88t11",
@@ -3026,7 +3034,9 @@
       {
         "id": "s89t6",
         "text": "nogal",
-        "role": "nwd"
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s89t7"
       },
       {
         "id": "s89t7",
@@ -3101,7 +3111,9 @@
       {
         "id": "s91t1",
         "text": "Dit",
-        "role": "ow"
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s91t2"
       },
       {
         "id": "s91t2",
@@ -3187,7 +3199,9 @@
       {
         "id": "s92t7",
         "text": "verrassend",
-        "role": "nwd"
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s92t8"
       },
       {
         "id": "s92t8",
@@ -3340,7 +3354,9 @@
       {
         "id": "s95t1",
         "text": "Deze",
-        "role": "ow"
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s95t2"
       },
       {
         "id": "s95t2",
@@ -3448,7 +3464,9 @@
       {
         "id": "s97t10",
         "text": "erg",
-        "role": "nwd"
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s97t11"
       },
       {
         "id": "s97t11",
@@ -3498,7 +3516,9 @@
       {
         "id": "s98t7",
         "text": "bijzonder",
-        "role": "nwd"
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s98t8"
       },
       {
         "id": "s98t8",
@@ -3521,7 +3541,9 @@
       {
         "id": "s99t2",
         "text": "die",
-        "role": "lv"
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s99t3"
       },
       {
         "id": "s99t3",
@@ -3559,7 +3581,9 @@
       {
         "id": "s100t2",
         "text": "dat",
-        "role": "lv"
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s100t3"
       },
       {
         "id": "s100t3",
@@ -3610,7 +3634,9 @@
       {
         "id": "s102t3",
         "text": "dat",
-        "role": "lv"
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s102t4"
       },
       {
         "id": "s102t4",
@@ -3760,7 +3786,9 @@
       {
         "id": "s106t7",
         "text": "dit",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s106t8"
       },
       {
         "id": "s106t8",
@@ -4081,7 +4109,9 @@
       {
         "id": "s127t4",
         "text": "die",
-        "role": "lv"
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s127t6"
       },
       {
         "id": "s127t5",
