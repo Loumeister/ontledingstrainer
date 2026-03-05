@@ -149,14 +149,50 @@ export function validateAnswer(
       else chunkFeedback[idx] = "De verdeling klopt niet.";
       currentMistakes['Verdeling'] = (currentMistakes['Verdeling'] || 0) + 1;
     } else {
-      const userLabel = chunkLabels[firstTokenId];
+      let userLabel = chunkLabels[firstTokenId];
       // Safe: isValidSplit is true only when isConsistentRole is true, which means consistentRole !== null
       const effectiveRole = consistentRole!;
+
+      // --- Sub-label promotion: when a student drops a role on a word instead of the chunk header ---
+      // If the chunk has no main label, check if sub-labels match the expected chunk role.
+      // Accept it when the token has no separate expected subRole (single role).
+      // Give a nudge when the token has a different expected subRole (dual role).
+      if (!userLabel) {
+        const subLabelOnFirstToken = subLabels[firstTokenId] as RoleKey | undefined;
+        const anyMatchingSubLabel = chunkTokens.find(t => {
+          const sub = subLabels[t.id] as RoleKey | undefined;
+          return sub && roleMatchesToken(sub, t);
+        });
+
+        if (subLabelOnFirstToken && roleMatchesToken(subLabelOnFirstToken, chunkTokens[0])) {
+          // Student placed correct role on word instead of chunk header
+          const hasDualRole = chunkTokens.some(t => {
+            const expectedSub = (!includeBB && t.subRole === 'bijv_bep') ? undefined : t.subRole;
+            return expectedSub && expectedSub !== t.role;
+          });
+          if (!hasDualRole) {
+            // Single role: accept as correct
+            userLabel = subLabelOnFirstToken;
+          }
+          // Dual role: fall through to normal validation which will show nudge
+        } else if (anyMatchingSubLabel) {
+          const sub = subLabels[anyMatchingSubLabel.id] as RoleKey;
+          if (chunkTokens.every(t => roleMatchesToken(sub, t))) {
+            const hasDualRole = chunkTokens.some(t => {
+              const expectedSub = (!includeBB && t.subRole === 'bijv_bep') ? undefined : t.subRole;
+              return expectedSub && expectedSub !== t.role;
+            });
+            if (!hasDualRole) {
+              userLabel = sub;
+            }
+          }
+        }
+      }
 
       if (userLabel === effectiveRole) {
         chunkStatus[idx] = 'correct';
         correctChunksCount++;
-      } else if (userLabel && chunkTokens.every(t => roleMatchesToken(userLabel, t))) {
+      } else if (userLabel && chunkTokens.every(t => roleMatchesToken(userLabel!, t))) {
         // User chose an alternative role that all tokens accept
         chunkStatus[idx] = 'correct';
         correctChunksCount++;
@@ -166,13 +202,18 @@ export function validateAnswer(
           chunkStatus[idx] = 'warning';
           chunkFeedback[idx] = FEEDBACK_MATRIX['wg'] && FEEDBACK_MATRIX['wg']['pv'] ? FEEDBACK_MATRIX['wg']['pv'] : "Dit hoort bij het gezegde.";
           currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
+        } else if (!userLabel) {
+          // No label assigned at all: give constructive feedback
+          chunkStatus[idx] = 'incorrect-role';
+          chunkFeedback[idx] = `Vergeet niet dit zinsdeel te benoemen. Sleep een label naar dit blokje.`;
+          currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
         } else {
           chunkStatus[idx] = 'incorrect-role';
-          if (userLabel && FEEDBACK_MATRIX[userLabel] && FEEDBACK_MATRIX[userLabel][firstTokenRole]) {
+          if (FEEDBACK_MATRIX[userLabel] && FEEDBACK_MATRIX[userLabel][firstTokenRole]) {
             chunkFeedback[idx] = FEEDBACK_MATRIX[userLabel][firstTokenRole];
           } else {
-            const userRoleName = ROLES.find(r => r.key === userLabel)?.label || "Gekozen";
-            chunkFeedback[idx] = `Dit is niet ${userRoleName}, maar het ${correctRoleName}.`;
+            const userRoleName = ROLES.find(r => r.key === userLabel)?.label || userLabel;
+            chunkFeedback[idx] = `Dit is niet het ${userRoleName}. Kijk nog eens goed: welk zinsdeel is dit?`;
           }
           currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
         }

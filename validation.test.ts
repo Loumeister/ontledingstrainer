@@ -498,3 +498,89 @@ describe('sentence data integrity', () => {
     }
   });
 });
+
+// ──────────────────────────────────────────────
+// validateAnswer – Sub-label promotion (role on word instead of chunk)
+// ──────────────────────────────────────────────
+describe('validateAnswer – sub-label promotion', () => {
+  const sentence = makeSentence([
+    makeToken({ id: 't1', text: 'De', role: 'ow' }),
+    makeToken({ id: 't2', text: 'kat', role: 'ow' }),
+    makeToken({ id: 't3', text: 'slaapt', role: 'pv' }),
+  ]);
+  const correctSplits = new Set([1]);
+
+  it('accepts sub-label on word as chunk label when chunk has no main label (single role)', () => {
+    // Student dropped 'pv' on the word 'slaapt' instead of the chunk header
+    const chunkLabels: PlacementMap = { t1: 'ow' }; // no label for t3 chunk
+    const subLabels: PlacementMap = { t3: 'pv' }; // sub-label on the word
+    const { result } = validateAnswer(sentence, correctSplits, chunkLabels, subLabels, false);
+    expect(result.chunkStatus[1]).toBe('correct');
+  });
+
+  it('does not accept wrong sub-label as chunk label', () => {
+    const chunkLabels: PlacementMap = { t1: 'ow' };
+    const subLabels: PlacementMap = { t3: 'lv' }; // wrong role on word
+    const { result } = validateAnswer(sentence, correctSplits, chunkLabels, subLabels, false);
+    expect(result.chunkStatus[1]).not.toBe('correct');
+  });
+
+  it('does not promote sub-label when token has a different expected subRole (dual role)', () => {
+    const dualRoleSentence = makeSentence([
+      makeToken({ id: 't1', text: 'De', role: 'ow', subRole: 'bijv_bep' }),
+      makeToken({ id: 't2', text: 'kat', role: 'ow' }),
+      makeToken({ id: 't3', text: 'slaapt', role: 'pv' }),
+    ]);
+    const splits = new Set([1]);
+    // Student dropped 'ow' on word t1 instead of chunk header
+    const chunkLabels: PlacementMap = {}; // no chunk label for t1 chunk
+    const subLabels: PlacementMap = { t1: 'ow' };
+    const { result } = validateAnswer(dualRoleSentence, splits, chunkLabels, subLabels, true);
+    // Should NOT be promoted because t1 has subRole 'bijv_bep' (dual role)
+    expect(result.chunkStatus[0]).not.toBe('correct');
+  });
+
+  it('ignores dual-role check for bijv_bep subRole when includeBB is false', () => {
+    const dualRoleSentence = makeSentence([
+      makeToken({ id: 't1', text: 'De', role: 'ow', subRole: 'bijv_bep' }),
+      makeToken({ id: 't2', text: 'kat', role: 'ow' }),
+      makeToken({ id: 't3', text: 'slaapt', role: 'pv' }),
+    ]);
+    const splits = new Set([1]);
+    const chunkLabels: PlacementMap = { t3: 'pv' }; // no chunk label for t1 chunk
+    const subLabels: PlacementMap = { t1: 'ow' };
+    // When includeBB is false, bijv_bep subRole is ignored, so it's single role
+    const { result } = validateAnswer(dualRoleSentence, splits, chunkLabels, subLabels, false);
+    expect(result.chunkStatus[0]).toBe('correct');
+  });
+});
+
+// ──────────────────────────────────────────────
+// validateAnswer – Constructive feedback for unlabeled chunks
+// ──────────────────────────────────────────────
+describe('validateAnswer – constructive feedback', () => {
+  const sentence = makeSentence([
+    makeToken({ id: 't1', text: 'De', role: 'ow' }),
+    makeToken({ id: 't2', text: 'kat', role: 'ow' }),
+    makeToken({ id: 't3', text: 'slaapt', role: 'pv' }),
+  ]);
+  const correctSplits = new Set([1]);
+
+  it('gives constructive feedback when chunk has no label at all', () => {
+    const chunkLabels: PlacementMap = { t1: 'ow' }; // no label for t3 chunk
+    const { result } = validateAnswer(sentence, correctSplits, chunkLabels, {}, false);
+    expect(result.chunkStatus[1]).toBe('incorrect-role');
+    // Should NOT contain "Gekozen"
+    expect(result.chunkFeedback[1]).not.toContain('Gekozen');
+    // Should be constructive
+    expect(result.chunkFeedback[1]).toContain('benoemen');
+  });
+
+  it('gives constructive feedback for wrong label without "Gekozen" fallback', () => {
+    const chunkLabels: PlacementMap = { t1: 'lv', t3: 'pv' }; // wrong: ow → lv
+    const { result } = validateAnswer(sentence, correctSplits, chunkLabels, {}, false);
+    expect(result.chunkStatus[0]).toBe('incorrect-role');
+    // Should NOT contain the old "Dit is niet X, maar het Y" pattern
+    expect(result.chunkFeedback[0]).not.toContain('Gekozen');
+  });
+});

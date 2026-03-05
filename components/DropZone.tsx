@@ -155,7 +155,7 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
           ${assignedRole ? assignedRole.colorClass + ' font-bold hover:opacity-80' : 'text-slate-400 dark:text-slate-500 italic'}
         `}
         onClick={(e) => {
-          if (assignedRole && !validationState) {
+          if (assignedRole) {
             e.stopPropagation();
             onRemoveRole(chunkId);
           }
@@ -164,15 +164,13 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
         {assignedRole ? (
           <div className="flex items-center gap-2 w-full justify-center px-2 relative group/header">
             <span className="relative z-10">{assignedRole.label}</span>
-            {!validationState && (
-              <button 
-                onClick={(e) => { e.stopPropagation(); onRemoveRole(chunkId); }}
-                className="hidden group-hover/header:flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-5 h-5 items-center justify-center transition-colors z-20"
-                title="Verwijder benaming"
-              >
-                ×
-              </button>
-            )}
+            <button 
+              onClick={(e) => { e.stopPropagation(); onRemoveRole(chunkId); }}
+              className="hidden group-hover/header:flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-5 h-5 items-center justify-center transition-colors z-20"
+              title="Verwijder benaming"
+            >
+              ×
+            </button>
           </div>
         ) : (
           "Sleep zinsdeel hier"
@@ -196,7 +194,7 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
             onDropBijzinFunctie(e, chunkId);
           }}
           onClick={(e) => {
-            if (assignedBijzinFunctie && !validationState) {
+            if (assignedBijzinFunctie) {
               e.stopPropagation();
               onRemoveBijzinFunctie(chunkId);
             }
@@ -206,15 +204,13 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
             <div className="flex items-center gap-2 w-full justify-center px-2 relative group/functie">
               <span className="text-[10px] text-slate-400 dark:text-slate-500 mr-1">functie:</span>
               <span className="relative z-10">{assignedBijzinFunctie.label}</span>
-              {!validationState && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); onRemoveBijzinFunctie(chunkId); }}
-                  className="hidden group-hover/functie:flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-4 h-4 items-center justify-center transition-colors z-20 text-[10px]"
-                  title="Verwijder functie"
-                >
-                  ×
-                </button>
-              )}
+              <button
+                onClick={(e) => { e.stopPropagation(); onRemoveBijzinFunctie(chunkId); }}
+                className="hidden group-hover/functie:flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-4 h-4 items-center justify-center transition-colors z-20 text-[10px]"
+                title="Verwijder functie"
+              >
+                ×
+              </button>
             </div>
           ) : (
             <span className="text-[10px]">Sleep functie hier (bijv. LV, BWB)</span>
@@ -229,26 +225,24 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
             <div className="flex items-center gap-1 group/link">
               <span className="text-slate-400 dark:text-slate-500">hoort bij:</span>
               <span className="font-bold text-teal-700 dark:text-teal-300">'{bijvBepTargetText}'</span>
-              {!validationState && (
-                <button
+              <button
                   onClick={(e) => { e.stopPropagation(); onRemoveBijvBepLink(chunkId); }}
                   className="opacity-0 group-hover/link:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-4 h-4 flex items-center justify-center transition-all text-[10px]"
                   title="Verwijder verwijzing"
                 >×</button>
-              )}
             </div>
           ) : isLinkingSource ? (
             <span className="text-blue-500 dark:text-blue-400 animate-pulse font-medium">
               ← Klik op het woord waar deze bijzin bij hoort
             </span>
-          ) : !validationState ? (
+          ) : (
             <button
               onClick={(e) => { e.stopPropagation(); onStartBijvBepLinking(chunkId); }}
               className="text-teal-600 dark:text-teal-400 hover:underline cursor-pointer"
             >
               Wijs het woord aan waar deze bijzin bij hoort →
             </button>
-          ) : null}
+          )}
         </div>
       )}
 

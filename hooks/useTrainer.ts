@@ -1,8 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { ROLES, HINTS } from '../constants';
 import { Sentence, PlacementMap, RoleKey, DifficultyLevel } from '../types';
-import { ROLES, FEEDBACK_MATRIX, FEEDBACK_STRUCTURE, FEEDBACK_SWAP, FEEDBACK_BIJZIN_FUNCTIE, HINTS } from '../constants';
-import { Sentence, PlacementMap, RoleKey, Token, DifficultyLevel, ValidationState } from '../types';
 import { useSentences } from './useSentences';
 import { getCustomSentences } from '../data/customSentenceStore';
 import { recordAttempt, recordShowAnswer } from '../usageData';
@@ -516,91 +514,6 @@ export function useTrainer(): TrainerState {
     }
 
     const realChunkCount = countRealChunks(currentSentence.tokens);
-    // --- Bijzin double-role detection: when a student labels a bijzin chunk with its function ---
-    // E.g. they put "LV" on a chunk that should be "Bijzin" (with function LV).
-    // This is a UI/UX confusion, not a grammatical error, so give specific guidance.
-    userChunks.forEach((chunk, idx) => {
-      if (chunkStatus[idx] !== 'incorrect-role') return;
-      const firstToken = chunk.tokens[0];
-      const expectedFunctie = firstToken.bijzinFunctie;
-      if (firstToken.role !== 'bijzin' || !expectedFunctie) return;
-      // Skip bijv_bep function swap detection when includeBB is off
-      if (expectedFunctie === 'bijv_bep' && !includeBB) return;
-      const userLabel = chunkLabels[firstToken.id];
-      if (userLabel === expectedFunctie) {
-        // Student labeled with the function (e.g. LV) instead of "Bijzin"
-        const functieName = ROLES.find(r => r.key === expectedFunctie)?.label || expectedFunctie;
-        chunkFeedback[idx] = FEEDBACK_SWAP.BIJZIN_HAS_FUNCTIE(functieName);
-        chunkStatus[idx] = 'warning';
-      }
-    });
-
-    // --- Bijzin function validation ---
-    let bijzinFunctieMismatch = false;
-    let bijvBepLinkMismatch = false;
-    userChunks.forEach((chunk, idx) => {
-      const firstToken = chunk.tokens[0];
-      const expectedFunctie = firstToken.bijzinFunctie;
-      if (!expectedFunctie) return; // No bijzin function expected for this chunk
-      // Skip bijv_bep function validation when includeBB is off
-      if (expectedFunctie === 'bijv_bep' && !includeBB) return;
-      const userLabel = chunkLabels[firstToken.id];
-      if (userLabel !== 'bijzin') return; // Only validate when chunk is correctly labeled as bijzin
-      if (chunkStatus[idx] !== 'correct') return; // Only validate bijzin function when chunk is otherwise correct
-
-      const userFunctie = bijzinFunctieLabels[firstToken.id];
-      if (userFunctie === expectedFunctie) {
-        // Both bijzin label and function are correct
-        // For bijv_bep, also validate the target link
-        if (expectedFunctie === 'bijv_bep' && firstToken.bijvBepTarget) {
-          const userTarget = bijvBepLinks[firstToken.id];
-          if (userTarget !== firstToken.bijvBepTarget) {
-            bijvBepLinkMismatch = true;
-            if (!userTarget) {
-              chunkFeedback[idx] = "Goed! Wijs nu het woord aan waar deze bijzin bij hoort.";
-              chunkStatus[idx] = 'warning';
-            } else {
-              const expectedTarget = currentSentence.tokens.find(t => t.id === firstToken.bijvBepTarget);
-              chunkFeedback[idx] = `De bijzin hoort bij '${expectedTarget?.text || '?'}', niet het woord dat je hebt gekozen.`;
-              chunkStatus[idx] = 'warning';
-            }
-          }
-        }
-      } else {
-        bijzinFunctieMismatch = true;
-        if (!userFunctie) {
-          chunkFeedback[idx] = FEEDBACK_BIJZIN_FUNCTIE.MISSING;
-          chunkStatus[idx] = 'warning';
-        } else {
-          const expectedFunctieName = ROLES.find(r => r.key === expectedFunctie)?.label || expectedFunctie;
-          chunkFeedback[idx] = FEEDBACK_BIJZIN_FUNCTIE.WRONG(expectedFunctieName);
-          chunkStatus[idx] = 'warning';
-        }
-      }
-    });
-
-    let subRoleMismatch = false;
-    currentSentence.tokens.forEach(t => {
-       const userSub = subLabels[t.id];
-       let expectedSub = t.subRole;
-       if (!includeBB && expectedSub === 'bijv_bep') expectedSub = undefined;
-       if (userSub !== expectedSub) subRoleMismatch = true;
-    });
-
-    const isSplitPerfect = correctChunksCount === userChunks.length;
-    let realChunkCount = 0;
-    currentSentence.tokens.forEach((t, i) => {
-        if (i === 0 || t.role !== currentSentence.tokens[i-1].role || t.newChunk) realChunkCount++;
-    });
-    const reallyPerfect = isSplitPerfect && userChunks.length === realChunkCount && !subRoleMismatch && !bijzinFunctieMismatch && !bijvBepLinkMismatch;
-
-    setValidationResult({
-      score: correctChunksCount,
-      total: userChunks.length,
-      chunkStatus,
-      chunkFeedback,
-      isPerfect: reallyPerfect
-    });
 
     // Guard: only update stats and record usage on the FIRST check per sentence.
     // Prevents double-counting when the student clicks Controleer multiple times.
