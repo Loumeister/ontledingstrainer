@@ -75,6 +75,8 @@ export interface TrainerState {
   setDarkMode: (v: boolean) => void;
   largeFont: boolean;
   setLargeFont: (v: boolean) => void;
+  dyslexiaMode: boolean;
+  setDyslexiaMode: (v: boolean) => void;
 
   // Loading
   isLoadingSentences: boolean;
@@ -148,6 +150,7 @@ export function useTrainer(): TrainerState {
   const [showHelp, setShowHelp] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [largeFont, setLargeFont] = useState(false);
+  const [dyslexiaMode, setDyslexiaMode] = useState(false);
   const [confirmAction, setConfirmAction] = useState<'answer' | 'abort' | null>(null);
 
   // Splitting State
@@ -181,12 +184,16 @@ export function useTrainer(): TrainerState {
 
   // --- Effects ---
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('large-font-mode', largeFont);
+  }, [largeFont]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dyslexia-mode', dyslexiaMode);
+  }, [dyslexiaMode]);
 
   // --- Logic ---
 
@@ -692,6 +699,7 @@ export function useTrainer(): TrainerState {
     showHelp, setShowHelp,
     darkMode, setDarkMode,
     largeFont, setLargeFont,
+    dyslexiaMode, setDyslexiaMode,
 
     // Derived
     userChunks, availableSentences,

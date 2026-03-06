@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import { TrainerState } from '../hooks/useTrainer';
 import { SCORE_TIPS } from '../constants';
 
@@ -17,6 +18,14 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
 }) => {
   const scorePercentage = sessionStats.total > 0 ? Math.round((sessionStats.correct / sessionStats.total) * 100) : 0;
   const topMistakes = Object.entries(mistakeStats).sort((a, b) => (b[1] as number) - (a[1] as number)).slice(0, 3);
+
+  useEffect(() => {
+    if (scorePercentage === 100) {
+      confetti({ particleCount: 200, spread: 120, origin: { y: 0.4 } });
+    } else if (scorePercentage >= 80) {
+      confetti({ particleCount: 80, spread: 80, origin: { y: 0.5 } });
+    }
+  }, []);
 
   const encouragement = scorePercentage >= 90
     ? 'Uitstekend! Je beheerst de zinsontleding goed. 🌟'
