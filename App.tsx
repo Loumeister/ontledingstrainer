@@ -103,6 +103,8 @@ export default function App() {
         mistakeStats={trainer.mistakeStats}
         resetToHome={trainer.resetToHome}
         startSession={trainer.startSession}
+        sessionQueue={trainer.sessionQueue}
+        selectedLevel={trainer.selectedLevel}
       />
     );
   }

@@ -5,6 +5,7 @@ import {
   logInteraction,
   clearInteractionLog,
   computeClickthroughStats,
+  computeSessionFlowStats,
 } from './interactionLog';
 import type { InteractionEntry } from './interactionLog';
 
@@ -180,5 +181,58 @@ describe('computeClickthroughStats', () => {
     const stats = computeClickthroughStats(log);
     expect(stats.totalSessions).toBe(2);
     expect(stats.totalChecks).toBe(2);
+  });
+});
+
+describe('computeSessionFlowStats', () => {
+  it('returns zero stats for empty log', () => {
+    const stats = computeSessionFlowStats([]);
+    expect(stats.sessionsStarted).toBe(0);
+    expect(stats.sessionsFinished).toBe(0);
+    expect(stats.sessionsAborted).toBe(0);
+    expect(stats.completionRate).toBe(0);
+    expect(stats.avgSessionDurationSec).toBeNull();
+    expect(stats.activeDays).toEqual([]);
+  });
+
+  it('computes completion rate and abort count', () => {
+    const log: InteractionEntry[] = [
+      { timestamp: '2025-06-01T10:00:00Z', type: 'session_start' },
+      { timestamp: '2025-06-01T10:05:00Z', type: 'session_finish' },
+      { timestamp: '2025-06-01T11:00:00Z', type: 'session_start' },
+      { timestamp: '2025-06-01T11:02:00Z', type: 'abort' },
+      { timestamp: '2025-06-02T09:00:00Z', type: 'session_start' },
+      { timestamp: '2025-06-02T09:10:00Z', type: 'session_finish' },
+    ];
+    const stats = computeSessionFlowStats(log);
+    expect(stats.sessionsStarted).toBe(3);
+    expect(stats.sessionsFinished).toBe(2);
+    expect(stats.sessionsAborted).toBe(1);
+    expect(stats.completionRate).toBeCloseTo(66.67, 1);
+  });
+
+  it('computes average session duration', () => {
+    const log: InteractionEntry[] = [
+      { timestamp: '2025-06-01T10:00:00Z', type: 'session_start' },
+      { timestamp: '2025-06-01T10:05:00Z', type: 'session_finish' }, // 300 sec
+      { timestamp: '2025-06-01T11:00:00Z', type: 'session_start' },
+      { timestamp: '2025-06-01T11:10:00Z', type: 'session_finish' }, // 600 sec
+    ];
+    const stats = computeSessionFlowStats(log);
+    expect(stats.avgSessionDurationSec).toBe(450); // (300 + 600) / 2
+  });
+
+  it('tracks active days and activity per day', () => {
+    const log: InteractionEntry[] = [
+      { timestamp: '2025-06-01T10:00:00Z', type: 'session_start' },
+      { timestamp: '2025-06-01T10:01:00Z', type: 'sentence_start', sentenceId: 1 },
+      { timestamp: '2025-06-01T10:05:00Z', type: 'session_finish' },
+      { timestamp: '2025-06-03T09:00:00Z', type: 'session_start' },
+      { timestamp: '2025-06-03T09:01:00Z', type: 'check', sentenceId: 1 },
+    ];
+    const stats = computeSessionFlowStats(log);
+    expect(stats.activeDays).toEqual(['2025-06-01', '2025-06-03']);
+    expect(stats.activityPerDay['2025-06-01']).toBe(3);
+    expect(stats.activityPerDay['2025-06-03']).toBe(2);
   });
 });

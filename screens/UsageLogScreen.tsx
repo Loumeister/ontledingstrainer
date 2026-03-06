@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { loadUsageData, clearUsageData, exportUsageDataAsJson } from '../usageData';
-import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats } from '../interactionLog';
+import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats } from '../interactionLog';
 import { loadAllSentences } from '../data/sentenceLoader';
 import { getCustomSentences } from '../data/customSentenceStore';
+import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats } from '../sessionReport';
 import type { SentenceUsageData } from '../types';
 
-const EDITOR_PIN = '1234';
-const DEV_PIN = '4321';
+const DOCENT_PIN = '1234';
+const EIGENAAR_PIN = '4321';
 const PIN_SESSION_KEY = 'editor-pin-ok';
-const DEV_SESSION_KEY = 'dev-pin-ok';
+// Keep legacy key name for backward compat with existing browser sessions
+const EIGENAAR_SESSION_KEY = 'eigenaar-pin-ok';
 
 type SortField = 'id' | 'attempts' | 'perfectRate' | 'showAnswer' | 'splitErrors' | 'lastAttempted';
 type SortDir = 'asc' | 'desc';
@@ -31,7 +33,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState(false);
   const [authenticated, setAuthenticated] = useState(() => sessionStorage.getItem(PIN_SESSION_KEY) === 'true');
-  const [isDev, setIsDev] = useState(() => sessionStorage.getItem(DEV_SESSION_KEY) === 'true');
+  const [isEigenaar, setIsEigenaar] = useState(() => sessionStorage.getItem(EIGENAAR_SESSION_KEY) === 'true');
 
   const [enrichedData, setEnrichedData] = useState<EnrichedUsage[]>([]);
   const [sortField, setSortField] = useState<SortField>('attempts');
@@ -40,6 +42,11 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   const [filterLevel, setFilterLevel] = useState<number | null>(null);
   const [showRawData, setShowRawData] = useState(false);
   const [showInteractionLog, setShowInteractionLog] = useState(false);
+
+  // Report import state
+  const [reportInput, setReportInput] = useState('');
+  const [reportMsg, setReportMsg] = useState<{ text: string; ok: boolean } | null>(null);
+  const [reports, setReports] = useState(() => loadReports());
 
   useEffect(() => {
     if (!authenticated) return;
@@ -88,13 +95,13 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
 
   const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pinInput === DEV_PIN) {
+    if (pinInput === EIGENAAR_PIN) {
       sessionStorage.setItem(PIN_SESSION_KEY, 'true');
-      sessionStorage.setItem(DEV_SESSION_KEY, 'true');
+      sessionStorage.setItem(EIGENAAR_SESSION_KEY, 'true');
       setAuthenticated(true);
-      setIsDev(true);
+      setIsEigenaar(true);
       setPinError(false);
-    } else if (pinInput === EDITOR_PIN) {
+    } else if (pinInput === DOCENT_PIN) {
       sessionStorage.setItem(PIN_SESSION_KEY, 'true');
       setAuthenticated(true);
       setPinError(false);
@@ -107,6 +114,26 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     if (confirm('Alle gebruiksdata wissen? Dit kan niet ongedaan worden.')) {
       clearUsageData();
       setEnrichedData([]);
+    }
+  };
+
+  const handleImportReport = () => {
+    const decoded = decodeReport(reportInput);
+    if (!decoded) {
+      setReportMsg({ text: 'Ongeldige rapportcode. Vraag de leerling om een nieuwe code te genereren.', ok: false });
+      return;
+    }
+    addReport(decoded);
+    setReports(loadReports());
+    const name = decoded.name || 'Anoniem';
+    setReportMsg({ text: `✓ Rapport van ${name} toegevoegd (${decoded.c}/${decoded.t} goed)`, ok: true });
+    setReportInput('');
+  };
+
+  const handleClearReports = () => {
+    if (confirm('Alle leerlingrapporten wissen? Dit kan niet ongedaan worden.')) {
+      clearReports();
+      setReports([]);
     }
   };
 
@@ -197,6 +224,23 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     .filter(d => d.usage.attempts >= 3 && d.perfectRate >= 80)
     .sort((a, b) => b.perfectRate - a.perfectRate)
     .slice(0, 5);
+
+  // --- New teacher-level stats ---
+
+  // Level distribution: how many attempts per difficulty level
+  const levelDistribution: Record<number, number> = {};
+  enrichedData.forEach(d => {
+    if (d.level > 0) {
+      levelDistribution[d.level] = (levelDistribution[d.level] || 0) + d.usage.attempts;
+    }
+  });
+
+  // Split errors vs role errors ratio
+  const totalSplitErrors = enrichedData.reduce((s, d) => s + d.usage.splitErrors, 0);
+  const totalRoleErrorCount = enrichedData.reduce((s, d) => s + d.totalRoleErrors, 0);
+
+  // Aggregated stats from imported student reports
+  const aggregateStats = computeAggregateStats(reports);
 
   // Helper: describe the success rate in plain Dutch
   const describeRate = (rate: number): { text: string; emoji: string; colorClass: string } => {
@@ -371,6 +415,189 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
           </div>
         </div>
 
+        {/* Third insights row: level distribution + split vs label + report import */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Level distribution */}
+          <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+            <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">📊 Verdeling per niveau</h3>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Hoe vaak wordt elk niveau geoefend?</p>
+            {Object.keys(levelDistribution).length === 0 ? (
+              <p className="text-slate-400 text-sm italic">Nog geen data.</p>
+            ) : (
+              <div className="space-y-2">
+                {[1, 2, 3, 4].map(lvl => {
+                  const count = levelDistribution[lvl] || 0;
+                  const maxCount = Math.max(...Object.values(levelDistribution), 1);
+                  const pct = (count / maxCount) * 100;
+                  const labels = ['', 'Basis', 'Middel', 'Hoog', 'Samengesteld'];
+                  const colors = ['', 'from-green-300 to-green-500', 'from-blue-300 to-blue-500', 'from-purple-300 to-purple-500', 'from-red-300 to-red-500'];
+                  return (
+                    <div key={lvl}>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{labels[lvl]}</span>
+                        <span className="text-xs text-slate-400">{count} pogingen</span>
+                      </div>
+                      <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+                        <div className={`h-full bg-gradient-to-r ${colors[lvl]} rounded-full transition-all`} style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Split vs Label errors */}
+          <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+            <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">⚖️ Verdelen vs. Benoemen</h3>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Waar gaat het vaker mis: verdelen of benoemen?</p>
+            {totalSplitErrors === 0 && totalRoleErrorCount === 0 ? (
+              <p className="text-slate-400 text-sm italic">Nog geen fouten gemaakt!</p>
+            ) : (
+              <div className="space-y-3">
+                {(() => {
+                  const errorTotal = totalSplitErrors + totalRoleErrorCount;
+                  const splitPct = errorTotal > 0 ? (totalSplitErrors / errorTotal) * 100 : 0;
+                  const rolePct = errorTotal > 0 ? (totalRoleErrorCount / errorTotal) * 100 : 0;
+                  return (
+                    <>
+                      <div>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Verdeelfouten</span>
+                          <span className="text-xs text-slate-400">{totalSplitErrors}</span>
+                        </div>
+                        <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-orange-300 to-orange-500 rounded-full transition-all" style={{ width: `${splitPct}%` }} />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Benoemfouten</span>
+                          <span className="text-xs text-slate-400">{totalRoleErrorCount}</span>
+                        </div>
+                        <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-red-300 to-red-500 rounded-full transition-all" style={{ width: `${rolePct}%` }} />
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">
+                  {totalSplitErrors > totalRoleErrorCount
+                    ? '💡 Leerlingen hebben meer moeite met het verdelen van zinnen in zinsdelen.'
+                    : totalRoleErrorCount > totalSplitErrors
+                    ? '💡 Leerlingen verdelen goed, maar benoemen de zinsdelen nog niet altijd juist.'
+                    : '💡 Verdelen en benoemen gaan ongeveer even goed.'}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Import student reports */}
+          <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+            <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">📥 Leerlingrapporten importeren</h3>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Plak hier de rapportcode die een leerling heeft gegenereerd</p>
+            <div className="space-y-2">
+              <textarea
+                value={reportInput}
+                onChange={e => { setReportInput(e.target.value); setReportMsg(null); }}
+                placeholder="Plak rapportcode hier (begint met v1:)..."
+                className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:border-blue-500 outline-none resize-none h-16"
+              />
+              <button
+                onClick={handleImportReport}
+                disabled={!reportInput.trim()}
+                className="w-full py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Importeer rapport
+              </button>
+              {reportMsg && (
+                <p className={`text-xs font-medium ${reportMsg.ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                  {reportMsg.text}
+                </p>
+              )}
+              {reports.length > 0 && (
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  {reports.length} rapport{reports.length !== 1 ? 'en' : ''} opgeslagen van {aggregateStats.uniqueStudents} leerling{aggregateStats.uniqueStudents !== 1 ? 'en' : ''}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Imported reports summary — visible for both docent and eigenaar */}
+        {reports.length > 0 && (
+          <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="font-bold text-slate-700 dark:text-white text-base mb-0.5">👥 Overzicht leerlingrapporten</h3>
+                <p className="text-xs text-slate-400 dark:text-slate-500">Geaggregeerde resultaten uit geïmporteerde rapportcodes</p>
+              </div>
+              <button
+                onClick={handleClearReports}
+                className="text-xs px-2 py-1 rounded bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 font-medium hover:bg-red-200 transition-colors"
+              >
+                Wis rapporten
+              </button>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-center text-sm mb-4">
+              <div>
+                <span className="font-bold text-blue-600 dark:text-blue-400">{aggregateStats.totalReports}</span>
+                <br/><span className="text-xs text-slate-500">Rapporten</span>
+              </div>
+              <div>
+                <span className="font-bold text-indigo-600 dark:text-indigo-400">{aggregateStats.uniqueStudents}</span>
+                <br/><span className="text-xs text-slate-500">Leerlingen</span>
+              </div>
+              <div>
+                <span className={`font-bold ${aggregateStats.avgScore >= 60 ? 'text-emerald-600 dark:text-emerald-400' : aggregateStats.avgScore >= 30 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
+                  {aggregateStats.avgScore.toFixed(0)}%
+                </span>
+                <br/><span className="text-xs text-slate-500">Gem. score</span>
+              </div>
+              <div>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">{aggregateStats.totalCorrect}</span>
+                <br/><span className="text-xs text-slate-500">Totaal goed</span>
+              </div>
+              <div>
+                <span className="font-bold text-slate-600 dark:text-slate-400">{aggregateStats.totalChunks}</span>
+                <br/><span className="text-xs text-slate-500">Totaal zinsdelen</span>
+              </div>
+            </div>
+            {/* Top errors from reports */}
+            {Object.keys(aggregateStats.globalRoleErrors).length > 0 && (
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-700">
+                <span className="text-xs text-slate-400 block mb-2">Meest voorkomende fouten (uit rapporten):</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.entries(aggregateStats.globalRoleErrors)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5)
+                    .map(([role, count]) => (
+                      <span key={role} className="text-[11px] px-2 py-1 rounded-lg bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 font-medium">
+                        {role} ({count}×)
+                      </span>
+                    ))}
+                </div>
+              </div>
+            )}
+            {/* Activity per day from reports */}
+            {Object.keys(aggregateStats.reportsPerDay).length > 1 && (
+              <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
+                <span className="text-xs text-slate-400 block mb-2">Rapporten per dag:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.entries(aggregateStats.reportsPerDay)
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .map(([day, count]) => (
+                      <span key={day} className="text-[11px] px-2 py-1 rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 font-medium">
+                        {new Date(day).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}: {count}
+                      </span>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Filters */}
         <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
           <div className="flex flex-wrap gap-3 items-center">
@@ -505,28 +732,86 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
           })}
         </div>
 
-        {/* Developer-only sections — requires dev PIN */}
-        {isDev && (
+        {/* Eigenaar-only sections — requires eigenaar PIN */}
+        {isEigenaar && (
           <>
-            {/* Clickthrough Stats */}
+            {/* Session Flow Stats */}
             {(() => {
               const interactionLog = loadInteractionLog();
               const ctStats = computeClickthroughStats(interactionLog);
+              const flowStats = computeSessionFlowStats(interactionLog);
+              const formatDuration = (sec: number) => {
+                if (sec < 60) return `${Math.round(sec)} sec`;
+                return `${Math.floor(sec / 60)} min ${Math.round(sec % 60)} sec`;
+              };
               return (
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <h3 className="font-bold text-slate-700 dark:text-white text-sm mb-3">Clickthrough &amp; Error Statistieken <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 font-medium ml-1">dev</span></h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center text-sm">
-                    <div><span className="font-bold text-blue-600 dark:text-blue-400">{ctStats.totalSessions}</span><br/><span className="text-xs text-slate-500">Sessies</span></div>
-                    <div><span className="font-bold text-indigo-600 dark:text-indigo-400">{ctStats.totalSentencesStarted}</span><br/><span className="text-xs text-slate-500">Zinnen gestart</span></div>
-                    <div><span className="font-bold text-emerald-600 dark:text-emerald-400">{ctStats.totalChecks}</span><br/><span className="text-xs text-slate-500">Checks</span></div>
-                    <div><span className="font-bold text-amber-600 dark:text-amber-400">{ctStats.totalHints}</span><br/><span className="text-xs text-slate-500">Hints</span></div>
-                    <div><span className="font-bold text-orange-600 dark:text-orange-400">{ctStats.totalShowAnswers}</span><br/><span className="text-xs text-slate-500">Antwoord bekeken</span></div>
-                    <div><span className="font-bold text-red-600 dark:text-red-400">{ctStats.totalSplitErrors}</span><br/><span className="text-xs text-slate-500">Splitfouten</span></div>
-                    <div><span className="font-bold text-red-600 dark:text-red-400">{ctStats.totalRoleErrors}</span><br/><span className="text-xs text-slate-500">Rolfouten</span></div>
-                    <div><span className="font-bold text-red-600 dark:text-red-400">{ctStats.totalBijzinFunctieErrors}</span><br/><span className="text-xs text-slate-500">Bijzin-functiefouten</span></div>
+                <>
+                  {/* Session flow overview */}
+                  <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <h3 className="font-bold text-slate-700 dark:text-white text-sm mb-3">
+                      🔄 Sessie-statistieken
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300 font-medium ml-1">eigenaar</span>
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-center text-sm">
+                      <div>
+                        <span className="font-bold text-blue-600 dark:text-blue-400">{flowStats.sessionsStarted}</span>
+                        <br/><span className="text-xs text-slate-500">Sessies gestart</span>
+                      </div>
+                      <div>
+                        <span className="font-bold text-emerald-600 dark:text-emerald-400">{flowStats.sessionsFinished}</span>
+                        <br/><span className="text-xs text-slate-500">Sessies voltooid</span>
+                      </div>
+                      <div>
+                        <span className="font-bold text-orange-600 dark:text-orange-400">{flowStats.sessionsAborted}</span>
+                        <br/><span className="text-xs text-slate-500">Afgebroken</span>
+                      </div>
+                      <div>
+                        <span className={`font-bold ${flowStats.completionRate >= 70 ? 'text-emerald-600 dark:text-emerald-400' : flowStats.completionRate >= 40 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
+                          {flowStats.completionRate.toFixed(0)}%
+                        </span>
+                        <br/><span className="text-xs text-slate-500">Voltooiingspercentage</span>
+                      </div>
+                      <div>
+                        <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                          {flowStats.avgSessionDurationSec != null ? formatDuration(flowStats.avgSessionDurationSec) : '—'}
+                        </span>
+                        <br/><span className="text-xs text-slate-500">Gem. sessieduur</span>
+                      </div>
+                    </div>
+                    {flowStats.activeDays.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                        <span className="text-xs text-slate-400 block mb-2">Actieve dagen ({flowStats.activeDays.length}):</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {flowStats.activeDays.slice(-14).map(day => (
+                            <span key={day} className="text-[11px] px-2 py-1 rounded-lg bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 font-medium">
+                              {new Date(day).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
+                              <span className="text-[10px] text-indigo-400 ml-1">({flowStats.activityPerDay[day]})</span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-xs text-slate-400 mt-2">Gem. acties per zin: {ctStats.avgActionsPerSentence.toFixed(1)}</p>
-                </div>
+
+                  {/* Clickthrough Stats */}
+                  <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <h3 className="font-bold text-slate-700 dark:text-white text-sm mb-3">
+                      🖱️ Clickthrough &amp; Error Statistieken
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300 font-medium ml-1">eigenaar</span>
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center text-sm">
+                      <div><span className="font-bold text-blue-600 dark:text-blue-400">{ctStats.totalSessions}</span><br/><span className="text-xs text-slate-500">Sessies</span></div>
+                      <div><span className="font-bold text-indigo-600 dark:text-indigo-400">{ctStats.totalSentencesStarted}</span><br/><span className="text-xs text-slate-500">Zinnen gestart</span></div>
+                      <div><span className="font-bold text-emerald-600 dark:text-emerald-400">{ctStats.totalChecks}</span><br/><span className="text-xs text-slate-500">Checks</span></div>
+                      <div><span className="font-bold text-amber-600 dark:text-amber-400">{ctStats.totalHints}</span><br/><span className="text-xs text-slate-500">Hints</span></div>
+                      <div><span className="font-bold text-orange-600 dark:text-orange-400">{ctStats.totalShowAnswers}</span><br/><span className="text-xs text-slate-500">Antwoord bekeken</span></div>
+                      <div><span className="font-bold text-red-600 dark:text-red-400">{ctStats.totalSplitErrors}</span><br/><span className="text-xs text-slate-500">Splitfouten</span></div>
+                      <div><span className="font-bold text-red-600 dark:text-red-400">{ctStats.totalRoleErrors}</span><br/><span className="text-xs text-slate-500">Rolfouten</span></div>
+                      <div><span className="font-bold text-red-600 dark:text-red-400">{ctStats.totalBijzinFunctieErrors}</span><br/><span className="text-xs text-slate-500">Bijzin-functiefouten</span></div>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-2">Gem. acties per zin: {ctStats.avgActionsPerSentence.toFixed(1)}</p>
+                  </div>
+                </>
               );
             })()}
 
@@ -537,7 +822,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                   onClick={() => setShowInteractionLog(!showInteractionLog)}
                   className="text-xs font-medium text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                 >
-                  {showInteractionLog ? '▼ Interactielog verbergen' : '▶ Interactielog tonen'} <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 font-medium ml-1">dev</span>
+                  {showInteractionLog ? '▼ Interactielog verbergen' : '▶ Interactielog tonen'} <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300 font-medium ml-1">eigenaar</span>
                 </button>
                 <div className="flex gap-2">
                   <button onClick={() => exportInteractionLogAsJson()} className="text-xs px-2 py-1 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 font-medium hover:bg-emerald-200 transition-colors">Export log</button>
@@ -557,7 +842,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                 onClick={() => setShowRawData(!showRawData)}
                 className="text-xs font-medium text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
               >
-                {showRawData ? '▼ Ruwe data verbergen' : '▶ Ruwe data tonen'} <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 font-medium ml-1">dev</span>
+                {showRawData ? '▼ Ruwe data verbergen' : '▶ Ruwe data tonen'} <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300 font-medium ml-1">eigenaar</span>
               </button>
               {showRawData && (
                 <pre className="mt-3 p-3 bg-slate-900 text-green-400 rounded-lg text-xs overflow-auto max-h-96 font-mono">
