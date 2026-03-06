@@ -63,14 +63,6 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-2 md:p-4 font-sans transition-colors duration-300 flex flex-col">
 
       <ConfirmationModal
-         isOpen={confirmAction === 'answer'}
-         title="Antwoord tonen?"
-         message="Weet je zeker dat je het antwoord wilt zien? Je krijgt dan geen punten voor deze zin."
-         onConfirm={handleConfirmAction}
-         onCancel={() => setConfirmAction(null)}
-      />
-
-      <ConfirmationModal
          isOpen={confirmAction === 'abort'}
          title="Sessie afbreken?"
          message="Weet je zeker dat je wilt stoppen? Je voortgang in deze sessie gaat verloren."
