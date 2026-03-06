@@ -453,9 +453,21 @@ export function useTrainer(): TrainerState {
     if (!currentSentence) return;
     logInteraction('hint', currentSentence.id);
 
+    const chunks = getUserChunks();
+    const unlabeledChunks = chunks.filter(c => !chunkLabels[c.tokens[0].id]);
+
+    if (unlabeledChunks.length === chunks.length) {
+      setHintMessage(HINTS.MISSING_PV);
+      return;
+    }
+
     const usedRoles = Object.values(chunkLabels);
-    if (!usedRoles.includes('pv')) { setHintMessage(HINTS.MISSING_PV); return; }
-    if (!usedRoles.includes('ow')) { setHintMessage(HINTS.MISSING_OW); return; }
+
+    if (unlabeledChunks.length > 0) {
+      // Guide the student to label the remaining chunks
+      if (!usedRoles.includes('pv')) { setHintMessage(HINTS.MISSING_PV); return; }
+      if (!usedRoles.includes('ow')) { setHintMessage(HINTS.MISSING_OW); return; }
+    }
 
     const actualRolesInSentence = new Set<RoleKey>();
     currentSentence.tokens.forEach(t => {
@@ -470,6 +482,13 @@ export function useTrainer(): TrainerState {
     if (actualRolesInSentence.has('bwb') && !usedRoles.includes('bwb')) { setHintMessage(HINTS.MISSING_BWB); return; }
     if (actualRolesInSentence.has('bijzin') && !usedRoles.includes('bijzin')) { setHintMessage(HINTS.MISSING_BIJZIN); return; }
     if (actualRolesInSentence.has('bijst') && !usedRoles.includes('bijst')) { setHintMessage(HINTS.MISSING_BIJST); return; }
+
+    // Remind about unlabeled chunks that haven't been caught by the role checks above
+    if (unlabeledChunks.length > 0) {
+      const words = unlabeledChunks[0].tokens.map(t => t.text).join(' ');
+      setHintMessage(`Tip: Het blokje "${words}" heeft nog geen label. Welk zinsdeel is dit?`);
+      return;
+    }
 
     // Check for missing bijzin function labels
     const userChunks = getUserChunks();

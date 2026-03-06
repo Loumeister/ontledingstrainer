@@ -105,6 +105,51 @@
     ]
   },
   {
+    "id": 21,
+    "label": "Zin 21: Weet jij...",
+    "predicateType": "WG",
+    "level": 3,
+    "tokens": [
+      {
+        "id": "s21t1",
+        "text": "Weet",
+        "role": "pv"
+      },
+      {
+        "id": "s21t2",
+        "text": "jij",
+        "role": "ow"
+      },
+      {
+        "id": "s21t3",
+        "text": "waarom",
+        "role": "bijzin",
+        "bijzinFunctie": "lv",
+        "subRole": "vw_onder"
+      },
+      {
+        "id": "s21t4",
+        "text": "hij",
+        "role": "bijzin"
+      },
+      {
+        "id": "s21t5",
+        "text": "zo",
+        "role": "bijzin"
+      },
+      {
+        "id": "s21t6",
+        "text": "boos",
+        "role": "bijzin"
+      },
+      {
+        "id": "s21t7",
+        "text": "is?",
+        "role": "bijzin"
+      }
+    ]
+  },
+  {
     "id": 31,
     "label": "Zin 31: Uitslapen",
     "predicateType": "WG",
