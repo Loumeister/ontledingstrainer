@@ -55,9 +55,9 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   handleShowAnswerRequest, handleAbortRequest, handleConfirmAction,
   nextSessionSentence,
 }) => {
-  if (!currentSentence) return null;
-
   const [showZinsdeelHelp, setShowZinsdeelHelp] = useState(false);
+
+  if (!currentSentence) return null;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-2 md:p-4 font-sans transition-colors duration-300 flex flex-col">

@@ -464,7 +464,6 @@ export function useTrainer(): TrainerState {
     const usedRoles = Object.values(chunkLabels);
 
     if (unlabeledChunks.length > 0) {
-      // Guide the student to label the remaining chunks
       if (!usedRoles.includes('pv')) { setHintMessage(HINTS.MISSING_PV); return; }
       if (!usedRoles.includes('ow')) { setHintMessage(HINTS.MISSING_OW); return; }
     }
@@ -486,7 +485,11 @@ export function useTrainer(): TrainerState {
     // Remind about unlabeled chunks that haven't been caught by the role checks above
     if (unlabeledChunks.length > 0) {
       const words = unlabeledChunks[0].tokens.map(t => t.text).join(' ');
-      setHintMessage(`Tip: Het blokje "${words}" heeft nog geen label. Welk zinsdeel is dit?`);
+      if (unlabeledChunks.length === 1) {
+        setHintMessage(`Tip: Het blokje "${words}" heeft nog geen label. Welk zinsdeel is dit?`);
+      } else {
+        setHintMessage(`Tip: Het blokje "${words}" en ${unlabeledChunks.length - 1} andere hebben nog geen label. Welk zinsdeel is "${words}"?`);
+      }
       return;
     }
 
