@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ROLES } from '../constants';
 import { RoleDefinition } from '../types';
 import { DraggableRole } from '../components/WordChip';
 import { SentenceChunk } from '../components/DropZone';
 import { HelpModal } from '../components/HelpModal';
+import { ZinsdeelHelpModal } from '../components/ZinsdeelHelpModal';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { TrainerState } from '../hooks/useTrainer';
 
@@ -54,6 +55,8 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   handleShowAnswerRequest, handleAbortRequest, handleConfirmAction,
   nextSessionSentence,
 }) => {
+  const [showZinsdeelHelp, setShowZinsdeelHelp] = useState(false);
+
   if (!currentSentence) return null;
 
   return (
@@ -76,6 +79,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
       />
 
       <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
+      <ZinsdeelHelpModal isOpen={showZinsdeelHelp} onClose={() => setShowZinsdeelHelp(false)} />
 
       <main className="max-w-6xl mx-auto w-full flex flex-col gap-4 flex-1 mb-20">
 
@@ -163,6 +167,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   selectedLevel={selectedLevel}
                   largeFont={largeFont}
                   handleDragStart={handleDragStart}
+                  onShowZinsdeelHelp={() => setShowZinsdeelHelp(true)}
                 />
               )}
 
@@ -289,7 +294,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                       </button>
                       <button
                         onClick={handleCheck}
-                        disabled={Object.keys(chunkLabels).length === 0}
+                        disabled={userChunks.length === 0 || userChunks.some(c => !chunkLabels[c.tokens[0].id])}
                         className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
                       >
                         Check
@@ -339,6 +344,7 @@ interface RoleToolbarProps {
   selectedLevel: TrainerState['selectedLevel'];
   largeFont: boolean;
   handleDragStart: TrainerState['handleDragStart'];
+  onShowZinsdeelHelp: () => void;
 }
 
 const RoleToolbar: React.FC<RoleToolbarProps> = ({
@@ -348,12 +354,23 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
   selectedLevel,
   largeFont,
   handleDragStart,
+  onShowZinsdeelHelp,
 }) => {
   return (
     <div className="bg-white dark:bg-slate-800 p-3 md:p-4 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 sticky top-0 z-[100] transition-all">
       <div className="flex flex-col gap-2 md:gap-4">
         <div>
-          <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Zinsdelen & Gezegde:</p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Zinsdelen & Gezegde:</p>
+            <button
+              onClick={onShowZinsdeelHelp}
+              className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+              title="Overzicht zinsdelen"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+              Uitleg
+            </button>
+          </div>
           <div className="flex flex-wrap gap-2 justify-center">
             {/* Main syntactic roles */}
             {ROLES.filter(r => !r.isSubOnly && !['wg', 'nwd', 'bijzin', 'vw_neven', 'bijst'].includes(r.key as string))
