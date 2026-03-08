@@ -131,7 +131,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
             </div>
           )}
 
-          {showAnswerMode && <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200 px-4 py-2 rounded-lg text-center font-bold">Dit is het juiste antwoord. Bestudeer de verdeling en labels goed. Klik op &lsquo;Opnieuw proberen&rsquo; om het zelf te oefenen.</div>}
+          {showAnswerMode && <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200 px-4 py-2 rounded-lg text-center font-bold">Dit is het juiste antwoord. Bestudeer de verdeling en labels goed. Klik op &#8216;Opnieuw proberen&#8217; om het zelf te oefenen.</div>}
 
           {/* STEP 1: SPLITTING VIEW */}
           {step === 'split' && (

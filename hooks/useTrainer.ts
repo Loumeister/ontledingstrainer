@@ -701,7 +701,6 @@ export function useTrainer(): TrainerState {
       }
       const splitErrorCount = Object.values(vResult.chunkStatus).filter(s => s === 'incorrect-split').length;
       recordAttempt(currentSentence.id, vResult.isPerfect, currentMistakes, splitErrorCount);
-      recordShowAnswer(currentSentence.id);
     } else if (mode === 'session') {
       // Answer was shown after checking - mark existing result as showAnswerUsed
       setSessionSentenceResults(prev => {
@@ -712,8 +711,10 @@ export function useTrainer(): TrainerState {
         }
         return updated;
       });
-      recordShowAnswer(currentSentence.id);
     }
+
+    // Always record showAnswer usage (regardless of scoring state)
+    recordShowAnswer(currentSentence.id);
 
     setChunkLabels(correctChunkLabels);
     setSubLabels(correctSubLabels);
