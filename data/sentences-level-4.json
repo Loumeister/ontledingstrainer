@@ -45,7 +45,8 @@
       {
         "id": "c1t8",
         "text": "thuis.",
-        "role": "bwb"
+        "role": "bwb",
+        "newChunk": true
       }
     ]
   },
