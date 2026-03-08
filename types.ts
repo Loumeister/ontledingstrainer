@@ -38,6 +38,30 @@ export type PlacementMap = Record<string, RoleKey>; // key is the id of the firs
 // Update validation state to include 'warning'
 export type ValidationState = 'correct' | 'incorrect-role' | 'incorrect-split' | 'warning' | null;
 
+export interface SentenceResult {
+  sentence: Sentence;
+  score: number;
+  total: number;
+  chunkStatus: Record<number, ValidationState>;
+  chunkFeedback: Record<number, string>;
+  isPerfect: boolean;
+  mistakes: Record<string, number>;
+  showAnswerUsed: boolean;
+  /** User's chunk labels keyed by first token ID */
+  userLabels: PlacementMap;
+  /** User's split indices */
+  splitIndices: number[];
+}
+
+export interface SessionHistoryEntry {
+  date: string;               // ISO date string
+  scorePercentage: number;
+  correct: number;
+  total: number;
+  mistakeStats: Record<string, number>;
+  sentenceCount: number;
+}
+
 export interface SentenceUsageData {
   attempts: number;                    // Times a student checked this sentence (first check only)
   perfectCount: number;                // Times answered perfectly on first check

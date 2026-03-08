@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { ROLES, HINTS } from '../constants';
-import { Sentence, PlacementMap, RoleKey, DifficultyLevel } from '../types';
+import { Sentence, PlacementMap, RoleKey, DifficultyLevel, SentenceResult } from '../types';
 import { useSentences } from './useSentences';
 import { getCustomSentences } from '../data/customSentenceStore';
 import { recordAttempt, recordShowAnswer } from '../usageData';
 import { logInteraction } from '../interactionLog';
+import { saveSessionToHistory } from '../sessionHistory';
 import {
   buildUserChunks,
   countRealChunks,
@@ -51,6 +52,7 @@ export interface TrainerState {
   sessionIndex: number;
   sessionStats: { correct: number; total: number };
   mistakeStats: Record<string, number>;
+  sessionSentenceResults: SentenceResult[];
   isSessionFinished: boolean;
 
   // Trainer
@@ -140,6 +142,7 @@ export function useTrainer(): TrainerState {
   const [sessionIndex, setSessionIndex] = useState(0);
   const [sessionStats, setSessionStats] = useState({ correct: 0, total: 0 });
   const [mistakeStats, setMistakeStats] = useState<Record<string, number>>({});
+  const [sessionSentenceResults, setSessionSentenceResults] = useState<SentenceResult[]>([]);
   const [isSessionFinished, setIsSessionFinished] = useState(false);
 
   // Current Sentence State
@@ -269,6 +272,7 @@ export function useTrainer(): TrainerState {
     setSessionIndex(0);
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
+    setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setMode('session');
     logInteraction('session_start', undefined, `count=${count}`);
@@ -282,6 +286,7 @@ export function useTrainer(): TrainerState {
     setSessionIndex(0);
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
+    setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setMode('session');
     logInteraction('session_start', undefined, `shared,count=${shuffled.length}`);
@@ -295,6 +300,18 @@ export function useTrainer(): TrainerState {
       loadSentence(sessionQueue[nextIndex]);
     } else {
       logInteraction('session_finish');
+      // Save session to history before marking finished
+      const finalCorrect = sessionStats.correct;
+      const finalTotal = sessionStats.total;
+      const pct = finalTotal > 0 ? Math.round((finalCorrect / finalTotal) * 100) : 0;
+      saveSessionToHistory({
+        date: new Date().toISOString(),
+        scorePercentage: pct,
+        correct: finalCorrect,
+        total: finalTotal,
+        mistakeStats: { ...mistakeStats },
+        sentenceCount: sessionQueue.length,
+      });
       setIsSessionFinished(true);
       setCurrentSentence(null);
     }
@@ -561,6 +578,20 @@ export function useTrainer(): TrainerState {
            newMistakeStats[role] = (newMistakeStats[role] || 0) + count;
         });
         setMistakeStats(newMistakeStats);
+
+        // Record per-sentence result for the score screen
+        setSessionSentenceResults(prev => [...prev, {
+          sentence: currentSentence,
+          score: vResult.score,
+          total: realChunkCount,
+          chunkStatus: vResult.chunkStatus,
+          chunkFeedback: vResult.chunkFeedback,
+          isPerfect: vResult.isPerfect,
+          mistakes: currentMistakes,
+          showAnswerUsed: false,
+          userLabels: { ...chunkLabels },
+          splitIndices: Array.from(splitIndices),
+        }]);
       }
       const splitErrorCount = Object.values(vResult.chunkStatus).filter(s => s === 'incorrect-split').length;
       recordAttempt(currentSentence.id, vResult.isPerfect, currentMistakes, splitErrorCount);
@@ -635,8 +666,31 @@ export function useTrainer(): TrainerState {
       const realChunkCount = countRealChunks(currentSentence.tokens);
       if (mode === 'session') {
         setSessionStats(prev => ({ correct: prev.correct, total: prev.total + realChunkCount }));
+        // Record as a sentence result with 0 score (answer was shown without checking)
+        setSessionSentenceResults(prev => [...prev, {
+          sentence: currentSentence,
+          score: 0,
+          total: realChunkCount,
+          chunkStatus: {},
+          chunkFeedback: {},
+          isPerfect: false,
+          mistakes: {},
+          showAnswerUsed: true,
+          userLabels: { ...chunkLabels },
+          splitIndices: Array.from(splitIndices),
+        }]);
       }
       recordShowAnswer(currentSentence.id);
+    } else if (mode === 'session') {
+      // Answer was shown after checking - mark existing result as showAnswerUsed
+      setSessionSentenceResults(prev => {
+        const updated = [...prev];
+        const lastIdx = updated.findIndex(r => r.sentence.id === currentSentence.id);
+        if (lastIdx !== -1) {
+          updated[lastIdx] = { ...updated[lastIdx], showAnswerUsed: true };
+        }
+        return updated;
+      });
     }
 
     setChunkLabels(correctChunkLabels);
@@ -683,6 +737,7 @@ export function useTrainer(): TrainerState {
     mode,
     sessionQueue, sessionIndex,
     sessionStats, mistakeStats,
+    sessionSentenceResults,
     isSessionFinished,
 
     // Trainer
