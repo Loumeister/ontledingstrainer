@@ -58,17 +58,17 @@
       {
         "id": "s6t4",
         "text": "van",
-        "role": "mv"
+        "role": "bwb"
       },
       {
         "id": "s6t5",
         "text": "de",
-        "role": "mv"
+        "role": "bwb"
       },
       {
         "id": "s6t6",
         "text": "juf",
-        "role": "mv"
+        "role": "bwb"
       },
       {
         "id": "s6t7",
@@ -1080,7 +1080,8 @@
       {
         "id": "s43t9",
         "text": "een",
-        "role": "bwb"
+        "role": "bwb",
+        "newChunk": true
       },
       {
         "id": "s43t10",

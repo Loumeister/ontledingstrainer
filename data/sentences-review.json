@@ -1,0 +1,29 @@
+[
+  {
+    "_comment": "Zin 49: 'dan vorig jaar' is gelabeld als BWB, maar in zinnen 37, 70 en 74 is 'dan...' onderdeel van het NWD. Mogelijk moet 'dan vorig jaar' ook NWD zijn (onderdeel van de vergelijkende trap 'iets strenger dan vorig jaar').",
+    "id": 49,
+    "label": "Zin 49: Leraar Nederlands (review: dan-vergelijking BWB vs NWD)",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      { "id": "s49t1", "text": "Onze", "role": "ow", "subRole": "bijv_bep" },
+      { "id": "s49t2", "text": "leraar", "role": "ow" },
+      { "id": "s49t3", "text": "Nederlands", "role": "ow" },
+      { "id": "s49t4", "text": "lijkt", "role": "pv" },
+      { "id": "s49t5", "text": "de", "role": "bwb" },
+      { "id": "s49t6", "text": "laatste", "role": "bwb" },
+      { "id": "s49t7", "text": "tijd", "role": "bwb" },
+      { "id": "s49t8", "text": "iets", "role": "nwd", "subRole": "bijv_bep" },
+      { "id": "s49t9", "text": "strenger", "role": "nwd" },
+      {
+        "_issue": "Huidige label: BWB (newChunk). In zinnen 37/70/74 is 'dan...' onderdeel van NWD. Welke analyse is correct?",
+        "id": "s49t10",
+        "text": "dan",
+        "role": "bwb",
+        "newChunk": true
+      },
+      { "id": "s49t11", "text": "vorig", "role": "bwb" },
+      { "id": "s49t12", "text": "jaar.", "role": "bwb" }
+    ]
+  }
+]
