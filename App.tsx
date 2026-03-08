@@ -83,6 +83,7 @@ export default function App() {
         showHelp={trainer.showHelp} setShowHelp={trainer.setShowHelp}
         darkMode={trainer.darkMode} setDarkMode={trainer.setDarkMode}
         largeFont={trainer.largeFont} setLargeFont={trainer.setLargeFont}
+        dyslexiaMode={trainer.dyslexiaMode} setDyslexiaMode={trainer.setDyslexiaMode}
         availableSentences={trainer.availableSentences}
         isLoadingSentences={trainer.isLoadingSentences}
         sentenceLoadError={trainer.sentenceLoadError}
@@ -101,6 +102,7 @@ export default function App() {
       <ScoreScreen
         sessionStats={trainer.sessionStats}
         mistakeStats={trainer.mistakeStats}
+        sessionSentenceResults={trainer.sessionSentenceResults}
         resetToHome={trainer.resetToHome}
         startSession={trainer.startSession}
         sessionQueue={trainer.sessionQueue}
@@ -120,6 +122,7 @@ export default function App() {
       showHelp={trainer.showHelp} setShowHelp={trainer.setShowHelp}
       darkMode={trainer.darkMode} setDarkMode={trainer.setDarkMode}
       largeFont={trainer.largeFont} setLargeFont={trainer.setLargeFont}
+      dyslexiaMode={trainer.dyslexiaMode} setDyslexiaMode={trainer.setDyslexiaMode}
       includeVV={trainer.includeVV} includeBB={trainer.includeBB}
       focusVV={trainer.focusVV} focusBijzin={trainer.focusBijzin}
       selectedLevel={trainer.selectedLevel}
