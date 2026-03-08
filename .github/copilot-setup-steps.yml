@@ -10,3 +10,6 @@ steps:
 
   - name: Verify build
     run: npm run build
+
+  - name: Install Playwright browser for MCP
+    run: npx playwright install --with-deps chromium
