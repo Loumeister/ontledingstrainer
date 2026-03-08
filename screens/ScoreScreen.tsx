@@ -1,9 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
-import React, { useState, useMemo } from 'react';
 import { TrainerState } from '../hooks/useTrainer';
 import { SCORE_TIPS } from '../constants';
-import { SentenceResult } from '../types';
 import { ScoreRing } from '../components/ScoreRing';
 import { SentenceResultCard } from '../components/SentenceResultCard';
 import { ProgressChart } from '../components/ProgressChart';

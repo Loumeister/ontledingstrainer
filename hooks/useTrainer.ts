@@ -153,6 +153,7 @@ export function useTrainer(): TrainerState {
   const [showHelp, setShowHelp] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [largeFont, setLargeFont] = useState(false);
+  const [dyslexiaMode, setDyslexiaMode] = useState(false);
   const [confirmAction, setConfirmAction] = useState<'abort' | null>(null);
 
   // Splitting State
@@ -675,6 +676,18 @@ export function useTrainer(): TrainerState {
           newMistakeStats[role] = (newMistakeStats[role] || 0) + count;
         });
         setMistakeStats(newMistakeStats);
+        setSessionSentenceResults(prev => [...prev, {
+          sentence: currentSentence,
+          score: vResult.score,
+          total: realChunkCount,
+          chunkStatus: vResult.chunkStatus,
+          chunkFeedback: vResult.chunkFeedback,
+          isPerfect: vResult.isPerfect,
+          mistakes: currentMistakes,
+          showAnswerUsed: true,
+          userLabels: { ...chunkLabels },
+          splitIndices: Array.from(splitIndices),
+        }]);
       }
       const splitErrorCount = Object.values(vResult.chunkStatus).filter(s => s === 'incorrect-split').length;
       recordAttempt(currentSentence.id, vResult.isPerfect, currentMistakes, splitErrorCount);
