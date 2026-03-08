@@ -1,3 +1,5 @@
+import React, { useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import React, { useState, useMemo } from 'react';
 import { TrainerState } from '../hooks/useTrainer';
 import { SCORE_TIPS } from '../constants';
@@ -50,6 +52,14 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
     const currentErrorRoles = new Set(Object.keys(mistakeStats));
     return [...previousMistakeRoles].filter(r => !currentErrorRoles.has(r));
   }, [previousMistakeRoles, mistakeStats]);
+
+  useEffect(() => {
+    if (scorePercentage === 100) {
+      confetti({ particleCount: 200, spread: 120, origin: { y: 0.4 } });
+    } else if (scorePercentage >= 80) {
+      confetti({ particleCount: 80, spread: 80, origin: { y: 0.5 } });
+    }
+  }, []);
 
   const encouragement = scorePercentage >= 90
     ? 'Uitstekend! Je beheerst de zinsontleding goed.'

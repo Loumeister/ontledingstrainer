@@ -17,6 +17,7 @@ type HomeScreenProps = Pick<TrainerState,
   | 'showHelp' | 'setShowHelp'
   | 'darkMode' | 'setDarkMode'
   | 'largeFont' | 'setLargeFont'
+  | 'dyslexiaMode' | 'setDyslexiaMode'
   | 'availableSentences'
   | 'isLoadingSentences'
   | 'sentenceLoadError'
@@ -41,6 +42,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   showHelp, setShowHelp,
   darkMode, setDarkMode,
   largeFont, setLargeFont,
+  dyslexiaMode, setDyslexiaMode,
   availableSentences,
   isLoadingSentences,
   sentenceLoadError,
@@ -88,7 +90,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
           {/* Top Right Controls */}
           <div className="flex gap-2 mt-4 md:mt-0">
-            <button onClick={() => setLargeFont(!largeFont)} className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold transition-all border ${largeFont ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200' : 'bg-white text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600'}`} title="Lettergrootte">aA</button>
+            <button onClick={() => setLargeFont(!largeFont)} className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold transition-all border ${largeFont ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200' : 'bg-white text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600'}`} title="Grote letters">aA</button>
+            <button onClick={() => setDyslexiaMode(!dyslexiaMode)} className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs transition-all border ${dyslexiaMode ? 'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900 dark:text-purple-200' : 'bg-white text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600'}`} title="Dyslexie-modus">Dy</button>
             <button onClick={() => setDarkMode(!darkMode)} className="w-9 h-9 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-all" title="Donkere modus">
               {darkMode ? (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" strokeWidth="2"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>

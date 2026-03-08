@@ -3,6 +3,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Large font mode: scales all rem-based Tailwind sizes */
+.large-font-mode {
+  font-size: 112.5%;
+}
+
+/* Dyslexia mode: clear font, extra spacing for readability */
+.dyslexia-mode * {
+  font-family: Arial, Verdana, 'Trebuchet MS', sans-serif !important;
+  letter-spacing: 0.08em !important;
+  word-spacing: 0.18em !important;
+  line-height: 1.9 !important;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
