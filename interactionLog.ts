@@ -147,3 +147,68 @@ export function computeClickthroughStats(log: InteractionEntry[]): {
     avgActionsPerSentence: totalSentencesStarted > 0 ? totalActions / totalSentencesStarted : 0,
   };
 }
+
+/**
+ * Compute owner-level session statistics from the interaction log.
+ */
+export interface SessionFlowStats {
+  sessionsStarted: number;
+  sessionsFinished: number;
+  sessionsAborted: number;
+  completionRate: number;
+  avgSessionDurationSec: number | null;
+  activeDays: string[];
+  activityPerDay: Record<string, number>;
+}
+
+export function computeSessionFlowStats(log: InteractionEntry[]): SessionFlowStats {
+  let sessionsStarted = 0;
+  let sessionsFinished = 0;
+  let sessionsAborted = 0;
+  let currentSessionStart: string | null = null;
+  let totalDurationMs = 0;
+  let completedWithDuration = 0;
+  const daySet = new Set<string>();
+  const activityPerDay: Record<string, number> = {};
+
+  for (const entry of log) {
+    // Track active days from all events
+    const day = entry.timestamp.slice(0, 10);
+    if (day) {
+      daySet.add(day);
+      activityPerDay[day] = (activityPerDay[day] || 0) + 1;
+    }
+
+    switch (entry.type) {
+      case 'session_start':
+        sessionsStarted++;
+        currentSessionStart = entry.timestamp;
+        break;
+      case 'session_finish':
+        sessionsFinished++;
+        if (currentSessionStart) {
+          const durationMs = new Date(entry.timestamp).getTime() - new Date(currentSessionStart).getTime();
+          if (durationMs > 0) {
+            totalDurationMs += durationMs;
+            completedWithDuration++;
+          }
+        }
+        currentSessionStart = null;
+        break;
+      case 'abort':
+        sessionsAborted++;
+        currentSessionStart = null;
+        break;
+    }
+  }
+
+  return {
+    sessionsStarted,
+    sessionsFinished,
+    sessionsAborted,
+    completionRate: sessionsStarted > 0 ? (sessionsFinished / sessionsStarted) * 100 : 0,
+    avgSessionDurationSec: completedWithDuration > 0 ? (totalDurationMs / completedWithDuration) / 1000 : null,
+    activeDays: [...daySet].sort(),
+    activityPerDay,
+  };
+}

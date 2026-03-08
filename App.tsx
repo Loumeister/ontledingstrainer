@@ -105,6 +105,8 @@ export default function App() {
         sessionSentenceResults={trainer.sessionSentenceResults}
         resetToHome={trainer.resetToHome}
         startSession={trainer.startSession}
+        sessionQueue={trainer.sessionQueue}
+        selectedLevel={trainer.selectedLevel}
       />
     );
   }
