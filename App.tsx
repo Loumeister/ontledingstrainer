@@ -92,6 +92,7 @@ export default function App() {
         handleSentenceSelect={trainer.handleSentenceSelect}
         sharedSentences={sharedSentences}
         startSharedSession={trainer.startSharedSession}
+        handleQuickStart={trainer.handleQuickStart}
       />
     );
   }
@@ -137,6 +138,11 @@ export default function App() {
       handleHint={trainer.handleHint} handleCheck={trainer.handleCheck}
       handleShowAnswerRequest={trainer.handleShowAnswerRequest} handleRetry={trainer.handleRetry} handleAbortRequest={trainer.handleAbortRequest} handleConfirmAction={trainer.handleConfirmAction}
       nextSessionSentence={trainer.nextSessionSentence}
+      selectedRole={trainer.selectedRole}
+      handleSelectRole={trainer.handleSelectRole}
+      handleClearSelectedRole={trainer.handleClearSelectedRole}
+      handleTapPlaceChunk={trainer.handleTapPlaceChunk}
+      handleTapPlaceWord={trainer.handleTapPlaceWord}
     />
   );
 }

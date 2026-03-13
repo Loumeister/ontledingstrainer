@@ -67,7 +67,15 @@ export const SentenceResultCard: React.FC<SentenceResultCardProps> = ({ result, 
           hasDetails ? 'hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer' : 'cursor-default'
         }`}
       >
-        <span className="text-lg shrink-0">{statusIcon(result)}</span>
+        <span className="text-lg shrink-0" role="img" aria-label={
+          result.showAnswerUsed && Object.keys(result.chunkStatus).length === 0
+            ? 'Antwoord bekeken'
+            : result.isPerfect
+            ? 'Perfect'
+            : result.showAnswerUsed
+            ? 'Gecontroleerd en bekeken'
+            : 'Fout'
+        }>{statusIcon(result)}</span>
         <div className="flex-1 min-w-0">
           <p className="text-sm text-slate-700 dark:text-slate-200 truncate">
             <span className="text-slate-400 dark:text-slate-500 mr-1">{index + 1}.</span>

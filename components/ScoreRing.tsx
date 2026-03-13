@@ -33,7 +33,14 @@ export const ScoreRing: React.FC<ScoreRingProps> = ({
   const trackColor = 'text-slate-200 dark:text-slate-700';
 
   return (
-    <div className="relative inline-flex items-center justify-center">
+    <div
+      className="relative inline-flex items-center justify-center"
+      role="progressbar"
+      aria-valuenow={percentage}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={`Score: ${percentage}%`}
+    >
       <svg width={size} height={size} className="transform -rotate-90">
         {/* Track */}
         <circle

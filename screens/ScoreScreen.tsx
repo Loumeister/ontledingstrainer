@@ -181,6 +181,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
           <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             <button
               onClick={() => setShowSentences(!showSentences)}
+              aria-expanded={showSentences}
               className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
             >
               <h3 className="font-bold text-slate-800 dark:text-white">
@@ -255,6 +256,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
           <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             <button
               onClick={() => setShowProgress(!showProgress)}
+              aria-expanded={showProgress}
               className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
             >
               <h3 className="font-bold text-slate-800 dark:text-white">
@@ -309,7 +311,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
                   onClick={handleCopyCode}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${copied ? 'bg-green-600 text-white' : 'bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-700'}`}
                 >
-                  {copied ? '✓ Gekopieerd' : 'Kopieer'}
+                  {copied ? <span aria-live="polite">✓ Gekopieerd</span> : 'Kopieer'}
                 </button>
               </div>
             </div>

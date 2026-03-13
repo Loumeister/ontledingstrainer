@@ -25,6 +25,7 @@ type HomeScreenProps = Pick<TrainerState,
   | 'startSession'
   | 'handleSentenceSelect'
   | 'startSharedSession'
+  | 'handleQuickStart'
 > & {
   sharedSentences: Sentence[];
 };
@@ -50,6 +51,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   startSession,
   handleSentenceSelect,
   startSharedSession,
+  handleQuickStart,
   sharedSentences,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -90,16 +92,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
           {/* Top Right Controls */}
           <div className="flex gap-2 mt-4 md:mt-0">
-            <button onClick={() => setLargeFont(!largeFont)} className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold transition-all border ${largeFont ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200' : 'bg-white text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600'}`} title="Grote letters">aA</button>
-            <button onClick={() => setDyslexiaMode(!dyslexiaMode)} className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs transition-all border ${dyslexiaMode ? 'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900 dark:text-purple-200' : 'bg-white text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600'}`} title="Dyslexie-modus">Dy</button>
-            <button onClick={() => setDarkMode(!darkMode)} className="w-9 h-9 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-all" title="Donkere modus">
+            <button onClick={() => setLargeFont(!largeFont)} className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold transition-all border ${largeFont ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200' : 'bg-white text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600'}`} title="Groot lettertype" aria-label="Groot lettertype">aA</button>
+            <button onClick={() => setDyslexiaMode(!dyslexiaMode)} className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs transition-all border ${dyslexiaMode ? 'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900 dark:text-purple-200' : 'bg-white text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600'}`} title="Dyslexie-modus" aria-label="Dyslexie-modus">Dy</button>
+            <button onClick={() => setDarkMode(!darkMode)} className="w-9 h-9 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-all" title={darkMode ? "Lichte modus" : "Donkere modus"} aria-label={darkMode ? "Lichte modus" : "Donkere modus"}>
               {darkMode ? (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" strokeWidth="2"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
               ) : (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
               )}
             </button>
-            <button onClick={() => setShowHelp(true)} className="w-9 h-9 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 transition-colors" title="Instructies">?</button>
+            <button onClick={() => setShowHelp(true)} className="w-9 h-9 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 transition-colors" title="Instructies" aria-label="Instructies">?</button>
           </div>
         </div>
 
@@ -118,6 +120,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </button>
           </div>
         )}
+
+        {/* Quick Start */}
+        <button
+          onClick={handleQuickStart}
+          className="w-full py-4 px-6 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white text-xl font-bold rounded-xl shadow-lg mb-6 transition-colors"
+        >
+          ▶ Snel Starten
+        </button>
+
+        {/* Collapsible Advanced Settings */}
+        <details className="mb-4">
+          <summary className="cursor-pointer text-lg font-semibold text-gray-700 dark:text-gray-300 py-2">
+            ⚙ Geavanceerde instellingen
+          </summary>
 
         {/* Filter Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -239,6 +255,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
           </div>
         </div>
+        </details>
+
         <div className="text-center pt-6 border-t border-slate-100 dark:border-slate-700 flex flex-col items-center gap-2">
           <button onClick={() => setShowHelp(true)} className="text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 text-sm font-medium flex items-center justify-center gap-2 mx-auto transition-colors"><span className="w-4 h-4 rounded-full border border-current flex items-center justify-center text-[10px]">i</span>Instructies & Uitleg</button>
           <a href="#/docent" className="text-slate-300 dark:text-slate-600 hover:text-slate-400 dark:hover:text-slate-500 text-xs transition-colors">Docentenomgeving</a>

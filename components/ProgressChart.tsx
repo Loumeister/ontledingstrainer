@@ -32,6 +32,8 @@ export const ProgressChart: React.FC<ProgressChartProps> = ({ history }) => {
         className="w-full max-w-[280px]"
         preserveAspectRatio="xMidYMid meet"
       >
+        <title>Voortgang sessies</title>
+        <desc>Lijngrafiek van scorepercentages over {history.length} sessies</desc>
         {/* Grid lines */}
         {yLabels.map(pct => {
           const y = padding.top + chartH - (pct / 100) * chartH;

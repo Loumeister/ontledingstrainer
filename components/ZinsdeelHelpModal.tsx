@@ -83,16 +83,23 @@ export const ZinsdeelHelpModal: React.FC<ZinsdeelHelpModalProps> = ({ isOpen, on
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
+    >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="zinsdeel-help-modal-title"
         className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col relative animate-in fade-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-700"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center sticky top-0 bg-white dark:bg-slate-800 z-10">
-          <h2 className="text-2xl font-extrabold text-slate-800 dark:text-white">📖 Overzicht Zinsdelen</h2>
+          <h2 id="zinsdeel-help-modal-title" className="text-2xl font-extrabold text-slate-800 dark:text-white">📖 Overzicht Zinsdelen</h2>
           <button
             onClick={onClose}
+            aria-label="Sluiten"
             className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-500 dark:text-slate-300 transition-colors"
           >
             ✕

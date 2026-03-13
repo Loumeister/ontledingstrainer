@@ -33,6 +33,9 @@ type TrainerScreenProps = Pick<TrainerState,
   | 'handleHint' | 'handleCheck'
   | 'handleShowAnswerRequest' | 'handleRetry' | 'handleAbortRequest' | 'handleConfirmAction'
   | 'nextSessionSentence'
+  | 'selectedRole'
+  | 'handleSelectRole' | 'handleClearSelectedRole'
+  | 'handleTapPlaceChunk' | 'handleTapPlaceWord'
 >;
 
 export const TrainerScreen: React.FC<TrainerScreenProps> = ({
@@ -59,6 +62,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   handleHint, handleCheck,
   handleShowAnswerRequest, handleRetry, handleAbortRequest, handleConfirmAction,
   nextSessionSentence,
+  selectedRole, handleSelectRole, handleTapPlaceChunk, handleTapPlaceWord,
 }) => {
   const [showZinsdeelHelp, setShowZinsdeelHelp] = useState(false);
 
@@ -93,12 +97,12 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
           </div>
 
           <div className="flex gap-2">
-            <button onClick={() => setLargeFont(!largeFont)} className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold transition-all border ${largeFont ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200' : 'bg-white text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600'}`} title="Grote letters">aA</button>
-            <button onClick={() => setDyslexiaMode(!dyslexiaMode)} className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs transition-all border ${dyslexiaMode ? 'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900 dark:text-purple-200' : 'bg-white text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600'}`} title="Dyslexie-modus">Dy</button>
-            <button onClick={() => setDarkMode(!darkMode)} className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-all" title="Donkere modus">
+            <button onClick={() => setLargeFont(!largeFont)} className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold transition-all border ${largeFont ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-200' : 'bg-white text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600'}`} title="Groot lettertype" aria-label="Groot lettertype">aA</button>
+            <button onClick={() => setDyslexiaMode(!dyslexiaMode)} className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs transition-all border ${dyslexiaMode ? 'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900 dark:text-purple-200' : 'bg-white text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600'}`} title="Dyslexie-modus" aria-label="Dyslexie-modus">Dy</button>
+            <button onClick={() => setDarkMode(!darkMode)} className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-all" title={darkMode ? "Lichte modus" : "Donkere modus"} aria-label={darkMode ? "Lichte modus" : "Donkere modus"}>
               {darkMode ? <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" strokeWidth="2"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg> : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>}
             </button>
-            <button onClick={() => setShowHelp(true)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 transition-colors" title="Instructies">?</button>
+            <button onClick={() => setShowHelp(true)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 transition-colors" title="Instructies" aria-label="Instructies">?</button>
           </div>
         </header>
 
@@ -144,7 +148,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   <React.Fragment key={token.id}>
                     <span className="px-2 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded text-slate-800 dark:text-slate-100 font-medium transition-colors">{token.text}</span>
                     {idx < currentSentence.tokens.length - 1 && (
-                      <div onClick={() => toggleSplit(idx)} className="group relative w-10 h-12 mx-0 cursor-pointer flex items-center justify-center transition-all">
+                      <div onClick={() => toggleSplit(idx)} tabIndex={0} role="button" onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSplit(idx); } }} className="group relative w-10 h-12 mx-0 cursor-pointer flex items-center justify-center transition-all focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:rounded">
                         <div className={`w-1 h-8 rounded-full transition-all duration-200 ${splitIndices.has(idx) ? 'bg-blue-500 h-10 shadow-[0_0_12px_rgba(59,130,246,0.6)]' : 'bg-slate-200 dark:bg-slate-600 group-hover:bg-slate-300 dark:group-hover:bg-slate-500'}`}></div>
                         <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-7 h-7 bg-white dark:bg-slate-700 rounded-full shadow-md border dark:border-slate-600 flex items-center justify-center text-sm transition-all duration-200 pointer-events-none z-10 ${splitIndices.has(idx) ? 'opacity-100 border-blue-500 text-blue-500 scale-100' : 'opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 text-slate-400'}`}>✂️</div>
                       </div>
@@ -172,6 +176,8 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   largeFont={largeFont}
                   handleDragStart={handleDragStart}
                   onShowZinsdeelHelp={() => setShowZinsdeelHelp(true)}
+                  selectedRole={selectedRole}
+                  onSelectRole={handleSelectRole}
                 />
               )}
 
@@ -235,11 +241,14 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                         validationState={validationResult?.chunkStatus[idx]}
                         feedbackMessage={validationResult?.chunkFeedback[idx]}
                         isLargeFont={largeFont}
+                        selectedRole={selectedRole}
+                        onTapPlaceChunk={handleTapPlaceChunk}
+                        onTapPlaceWord={handleTapPlaceWord}
                       />
 
                       {idx < userChunks.length - 1 && (
                         <div className="flex items-center self-center px-1">
-                          <button onClick={() => toggleSplit(mergeIndex)} disabled={showAnswerMode} className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-100 dark:hover:bg-blue-900 text-slate-300 dark:text-slate-500 hover:text-blue-500 border border-slate-200 dark:border-slate-600 hover:border-blue-300 flex items-center justify-center transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed" title="Samenvoegen"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg></button>
+                          <button onClick={() => toggleSplit(mergeIndex)} disabled={showAnswerMode} className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-100 dark:hover:bg-blue-900 text-slate-300 dark:text-slate-500 hover:text-blue-500 border border-slate-200 dark:border-slate-600 hover:border-blue-300 flex items-center justify-center transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed" title="Samenvoegen" aria-label="Samenvoegen"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg></button>
                         </div>
                       )}
                     </React.Fragment>
@@ -355,6 +364,8 @@ interface RoleToolbarProps {
   largeFont: boolean;
   handleDragStart: TrainerState['handleDragStart'];
   onShowZinsdeelHelp: () => void;
+  selectedRole: TrainerState['selectedRole'];
+  onSelectRole: TrainerState['handleSelectRole'];
 }
 
 const RoleToolbar: React.FC<RoleToolbarProps> = ({
@@ -365,6 +376,8 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
   largeFont,
   handleDragStart,
   onShowZinsdeelHelp,
+  selectedRole,
+  onSelectRole,
 }) => {
   return (
     <div className="bg-white dark:bg-slate-800 p-3 md:p-4 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 sticky top-0 z-[100] transition-all">
@@ -386,7 +399,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
             {ROLES.filter(r => !r.isSubOnly && !['wg', 'nwd', 'bijzin', 'vw_neven', 'bijst'].includes(r.key as string))
                   .filter(r => (includeVV || focusVV || selectedLevel === 2 || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.role === 'vv'))) || r.key !== 'vv')
                   .map(role => (
-              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} />
+              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} />
             ))}
 
             <div className="w-full" />
@@ -394,7 +407,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
             {/* WG, NG group */}
             {ROLES.filter(r => !r.isSubOnly && ['wg', 'nwd'].includes(r.key as string))
                   .map(role => (
-              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} />
+              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} />
             ))}
 
             {/* Bijzin, VW_Neven group */}
@@ -403,14 +416,14 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
                   .filter(r => r.key !== 'bijzin' || focusBijzin || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.role === 'bijzin')))
                   .filter(r => r.key !== 'vw_neven' || focusBijzin || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.role === 'vw_neven')))
                   .map(role => (
-              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} />
+              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} />
             ))}
 
             {/* Bijstelling */}
             <div className="w-3" />
             {ROLES.filter(r => !r.isSubOnly && r.key === 'bijst')
                   .map(role => (
-              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} />
+              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} />
             ))}
           </div>
         </div>
@@ -421,7 +434,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
             {ROLES.filter(r => r.isSubOnly)
                   .filter(r => r.key !== 'vw_onder' || focusBijzin || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.subRole === 'vw_onder')))
                   .map(role => (
-              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} />
+              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} />
             ))}
           </div>
         </div>

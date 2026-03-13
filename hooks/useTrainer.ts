@@ -117,6 +117,16 @@ export interface TrainerState {
   handleAbortRequest: () => void;
   handleConfirmAction: () => void;
   resetToHome: () => void;
+
+  // Tap-to-place
+  selectedRole: RoleKey | null;
+  handleSelectRole: (roleKey: RoleKey) => void;
+  handleClearSelectedRole: () => void;
+  handleTapPlaceChunk: (chunkId: string) => void;
+  handleTapPlaceWord: (tokenId: string) => void;
+
+  // Quick start
+  handleQuickStart: () => void;
 }
 
 export function useTrainer(): TrainerState {
@@ -168,6 +178,12 @@ export function useTrainer(): TrainerState {
   const [bijzinFunctieLabels, setBijzinFunctieLabels] = useState<PlacementMap>({});
   const [bijvBepLinks, setBijvBepLinks] = useState<Record<string, string>>({});
   const [linkingBijvBepId, setLinkingBijvBepId] = useState<string | null>(null);
+
+  // Tap-to-place state
+  const [selectedRole, setSelectedRole] = useState<RoleKey | null>(null);
+
+  // Quick start flag
+  const [quickStartPending, setQuickStartPending] = useState(false);
 
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [showAnswerMode, setShowAnswerMode] = useState(false);
@@ -256,6 +272,7 @@ export function useTrainer(): TrainerState {
     setBijzinFunctieLabels({});
     setBijvBepLinks({});
     setLinkingBijvBepId(null);
+    setSelectedRole(null);
     setValidationResult(null);
     setShowAnswerMode(false);
     setHintMessage(null);
@@ -298,6 +315,15 @@ export function useTrainer(): TrainerState {
     loadSentence(shuffled[0]);
   };
 
+  // Effect: trigger session start after quick start state updates
+  useEffect(() => {
+    if (quickStartPending && !isLoadingSentences) {
+      setQuickStartPending(false);
+      startSession();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quickStartPending, isLoadingSentences, allSentences]);
+
   const nextSessionSentence = () => {
     const nextIndex = sessionIndex + 1;
     if (nextIndex < sessionQueue.length) {
@@ -319,6 +345,7 @@ export function useTrainer(): TrainerState {
       });
       setIsSessionFinished(true);
       setCurrentSentence(null);
+      setSelectedRole(null);
     }
   };
 
@@ -359,6 +386,7 @@ export function useTrainer(): TrainerState {
   const handleNextStep = () => {
     logInteraction('step_forward', currentSentence?.id);
     setStep('label');
+    setSelectedRole(null);
     setValidationResult(null);
     setHintMessage(null);
   };
@@ -366,6 +394,7 @@ export function useTrainer(): TrainerState {
   const handleBackStep = () => {
     logInteraction('step_back', currentSentence?.id);
     setStep('split');
+    setSelectedRole(null);
     setValidationResult(null);
     setHintMessage(null);
   };
@@ -476,6 +505,52 @@ export function useTrainer(): TrainerState {
     setBijvBepLinks(newLinks);
     setValidationResult(null);
     setHintMessage(null);
+  };
+
+  // --- Tap-to-place handlers ---
+
+  const handleSelectRole = (roleKey: RoleKey) => {
+    setSelectedRole(prev => prev === roleKey ? null : roleKey);
+  };
+
+  const handleClearSelectedRole = () => {
+    setSelectedRole(null);
+  };
+
+  const handleTapPlaceChunk = (chunkId: string) => {
+    if (!selectedRole) return;
+    if (showAnswerMode) return;
+    logInteraction('label_drop', currentSentence?.id, `chunk=${chunkId},role=${selectedRole}`);
+    setChunkLabels(prev => ({ ...prev, [chunkId]: selectedRole }));
+    setValidationResult(null);
+    setHintMessage(null);
+    setSelectedRole(null);
+  };
+
+  const handleTapPlaceWord = (tokenId: string) => {
+    if (!selectedRole) return;
+    if (showAnswerMode) return;
+    logInteraction('sub_label_drop', currentSentence?.id, `token=${tokenId},role=${selectedRole}`);
+    setSubLabels(prev => ({ ...prev, [tokenId]: selectedRole }));
+    setValidationResult(null);
+    setHintMessage(null);
+    setSelectedRole(null);
+  };
+
+  // --- Quick start ---
+
+  const handleQuickStart = () => {
+    const lastLevel = localStorage.getItem('lastLevel');
+    const level = lastLevel ? parseInt(lastLevel, 10) as DifficultyLevel : 1;
+
+    setSelectedLevel(level);
+    setPredicateMode('ALL');
+    setCustomSessionCount(5);
+    setFocusLV(false);
+    setFocusMV(false);
+    setFocusVV(false);
+    setFocusBijzin(false);
+    setQuickStartPending(true);
   };
 
   const handleHint = () => {
@@ -743,6 +818,7 @@ export function useTrainer(): TrainerState {
     setCurrentSentence(null);
     setMode('free');
     setSessionQueue([]);
+    setSelectedRole(null);
     setValidationResult(null);
     setIsSessionFinished(false);
     setHintMessage(null);
@@ -821,5 +897,15 @@ export function useTrainer(): TrainerState {
     handleHint, handleCheck,
     handleShowAnswerRequest, handleRetry, handleAbortRequest,
     handleConfirmAction, resetToHome,
+
+    // Tap-to-place
+    selectedRole,
+    handleSelectRole,
+    handleClearSelectedRole,
+    handleTapPlaceChunk,
+    handleTapPlaceWord,
+
+    // Quick start
+    handleQuickStart,
   };
 }

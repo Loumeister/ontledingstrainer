@@ -26,6 +26,9 @@ interface SentenceChunkProps {
   validationState?: ValidationState;
   feedbackMessage?: string | null;
   isLargeFont?: boolean;
+  selectedRole?: string | null; // Currently selected role from tap-to-place
+  onTapPlaceChunk?: (chunkId: string) => void; // Place selected role on a chunk
+  onTapPlaceWord?: (tokenId: string) => void; // Place selected role as sub-label on a word
 }
 
 export const SentenceChunk: React.FC<SentenceChunkProps> = ({
@@ -50,7 +53,10 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
   isLinkingSource,
   validationState,
   feedbackMessage,
-  isLargeFont = false
+  isLargeFont = false,
+  selectedRole,
+  onTapPlaceChunk,
+  onTapPlaceWord
 }) => {
   const [isOverChunk, setIsOverChunk] = useState(false);
   const [isOverBijzinFunctie, setIsOverBijzinFunctie] = useState(false);
@@ -131,6 +137,11 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
         onDropChunk(e, chunkId);
       }}
       onDragLeave={handleDragLeaveChunk}
+      onClick={() => {
+        if (selectedRole && onTapPlaceChunk) {
+          onTapPlaceChunk(chunkId);
+        }
+      }}
     >
       {/* Tooltip for Feedback - POSITIONED BELOW HEADER WITH HIGH Z-INDEX */}
       {feedbackMessage && !dismissedFeedback && (
@@ -151,7 +162,7 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
       {/* Main Role Header */}
       <div 
         className={`
-          h-9 border-b border-dashed border-slate-200 dark:border-slate-600 flex items-center justify-center text-xs rounded-t-lg relative z-10 cursor-pointer transition-opacity
+          h-9 border-b border-dashed border-slate-200 dark:border-slate-600 flex items-center justify-center text-xs rounded-t-lg relative z-10 cursor-pointer transition-opacity focus-visible:ring-2 focus-visible:ring-blue-500
           ${assignedRole ? assignedRole.colorClass + ' font-bold hover:opacity-80' : 'text-slate-400 dark:text-slate-500 italic'}
         `}
         onClick={(e) => {
@@ -166,8 +177,9 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
             <span className="relative z-10">{assignedRole.label}</span>
             <button 
               onClick={(e) => { e.stopPropagation(); onRemoveRole(chunkId); }}
-              className="hidden group-hover/header:flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-5 h-5 items-center justify-center transition-colors z-20"
+              className="hidden group-hover/header:flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-5 h-5 items-center justify-center transition-colors z-20 focus-visible:ring-2 focus-visible:ring-blue-500"
               title="Verwijder benaming"
+              aria-label="Verwijder benaming"
             >
               ×
             </button>
@@ -206,8 +218,9 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
               <span className="relative z-10">{assignedBijzinFunctie.label}</span>
               <button
                 onClick={(e) => { e.stopPropagation(); onRemoveBijzinFunctie(chunkId); }}
-                className="hidden group-hover/functie:flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-4 h-4 items-center justify-center transition-colors z-20 text-[10px]"
+                className="hidden group-hover/functie:flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-4 h-4 items-center justify-center transition-colors z-20 text-[10px] focus-visible:ring-2 focus-visible:ring-blue-500"
                 title="Verwijder functie"
+                aria-label="Verwijder functie"
               >
                 ×
               </button>
@@ -227,8 +240,9 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
               <span className="font-bold text-teal-700 dark:text-teal-300">'{bijvBepTargetText}'</span>
               <button
                   onClick={(e) => { e.stopPropagation(); onRemoveBijvBepLink(chunkId); }}
-                  className="opacity-0 group-hover/link:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-4 h-4 flex items-center justify-center transition-all text-[10px]"
+                  className="opacity-0 group-hover/link:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-4 h-4 flex items-center justify-center transition-all text-[10px] focus-visible:ring-2 focus-visible:ring-blue-500"
                   title="Verwijder verwijzing"
+                  aria-label="Verwijder verwijzing"
                 >×</button>
             </div>
           ) : isLinkingSource ? (
@@ -294,6 +308,9 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
                       if (isLinkingMode && !isLinkingSource) {
                         e.stopPropagation();
                         onWordClick(token.id);
+                      } else if (selectedRole && onTapPlaceWord) {
+                        e.stopPropagation();
+                        onTapPlaceWord(token.id);
                       }
                     }}
                   >
@@ -303,12 +320,22 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
 
                {/* Splitter */}
                {i < tokens.length - 1 && (
-                 <div 
-                   className="w-4 h-8 flex items-center justify-center cursor-pointer group/splitter mx-[-2px] z-10 hover:w-6 transition-all"
+                 <div
+                   className="w-4 h-8 flex items-center justify-center cursor-pointer group/splitter mx-[-2px] z-10 hover:w-6 transition-all focus-visible:ring-2 focus-visible:ring-blue-500"
                    onClick={(e) => {
                      e.stopPropagation();
                      onToggleSplit(startIndex + i);
                    }}
+                   onKeyDown={(e) => {
+                     if (e.key === 'Enter' || e.key === ' ') {
+                       e.preventDefault();
+                       e.stopPropagation();
+                       onToggleSplit(startIndex + i);
+                     }
+                   }}
+                   tabIndex={0}
+                   role="button"
+                   aria-label="Splits hier"
                    title="Splits hier"
                  >
                    <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 group-hover/splitter:bg-blue-400 transition-colors"></div>
