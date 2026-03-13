@@ -25,5 +25,66 @@
       { "id": "s49t11", "text": "vorig", "role": "bwb" },
       { "id": "s49t12", "text": "jaar.", "role": "bwb" }
     ]
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 1,
+    "focus": "basisvolgorde",
+    "exampleSentence": "De mentor bespreekt de planning.",
+    "pvReasoning": "Tijdsproef: bespreekt -> besprak.",
+    "owReasoning": "Wie bespreekt? De mentor.",
+    "distractorRisk": "Leerling kiest 'de planning' als onderwerp omdat het een zelfstandig naamwoordgroep is."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 3,
+    "focus": "nevenschikking_zonder_bijzin",
+    "exampleSentence": "De klas begon op tijd, maar de docent vergat de toetsen.",
+    "pvReasoning": "Ja/nee-vraag toont twee persoonsvormen: begon en vergat.",
+    "owReasoning": "Wie begon? De klas. Wie vergat? De docent.",
+    "distractorRisk": "Tweede hoofdzin wordt niet als aparte structuur gezien."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 4,
+    "focus": "onderwerp_op_afstand",
+    "exampleSentence": "Dat die onverwachte wijziging veel onrust geeft, begrijpt iedereen.",
+    "pvReasoning": "PV in hoofdzin: begrijpt (tijdproef).",
+    "owReasoning": "Wie begrijpt? iedereen; de vooropplaatsing is LV-bijzin.",
+    "distractorRisk": "Eerste blok wordt ten onrechte als onderwerp van de hoofdzin gekozen."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 4,
+    "focus": "vv_vs_bwb_minimaal_paar",
+    "examplePair": [
+      "De leerlingen wachten op de uitslag.",
+      "De leerlingen werken op school."
+    ],
+    "pvReasoning": "wachten/werken als PV via tijdproef.",
+    "owReasoning": "Wie wachten/werken? De leerlingen.",
+    "distractorRisk": "Elk voorzetselgroepje wordt als VV gezien."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 4,
+    "focus": "werkwoordspelling_relevant_ontleden",
+    "exampleSentence": "De leerlingen zouden de zin sneller hebben herkend.",
+    "pvReasoning": "PV = zouden; tijdproef en inversiecheck.",
+    "owReasoning": "Wie zouden hebben herkend? De leerlingen.",
+    "distractorRisk": "'herkend' wordt foutief als PV gekozen."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "REJECT_UNLESS_EXPLICIT",
+    "level": 4,
+    "focus": "er_zin_passief",
+    "exampleSentence": "Er wordt vandaag hard gewerkt.",
+    "rejectionReason": "Onderwerpstatus is schoolmethode-afhankelijk; risico op dubbele analyse."
   }
 ]

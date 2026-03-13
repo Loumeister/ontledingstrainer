@@ -109,7 +109,7 @@
       },
       {
         "id": "s132t10",
-        "text": "horde",
+        "text": "groep",
         "role": "bijzin"
       },
       {
@@ -342,7 +342,7 @@
   },
   {
     "id": 136,
-    "label": "Zin 136: Schurk",
+    "label": "Zin 136: Dief",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -390,7 +390,7 @@
       },
       {
         "id": "s136t9",
-        "text": "schurk",
+        "text": "dief",
         "role": "ow"
       },
       {
@@ -465,7 +465,7 @@
       },
       {
         "id": "s137t10",
-        "text": "kwijt",
+        "text": "kwijt,",
         "role": "nwd"
       },
       {
@@ -492,7 +492,7 @@
       },
       {
         "id": "s137t15",
-        "text": "afsluiten.",
+        "text": "vertrekken.",
         "role": "bijzin"
       }
     ]
