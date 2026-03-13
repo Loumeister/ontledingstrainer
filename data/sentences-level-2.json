@@ -58,17 +58,17 @@
       {
         "id": "s6t4",
         "text": "van",
-        "role": "bwb"
+        "role": "mv"
       },
       {
         "id": "s6t5",
         "text": "de",
-        "role": "bwb"
+        "role": "mv"
       },
       {
         "id": "s6t6",
         "text": "juf",
-        "role": "bwb"
+        "role": "mv"
       },
       {
         "id": "s6t7",
@@ -331,7 +331,7 @@
   {
     "id": 16,
     "label": "Zin 16: Spekglad",
-    "predicateType": "WG",
+    "predicateType": "NG",
     "level": 2,
     "tokens": [
       {
@@ -362,7 +362,7 @@
       {
         "id": "s16t6",
         "text": "spekglad.",
-        "role": "bwb"
+        "role": "nwd"
       }
     ]
   },
@@ -1034,7 +1034,7 @@
   {
     "id": 43,
     "label": "Zin 43: Gevaarlijke populist",
-    "predicateType": "WG",
+    "predicateType": "NG",
     "level": 2,
     "tokens": [
       {
@@ -1080,20 +1080,20 @@
       {
         "id": "s43t9",
         "text": "een",
-        "role": "bwb",
+        "role": "nwd",
         "newChunk": true
       },
       {
         "id": "s43t10",
         "text": "gevaarlijke",
-        "role": "bwb",
+        "role": "nwd",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s43t11"
       },
       {
         "id": "s43t11",
         "text": "populist.",
-        "role": "bwb"
+        "role": "nwd"
       }
     ]
   },
@@ -1149,6 +1149,62 @@
       {
         "id": "s44t9",
         "text": "opengebroken.",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 46,
+    "label": "Zin 46: Eerlijke kans",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s46t1",
+        "text": "Hebben",
+        "role": "pv"
+      },
+      {
+        "id": "s46t2",
+        "text": "jullie",
+        "role": "ow"
+      },
+      {
+        "id": "s46t3",
+        "text": "hem",
+        "role": "mv"
+      },
+      {
+        "id": "s46t4",
+        "text": "gisteren",
+        "role": "bwb"
+      },
+      {
+        "id": "s46t5",
+        "text": "nog",
+        "role": "bwb",
+        "newChunk": true
+      },
+      {
+        "id": "s46t6",
+        "text": "een",
+        "role": "lv"
+      },
+      {
+        "id": "s46t7",
+        "text": "eerlijke",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s46t8"
+      },
+      {
+        "id": "s46t8",
+        "text": "kans",
+        "role": "lv"
+      },
+      {
+        "id": "s46t9",
+        "text": "gegeven?",
         "role": "wg"
       }
     ]
@@ -1340,6 +1396,55 @@
         "id": "s49t12",
         "text": "jaar.",
         "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 52,
+    "label": "Zin 52: Wat uitleg",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s52t1",
+        "text": "Konden",
+        "role": "pv"
+      },
+      {
+        "id": "s52t2",
+        "text": "jullie",
+        "role": "ow"
+      },
+      {
+        "id": "s52t3",
+        "text": "mij",
+        "role": "mv"
+      },
+      {
+        "id": "s52t4",
+        "text": "vanochtend",
+        "role": "bwb"
+      },
+      {
+        "id": "s52t5",
+        "text": "misschien",
+        "role": "bwb",
+        "newChunk": true
+      },
+      {
+        "id": "s52t6",
+        "text": "wat",
+        "role": "lv"
+      },
+      {
+        "id": "s52t7",
+        "text": "uitleg",
+        "role": "lv"
+      },
+      {
+        "id": "s52t8",
+        "text": "geven?",
+        "role": "wg"
       }
     ]
   },
@@ -3880,6 +3985,41 @@
     ]
   },
   {
+    "id": 114,
+    "label": "Zin 114: Dat geheim",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s114t1",
+        "text": "Dat",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s114t2"
+      },
+      {
+        "id": "s114t2",
+        "text": "geheim",
+        "role": "lv"
+      },
+      {
+        "id": "s114t3",
+        "text": "vertel",
+        "role": "pv"
+      },
+      {
+        "id": "s114t4",
+        "text": "ik",
+        "role": "ow"
+      },
+      {
+        "id": "s114t5",
+        "text": "niemand.",
+        "role": "mv"
+      }
+    ]
+  },
+  {
     "id": 119,
     "label": "Zin 119: Opruimen?",
     "predicateType": "WG",
@@ -4087,6 +4227,84 @@
     ]
   },
   {
+    "id": 124,
+    "label": "Zin 124: Soep serveren",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s124t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s124t2",
+        "text": "ober",
+        "role": "ow"
+      },
+      {
+        "id": "s124t3",
+        "text": "serveert",
+        "role": "pv"
+      },
+      {
+        "id": "s124t4",
+        "text": "ons",
+        "role": "mv"
+      },
+      {
+        "id": "s124t5",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s124t6",
+        "text": "soep.",
+        "role": "lv"
+      }
+    ]
+  },
+  {
+    "id": 126,
+    "label": "Zin 126: Hoofdpijn",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s126t1",
+        "text": "Die",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s126t2"
+      },
+      {
+        "id": "s126t2",
+        "text": "grapjassen",
+        "role": "ow"
+      },
+      {
+        "id": "s126t3",
+        "text": "bezorgden",
+        "role": "pv"
+      },
+      {
+        "id": "s126t4",
+        "text": "de",
+        "role": "mv"
+      },
+      {
+        "id": "s126t5",
+        "text": "leraar",
+        "role": "mv"
+      },
+      {
+        "id": "s126t6",
+        "text": "hoofdpijn.",
+        "role": "lv"
+      }
+    ]
+  },
+  {
     "id": 127,
     "label": "Zin 127: Van harte gunnen",
     "predicateType": "WG",
@@ -4135,6 +4353,39 @@
         "id": "s127t8",
         "text": "harte.",
         "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 128,
+    "label": "Zin 128: Toegang weigeren",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s128t1",
+        "text": "Ze",
+        "role": "ow"
+      },
+      {
+        "id": "s128t2",
+        "text": "weigerde",
+        "role": "pv"
+      },
+      {
+        "id": "s128t3",
+        "text": "hem",
+        "role": "mv"
+      },
+      {
+        "id": "s128t4",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s128t5",
+        "text": "toegang.",
+        "role": "lv"
       }
     ]
   }

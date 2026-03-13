@@ -6,44 +6,44 @@
     "level": 4,
     "tokens": [
       {
-        "id": "c1t1",
+        "id": "s201t1",
         "text": "Omdat",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bwb"
       },
       {
-        "id": "c1t2",
+        "id": "s201t2",
         "text": "ik",
         "role": "bijzin"
       },
       {
-        "id": "c1t3",
+        "id": "s201t3",
         "text": "verkouden",
         "role": "bijzin"
       },
       {
-        "id": "c1t4",
+        "id": "s201t4",
         "text": "ben,",
         "role": "bijzin"
       },
       {
-        "id": "c1t5",
+        "id": "s201t5",
         "text": "werk",
         "role": "pv"
       },
       {
-        "id": "c1t6",
+        "id": "s201t6",
         "text": "ik",
         "role": "ow"
       },
       {
-        "id": "c1t7",
+        "id": "s201t7",
         "text": "vandaag",
         "role": "bwb"
       },
       {
-        "id": "c1t8",
+        "id": "s201t8",
         "text": "thuis.",
         "role": "bwb",
         "newChunk": true
@@ -57,73 +57,73 @@
     "level": 4,
     "tokens": [
       {
-        "id": "c2t1",
+        "id": "s202t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "c2t2",
+        "id": "s202t2",
         "text": "beroemde",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "c2t3"
+        "bijvBepTarget": "s202t3"
       },
       {
-        "id": "c2t3",
+        "id": "s202t3",
         "text": "zanger",
         "role": "ow"
       },
       {
-        "id": "c2t4",
+        "id": "s202t4",
         "text": "rende",
         "role": "pv"
       },
       {
-        "id": "c2t5",
+        "id": "s202t5",
         "text": "naar",
         "role": "bwb"
       },
       {
-        "id": "c2t6",
+        "id": "s202t6",
         "text": "zijn",
         "role": "bwb",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "c2t7"
+        "bijvBepTarget": "s202t7"
       },
       {
-        "id": "c2t7",
+        "id": "s202t7",
         "text": "auto,",
         "role": "bwb"
       },
       {
-        "id": "c2t8",
+        "id": "s202t8",
         "text": "omdat",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bwb"
       },
       {
-        "id": "c2t9",
+        "id": "s202t9",
         "text": "een",
         "role": "bijzin"
       },
       {
-        "id": "c2t10",
+        "id": "s202t10",
         "text": "horde",
         "role": "bijzin"
       },
       {
-        "id": "c2t11",
+        "id": "s202t11",
         "text": "fans",
         "role": "bijzin"
       },
       {
-        "id": "c2t12",
+        "id": "s202t12",
         "text": "hem",
         "role": "bijzin"
       },
       {
-        "id": "c2t13",
+        "id": "s202t13",
         "text": "achtervolgde.",
         "role": "bijzin"
       }
@@ -136,57 +136,57 @@
     "level": 4,
     "tokens": [
       {
-        "id": "c3t1",
+        "id": "s203t1",
         "text": "Ik",
         "role": "ow"
       },
       {
-        "id": "c3t2",
+        "id": "s203t2",
         "text": "ben",
         "role": "pv"
       },
       {
-        "id": "c3t3",
+        "id": "s203t3",
         "text": "in",
         "role": "nwd"
       },
       {
-        "id": "c3t4",
+        "id": "s203t4",
         "text": "de",
         "role": "nwd"
       },
       {
-        "id": "c3t5",
+        "id": "s203t5",
         "text": "war,",
         "role": "nwd"
       },
       {
-        "id": "c3t6",
+        "id": "s203t6",
         "text": "maar",
         "role": "vw_neven"
       },
       {
-        "id": "c3t7",
+        "id": "s203t7",
         "text": "ik",
         "role": "ow"
       },
       {
-        "id": "c3t8",
+        "id": "s203t8",
         "text": "bedenk",
         "role": "pv"
       },
       {
-        "id": "c3t9",
+        "id": "s203t9",
         "text": "wel",
         "role": "bwb"
       },
       {
-        "id": "c3t10",
+        "id": "s203t10",
         "text": "een",
         "role": "lv"
       },
       {
-        "id": "c3t11",
+        "id": "s203t11",
         "text": "oplossing.",
         "role": "lv"
       }
@@ -199,78 +199,78 @@
     "level": 4,
     "tokens": [
       {
-        "id": "c4t1",
+        "id": "s204t1",
         "text": "Sinds",
         "role": "bwb"
       },
       {
-        "id": "c4t2",
+        "id": "s204t2",
         "text": "vorig",
         "role": "bwb",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "c4t3"
+        "bijvBepTarget": "s204t3"
       },
       {
-        "id": "c4t3",
+        "id": "s204t3",
         "text": "jaar",
         "role": "bwb"
       },
       {
-        "id": "c4t4",
+        "id": "s204t4",
         "text": "is",
         "role": "pv"
       },
       {
-        "id": "c4t5",
+        "id": "s204t5",
         "text": "Max,",
         "role": "ow"
       },
       {
-        "id": "c4t6",
+        "id": "s204t6",
         "text": "mijn",
         "role": "bijst",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "c4t7"
+        "bijvBepTarget": "s204t7"
       },
       {
-        "id": "c4t7",
+        "id": "s204t7",
         "text": "buurjongen,",
         "role": "bijst"
       },
       {
-        "id": "c4t8",
+        "id": "s204t8",
         "text": "piloot,",
         "role": "nwd"
       },
       {
-        "id": "c4t9",
+        "id": "s204t9",
         "text": "want",
         "role": "vw_neven"
       },
       {
-        "id": "c4t10",
+        "id": "s204t10",
         "text": "hij",
         "role": "ow"
       },
       {
-        "id": "c4t11",
+        "id": "s204t11",
         "text": "heeft",
         "role": "pv"
       },
       {
-        "id": "c4t12",
+        "id": "s204t12",
         "text": "zijn",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "c4t13"
+        "bijvBepTarget": "s204t13"
       },
       {
-        "id": "c4t13",
+        "id": "s204t13",
         "text": "studie",
         "role": "lv"
       },
       {
-        "id": "c4t14",
+        "id": "s204t14",
         "text": "afgerond.",
         "role": "wg"
       }
@@ -283,58 +283,58 @@
     "level": 4,
     "tokens": [
       {
-        "id": "c5t1",
+        "id": "s205t1",
         "text": "Mijn",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "c5t2"
+        "bijvBepTarget": "s205t2"
       },
       {
-        "id": "c5t2",
+        "id": "s205t2",
         "text": "schoonmoeder",
         "role": "ow"
       },
       {
-        "id": "c5t3",
+        "id": "s205t3",
         "text": "is",
         "role": "pv"
       },
       {
-        "id": "c5t4",
+        "id": "s205t4",
         "text": "zeer",
         "role": "nwd",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "c5t5"
+        "bijvBepTarget": "s205t5"
       },
       {
-        "id": "c5t5",
+        "id": "s205t5",
         "text": "goedgelovig,",
         "role": "nwd"
       },
       {
-        "id": "c5t6",
+        "id": "s205t6",
         "text": "waardoor",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bwb"
       },
       {
-        "id": "c5t8",
+        "id": "s205t7",
         "text": "zij",
         "role": "bijzin"
       },
       {
-        "id": "c5t9",
+        "id": "s205t8",
         "text": "vaak",
         "role": "bijzin"
       },
       {
-        "id": "c5t10",
+        "id": "s205t9",
         "text": "bedrogen",
         "role": "bijzin"
       },
       {
-        "id": "c5t11",
+        "id": "s205t10",
         "text": "wordt.",
         "role": "bijzin"
       }
@@ -347,64 +347,64 @@
     "level": 4,
     "tokens": [
       {
-        "id": "c6t1",
+        "id": "s206t1",
         "text": "Terwijl",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bwb"
       },
       {
-        "id": "c6t2",
+        "id": "s206t2",
         "text": "zij",
         "role": "bijzin"
       },
       {
-        "id": "c6t3",
+        "id": "s206t3",
         "text": "haar",
         "role": "bijzin"
       },
       {
-        "id": "c6t4",
+        "id": "s206t4",
         "text": "auto",
         "role": "bijzin"
       },
       {
-        "id": "c6t5",
+        "id": "s206t5",
         "text": "achteruit",
         "role": "bijzin"
       },
       {
-        "id": "c6t6",
+        "id": "s206t6",
         "text": "inparkeerde,",
         "role": "bijzin"
       },
       {
-        "id": "c6t7",
+        "id": "s206t7",
         "text": "trok",
         "role": "pv"
       },
       {
-        "id": "c6t8",
+        "id": "s206t8",
         "text": "een",
         "role": "ow"
       },
       {
-        "id": "c6t9",
+        "id": "s206t9",
         "text": "schurk",
         "role": "ow"
       },
       {
-        "id": "c6t10",
+        "id": "s206t10",
         "text": "het",
         "role": "lv"
       },
       {
-        "id": "c6t11",
+        "id": "s206t11",
         "text": "portier",
         "role": "lv"
       },
       {
-        "id": "c6t12",
+        "id": "s206t12",
         "text": "open.",
         "role": "wg"
       }
@@ -413,85 +413,85 @@
   {
     "id": 207,
     "label": "Zin 207: Sleutel kwijt (Nevenschikking)",
-    "predicateType": "WG",
+    "predicateType": "NG",
     "level": 4,
     "tokens": [
       {
-        "id": "c7t1",
+        "id": "s207t1",
         "text": "Ik",
         "role": "ow"
       },
       {
-        "id": "c7t2",
+        "id": "s207t2",
         "text": "had",
         "role": "pv"
       },
       {
-        "id": "c7t3",
+        "id": "s207t3",
         "text": "willen",
         "role": "wg"
       },
       {
-        "id": "c7t4",
+        "id": "s207t4",
         "text": "komen,",
         "role": "wg"
       },
       {
-        "id": "c7t5",
+        "id": "s207t5",
         "text": "maar",
         "role": "vw_neven"
       },
       {
-        "id": "c7t6",
+        "id": "s207t6",
         "text": "ik",
         "role": "ow"
       },
       {
-        "id": "c7t7",
+        "id": "s207t7",
         "text": "was",
         "role": "pv"
       },
       {
-        "id": "c7t8",
+        "id": "s207t8",
         "text": "mijn",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "c7t9"
+        "bijvBepTarget": "s207t9"
       },
       {
-        "id": "c7t9",
+        "id": "s207t9",
         "text": "sleutel",
         "role": "lv"
       },
       {
-        "id": "c7t10",
+        "id": "s207t10",
         "text": "kwijt",
-        "role": "wg"
+        "role": "nwd"
       },
       {
-        "id": "c7t11",
+        "id": "s207t11",
         "text": "waardoor",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bwb"
       },
       {
-        "id": "c7t12",
+        "id": "s207t12",
         "text": "ik",
         "role": "bijzin"
       },
       {
-        "id": "c7t13",
+        "id": "s207t13",
         "text": "niet",
         "role": "bijzin"
       },
       {
-        "id": "c7t14",
+        "id": "s207t14",
         "text": "kon",
         "role": "bijzin"
       },
       {
-        "id": "c7t15",
+        "id": "s207t15",
         "text": "afsluiten.",
         "role": "bijzin"
       }
@@ -504,69 +504,69 @@
     "level": 4,
     "tokens": [
       {
-        "id": "c8t1",
+        "id": "s208t1",
         "text": "Toen",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bwb"
       },
       {
-        "id": "c8t2",
+        "id": "s208t2",
         "text": "ik",
         "role": "bijzin"
       },
       {
-        "id": "c8t3",
+        "id": "s208t3",
         "text": "droomde",
         "role": "bijzin"
       },
       {
-        "id": "c8t4",
+        "id": "s208t4",
         "text": "over",
         "role": "bijzin"
       },
       {
-        "id": "c8t5",
+        "id": "s208t5",
         "text": "een",
         "role": "bijzin"
       },
       {
-        "id": "c8t6",
+        "id": "s208t6",
         "text": "verre",
         "role": "bijzin"
       },
       {
-        "id": "c8t7",
+        "id": "s208t7",
         "text": "reis",
         "role": "bijzin"
       },
       {
-        "id": "c8t8",
+        "id": "s208t8",
         "text": "door",
         "role": "bijzin"
       },
       {
-        "id": "c8t9",
+        "id": "s208t9",
         "text": "Azië,",
         "role": "bijzin"
       },
       {
-        "id": "c8t10",
+        "id": "s208t10",
         "text": "werd",
         "role": "pv"
       },
       {
-        "id": "c8t11",
+        "id": "s208t11",
         "text": "ik",
         "role": "ow"
       },
       {
-        "id": "c8t12",
+        "id": "s208t12",
         "text": "plotseling",
         "role": "bwb"
       },
       {
-        "id": "c8t13",
+        "id": "s208t13",
         "text": "gebeld.",
         "role": "wg"
       }
@@ -579,54 +579,54 @@
     "level": 4,
     "tokens": [
       {
-        "id": "c9t1",
+        "id": "s209t1",
         "text": "Hij",
         "role": "ow"
       },
       {
-        "id": "c9t2",
+        "id": "s209t2",
         "text": "gaf",
         "role": "pv"
       },
       {
-        "id": "c9t3",
+        "id": "s209t3",
         "text": "mij",
         "role": "mv"
       },
       {
-        "id": "c9t4",
+        "id": "s209t4",
         "text": "een",
         "role": "lv"
       },
       {
-        "id": "c9t5",
+        "id": "s209t5",
         "text": "groen",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "c9t6"
+        "bijvBepTarget": "s209t6"
       },
       {
-        "id": "c9t6",
+        "id": "s209t6",
         "text": "drankje",
         "role": "lv"
       },
       {
-        "id": "c9t7",
+        "id": "s209t7",
         "text": "maar",
         "role": "vw_neven"
       },
       {
-        "id": "c9t8",
+        "id": "s209t8",
         "text": "ik",
         "role": "ow"
       },
       {
-        "id": "c9t9",
+        "id": "s209t9",
         "text": "weigerde",
         "role": "pv"
       },
       {
-        "id": "c9t10",
+        "id": "s209t10",
         "text": "het.",
         "role": "lv"
       }
@@ -639,47 +639,47 @@
     "level": 4,
     "tokens": [
       {
-        "id": "c10t1",
+        "id": "s210t1",
         "text": "Houd",
         "role": "pv"
       },
       {
-        "id": "c10t2",
+        "id": "s210t2",
         "text": "je",
         "role": "ow"
       },
       {
-        "id": "c10t3",
+        "id": "s210t3",
         "text": "van",
         "role": "vv"
       },
       {
-        "id": "c10t4",
+        "id": "s210t4",
         "text": "hamburgers",
         "role": "vv"
       },
       {
-        "id": "c10t5",
+        "id": "s210t5",
         "text": "of",
         "role": "vw_neven"
       },
       {
-        "id": "c10t6",
+        "id": "s210t6",
         "text": "heb",
         "role": "pv"
       },
       {
-        "id": "c10t7",
+        "id": "s210t7",
         "text": "je",
         "role": "ow"
       },
       {
-        "id": "c10t8",
+        "id": "s210t8",
         "text": "liever",
         "role": "bwb"
       },
       {
-        "id": "c10t9",
+        "id": "s210t9",
         "text": "kip?",
         "role": "lv"
       }
@@ -692,47 +692,47 @@
     "level": 4,
     "tokens": [
       {
-        "id": "c211t1",
+        "id": "s211t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "c211t2",
+        "id": "s211t2",
         "text": "man",
         "role": "ow"
       },
       {
-        "id": "c211t3",
+        "id": "s211t3",
         "text": "die",
         "role": "bijzin",
         "bijzinFunctie": "bijv_bep",
-        "bijvBepTarget": "c211t2",
+        "bijvBepTarget": "s211t2",
         "subRole": "vw_onder"
       },
       {
-        "id": "c211t4",
+        "id": "s211t4",
         "text": "daar",
         "role": "bijzin"
       },
       {
-        "id": "c211t5",
+        "id": "s211t5",
         "text": "staat",
         "role": "bijzin"
       },
       {
-        "id": "c211t6",
+        "id": "s211t6",
         "text": "is",
         "role": "pv"
       },
       {
-        "id": "c211t7",
+        "id": "s211t7",
         "text": "mijn",
         "role": "nwd",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "c211t8"
+        "bijvBepTarget": "s211t8"
       },
       {
-        "id": "c211t8",
+        "id": "s211t8",
         "text": "vader.",
         "role": "nwd"
       }
@@ -745,45 +745,45 @@
     "level": 4,
     "tokens": [
       {
-        "id": "c212t1",
+        "id": "s212t1",
         "text": "Het",
         "role": "ow"
       },
       {
-        "id": "c212t2",
+        "id": "s212t2",
         "text": "boek",
         "role": "ow"
       },
       {
-        "id": "c212t3",
+        "id": "s212t3",
         "text": "dat",
         "role": "bijzin",
         "bijzinFunctie": "bijv_bep",
-        "bijvBepTarget": "c212t2",
+        "bijvBepTarget": "s212t2",
         "subRole": "vw_onder"
       },
       {
-        "id": "c212t4",
+        "id": "s212t4",
         "text": "ik",
         "role": "bijzin"
       },
       {
-        "id": "c212t5",
+        "id": "s212t5",
         "text": "gisteren",
         "role": "bijzin"
       },
       {
-        "id": "c212t6",
+        "id": "s212t6",
         "text": "kocht",
         "role": "bijzin"
       },
       {
-        "id": "c212t7",
+        "id": "s212t7",
         "text": "was",
         "role": "pv"
       },
       {
-        "id": "c212t8",
+        "id": "s212t8",
         "text": "duur.",
         "role": "nwd"
       }

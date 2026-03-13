@@ -182,6 +182,9 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
           {/* STEP 2: LABELING VIEW */}
           {step === 'label' && (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 flex flex-col">
+              {!showAnswerMode && !validationResult && (
+                <p className="text-xs text-slate-500 dark:text-slate-400 text-center">Sleep een label naar elk blokje, of tik eerst op een label en dan op een blokje.</p>
+              )}
               {!showAnswerMode && (
                 <RoleToolbar
                   currentSentence={currentSentence}
