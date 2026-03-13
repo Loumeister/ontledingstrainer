@@ -652,7 +652,7 @@
   },
   {
     "id": 13,
-    "label": "Zin 13: Defecte verwarmingssysteem",
+    "label": "Zin 13: Defect verwarmingssysteem",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -697,7 +697,7 @@
   },
   {
     "id": 14,
-    "label": "Zin 14: Onbekende artefacten",
+    "label": "Zin 14: Vreemde fossielen",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -708,12 +708,12 @@
       },
       {
         "id": "s14t2",
-        "text": "de",
+        "text": "het",
         "role": "bwb"
       },
       {
         "id": "s14t3",
-        "text": "kust",
+        "text": "strand",
         "role": "bwb"
       },
       {
@@ -723,7 +723,7 @@
       },
       {
         "id": "s14t5",
-        "text": "archeologen",
+        "text": "kinderen",
         "role": "ow"
       },
       {
@@ -738,21 +738,21 @@
       },
       {
         "id": "s14t8",
-        "text": "onbekende",
+        "text": "vreemde",
         "role": "lv",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s14t9"
       },
       {
         "id": "s14t9",
-        "text": "artefacten.",
+        "text": "fossielen.",
         "role": "lv"
       }
     ]
   },
   {
     "id": 15,
-    "label": "Zin 15: Zwaarbewapende agenten",
+    "label": "Zin 15: Geüniformeerde surveillanten",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -796,14 +796,14 @@
       },
       {
         "id": "s15t8",
-        "text": "zwaarbewapende",
+        "text": "geüniformeerde",
         "role": "lv",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s15t9"
       },
       {
         "id": "s15t9",
-        "text": "agenten",
+        "text": "surveillanten",
         "role": "lv"
       },
       {

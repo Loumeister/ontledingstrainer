@@ -736,7 +736,7 @@
   },
   {
     "id": 119,
-    "label": "Zin 119: Enorme beer",
+    "label": "Zin 119: Vastgelopen slee",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -749,7 +749,7 @@
       },
       {
         "id": "s119t2",
-        "text": "Russen",
+        "text": "tieners",
         "role": "ow"
       },
       {
@@ -808,7 +808,7 @@
       },
       {
         "id": "s119t12",
-        "text": "klap",
+        "text": "duw",
         "role": "lv"
       },
       {
@@ -823,14 +823,14 @@
       },
       {
         "id": "s119t15",
-        "text": "enorme",
+        "text": "vastgelopen",
         "role": "mv",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s119t16"
       },
       {
         "id": "s119t16",
-        "text": "beer.",
+        "text": "slee.",
         "role": "mv"
       }
     ]
@@ -1259,7 +1259,7 @@
   },
   {
     "id": 127,
-    "label": "Zin 127: Terugtrekken (WG)",
+    "label": "Zin 127: Team trekt zich terug (WG)",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1270,7 +1270,7 @@
       },
       {
         "id": "s127t2",
-        "text": "vijand",
+        "text": "team",
         "role": "ow"
       },
       {
@@ -1343,7 +1343,7 @@
   },
   {
     "id": 129,
-    "label": "Zin 129: Prachtige cadeau",
+    "label": "Zin 129: Prachtig cadeau",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
