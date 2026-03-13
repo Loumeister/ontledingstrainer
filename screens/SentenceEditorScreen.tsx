@@ -359,8 +359,8 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     if (predicateType === 'WG' && !roles.includes('wg')) {
       errors.push('Bij WG-zinnen: geen Werkwoordelijk Gezegde (WG) benoemd.');
     }
-    if (predicateType === 'NG' && !roles.includes('nwd')) {
-      errors.push('Bij NG-zinnen: geen Naamwoordelijk Gezegde (NG) benoemd.');
+    if (predicateType === 'NG' && !roles.includes('nwd') && !roles.includes('ng')) {
+      errors.push('Bij NG-zinnen: geen Naamwoordelijk Deel (NWD) benoemd.');
     }
 
     // Bijzin function validation
