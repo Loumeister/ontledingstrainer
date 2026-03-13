@@ -7,6 +7,7 @@ import { SentenceChunk } from '../components/DropZone';
 import { HelpModal } from '../components/HelpModal';
 import { ZinsdeelHelpModal } from '../components/ZinsdeelHelpModal';
 import { ConfirmationModal } from '../components/ConfirmationModal';
+import { FeedbackPanel, FeedbackItem } from '../components/FeedbackPanel';
 import { TrainerState } from '../hooks/useTrainer';
 
 type TrainerScreenProps = Pick<TrainerState,
@@ -72,6 +73,17 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
     }
   }, [validationResult]);
 
+  // Build feedback items for consolidated panel
+  const feedbackItems: FeedbackItem[] = validationResult && !validationResult.isPerfect
+    ? userChunks
+        .map((chunk, idx) => ({
+          chunkWords: chunk.tokens.map(t => t.text).join(' '),
+          message: validationResult.chunkFeedback[idx],
+          state: validationResult.chunkStatus[idx],
+        }))
+        .filter((item): item is FeedbackItem => !!item.message)
+    : [];
+
   if (!currentSentence) return null;
 
   return (
@@ -126,6 +138,11 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
             <div className={`p-3 rounded-xl text-center font-bold animate-in slide-in-from-top-2 duration-300 ${validationResult.isPerfect ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200 border border-green-200 dark:border-green-800' : 'bg-orange-50 text-orange-800 dark:bg-orange-900/40 dark:text-orange-200 border border-orange-200 dark:border-orange-800'}`}>
               {validationResult.isPerfect ? "🎉 Uitstekend! Je hebt alle zinsdelen goed verdeeld en benoemd." : `Je hebt ${validationResult.score} van de ${validationResult.total} zinsdelen goed. Bekijk de feedback hieronder en probeer het opnieuw.`}
             </div>
+          )}
+
+          {/* Consolidated Feedback Panel */}
+          {feedbackItems.length > 0 && (
+            <FeedbackPanel items={feedbackItems} isLargeFont={largeFont} />
           )}
 
           {/* Hint Message */}

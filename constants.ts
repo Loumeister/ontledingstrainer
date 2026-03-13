@@ -272,6 +272,13 @@ export const HINTS = {
   ALL_PLACED: "Goed, je hebt alle labels geplaatst! Controleer nu of elk label op de juiste plek staat.",
 };
 
+// Short badge labels for inline feedback on chunks (used by DropZone)
+export const FEEDBACK_SHORT_LABELS: Record<string, string> = {
+  'incorrect-role': 'Foute rol',
+  'incorrect-split': 'Fout verdeeld',
+  'warning': 'Bijna goed',
+};
+
 // Study tips per role, shown on the ScoreScreen for common mistakes
 export const SCORE_TIPS: Record<string, string> = {
   'Persoonsvorm': 'Doe altijd de tijdsproef: welk woord verandert als je de zin in een andere tijd zet?',

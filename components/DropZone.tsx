@@ -1,6 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Token, RoleDefinition, ValidationState } from '../types';
+import { FEEDBACK_SHORT_LABELS } from '../constants';
 
 interface SentenceChunkProps {
   chunkIndex: number;
@@ -61,12 +62,9 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
   const [isOverChunk, setIsOverChunk] = useState(false);
   const [isOverBijzinFunctie, setIsOverBijzinFunctie] = useState(false);
   const [hoveredWordId, setHoveredWordId] = useState<string | null>(null);
-  const [dismissedFeedback, setDismissedFeedback] = useState(false);
-
-  // Reset dismissed state when feedback message changes
-  useEffect(() => {
-    setDismissedFeedback(false);
-  }, [feedbackMessage]);
+  const badgeLabel = validationState && validationState !== 'correct'
+    ? FEEDBACK_SHORT_LABELS[validationState] || null
+    : null;
 
   // Styling based on validation/state
   let borderColor = "border-slate-300 dark:border-slate-600";
@@ -143,19 +141,12 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
         }
       }}
     >
-      {/* Tooltip for Feedback - POSITIONED BELOW HEADER WITH HIGH Z-INDEX */}
-      {feedbackMessage && !dismissedFeedback && (
-        <div className="absolute top-11 left-1/2 -translate-x-1/2 w-56 p-3 bg-slate-800 dark:bg-slate-700 text-white text-xs rounded shadow-2xl z-[9998] text-center animate-in fade-in slide-in-from-top-2 pointer-events-auto flex items-center justify-center gap-2">
-          <span className="flex-1">{feedbackMessage}</span>
-          <button 
-            onClick={() => setDismissedFeedback(true)}
-            className="flex-shrink-0 hover:bg-white/20 rounded p-0.5 transition-colors"
-            title="Verbergen"
-          >
-            ×
-          </button>
-          {/* Arrow pointing up */}
-          <div className="absolute -top-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-b-slate-800 dark:border-b-slate-700"></div>
+      {/* Compact inline badge for feedback */}
+      {badgeLabel && feedbackMessage && (
+        <div className={`absolute -bottom-2.5 left-1/2 -translate-x-1/2 z-20 px-2 py-0.5 rounded-full text-[10px] font-bold text-white whitespace-nowrap shadow-sm ${
+          validationState === 'warning' ? 'bg-orange-500' : 'bg-red-500'
+        }`}>
+          {badgeLabel}
         </div>
       )}
 
@@ -349,11 +340,6 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
 
       {/* Validation Status */}
       {statusIcon}
-      {validationState === 'incorrect-split' && (
-        <div className="absolute bottom-0 w-full text-[10px] text-center bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 rounded-b-lg py-0.5">
-          Foutieve splitsing
-        </div>
-      )}
     </div>
   );
 };
