@@ -237,12 +237,26 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
   'vw_onder': {
     'vw_neven': "Een onderschikkend voegwoord leidt een bijzin in (omdat, dat, als, toen, wanneer). Een nevenschikkend voegwoord verbindt twee gelijkwaardige zinnen (en, maar, want, of, dus).",
     'bwb': "Een onderschikkend voegwoord leidt een bijzin in. Dit zinsdeel geeft juist extra informatie (hoe, waar, wanneer) en is een bijwoordelijke bepaling.",
+    'pv': "De persoonsvorm is een vervoegd werkwoord dat verandert bij tijdsverandering. Dit is geen voegwoord.",
+    'ow': "Dit zinsdeel voert de handeling uit: 'Wie of wat + PV?' Het is geen voegwoord.",
+    'lv': "Dit zinsdeel ondergaat de handeling: 'Wie of wat + gezegde + OW?' Het is geen voegwoord.",
+    'mv': "Dit zinsdeel is de ontvanger: 'Aan/voor wie?' Het is geen voegwoord.",
+    'wg': "Dit zinsdeel bevat werkwoorden van het gezegde, geen voegwoord.",
+    'nwd': "Dit is het naamwoordelijk gezegde, geen voegwoord.",
+    'bijzin': "Een bijzin bevat een eigen onderwerp en persoonsvorm. Een onderschikkend voegwoord is slechts het woord dat de bijzin inleidt.",
   },
 
   // Student zegt NEVENSCHIKKEND VOEGWOORD, maar het is eigenlijk…
   'vw_neven': {
     'vw_onder': "Een nevenschikkend voegwoord verbindt gelijkwaardige zinnen (en, maar, want, of, dus). Een onderschikkend voegwoord leidt juist een bijzin in (omdat, dat, als, toen).",
     'bwb': "Een voegwoord verbindt zinnen. Dit zinsdeel geeft extra informatie over hoe, waar of wanneer – het is een bijwoordelijke bepaling.",
+    'pv': "De persoonsvorm is een vervoegd werkwoord dat verandert bij tijdsverandering. Dit is geen voegwoord.",
+    'ow': "Dit zinsdeel voert de handeling uit: 'Wie of wat + PV?' Het is geen voegwoord.",
+    'lv': "Dit zinsdeel ondergaat de handeling: 'Wie of wat + gezegde + OW?' Het is geen voegwoord.",
+    'mv': "Dit zinsdeel is de ontvanger: 'Aan/voor wie?' Het is geen voegwoord.",
+    'wg': "Dit zinsdeel bevat werkwoorden van het gezegde, geen voegwoord.",
+    'nwd': "Dit is het naamwoordelijk gezegde, geen voegwoord.",
+    'bijzin': "Een bijzin bevat een eigen onderwerp en persoonsvorm. Een nevenschikkend voegwoord verbindt alleen twee gelijkwaardige hoofdzinnen.",
   },
 };
 
@@ -287,7 +301,7 @@ export const SCORE_TIPS: Record<string, string> = {
   'Meewerkend Voorwerp': 'Vraag: "Aan/voor wie + gezegde + OW + LV?" Het antwoord is het meewerkend voorwerp.',
   'Bijwoordelijke Bepaling': 'Bijwoordelijke bepalingen beantwoorden: "Hoe? Waar? Wanneer? Waarom?"',
   'Voorzetselvoorwerp': 'Het voorzetsel hoort vast bij het werkwoord (bijv. denken aan, wachten op).',
-  'Werkwoordelijk Gezegde': 'Alle werkwoorden samen (inclusief de PV) vormen het werkwoordelijk gezegde.',
+  'Werkwoordelijk Gezegde': 'Alle werkwoorden samen vormen het WG. Let op: de PV is het ene werkwoord dat verandert bij tijdsverandering – dat benoem je apart.',
   'Naamwoordelijk Gezegde': 'Na een koppelwerkwoord (zijn, worden, lijken) volgt het naamwoordelijk gezegde.',
   'Bijzin': 'Een bijzin heeft een eigen onderwerp en persoonsvorm, vaak ingeleid door een voegwoord.',
   'Bijstelling': 'Een bijstelling hernoemt een eerder zinsdeel en staat vaak tussen komma\'s.',

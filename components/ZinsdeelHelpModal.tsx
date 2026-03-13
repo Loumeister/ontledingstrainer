@@ -77,6 +77,13 @@ const ZINSDEEL_INFO = [
     question: 'Staat er extra uitleg tussen komma\'s die een zinsdeel hernoemt?',
     colorClass: 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/40 dark:text-indigo-100 dark:border-indigo-700',
   },
+  {
+    shortLabel: 'BB',
+    label: 'Bijvoeglijke Bepaling',
+    description: 'Voegt een eigenschap toe aan een zelfstandig naamwoord (bijv. \'de grote hond\').',
+    question: 'Welk woord zegt iets over een zelfstandig naamwoord?',
+    colorClass: 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-900/40 dark:text-teal-100 dark:border-teal-700',
+  },
 ];
 
 export const ZinsdeelHelpModal: React.FC<ZinsdeelHelpModalProps> = ({ isOpen, onClose }) => {

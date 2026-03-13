@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ROLES, HINTS } from '../constants';
+import { HINTS } from '../constants';
 import { Sentence, PlacementMap, RoleKey, DifficultyLevel, SentenceResult } from '../types';
 import { useSentences } from './useSentences';
 import { getCustomSentences } from '../data/customSentenceStore';
@@ -220,7 +220,7 @@ export function useTrainer(): TrainerState {
 
   // --- Logic ---
 
-  const getFilteredSentences = (): Sentence[] => {
+  const filteredSentences = useMemo((): Sentence[] => {
     return allSentences.filter(s => {
       const isCompound = s.level === 4;
       const explicitlySelectedCompoundLevel = selectedLevel === 4;
@@ -260,7 +260,7 @@ export function useTrainer(): TrainerState {
 
       return true;
     });
-  };
+  }, [allSentences, predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, includeBijst, includeVV]);
 
   const loadSentence = (sentence: Sentence) => {
     logInteraction('sentence_start', sentence.id);
@@ -281,7 +281,7 @@ export function useTrainer(): TrainerState {
   };
 
   const startSession = () => {
-    const pool = getFilteredSentences();
+    const pool = filteredSentences;
     if (pool.length === 0) {
       alert("Geen zinnen beschikbaar met de huidige filters.");
       return;
@@ -560,20 +560,6 @@ export function useTrainer(): TrainerState {
     const chunks = getUserChunks();
     const unlabeledChunks = chunks.filter(c => !chunkLabels[c.tokens[0].id]);
 
-    // Map from role key to the corresponding HINTS message
-    const roleHintMap: Partial<Record<RoleKey, string>> = {
-      pv: HINTS.MISSING_PV,
-      ow: HINTS.MISSING_OW,
-      wg: HINTS.MISSING_WG,
-      nwd: HINTS.MISSING_NG,
-      lv: HINTS.MISSING_LV,
-      mv: HINTS.MISSING_MV,
-      vv: HINTS.MISSING_VV,
-      bwb: HINTS.MISSING_BWB,
-      bijzin: HINTS.MISSING_BIJZIN,
-      bijst: HINTS.MISSING_BIJST,
-    };
-
     // If all chunks are unlabeled, suggest finding PV first
     if (unlabeledChunks.length === chunks.length) {
       setHintMessage(HINTS.MISSING_PV);
@@ -587,22 +573,11 @@ export function useTrainer(): TrainerState {
       if (!usedRoles.includes('pv')) { setHintMessage(HINTS.MISSING_PV); return; }
       if (!usedRoles.includes('ow')) { setHintMessage(HINTS.MISSING_OW); return; }
 
-      // Point at the next unlabeled chunk and give a role-specific strategy hint
+      // Point at the next unlabeled chunk and guide through the discovery algorithm
       const nextChunk = unlabeledChunks[0];
       const words = nextChunk.tokens.map(t => t.text).join(' ');
-      const actualRole = nextChunk.tokens[0].role;
 
-      const roleHint = roleHintMap[actualRole];
-      if (roleHint) {
-        setHintMessage(`Kijk naar het blokje "${words}". ${roleHint}`);
-      } else {
-        const roleDef = ROLES.find(r => r.key === actualRole);
-        if (roleDef) {
-          setHintMessage(`Het blokje "${words}" heeft nog geen label. ${HINTS.generic(roleDef.label)}`);
-        } else {
-          setHintMessage(`Het blokje "${words}" heeft nog geen label. Welk zinsdeel zou dit kunnen zijn?`);
-        }
-      }
+      setHintMessage(`Kijk naar het blokje "${words}". Stel achtereenvolgens de ontdekvragen: 'Wie of wat + PV?' (OW), dan 'Wie of wat + gezegde + OW?' (LV), dan 'Aan/voor wie?' (MV). Geeft het extra info over hoe/waar/wanneer? Dan is het een BWB.`);
       return;
     }
 
@@ -826,7 +801,7 @@ export function useTrainer(): TrainerState {
   };
 
   const userChunks = getUserChunks();
-  const availableSentences = getFilteredSentences();
+  const availableSentences = filteredSentences;
 
   // Compute whether ALL labels are placed (chunk labels + bijzin functions for bijzin chunks)
   const allLabeled = userChunks.length > 0 &&

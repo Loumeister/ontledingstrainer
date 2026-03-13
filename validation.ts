@@ -118,7 +118,6 @@ export function validateAnswer(
   userChunks.forEach((chunk, idx) => {
     const chunkTokens = chunk.tokens;
     const firstTokenId = chunkTokens[0].id;
-    const firstTokenRole = chunkTokens[0].role;
     const missedInternalSplit = chunkTokens.slice(1).some(t => t.newChunk);
 
     // Check role consistency considering alternative roles
@@ -197,8 +196,8 @@ export function validateAnswer(
         chunkStatus[idx] = 'correct';
         correctChunksCount++;
       } else {
-        const correctRoleName = ROLES.find(r => r.key === firstTokenRole)?.label || firstTokenRole;
-        if (firstTokenRole === 'pv' && userLabel === 'wg') {
+        const correctRoleName = ROLES.find(r => r.key === effectiveRole)?.label || effectiveRole;
+        if (effectiveRole === 'pv' && userLabel === 'wg') {
           chunkStatus[idx] = 'warning';
           chunkFeedback[idx] = FEEDBACK_MATRIX['wg'] && FEEDBACK_MATRIX['wg']['pv'] ? FEEDBACK_MATRIX['wg']['pv'] : "Dit hoort bij het gezegde.";
           currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
@@ -209,11 +208,11 @@ export function validateAnswer(
           currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
         } else {
           chunkStatus[idx] = 'incorrect-role';
-          if (FEEDBACK_MATRIX[userLabel] && FEEDBACK_MATRIX[userLabel][firstTokenRole]) {
-            chunkFeedback[idx] = FEEDBACK_MATRIX[userLabel][firstTokenRole];
+          if (FEEDBACK_MATRIX[userLabel] && FEEDBACK_MATRIX[userLabel][effectiveRole]) {
+            chunkFeedback[idx] = FEEDBACK_MATRIX[userLabel][effectiveRole];
           } else {
             const userRoleName = ROLES.find(r => r.key === userLabel)?.label || userLabel;
-            chunkFeedback[idx] = `Dit zinsdeel is niet het ${userRoleName}. Kijk nog eens goed – welk type zinsdeel past hier? Denk aan de vragen die je bij elk zinsdeel kunt stellen.`;
+            chunkFeedback[idx] = `Dit zinsdeel is niet het ${userRoleName}. Het juiste antwoord is: ${correctRoleName}.`;
           }
           currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
         }

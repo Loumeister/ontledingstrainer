@@ -85,7 +85,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
     : { text: 'Probeer dezelfde zinnen opnieuw om je score te verbeteren.', buttonText: 'Opnieuw proberen' };
 
   // Collapsible sections
-  const [showSentences, setShowSentences] = useState(false);
+  const [showSentences, setShowSentences] = useState(scorePercentage < 70);
   const [showProgress, setShowProgress] = useState(false);
 
   const handleGenerateReport = () => {

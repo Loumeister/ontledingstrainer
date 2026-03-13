@@ -31,7 +31,7 @@ export const FeedbackPanel: React.FC<FeedbackPanelProps> = ({ items, isLargeFont
   if (items.length === 0) return null;
 
   return (
-    <div className="bg-amber-50 dark:bg-slate-800/80 border border-amber-200 dark:border-slate-600 rounded-xl px-4 py-3 max-h-44 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-300">
+    <div className="bg-amber-50 dark:bg-slate-800/80 border border-amber-200 dark:border-slate-600 rounded-xl px-4 py-3 max-h-44 md:max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-300">
       <div className={`space-y-2 ${isLargeFont ? 'text-sm' : 'text-xs'}`}>
         {items.map((item, i) => (
           <div key={i} className="flex items-start gap-2">
