@@ -58,17 +58,17 @@
       {
         "id": "s6t4",
         "text": "van",
-        "role": "mv"
+        "role": "bwb"
       },
       {
         "id": "s6t5",
         "text": "de",
-        "role": "mv"
+        "role": "bwb"
       },
       {
         "id": "s6t6",
         "text": "juf",
-        "role": "mv"
+        "role": "bwb"
       },
       {
         "id": "s6t7",
@@ -2924,6 +2924,119 @@
     ]
   },
   {
+    "id": 84,
+    "label": "Zin 84: Opa fit",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s84t1",
+        "text": "Mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s84t2"
+      },
+      {
+        "id": "s84t2",
+        "text": "opa",
+        "role": "ow"
+      },
+      {
+        "id": "s84t3",
+        "text": "is",
+        "role": "pv"
+      },
+      {
+        "id": "s84t4",
+        "text": "nog",
+        "role": "bwb"
+      },
+      {
+        "id": "s84t5",
+        "text": "steeds",
+        "role": "bwb"
+      },
+      {
+        "id": "s84t6",
+        "text": "erg",
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s84t7"
+      },
+      {
+        "id": "s84t7",
+        "text": "fit.",
+        "role": "nwd"
+      }
+    ]
+  },
+  {
+    "id": 85,
+    "label": "Zin 85: Lucht grijs",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s85t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s85t2",
+        "text": "lucht",
+        "role": "ow"
+      },
+      {
+        "id": "s85t3",
+        "text": "boven",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s85t2"
+      },
+      {
+        "id": "s85t4",
+        "text": "de",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s85t2"
+      },
+      {
+        "id": "s85t5",
+        "text": "stad",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s85t2"
+      },
+      {
+        "id": "s85t6",
+        "text": "bleef",
+        "role": "pv"
+      },
+      {
+        "id": "s85t7",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s85t8",
+        "text": "hele",
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s85t9"
+      },
+      {
+        "id": "s85t9",
+        "text": "dag",
+        "role": "bwb"
+      },
+      {
+        "id": "s85t10",
+        "text": "grijs.",
+        "role": "nwd"
+      }
+    ]
+  },
+  {
     "id": 86,
     "label": "Zin 86: Leraar streng",
     "predicateType": "NG",
@@ -4386,6 +4499,287 @@
         "id": "s128t5",
         "text": "toegang.",
         "role": "lv"
+      }
+    ]
+  },
+  {
+    "id": 213,
+    "label": "Zin 213: Blij kind",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s213t1",
+        "text": "Het",
+        "role": "ow"
+      },
+      {
+        "id": "s213t2",
+        "text": "kind",
+        "role": "ow"
+      },
+      {
+        "id": "s213t3",
+        "text": "was",
+        "role": "pv"
+      },
+      {
+        "id": "s213t4",
+        "text": "vandaag",
+        "role": "bwb"
+      },
+      {
+        "id": "s213t5",
+        "text": "erg",
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s213t6"
+      },
+      {
+        "id": "s213t6",
+        "text": "blij.",
+        "role": "nwd"
+      }
+    ]
+  },
+  {
+    "id": 214,
+    "label": "Zin 214: Ziek worden",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s214t1",
+        "text": "Mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s214t2"
+      },
+      {
+        "id": "s214t2",
+        "text": "broer",
+        "role": "ow"
+      },
+      {
+        "id": "s214t3",
+        "text": "wordt",
+        "role": "pv"
+      },
+      {
+        "id": "s214t4",
+        "text": "elke",
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s214t5"
+      },
+      {
+        "id": "s214t5",
+        "text": "winter",
+        "role": "bwb"
+      },
+      {
+        "id": "s214t6",
+        "text": "ziek.",
+        "role": "nwd"
+      }
+    ]
+  },
+  {
+    "id": 215,
+    "label": "Zin 215: Leraar streng",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s215t1",
+        "text": "Die",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s215t2"
+      },
+      {
+        "id": "s215t2",
+        "text": "leraar",
+        "role": "ow"
+      },
+      {
+        "id": "s215t3",
+        "text": "is",
+        "role": "pv"
+      },
+      {
+        "id": "s215t4",
+        "text": "altijd",
+        "role": "bwb"
+      },
+      {
+        "id": "s215t5",
+        "text": "streng.",
+        "role": "nwd"
+      }
+    ]
+  },
+  {
+    "id": 216,
+    "label": "Zin 216: Taart lekker",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s216t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s216t2",
+        "text": "taart",
+        "role": "ow"
+      },
+      {
+        "id": "s216t3",
+        "text": "was",
+        "role": "pv"
+      },
+      {
+        "id": "s216t4",
+        "text": "ontzettend",
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s216t5"
+      },
+      {
+        "id": "s216t5",
+        "text": "lekker.",
+        "role": "nwd"
+      }
+    ]
+  },
+  {
+    "id": 217,
+    "label": "Zin 217: Dokter worden",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s217t1",
+        "text": "Zij",
+        "role": "ow"
+      },
+      {
+        "id": "s217t2",
+        "text": "wil",
+        "role": "pv"
+      },
+      {
+        "id": "s217t3",
+        "text": "later",
+        "role": "bwb"
+      },
+      {
+        "id": "s217t4",
+        "text": "dokter",
+        "role": "nwd"
+      },
+      {
+        "id": "s217t5",
+        "text": "worden.",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 218,
+    "label": "Zin 218: Water warm",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s218t1",
+        "text": "Het",
+        "role": "ow"
+      },
+      {
+        "id": "s218t2",
+        "text": "water",
+        "role": "ow"
+      },
+      {
+        "id": "s218t3",
+        "text": "in",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s218t2"
+      },
+      {
+        "id": "s218t4",
+        "text": "het",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s218t2"
+      },
+      {
+        "id": "s218t5",
+        "text": "zwembad",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s218t2"
+      },
+      {
+        "id": "s218t6",
+        "text": "bleef",
+        "role": "pv"
+      },
+      {
+        "id": "s218t7",
+        "text": "lekker",
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s218t8"
+      },
+      {
+        "id": "s218t8",
+        "text": "warm.",
+        "role": "nwd"
+      }
+    ]
+  },
+  {
+    "id": 219,
+    "label": "Zin 219: Lijken op vader",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s219t1",
+        "text": "Jij",
+        "role": "ow"
+      },
+      {
+        "id": "s219t2",
+        "text": "lijkt",
+        "role": "pv"
+      },
+      {
+        "id": "s219t3",
+        "text": "precies",
+        "role": "bwb"
+      },
+      {
+        "id": "s219t4",
+        "text": "op",
+        "role": "nwd"
+      },
+      {
+        "id": "s219t5",
+        "text": "je",
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s219t6"
+      },
+      {
+        "id": "s219t6",
+        "text": "vader.",
+        "role": "nwd"
       }
     ]
   }
