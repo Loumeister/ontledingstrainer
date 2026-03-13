@@ -132,7 +132,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* Collapsible Advanced Settings */}
         <details className="mb-4">
           <summary className="cursor-pointer text-lg font-semibold text-gray-700 dark:text-gray-300 py-2">
-            ⚙ Geavanceerde instellingen
+            🎯 Stel je training samen
           </summary>
 
         {/* Filter Grid */}

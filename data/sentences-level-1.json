@@ -180,744 +180,744 @@
     ]
   },
   {
-    "id": 7,
-    "label": "Zin 7: Groente",
+    "id": 4,
+    "label": "Zin 4: Groente",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
-        "id": "s7t1",
+        "id": "s4t1",
         "text": "Eet",
         "role": "pv"
       },
       {
-        "id": "s7t2",
+        "id": "s4t2",
         "text": "jij",
         "role": "ow"
       },
       {
-        "id": "s7t3",
+        "id": "s4t3",
         "text": "eigenlijk",
         "role": "bwb"
       },
       {
-        "id": "s7t4",
+        "id": "s4t4",
         "text": "wel",
         "role": "bwb",
         "newChunk": true
       },
       {
-        "id": "s7t5",
+        "id": "s4t5",
         "text": "genoeg",
         "role": "lv"
       },
       {
-        "id": "s7t6",
+        "id": "s4t6",
         "text": "groente?",
         "role": "lv"
       }
     ]
   },
   {
-    "id": 13,
-    "label": "Zin 13: Zonnebloemen",
+    "id": 5,
+    "label": "Zin 5: Zonnebloemen",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
-        "id": "s13t1",
+        "id": "s5t1",
         "text": "In",
         "role": "bwb"
       },
       {
-        "id": "s13t2",
+        "id": "s5t2",
         "text": "onze",
         "role": "bwb",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s13t3"
+        "bijvBepTarget": "s5t3"
       },
       {
-        "id": "s13t3",
+        "id": "s5t3",
         "text": "tuin",
         "role": "bwb"
       },
       {
-        "id": "s13t4",
+        "id": "s5t4",
         "text": "groeien",
         "role": "pv"
       },
       {
-        "id": "s13t5",
+        "id": "s5t5",
         "text": "elk",
         "role": "bwb",
         "newChunk": true
       },
       {
-        "id": "s13t6",
+        "id": "s5t6",
         "text": "jaar",
         "role": "bwb"
       },
       {
-        "id": "s13t7",
+        "id": "s5t7",
         "text": "prachtige",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s13t8"
+        "bijvBepTarget": "s5t8"
       },
       {
-        "id": "s13t8",
+        "id": "s5t8",
         "text": "zonnebloemen.",
         "role": "ow"
       }
     ]
   },
   {
-    "id": 18,
-    "label": "Zin 18: Gebroken vaasje",
+    "id": 6,
+    "label": "Zin 6: Gebroken vaasje",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
-        "id": "s18t1",
+        "id": "s6t1",
         "text": "Het",
         "role": "ow"
       },
       {
-        "id": "s18t2",
+        "id": "s6t2",
         "text": "meisje",
         "role": "ow"
       },
       {
-        "id": "s18t3",
+        "id": "s6t3",
         "text": "vond",
         "role": "pv"
       },
       {
-        "id": "s18t4",
+        "id": "s6t4",
         "text": "een",
         "role": "lv"
       },
       {
-        "id": "s18t5",
+        "id": "s6t5",
         "text": "gebroken",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s18t6"
+        "bijvBepTarget": "s6t6"
       },
       {
-        "id": "s18t6",
+        "id": "s6t6",
         "text": "vaasje",
         "role": "lv"
       },
       {
-        "id": "s18t7",
+        "id": "s6t7",
         "text": "in",
         "role": "bwb"
       },
       {
-        "id": "s18t8",
+        "id": "s6t8",
         "text": "de",
         "role": "bwb"
       },
       {
-        "id": "s18t9",
+        "id": "s6t9",
         "text": "kelder.",
         "role": "bwb"
       }
     ]
   },
   {
-    "id": 22,
-    "label": "Zin 22: Telefoon kwijt",
+    "id": 7,
+    "label": "Zin 7: Telefoon kwijt",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
-        "id": "s22t1",
+        "id": "s7t1",
         "text": "Mijn",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s22t2"
+        "bijvBepTarget": "s7t2"
       },
       {
-        "id": "s22t2",
+        "id": "s7t2",
         "text": "nichtje",
         "role": "ow"
       },
       {
-        "id": "s22t3",
+        "id": "s7t3",
         "text": "raakte",
         "role": "pv"
       },
       {
-        "id": "s22t4",
+        "id": "s7t4",
         "text": "per",
         "role": "bwb"
       },
       {
-        "id": "s22t5",
+        "id": "s7t5",
         "text": "ongeluk",
         "role": "bwb"
       },
       {
-        "id": "s22t6",
+        "id": "s7t6",
         "text": "haar",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s22t7"
+        "bijvBepTarget": "s7t7"
       },
       {
-        "id": "s22t7",
+        "id": "s7t7",
         "text": "telefoon",
         "role": "lv"
       },
       {
-        "id": "s22t8",
+        "id": "s7t8",
         "text": "kwijt.",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 23,
-    "label": "Zin 23: Kleine hondjes",
+    "id": 8,
+    "label": "Zin 8: Kleine hondjes",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
-        "id": "s23t1",
+        "id": "s8t1",
         "text": "Langs",
         "role": "bwb"
       },
       {
-        "id": "s23t2",
+        "id": "s8t2",
         "text": "het",
         "role": "bwb"
       },
       {
-        "id": "s23t3",
+        "id": "s8t3",
         "text": "pad",
         "role": "bwb"
       },
       {
-        "id": "s23t4",
+        "id": "s8t4",
         "text": "liepen",
         "role": "pv"
       },
       {
-        "id": "s23t5",
+        "id": "s8t5",
         "text": "drie",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s23t7"
+        "bijvBepTarget": "s8t7"
       },
       {
-        "id": "s23t6",
+        "id": "s8t6",
         "text": "kleine",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s23t7"
+        "bijvBepTarget": "s8t7"
       },
       {
-        "id": "s23t7",
+        "id": "s8t7",
         "text": "hondjes.",
         "role": "ow"
       }
     ]
   },
   {
-    "id": 24,
-    "label": "Zin 24: Even bellen",
+    "id": 9,
+    "label": "Zin 9: Even bellen",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
-        "id": "s24t1",
+        "id": "s9t1",
         "text": "Zal",
         "role": "pv"
       },
       {
-        "id": "s24t2",
+        "id": "s9t2",
         "text": "ik",
         "role": "ow"
       },
       {
-        "id": "s24t3",
+        "id": "s9t3",
         "text": "jou",
         "role": "lv"
       },
       {
-        "id": "s24t4",
+        "id": "s9t4",
         "text": "straks",
         "role": "bwb"
       },
       {
-        "id": "s24t5",
+        "id": "s9t5",
         "text": "even",
         "role": "bwb",
         "newChunk": true
       },
       {
-        "id": "s24t6",
+        "id": "s9t6",
         "text": "bellen?",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 29,
-    "label": "Zin 29: Witte reiger",
+    "id": 10,
+    "label": "Zin 10: Witte reiger",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
-        "id": "s29t1",
+        "id": "s10t1",
         "text": "Bij",
         "role": "bwb"
       },
       {
-        "id": "s29t2",
+        "id": "s10t2",
         "text": "het",
         "role": "bwb"
       },
       {
-        "id": "s29t3",
+        "id": "s10t3",
         "text": "meer",
         "role": "bwb"
       },
       {
-        "id": "s29t4",
+        "id": "s10t4",
         "text": "zag",
         "role": "pv"
       },
       {
-        "id": "s29t5",
+        "id": "s10t5",
         "text": "ik",
         "role": "ow"
       },
       {
-        "id": "s29t6",
+        "id": "s10t6",
         "text": "gisteren",
         "role": "bwb",
         "newChunk": true
       },
       {
-        "id": "s29t7",
+        "id": "s10t7",
         "text": "een",
         "role": "lv"
       },
       {
-        "id": "s29t8",
+        "id": "s10t8",
         "text": "witte",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s29t9"
+        "bijvBepTarget": "s10t9"
       },
       {
-        "id": "s29t9",
+        "id": "s10t9",
         "text": "reiger",
         "role": "lv"
       },
       {
-        "id": "s29t10",
+        "id": "s10t10",
         "text": "landen.",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 51,
-    "label": "Zin 51: Verfrommeld briefje",
+    "id": 11,
+    "label": "Zin 11: Verfrommeld briefje",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
-        "id": "s51t1",
+        "id": "s11t1",
         "text": "Onder",
         "role": "bwb"
       },
       {
-        "id": "s51t2",
+        "id": "s11t2",
         "text": "zijn",
         "role": "bwb",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s51t3"
+        "bijvBepTarget": "s11t3"
       },
       {
-        "id": "s51t3",
+        "id": "s11t3",
         "text": "bed",
         "role": "bwb"
       },
       {
-        "id": "s51t4",
+        "id": "s11t4",
         "text": "vond",
         "role": "pv"
       },
       {
-        "id": "s51t5",
+        "id": "s11t5",
         "text": "hij",
         "role": "ow"
       },
       {
-        "id": "s51t6",
+        "id": "s11t6",
         "text": "een",
         "role": "lv"
       },
       {
-        "id": "s51t7",
+        "id": "s11t7",
         "text": "half",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s51t9"
+        "bijvBepTarget": "s11t9"
       },
       {
-        "id": "s51t8",
+        "id": "s11t8",
         "text": "verfrommeld",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s51t9"
+        "bijvBepTarget": "s11t9"
       },
       {
-        "id": "s51t9",
+        "id": "s11t9",
         "text": "briefje",
         "role": "lv"
       },
       {
-        "id": "s51t10",
+        "id": "s11t10",
         "text": "van",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s51t9"
+        "bijvBepTarget": "s11t9"
       },
       {
-        "id": "s51t11",
+        "id": "s11t11",
         "text": "zijn",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s51t12"
+        "bijvBepTarget": "s11t12"
       },
       {
-        "id": "s51t12",
+        "id": "s11t12",
         "text": "broer.",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s51t9"
+        "bijvBepTarget": "s11t9"
       }
     ]
   },
   {
-    "id": 56,
-    "label": "Zin 56: Vrijwilligerswerk",
+    "id": 12,
+    "label": "Zin 12: Vrijwilligerswerk",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
-        "id": "s56t1",
+        "id": "s12t1",
         "text": "Veel",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s56t2"
+        "bijvBepTarget": "s12t2"
       },
       {
-        "id": "s56t2",
+        "id": "s12t2",
         "text": "mensen",
         "role": "ow"
       },
       {
-        "id": "s56t3",
+        "id": "s12t3",
         "text": "hebben",
         "role": "pv"
       },
       {
-        "id": "s56t4",
+        "id": "s12t4",
         "text": "nog",
         "role": "bwb"
       },
       {
-        "id": "s56t5",
+        "id": "s12t5",
         "text": "nooit",
         "role": "bwb"
       },
       {
-        "id": "s56t6",
+        "id": "s12t6",
         "text": "vrijwilligerswerk",
         "role": "lv"
       },
       {
-        "id": "s56t7",
+        "id": "s12t7",
         "text": "gedaan.",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 66,
-    "label": "Zin 66: Defecte verwarmingssysteem",
+    "id": 13,
+    "label": "Zin 13: Defecte verwarmingssysteem",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
-        "id": "s66t1",
+        "id": "s13t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s66t2",
+        "id": "s13t2",
         "text": "technicus",
         "role": "ow"
       },
       {
-        "id": "s66t3",
+        "id": "s13t3",
         "text": "repareerde",
         "role": "pv"
       },
       {
-        "id": "s66t4",
+        "id": "s13t4",
         "text": "gisteren",
         "role": "bwb"
       },
       {
-        "id": "s66t5",
+        "id": "s13t5",
         "text": "het",
         "role": "lv"
       },
       {
-        "id": "s66t6",
+        "id": "s13t6",
         "text": "defecte",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s66t7"
+        "bijvBepTarget": "s13t7"
       },
       {
-        "id": "s66t7",
+        "id": "s13t7",
         "text": "verwarmingssysteem.",
         "role": "lv"
       }
     ]
   },
   {
-    "id": 71,
-    "label": "Zin 71: Onbekende artefacten",
+    "id": 14,
+    "label": "Zin 14: Onbekende artefacten",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
-        "id": "s71t1",
+        "id": "s14t1",
         "text": "Langs",
         "role": "bwb"
       },
       {
-        "id": "s71t2",
+        "id": "s14t2",
         "text": "de",
         "role": "bwb"
       },
       {
-        "id": "s71t3",
+        "id": "s14t3",
         "text": "kust",
         "role": "bwb"
       },
       {
-        "id": "s71t4",
+        "id": "s14t4",
         "text": "vonden",
         "role": "pv"
       },
       {
-        "id": "s71t5",
+        "id": "s14t5",
         "text": "archeologen",
         "role": "ow"
       },
       {
-        "id": "s71t6",
+        "id": "s14t6",
         "text": "een",
         "role": "lv"
       },
       {
-        "id": "s71t7",
+        "id": "s14t7",
         "text": "reeks",
         "role": "lv"
       },
       {
-        "id": "s71t8",
+        "id": "s14t8",
         "text": "onbekende",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s71t9"
+        "bijvBepTarget": "s14t9"
       },
       {
-        "id": "s71t9",
+        "id": "s14t9",
         "text": "artefacten.",
         "role": "lv"
       }
     ]
   },
   {
-    "id": 73,
-    "label": "Zin 73: Zwaarbewapende agenten",
+    "id": 15,
+    "label": "Zin 15: Zwaarbewapende agenten",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
-        "id": "s73t1",
+        "id": "s15t1",
         "text": "Bij",
         "role": "bwb"
       },
       {
-        "id": "s73t2",
+        "id": "s15t2",
         "text": "de",
         "role": "bwb"
       },
       {
-        "id": "s73t3",
+        "id": "s15t3",
         "text": "ingang",
         "role": "bwb"
       },
       {
-        "id": "s73t4",
+        "id": "s15t4",
         "text": "zag",
         "role": "pv"
       },
       {
-        "id": "s73t5",
+        "id": "s15t5",
         "text": "ik",
         "role": "ow"
       },
       {
-        "id": "s73t6",
+        "id": "s15t6",
         "text": "plotseling",
         "role": "bwb",
         "newChunk": true
       },
       {
-        "id": "s73t7",
+        "id": "s15t7",
         "text": "twee",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s73t9"
+        "bijvBepTarget": "s15t9"
       },
       {
-        "id": "s73t8",
+        "id": "s15t8",
         "text": "zwaarbewapende",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s73t9"
+        "bijvBepTarget": "s15t9"
       },
       {
-        "id": "s73t9",
+        "id": "s15t9",
         "text": "agenten",
         "role": "lv"
       },
       {
-        "id": "s73t10",
+        "id": "s15t10",
         "text": "verschijnen.",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 115,
-    "label": "Zin 115: Veel lawaai",
+    "id": 16,
+    "label": "Zin 16: Veel lawaai",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
-        "id": "s115t1",
+        "id": "s16t1",
         "text": "Veel",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s115t2"
+        "bijvBepTarget": "s16t2"
       },
       {
-        "id": "s115t2",
+        "id": "s16t2",
         "text": "lawaai",
         "role": "lv"
       },
       {
-        "id": "s115t3",
+        "id": "s16t3",
         "text": "maakten",
         "role": "pv"
       },
       {
-        "id": "s115t4",
+        "id": "s16t4",
         "text": "ze",
         "role": "ow"
       },
       {
-        "id": "s115t5",
+        "id": "s16t5",
         "text": "niet.",
         "role": "bwb"
       }
     ]
   },
   {
-    "id": 116,
-    "label": "Zin 116: Die film",
+    "id": 17,
+    "label": "Zin 17: Die film",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
-        "id": "s116t1",
+        "id": "s17t1",
         "text": "Die",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s116t2"
+        "bijvBepTarget": "s17t2"
       },
       {
-        "id": "s116t2",
+        "id": "s17t2",
         "text": "film",
         "role": "lv"
       },
       {
-        "id": "s116t3",
+        "id": "s17t3",
         "text": "wil",
         "role": "pv"
       },
       {
-        "id": "s116t4",
+        "id": "s17t4",
         "text": "ik",
         "role": "ow"
       },
       {
-        "id": "s116t5",
+        "id": "s17t5",
         "text": "absoluut",
         "role": "bwb"
       },
       {
-        "id": "s116t6",
+        "id": "s17t6",
         "text": "zien.",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 117,
-    "label": "Zin 117: Jouw mening",
+    "id": 18,
+    "label": "Zin 18: Jouw mening",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
-        "id": "s117t1",
+        "id": "s18t1",
         "text": "Jouw",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s117t2"
+        "bijvBepTarget": "s18t2"
       },
       {
-        "id": "s117t2",
+        "id": "s18t2",
         "text": "mening",
         "role": "lv"
       },
       {
-        "id": "s117t3",
+        "id": "s18t3",
         "text": "deel",
         "role": "pv"
       },
       {
-        "id": "s117t4",
+        "id": "s18t4",
         "text": "ik",
         "role": "ow"
       },
       {
-        "id": "s117t5",
+        "id": "s18t5",
         "text": "niet.",
         "role": "bwb"
       }
