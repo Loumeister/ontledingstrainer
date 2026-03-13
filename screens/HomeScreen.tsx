@@ -28,6 +28,7 @@ type HomeScreenProps = Pick<TrainerState,
   | 'handleQuickStart'
 > & {
   sharedSentences: Sentence[];
+  openSecretDocentRoute: () => void;
 };
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -53,6 +54,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   startSharedSession,
   handleQuickStart,
   sharedSentences,
+  openSecretDocentRoute,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importMsg, setImportMsg] = useState<string | null>(null);
@@ -77,7 +79,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-2 md:p-4 font-sans flex items-center justify-center relative transition-colors duration-300">
-      <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
+      <HelpModal
+        isOpen={showHelp}
+        onClose={() => setShowHelp(false)}
+        onSecretDocentAccess={openSecretDocentRoute}
+      />
 
       <main className="max-w-6xl w-full bg-white dark:bg-slate-800 p-4 md:p-6 rounded-2xl shadow-lg space-y-6 border border-slate-200 dark:border-slate-700 transition-colors duration-300">
         <div className="flex flex-col md:flex-row justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-4">
@@ -259,7 +265,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         <div className="text-center pt-6 border-t border-slate-100 dark:border-slate-700 flex flex-col items-center gap-2">
           <button onClick={() => setShowHelp(true)} className="text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 text-sm font-medium flex items-center justify-center gap-2 mx-auto transition-colors"><span className="w-4 h-4 rounded-full border border-current flex items-center justify-center text-[10px]">i</span>Instructies & Uitleg</button>
-          <a href="#/docent" className="text-slate-300 dark:text-slate-600 hover:text-slate-400 dark:hover:text-slate-500 text-xs transition-colors">Docentenomgeving</a>
         </div>
       </main>
     </div>

@@ -93,6 +93,10 @@ export default function App() {
         sharedSentences={sharedSentences}
         startSharedSession={trainer.startSharedSession}
         handleQuickStart={trainer.handleQuickStart}
+        openSecretDocentRoute={() => {
+          window.location.hash = '#/docent';
+          setShowDocent(true);
+        }}
       />
     );
   }
