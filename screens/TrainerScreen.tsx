@@ -93,6 +93,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
     }
   }, [validationResult]);
 
+
   useEffect(() => {
     if (consecutivePerfect === 3) {
       setStreakToast('🔥 3 op rij!');
@@ -188,6 +189,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
           )}
 
           {/* Hint Message */}
+
           {hintMessage && !validationResult && (
             <div className="p-3 rounded-xl text-center font-bold bg-yellow-50 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800 animate-in slide-in-from-bottom-2 duration-300">
               💡 {hintMessage}

@@ -130,6 +130,15 @@ export interface TrainerState {
   handleQuickStart: () => void;
 }
 
+interface PreAnswerSnapshot {
+  step: AppStep;
+  splitIndices: Set<number>;
+  chunkLabels: PlacementMap;
+  subLabels: PlacementMap;
+  bijzinFunctieLabels: PlacementMap;
+  bijvBepLinks: Record<string, string>;
+}
+
 export function useTrainer(): TrainerState {
   const [mode, setMode] = useState<Mode>('free');
 
@@ -191,6 +200,7 @@ export function useTrainer(): TrainerState {
   const [showAnswerMode, setShowAnswerMode] = useState(false);
   const [hintMessage, setHintMessage] = useState<string | null>(null);
   const [hasBeenScored, setHasBeenScored] = useState(false);
+  const [preAnswerSnapshot, setPreAnswerSnapshot] = useState<PreAnswerSnapshot | null>(null);
 
   // --- Sentence loading ---
   const { sentences: builtInSentences, isLoading: isLoadingSentences, error: sentenceLoadError, findSentenceById } = useSentences(selectedLevel);
@@ -279,6 +289,7 @@ export function useTrainer(): TrainerState {
     setShowAnswerMode(false);
     setHintMessage(null);
     setHasBeenScored(false);
+    setPreAnswerSnapshot(null);
     setConfirmAction(null);
   };
 
@@ -665,6 +676,11 @@ export function useTrainer(): TrainerState {
   };
 
   const handleShowAnswerRequest = () => {
+    // Enforce: student work must always be checked before the answer can be revealed.
+    if (!hasBeenScored) {
+      handleCheck();
+      return;
+    }
     executeShowAnswer();
   };
 
@@ -688,6 +704,17 @@ export function useTrainer(): TrainerState {
     logInteraction('show_answer', currentSentence.id);
     setHintMessage(null);
     const correctSplits = computeCorrectSplits(currentSentence.tokens);
+
+    // Keep student's pre-answer state so "Opnieuw proberen" restores their own split/labels.
+    setPreAnswerSnapshot({
+      step,
+      splitIndices: new Set(splitIndices),
+      chunkLabels: { ...chunkLabels },
+      subLabels: { ...subLabels },
+      bijzinFunctieLabels: { ...bijzinFunctieLabels },
+      bijvBepLinks: { ...bijvBepLinks },
+    });
+
     setSplitIndices(correctSplits);
     setStep('label');
 
@@ -784,14 +811,24 @@ export function useTrainer(): TrainerState {
 
   const handleRetry = () => {
     logInteraction('retry', currentSentence?.id);
-    setChunkLabels({});
-    setSubLabels({});
-    setBijzinFunctieLabels({});
-    setBijvBepLinks({});
+    if (preAnswerSnapshot) {
+      setStep(preAnswerSnapshot.step);
+      setSplitIndices(new Set(preAnswerSnapshot.splitIndices));
+      setChunkLabels(preAnswerSnapshot.chunkLabels);
+      setSubLabels(preAnswerSnapshot.subLabels);
+      setBijzinFunctieLabels(preAnswerSnapshot.bijzinFunctieLabels);
+      setBijvBepLinks(preAnswerSnapshot.bijvBepLinks);
+    } else {
+      setChunkLabels({});
+      setSubLabels({});
+      setBijzinFunctieLabels({});
+      setBijvBepLinks({});
+    }
     setLinkingBijvBepId(null);
     setShowAnswerMode(false);
     setValidationResult(null);
     setHintMessage(null);
+    setPreAnswerSnapshot(null);
     // hasBeenScored stays true – score is already locked in
   };
 

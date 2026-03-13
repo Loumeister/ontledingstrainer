@@ -62,6 +62,7 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
   const [isOverChunk, setIsOverChunk] = useState(false);
   const [isOverBijzinFunctie, setIsOverBijzinFunctie] = useState(false);
   const [hoveredWordId, setHoveredWordId] = useState<string | null>(null);
+  const [dismissedFeedback, setDismissedFeedback] = useState(false);
   const [snapPop, setSnapPop] = useState(false);
   const prevValidation = useRef<ValidationState | undefined>(undefined);
   useEffect(() => {
@@ -72,6 +73,10 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
     }
     prevValidation.current = validationState;
   }, [validationState]);
+
+  useEffect(() => {
+    setDismissedFeedback(false);
+  }, [feedbackMessage]);
 
   const badgeLabel = validationState && validationState !== 'correct'
     ? FEEDBACK_SHORT_LABELS[validationState] || null
@@ -153,6 +158,22 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
         }
       }}
     >
+      {/* Overlay feedback bubble on top of the chunk */}
+      {feedbackMessage && !dismissedFeedback && validationState && validationState !== 'correct' && (
+        <div className="absolute top-11 left-1/2 -translate-x-1/2 w-60 max-w-[90%] p-2.5 bg-slate-800 dark:bg-slate-700 text-white text-xs rounded-lg shadow-2xl z-[9998] text-center animate-in fade-in slide-in-from-top-2 pointer-events-auto flex items-start justify-center gap-2">
+          <span className="flex-1">{feedbackMessage}</span>
+          <button
+            onClick={(e) => { e.stopPropagation(); setDismissedFeedback(true); }}
+            className="flex-shrink-0 hover:bg-white/20 rounded px-1 transition-colors"
+            title="Verberg feedback"
+            aria-label="Verberg feedback"
+          >
+            ×
+          </button>
+          <div className="absolute -top-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-b-slate-800 dark:border-b-slate-700"></div>
+        </div>
+      )}
+
       {/* Compact inline badge for feedback */}
       {badgeLabel && feedbackMessage && (
         <div className={`absolute -bottom-2.5 left-1/2 -translate-x-1/2 z-20 px-2 py-0.5 rounded-full text-[10px] font-bold text-white whitespace-nowrap shadow-sm ${
