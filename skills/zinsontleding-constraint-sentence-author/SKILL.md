@@ -9,7 +9,7 @@ Gebruik deze workflow na `zinsontleding-repo-inspector`.
 
 1. Kies één focuscategorie per zin (één hoofdvalkuil).
 2. Selecteer een blueprint uit `references/focus-ladder.md`.
-3. Vul blueprint met natuurlijke contextwoorden (school, sport, thuis, media, vrienden).
+3. Vul blueprint met natuurlijke contextwoorden (school, sport, thuis, media, vrienden) en behoud realistische variatie in register en woordenschat.
 4. Genereer volledig item in repo-compatibel formaat.
 5. Valideer met checklist hieronder; faalt één check, dan zin weggooien.
 
@@ -25,6 +25,15 @@ Gebruik deze workflow na `zinsontleding-repo-inspector`.
   - hoe `pv` gevonden is (tijdproef/ja-neevraag)
   - hoe `ow` gecontroleerd is (congruentie)
   - korte motivatie voor focusonderscheid (bijv. `vv` vs `bwb`)
+
+
+## Inhouds- en registerbeleid (belangrijk)
+
+- **Neutraliteit is geen doel op zich.** Herschrijf niet automatisch naar “veiliger/neutraler” taalgebruik als de originele zin didactisch werkt.
+- Sta **rijke, uitdagende woordenschat** toe (ook minder frequente woorden), zolang de zin idiomatisch en leeftijdsgeschikt blijft.
+- Vermijd vooral **onnodig beladen of schokkende context**, niet elk concreet of maatschappelijk woord.
+- Bewaak authenticiteit: kies geloofwaardige context boven kunstmatige “steriele” zinnen.
+- Bij twijfel: behoud de bestaande zin en pas alleen aan wat grammaticaal, didactisch of eenduidig problematisch is.
 
 ## Outputformaat
 

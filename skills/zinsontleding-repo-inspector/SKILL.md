@@ -29,6 +29,15 @@ Voer deze stappen in volgorde uit.
 - Markeer zinnen met mogelijk dubbele schoolanalyse als `REJECT` in je werknotities.
 - Schrijf bij elke voorgestelde zin een korte redenering voor `pv` en `ow`.
 
+
+## Extra beoordelingscheck bij sentence-edits
+
+Controleer bij herformuleringen expliciet of de wijziging:
+- didactische eenduidigheid verhoogt (of minstens behoudt), en
+- **niet** alleen gemotiveerd is door algemene neutralisering van woordkeuze.
+
+Flag in je samenvatting wanneer een wijziging primair stilistisch/neutraliserend is zonder grammaticale winst.
+
 ## Outputcontract voor inspectie
 
 Lever een compact contract met deze kopjes:

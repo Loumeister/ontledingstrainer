@@ -1667,7 +1667,7 @@
   },
   {
     "id": 50,
-    "label": "Zin 50: Overheidsspionnen",
+    "label": "Zin 50: Cybersecurityonderzoekers",
     "predicateType": "WG",
     "level": 2,
     "tokens": [
@@ -1680,14 +1680,14 @@
       },
       {
         "id": "s50t2",
-        "text": "Russische",
+        "text": "ervaren",
         "role": "ow",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s50t3"
       },
       {
         "id": "s50t3",
-        "text": "overheidsspionnen",
+        "text": "cybersecurityonderzoekers",
         "role": "ow"
       },
       {
@@ -1707,7 +1707,7 @@
       },
       {
         "id": "s50t7",
-        "text": "bij",
+        "text": "van",
         "role": "lv",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s50t6"
@@ -1721,7 +1721,7 @@
       },
       {
         "id": "s50t9",
-        "text": "OPCW",
+        "text": "universiteit",
         "role": "lv",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s50t6"
@@ -1733,14 +1733,14 @@
       },
       {
         "id": "s50t11",
-        "text": "kraken.",
+        "text": "testen.",
         "role": "wg"
       }
     ]
   },
   {
     "id": 51,
-    "label": "Zin 51: Dictator",
+    "label": "Zin 51: Professor",
     "predicateType": "WG",
     "level": 2,
     "tokens": [
@@ -1758,7 +1758,7 @@
       },
       {
         "id": "s51t3",
-        "text": "snor",
+        "text": "bril",
         "role": "bwb"
       },
       {
@@ -1795,14 +1795,14 @@
       },
       {
         "id": "s51t10",
-        "text": "dictator.",
+        "text": "professor.",
         "role": "vv"
       }
     ]
   },
   {
     "id": 52,
-    "label": "Zin 52: Politieke geweten",
+    "label": "Zin 52: Historische kennis",
     "predicateType": "WG",
     "level": 2,
     "tokens": [
@@ -1835,21 +1835,21 @@
       },
       {
         "id": "s52t6",
-        "text": "slechte",
+        "text": "gebrekkige",
         "role": "lv",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s52t8"
       },
       {
         "id": "s52t7",
-        "text": "politieke",
+        "text": "historische",
         "role": "lv",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s52t8"
       },
       {
         "id": "s52t8",
-        "text": "geweten.",
+        "text": "kennis.",
         "role": "lv"
       }
     ]
