@@ -467,7 +467,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
           </div>
           <div className="flex flex-wrap gap-2 justify-center">
             {/* Main syntactic roles */}
-            {ROLES.filter(r => !r.isSubOnly && !['wg', 'nwd', 'bijzin', 'vw_neven', 'bijst'].includes(r.key as string))
+            {ROLES.filter(r => !r.isSubOnly && !['wg', 'nwd', 'ng', 'bijzin', 'vw_neven', 'bijst'].includes(r.key as string))
                   .filter(r => (includeVV || focusVV || selectedLevel === 2 || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.role === 'vv'))) || r.key !== 'vv')
                   .map(role => (
               <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} />
@@ -476,7 +476,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
             <div className="w-full" />
 
             {/* WG, NG group */}
-            {ROLES.filter(r => !r.isSubOnly && ['wg', 'nwd'].includes(r.key as string))
+            {ROLES.filter(r => !r.isSubOnly && ['wg', 'nwd', 'ng'].includes(r.key as string))
                   .map(role => (
               <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} />
             ))}

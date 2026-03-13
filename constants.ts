@@ -58,9 +58,9 @@ export const ROLES: RoleDefinition[] = [
     borderColorClass: 'border-rose-300 dark:border-rose-600' 
   },
   { 
-    key: 'ng', 
-    label: 'Naamwoordelijk Gezegde', 
-    shortLabel: 'NG', 
+    key: 'nwd', 
+    label: 'Naamwoordelijk Deel', 
+    shortLabel: 'NWD', 
     colorClass: 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-100', 
     borderColorClass: 'border-yellow-200 dark:border-yellow-600' 
   },
@@ -109,7 +109,7 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'mv': "Kijk of dit deel antwoord geeft op de vraag: aan of voor wie?",
     'bwb': "Geeft dit deel extra info over de omstandigheden, of is het een woord als 'niet', 'wel' of 'ook'?",
     'wg': "Bestaat dit deel uit werkwoorden die een actie beschrijven (iets doen)?",
-    'ng': "Zegt dit gezegde wat het onderwerp is of wordt (een eigenschap of toestand)?",
+    'nwd': "Zegt dit gezegde wat het onderwerp is of wordt (een eigenschap of toestand)?",
     'vv': "Let op het voorzetsel: hoort dit vast bij een ander woord in de zin (zoals een werkwoord of adjectief)?",
     'bijzin': "Heeft dit blok intern een eigen onderwerp en een eigen persoonsvorm?",
     'bijst': "Geeft dit deel een extra naam aan iets wat al eerder genoemd is?",
@@ -120,14 +120,14 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'ow': "Stel de vraag: wie of wat + persoonsvorm?",
     'lv': "Controleer met de vraag: wie of wat + gezegde + onderwerp?",
     'bwb': "Geeft dit deel extra info (plaats, tijd, manier), of is het een woord als 'niet' of 'ook'?",
-    'ng': "Kijk of het gezegde vertelt wat het onderwerp is of wordt, in plaats van wat het doet.",
+    'nwd': "Kijk of het gezegde vertelt wat het onderwerp is of wordt, in plaats van wat het doet.",
     'mv': "Geeft dit deel antwoord op de vraag: aan of voor wie?",
     'vv': "Onderzoek of het voorzetsel onlosmakelijk bij een specifiek woord in de zin hoort.",
   },
 
   'wg': {
     'pv': "Kijk welk woord van vorm verandert als je de tijd aanpast.",
-    'ng': "Benoemen deze woorden een actie (iets doen), of zeggen ze wat het onderwerp is of wordt?",
+    'nwd': "Benoemen deze woorden een actie (iets doen), of zeggen ze wat het onderwerp is of wordt?",
     'lv': "Controleer met de vraag: wie of wat + gezegde + onderwerp?",
     'bwb': "Kijk of dit deel extra info geeft, of een woord is zoals 'niet', 'wel' of 'ook'.",
     'ow': "Stel de vraag: wie of wat + persoonsvorm?",
@@ -135,7 +135,7 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'vv': "Hoort het voorzetsel bij een vaste combinatie met een woord in de zin?",
   },
 
-  'ng': {
+  'nwd': {
     'wg': "Drukken deze werkwoorden een actie uit (iets doen), of zeggen ze wat het onderwerp is of wordt?",
     'lv': "Controleer met de vraag: wie of wat + gezegde + onderwerp?",
     'bwb': "Is dit deel een toevoeging (plaats, tijd, reden), of een woord zoals 'niet' of 'wel'?",
@@ -150,7 +150,7 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'vv': "Let op het voorzetsel: hoort dit onlosmakelijk bij een woord in de zin?",
     'bwb': "Geeft dit deel info (waar, wanneer, waarom), of is het een woord als 'niet', 'ook' of 'wel'?",
     'mv': "Geeft dit deel antwoord op de vraag: aan of voor wie?",
-    'ng': "Vertelt dit deel wat het onderwerp is of wordt, via een werkwoord als zijn of worden?",
+    'nwd': "Vertelt dit deel wat het onderwerp is of wordt, via een werkwoord als zijn of worden?",
     'bijst': "Geeft dit deel een extra naam aan een woord dat al genoemd is?",
     'pv': "Kijk welk woord van vorm verandert bij de tijdproef.",
     'wg': "Bestaat dit deel uit werkwoorden die samen een actie (iets doen) vormen?",
@@ -164,7 +164,7 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'bwb': "Geeft dit deel info over de omstandigheden, of is het een woord als 'niet' of 'ook'?",
     'pv': "Kijk welk woord van vorm verandert als je de tijd aanpast.",
     'wg': "Bestaat dit deel uit werkwoorden die een handeling (doen) beschrijven?",
-    'ng': "Zegt dit deel wat het onderwerp is of wordt (een eigenschap of toestand)?",
+    'nwd': "Zegt dit deel wat het onderwerp is of wordt (een eigenschap of toestand)?",
     'bijzin': "Heeft dit blok intern een eigen onderwerp en persoonsvorm?",
   },
 
@@ -175,7 +175,7 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'ow': "Stel de vraag: wie of wat + persoonsvorm?",
     'pv': "Zoek naar het werkwoord dat van vorm verandert bij de tijdproef.",
     'wg': "Onderzoek of dit deel uit werkwoorden bestaat.",
-    'ng': "Kijk of het gezegde via een koppelwerkwoord zegt wat het onderwerp is of wordt.",
+    'nwd': "Kijk of het gezegde via een koppelwerkwoord zegt wat het onderwerp is of wordt.",
     'bijzin': "Heeft dit blok intern een eigen onderwerp en persoonsvorm?",
   },
 
@@ -185,7 +185,7 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'ow': "Stel de vraag: wie of wat + persoonsvorm?",
     'bijzin': "Heeft dit blok intern een eigen onderwerp en persoonsvorm?",
     'mv': "Geeft dit deel antwoord op de vraag: aan of voor wie?",
-    'ng': "Zegt dit gezegde wat het onderwerp is of wordt (een eigenschap of toestand)?",
+    'nwd': "Zegt dit gezegde wat het onderwerp is of wordt (een eigenschap of toestand)?",
     'bijst': "Geeft dit deel een extra naam aan een zinsdeel dat er direct voor staat?",
     'pv': "Kijk welk woord van vorm verandert als je de tijd aanpast.",
     'wg': "Bestaat dit deel uit werkwoorden die een handeling beschrijven?",
@@ -220,7 +220,7 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'lv': "Controleer met de vraag: wie of wat + gezegde + onderwerp?",
     'mv': "Geeft dit deel antwoord op de vraag: aan of voor wie?",
     'wg': "Bestaat dit deel uit werkwoorden?",
-    'ng': "Zegt dit gezegde wat het onderwerp is of wordt?",
+    'nwd': "Zegt dit gezegde wat het onderwerp is of wordt?",
     'bijzin': "Kies je hier één woord of de volledige zin die volgt?",
   },
 
@@ -232,7 +232,7 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'lv': "Controleer met de vraag: wie of wat + gezegde + onderwerp?",
     'mv': "Geeft dit deel antwoord op de vraag: aan of voor wie?",
     'wg': "Hoort dit woord bij de werkwoorden die de handeling vormen?",
-    'ng': "Zegt dit gezegde wat het onderwerp is of wordt?",
+    'nwd': "Zegt dit gezegde wat het onderwerp is of wordt?",
     'bijzin': "Kies je hier alleen het verbindingswoord of de hele bijzin?",
   },
 };
@@ -309,7 +309,7 @@ export const SCORE_TIPS: Record<string, string> = {
   'Bijwoordelijke Bepaling': 'Deze geven extra info (waar, wanneer), of zijn woorden zoals "niet" en "ook". Er kunnen er meer in een zin staan.',
   'Voorzetselvoorwerp': 'Het voorzetsel hoort onlosmakelijk bij een specifiek woord (werkwoord of adjectief).',
   'Werkwoordelijk Gezegde': 'Zoek de werkwoorden die samen een handeling (doen) vormen.',
-  'Naamwoordelijk Gezegde': 'Dit gezegde vertelt wat het onderwerp is of wordt (een eigenschap of toestand).',
+  'Naamwoordelijk Deel': 'Dit gezegde vertelt wat het onderwerp is of wordt (een eigenschap of toestand).',
   'Bijzin': 'Een bijzin heeft intern een eigen onderwerp en persoonsvorm.',
   'Bijstelling': 'Dit geeft een extra naam aan iets wat al is genoemd.',
   'Verdeling': 'Wat je samen voor de PV kunt zetten, is meestal één zinsdeel.',
