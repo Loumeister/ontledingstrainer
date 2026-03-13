@@ -168,7 +168,7 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'mv': "Dit zinsdeel is de ontvanger (aan/voor wie), niet degene die de handeling ondergaat. Het LV beantwoordt 'Wie of wat + gezegde + OW?', het MV 'Aan/voor wie?'",
     'nwd': "Is het werkwoord een koppelwerkwoord (zijn, worden, lijken)? Dan beschrijft dit zinsdeel een eigenschap van het onderwerp: het is het naamwoordelijk gezegde.",
     'bijst': "Dit zinsdeel hernoemt een eerder zinsdeel, vaak tussen komma's – het is een bijstelling. Het LV beantwoordt 'Wie of wat + gezegde + OW?'",
-    'pv': "De persoonsvorm is een vervoegd werkwoord. Dit zinsdeel is geen werkwoord.",
+    'pv': "De persoonsvorm is een vervoegd werkwoord. Een lijdend voorwerp of bijwoordelijke bepaling is geen werkwoord.",
     'wg': "Het gezegde bestaat uit werkwoorden. Dit zinsdeel bevat geen werkwoord – het beantwoordt 'Wie of wat + gezegde + OW?'",
     'bijzin': "Dit zinsdeel bevat een eigen onderwerp en persoonsvorm – het is een bijzin, geen lijdend voorwerp. Kijk of er een voegwoord aan het begin staat.",
   },
