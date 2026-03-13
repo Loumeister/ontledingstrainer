@@ -54,6 +54,7 @@ export interface TrainerState {
   mistakeStats: Record<string, number>;
   sessionSentenceResults: SentenceResult[];
   isSessionFinished: boolean;
+  consecutivePerfect: number;
 
   // Trainer
   currentSentence: Sentence | null;
@@ -157,6 +158,7 @@ export function useTrainer(): TrainerState {
   const [mistakeStats, setMistakeStats] = useState<Record<string, number>>({});
   const [sessionSentenceResults, setSessionSentenceResults] = useState<SentenceResult[]>([]);
   const [isSessionFinished, setIsSessionFinished] = useState(false);
+  const [consecutivePerfect, setConsecutivePerfect] = useState(0);
 
   // Current Sentence State
   const [currentSentence, setCurrentSentence] = useState<Sentence | null>(null);
@@ -296,6 +298,7 @@ export function useTrainer(): TrainerState {
     setMistakeStats({});
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
+    setConsecutivePerfect(0);
     setMode('session');
     logInteraction('session_start', undefined, `count=${count}`);
     loadSentence(selected[0]);
@@ -310,6 +313,7 @@ export function useTrainer(): TrainerState {
     setMistakeStats({});
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
+    setConsecutivePerfect(0);
     setMode('session');
     logInteraction('session_start', undefined, `shared,count=${shuffled.length}`);
     loadSentence(shuffled[0]);
@@ -638,6 +642,9 @@ export function useTrainer(): TrainerState {
         });
         setMistakeStats(newMistakeStats);
 
+        // Track consecutive perfect sentences
+        setConsecutivePerfect(prev => vResult.isPerfect ? prev + 1 : 0);
+
         // Record per-sentence result for the score screen
         setSessionSentenceResults(prev => [...prev, {
           sentence: currentSentence,
@@ -839,6 +846,7 @@ export function useTrainer(): TrainerState {
     sessionStats, mistakeStats,
     sessionSentenceResults,
     isSessionFinished,
+    consecutivePerfect,
 
     // Trainer
     currentSentence, step,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
 import { TrainerState } from '../hooks/useTrainer';
-import { SCORE_TIPS } from '../constants';
+import { SCORE_TIPS, ENCOURAGEMENT_POOLS, STREAK_MILESTONES, ROLES } from '../constants';
 import { ScoreRing } from '../components/ScoreRing';
 import { SentenceResultCard } from '../components/SentenceResultCard';
 import { ProgressChart } from '../components/ProgressChart';
@@ -62,19 +62,26 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
 
   useEffect(() => {
     if (scorePercentage === 100) {
-      confetti({ particleCount: 200, spread: 120, origin: { y: 0.4 } });
+      // Gold/yellow perfection burst
+      confetti({ particleCount: 200, spread: 120, origin: { y: 0.4 }, colors: ['#FFD700', '#FFA500', '#FF6347', '#FFD700'] });
+    } else if (scorePercentage >= 80 && isImproved && previousScore !== null && scorePercentage - previousScore > 10) {
+      // Big improvement: blue/green growth burst
+      confetti({ particleCount: 100, spread: 90, origin: { y: 0.5 }, colors: ['#3B82F6', '#10B981', '#06B6D4'] });
     } else if (scorePercentage >= 80) {
       confetti({ particleCount: 80, spread: 80, origin: { y: 0.5 } });
     }
+    if (streak >= 7) {
+      // Flame burst for weekly streak milestone
+      setTimeout(() => confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 }, colors: ['#EF4444', '#F97316', '#FBBF24'] }), 600);
+    }
   }, []);
 
-  const encouragement = scorePercentage >= 90
-    ? 'Uitstekend! Je beheerst de zinsontleding goed.'
-    : scorePercentage >= 75
-    ? 'Goed gedaan! Met nog wat oefening word je een expert.'
-    : scorePercentage >= 55
-    ? 'Je bent op de goede weg. Bekijk de aandachtspunten hieronder.'
-    : 'Niet getreurd \u2013 oefening baart kunst! Focus op de basisonderdelen.';
+  const encouragement = useMemo(() => {
+    const tier = scorePercentage >= 90 ? 3 : scorePercentage >= 75 ? 2 : scorePercentage >= 55 ? 1 : 0;
+    const pool = ENCOURAGEMENT_POOLS[tier];
+    return pool[Math.floor(Math.random() * pool.length)];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scorePercentage]);
 
   // Recommended action
   const weakestRole = sortedMistakes.length > 0 ? sortedMistakes[0][0] : null;
@@ -163,17 +170,30 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
                 &#9650; Stijger!
               </span>
             )}
-            {streak >= 2 && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-medium rounded-full border border-amber-200 dark:border-amber-800">
-                &#128293; {streak} dagen streak
+            {streak >= 2 && (() => {
+              const milestone = STREAK_MILESTONES.find(([min]) => streak >= min);
+              if (!milestone) return null;
+              const [, emoji, msg] = milestone;
+              const isNumberPrefix = /^\d/.test(msg);
+              return (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-medium rounded-full border border-amber-200 dark:border-amber-800">
+                  {emoji} {isNumberPrefix ? msg : `${streak} dagen ${msg}`}
+                </span>
+              );
+            })()}
+            {masteredRoles.map((role, idx) => (
+              <span
+                key={role}
+                className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-full border border-purple-200 dark:border-purple-800 animate-in fade-in slide-in-from-bottom duration-300"
+                style={{ animationDelay: `${idx * 200}ms` }}
+              >
+                &#127942; {role} onder de knie!
               </span>
-            )}
-            {masteredRoles.length > 0 && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-full border border-purple-200 dark:border-purple-800">
-                &#127942; {masteredRoles[0]} onder de knie!
-              </span>
-            )}
+            ))}
           </div>
+
+          {/* Rollenkas – mastery trophy wall */}
+          <RollenKas mistakeStats={mistakeStats} />
         </section>
 
         {/* === Section 2: Per-sentence overview === */}
@@ -341,7 +361,43 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
   );
 };
 
-// --- Helper sub-component ---
+// --- Helper sub-components ---
+
+function RollenKas({ mistakeStats }: { mistakeStats: Record<string, number> }) {
+  const [open, setOpen] = React.useState(false);
+  const errorRoles = new Set(Object.keys(mistakeStats));
+
+  return (
+    <div className="mt-4 border-t border-slate-100 dark:border-slate-700 pt-3">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors flex items-center gap-1 mx-auto"
+      >
+        <span>{open ? '▲' : '▼'}</span> Bekijk je rollenkas
+      </button>
+      {open && (
+        <div className="mt-3 grid grid-cols-4 gap-2 animate-in fade-in slide-in-from-top duration-200">
+          {ROLES.map(role => {
+            const mastered = !errorRoles.has(role.label);
+            return (
+              <div
+                key={role.key}
+                className={`flex flex-col items-center p-2 rounded-xl border text-xs font-medium transition-all ${
+                  mastered
+                    ? `${role.colorClass} ${role.borderColorClass}`
+                    : 'bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-600 opacity-40 grayscale'
+                }`}
+              >
+                <span className="text-lg leading-none">{mastered ? '✓' : '○'}</span>
+                <span className="mt-1 text-center leading-tight">{role.shortLabel}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function WeakestRoleOverTime({ history }: { history: import('../types').SessionHistoryEntry[] }) {
   // Aggregate mistakes across all sessions

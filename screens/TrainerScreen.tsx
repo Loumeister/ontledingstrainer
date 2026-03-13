@@ -34,6 +34,7 @@ type TrainerScreenProps = Pick<TrainerState,
   | 'handleHint' | 'handleCheck'
   | 'handleShowAnswerRequest' | 'handleRetry' | 'handleAbortRequest' | 'handleConfirmAction'
   | 'nextSessionSentence'
+  | 'consecutivePerfect'
   | 'selectedRole'
   | 'handleSelectRole' | 'handleClearSelectedRole'
   | 'handleTapPlaceChunk' | 'handleTapPlaceWord'
@@ -63,15 +64,49 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   handleHint, handleCheck,
   handleShowAnswerRequest, handleRetry, handleAbortRequest, handleConfirmAction,
   nextSessionSentence,
+  consecutivePerfect,
   selectedRole, handleSelectRole, handleTapPlaceChunk, handleTapPlaceWord,
 }) => {
   const [showZinsdeelHelp, setShowZinsdeelHelp] = useState(false);
+  const [streakToast, setStreakToast] = useState<string | null>(null);
+  const [recentlySplit, setRecentlySplit] = useState<Set<number>>(new Set());
+
+  const handleToggleSplitWithAnim = (idx: number) => {
+    toggleSplit(idx);
+    setRecentlySplit(prev => {
+      const next = new Set(prev);
+      next.add(idx);
+      return next;
+    });
+    setTimeout(() => {
+      setRecentlySplit(prev => {
+        const next = new Set(prev);
+        next.delete(idx);
+        return next;
+      });
+    }, 400);
+  };
 
   useEffect(() => {
     if (validationResult?.isPerfect) {
       confetti({ particleCount: 90, spread: 70, origin: { y: 0.55 } });
     }
   }, [validationResult]);
+
+  useEffect(() => {
+    if (consecutivePerfect === 3) {
+      setStreakToast('🔥 3 op rij!');
+    } else if (consecutivePerfect === 5) {
+      setStreakToast('💥 5 op rij! Je bent onstopbaar.');
+    } else if (consecutivePerfect > 0 && consecutivePerfect % 5 === 0) {
+      setStreakToast(`🏆 ${consecutivePerfect} op rij! Ongelooflijk.`);
+    } else {
+      setStreakToast(null);
+      return;
+    }
+    const t = setTimeout(() => setStreakToast(null), 3000);
+    return () => clearTimeout(t);
+  }, [consecutivePerfect]);
 
   // Build feedback items for consolidated panel
   const feedbackItems: FeedbackItem[] = validationResult && !validationResult.isPerfect
@@ -88,6 +123,13 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-2 md:p-4 font-sans transition-colors duration-300 flex flex-col">
+
+      {/* Consecutive-perfect toast */}
+      {streakToast && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 bg-amber-400 dark:bg-amber-500 text-slate-900 font-bold text-base rounded-2xl shadow-lg animate-in fade-in slide-in-from-top duration-300 pointer-events-none">
+          {streakToast}
+        </div>
+      )}
 
       <ConfirmationModal
          isOpen={confirmAction === 'abort'}
@@ -161,17 +203,24 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
               <p className="text-slate-500 dark:text-slate-400 mb-6">Klik tussen de woorden om de zin in zinsdelen te knippen.</p>
 
               <div className={`flex flex-wrap items-center justify-center gap-y-6 select-none py-4 ${largeFont ? 'text-2xl md:text-3xl leading-relaxed' : 'text-xl md:text-2xl leading-loose'}`}>
-                {currentSentence.tokens.map((token, idx) => (
-                  <React.Fragment key={token.id}>
-                    <span className="px-2 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded text-slate-800 dark:text-slate-100 font-medium transition-colors">{token.text}</span>
-                    {idx < currentSentence.tokens.length - 1 && (
-                      <div onClick={() => toggleSplit(idx)} tabIndex={0} role="button" onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSplit(idx); } }} className="group relative w-10 h-12 mx-0 cursor-pointer flex items-center justify-center transition-all focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:rounded">
-                        <div className={`w-1 h-8 rounded-full transition-all duration-200 ${splitIndices.has(idx) ? 'bg-blue-500 h-10 shadow-[0_0_12px_rgba(59,130,246,0.6)]' : 'bg-slate-200 dark:bg-slate-600 group-hover:bg-slate-300 dark:group-hover:bg-slate-500'}`}></div>
-                        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-7 h-7 bg-white dark:bg-slate-700 rounded-full shadow-md border dark:border-slate-600 flex items-center justify-center text-sm transition-all duration-200 pointer-events-none z-10 ${splitIndices.has(idx) ? 'opacity-100 border-blue-500 text-blue-500 scale-100' : 'opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 text-slate-400'}`}>✂️</div>
-                      </div>
-                    )}
-                  </React.Fragment>
-                ))}
+                {currentSentence.tokens.map((token, idx) => {
+                  const isNewSplit = recentlySplit.has(idx) && splitIndices.has(idx);
+                  return (
+                    <React.Fragment key={token.id}>
+                      <span className="px-2 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded text-slate-800 dark:text-slate-100 font-medium transition-colors">{token.text}</span>
+                      {idx < currentSentence.tokens.length - 1 && (
+                        <div onClick={() => handleToggleSplitWithAnim(idx)} tabIndex={0} role="button" onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggleSplitWithAnim(idx); } }} className="group relative w-10 h-12 mx-0 cursor-pointer flex items-center justify-center transition-all focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:rounded">
+                          <div className={`w-1 rounded-full transition-all duration-200 ${
+                            splitIndices.has(idx)
+                              ? `h-10 shadow-[0_0_12px_rgba(59,130,246,0.6)] ${isNewSplit ? 'bg-blue-300 scale-y-110' : 'bg-blue-500'}`
+                              : 'h-8 bg-slate-200 dark:bg-slate-600 group-hover:bg-slate-300 dark:group-hover:bg-slate-500'
+                          }`}></div>
+                          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-7 h-7 bg-white dark:bg-slate-700 rounded-full shadow-md border dark:border-slate-600 flex items-center justify-center text-sm transition-all duration-200 pointer-events-none z-10 ${splitIndices.has(idx) ? 'opacity-100 border-blue-500 text-blue-500 scale-100' : 'opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 text-slate-400'}`}>✂️</div>
+                        </div>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </div>
               <div className="mt-8 flex justify-center">
                 <button onClick={handleNextStep} className="group px-8 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:bg-blue-700 hover:shadow-blue-200 hover:-translate-y-0.5 transition-all flex items-center gap-3">Naar benoemen<span className="group-hover:translate-x-1 transition-transform">&rarr;</span></button>

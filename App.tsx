@@ -138,6 +138,7 @@ export default function App() {
       handleHint={trainer.handleHint} handleCheck={trainer.handleCheck}
       handleShowAnswerRequest={trainer.handleShowAnswerRequest} handleRetry={trainer.handleRetry} handleAbortRequest={trainer.handleAbortRequest} handleConfirmAction={trainer.handleConfirmAction}
       nextSessionSentence={trainer.nextSessionSentence}
+      consecutivePerfect={trainer.consecutivePerfect}
       selectedRole={trainer.selectedRole}
       handleSelectRole={trainer.handleSelectRole}
       handleClearSelectedRole={trainer.handleClearSelectedRole}
