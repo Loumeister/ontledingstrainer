@@ -293,6 +293,41 @@ export const FEEDBACK_SHORT_LABELS: Record<string, string> = {
   'warning': 'Bijna goed',
 };
 
+// Casual encouragement message pools per score tier (for 12-15 year olds)
+// Tier index: 0 = <55%, 1 = 55-74%, 2 = 75-89%, 3 = ≥90%
+export const ENCOURAGEMENT_POOLS: string[][] = [
+  [
+    "Harde ronde. Maar serieus: iedereen vindt dit in het begin verwarrend.",
+    "Nog niet lekker gegaan – maar je hebt het geprobeerd, en dat telt. Probeer de basisrollen eerst.",
+    "Dit is gewoon een moeilijk onderwerp. Geef niet op – het klikt echt op een gegeven moment.",
+  ],
+  [
+    "Zinsontleding is lastig, geen discussie. Maar je hebt gewoon oefening nodig – en dat ga je krijgen.",
+    "Je snapt meer dan je denkt. Bekijk de aandachtspunten even en probeer het opnieuw.",
+    "Je bent op de goede weg. Echt.",
+  ],
+  [
+    "Sterke sessie. De basis is er. Nog een paar details en je bent niet meer te stoppen.",
+    "Goed werk. Je ziet al het verschil tussen de rollen – dat is de helft van het gevecht.",
+    "Dit gaat de goede kant op. Echt.",
+  ],
+  [
+    "Je weet precies wat je doet. Eerlijk gezegd beetje jaloers.",
+    "De zinsontleding heeft het zwaar bij jou.",
+    "Bijna perfect – en dat is ook gewoon perfect.",
+    "Indrukwekkend. Serieus.",
+  ],
+];
+
+// Streak milestone definitions: [minDays, emoji, message]
+export const STREAK_MILESTONES: [number, string, string][] = [
+  [30, '👑', 'Dertig dagen. Jij bent een legende.'],
+  [14, '🌟', 'Twee weken streak – bijna ongelooflijk.'],
+  [7,  '🔥🔥🔥', 'Een week! Dat is toewijding.'],
+  [3,  '🔥🔥', 'Drie dagen! Je bent er echt voor.'],
+  [2,  '🔥', 'op rij – goed bezig!'],
+];
+
 // Study tips per role, shown on the ScoreScreen for common mistakes
 export const SCORE_TIPS: Record<string, string> = {
   'Persoonsvorm': 'Doe altijd de tijdsproef: welk woord verandert als je de zin in een andere tijd zet?',

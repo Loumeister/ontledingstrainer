@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Token, RoleDefinition, ValidationState } from '../types';
 import { FEEDBACK_SHORT_LABELS } from '../constants';
 
@@ -62,6 +62,17 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
   const [isOverChunk, setIsOverChunk] = useState(false);
   const [isOverBijzinFunctie, setIsOverBijzinFunctie] = useState(false);
   const [hoveredWordId, setHoveredWordId] = useState<string | null>(null);
+  const [snapPop, setSnapPop] = useState(false);
+  const prevValidation = useRef<ValidationState | undefined>(undefined);
+  useEffect(() => {
+    if (validationState === 'correct' && prevValidation.current !== 'correct') {
+      setSnapPop(true);
+      const t = setTimeout(() => setSnapPop(false), 600);
+      return () => clearTimeout(t);
+    }
+    prevValidation.current = validationState;
+  }, [validationState]);
+
   const badgeLabel = validationState && validationState !== 'correct'
     ? FEEDBACK_SHORT_LABELS[validationState] || null
     : null;
@@ -122,11 +133,12 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
   };
 
   return (
-    <div 
+    <div
       className={`
-        relative flex flex-col min-w-[140px] rounded-xl border-2 transition-colors duration-200 group/chunk
+        relative flex flex-col min-w-[140px] rounded-xl border-2 transition-all duration-200 group/chunk
         ${borderColor} ${bgColor}
         ${validationState === 'incorrect-split' ? 'opacity-80' : ''}
+        ${snapPop ? 'scale-105' : 'scale-100'}
       `}
       onDragOver={handleDragOverChunk}
       onDrop={(e) => {
@@ -340,6 +352,15 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
 
       {/* Validation Status */}
       {statusIcon}
+
+      {/* Snap pop: floating "+1 ✓" on correct */}
+      {snapPop && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+          <span className="text-green-600 dark:text-green-400 font-bold text-lg animate-in fade-in slide-in-from-bottom duration-200 fill-mode-both" style={{ animationDuration: '300ms' }}>
+            +1 ✓
+          </span>
+        </div>
+      )}
     </div>
   );
 };
