@@ -1,12 +1,26 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 
 interface HelpModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSecretDocentAccess?: () => void;
 }
 
-export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
+export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onSecretDocentAccess }) => {
+  const [tipClickCount, setTipClickCount] = useState(0);
+
+  const handleTipIconClick = () => {
+    const nextCount = tipClickCount + 1;
+    if (nextCount >= 5) {
+      setTipClickCount(0);
+      onSecretDocentAccess?.();
+      onClose();
+      return;
+    }
+    setTipClickCount(nextCount);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -80,7 +94,17 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
           <hr className="border-slate-100 dark:border-slate-700" />
 
           <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl border border-yellow-100 dark:border-yellow-900/30 text-sm text-yellow-800 dark:text-yellow-200">
-            <strong>💡 Tip:</strong> Gebruik de knop <em>"Geef Hint"</em> als je vastloopt. De app vertelt je dan welk zinsdeel je eerst moet zoeken!
+            <strong>
+              <button
+                type="button"
+                onClick={handleTipIconClick}
+                className="font-bold text-inherit"
+                aria-label="Tip"
+              >
+                💡 Tip:
+              </button>
+            </strong>{' '}
+            Gebruik de knop <em>"Geef Hint"</em> als je vastloopt. De app vertelt je dan welk zinsdeel je eerst moet zoeken!
           </div>
 
         </div>
