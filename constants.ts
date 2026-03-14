@@ -57,12 +57,19 @@ export const ROLES: RoleDefinition[] = [
     colorClass: 'bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-100', 
     borderColorClass: 'border-rose-300 dark:border-rose-600' 
   },
-  { 
-    key: 'nwd', 
-    label: 'Naamwoordelijk Deel', 
-    shortLabel: 'NWD', 
-    colorClass: 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-100', 
-    borderColorClass: 'border-yellow-200 dark:border-yellow-600' 
+  {
+    key: 'wd',
+    label: 'Werkwoordelijk Deel',
+    shortLabel: 'WD',
+    colorClass: 'bg-rose-50 text-rose-700 dark:bg-rose-900/40 dark:text-rose-100',
+    borderColorClass: 'border-rose-200 dark:border-rose-600'
+  },
+  {
+    key: 'nwd',
+    label: 'Naamwoordelijk Deel',
+    shortLabel: 'NWD',
+    colorClass: 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-100',
+    borderColorClass: 'border-yellow-200 dark:border-yellow-600'
   },
   { 
     key: 'bijzin', 
@@ -102,7 +109,7 @@ export const ROLES_PER_LEVEL: Record<DifficultyLevel, RoleKey[]> = {
   1: ['pv', 'ow', 'lv', 'mv', 'bwb', 'wg', 'nwd'],
   2: ['pv', 'ow', 'lv', 'mv', 'bwb', 'vv', 'wg', 'nwd'],
   3: ['pv', 'ow', 'lv', 'mv', 'bwb', 'vv', 'bijst', 'bijzin', 'vw_neven', 'wg', 'nwd'],
-  4: ['pv', 'ow', 'lv', 'mv', 'bwb', 'vv', 'bijst', 'bijzin', 'vw_neven', 'wg', 'nwd'],
+  4: ['pv', 'ow', 'lv', 'mv', 'bwb', 'vv', 'bijst', 'bijzin', 'vw_neven', 'wg', 'nwd', 'wd'],
 };
 
 export const FEEDBACK_STRUCTURE = {
@@ -142,6 +149,7 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'ow': "Stel de vraag: wie of wat + persoonsvorm?",
     'mv': "Kijk of dit deel antwoord geeft op de vraag: aan of voor wie?",
     'vv': "Hoort het voorzetsel bij een vaste combinatie met een woord in de zin?",
+    'wd': "Een werkwoordelijk gezegde drukt een handeling uit, geen toestand. Het WD hoort alleen bij een naamwoordelijk gezegde.",
   },
 
   'nwd': {
@@ -152,6 +160,14 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'pv': "Kijk welk werkwoord van vorm verandert als je de tijd aanpast.",
     'mv': "Kijk of dit deel de ontvanger aangeeft (aan of voor wie).",
     'vv': "Check of het voorzetsel vastzit aan een specifiek woord in de zin (zoals een werkwoord of adjectief).",
+    'wd': "Het naamwoordelijk deel is de eigenschap of toestand, niet het werkwoord. Zoek het woord dat zegt wát het onderwerp is of wordt.",
+  },
+
+  'wd': {
+    'nwd': "Het naamwoordelijk deel beschrijft een eigenschap of toestand. Zoek het werkwoord dat geen PV is.",
+    'wg': "Bij een naamwoordelijk gezegde beschrijven de werkwoorden geen handeling. Welk werkwoord is de PV, en welk is het WD?",
+    'pv': "Kijk welk werkwoord van vorm verandert als je de tijd aanpast. Dat is de PV — het andere is het WD.",
+    'bwb': "Dit deel is geen extra info over omstandigheden. Het is een werkwoord dat bij het koppelwerkwoord hoort.",
   },
 
   'lv': {
@@ -261,6 +277,7 @@ export const HINTS = {
   MISSING_OW: "Tip: Stel de vraag: wie of wat + persoonsvorm?",
   MISSING_WG: "Tip: Zoek de werkwoorden die samen een handeling (iets doen) uitdrukken.",
   MISSING_NG: "Tip: Zegt de zin wat het onderwerp is of wordt? Zoek naar woorden die een eigenschap of toestand beschrijven.",
+  MISSING_WD: "Tip: Staat er naast de PV nog een werkwoord bij het naamwoordelijk gezegde? Dat is het werkwoordelijk deel.",
   MISSING_LV: "Tip: Stel de vraag: wie of wat + gezegde + onderwerp?",
   MISSING_MV: "Tip: Zoek het deel dat aangeeft voor wie of aan wie iets wordt gedaan.",
   MISSING_VV: "Tip: Zoek een voorzetsel dat onlosmakelijk bij een woord in de zin hoort.",
@@ -319,6 +336,7 @@ export const SCORE_TIPS: Record<string, string> = {
   'Voorzetselvoorwerp': 'Het voorzetsel hoort onlosmakelijk bij een specifiek woord (werkwoord of adjectief).',
   'Werkwoordelijk Gezegde': 'Zoek de werkwoorden die samen een handeling (doen) vormen.',
   'Naamwoordelijk Deel': 'Dit gezegde vertelt wat het onderwerp is of wordt (een eigenschap of toestand).',
+  'Werkwoordelijk Deel': 'Het WD is het niet-persoonlijke werkwoord in een naamwoordelijk gezegde, zoals "geworden" of "te worden".',
   'Bijzin': 'Een bijzin heeft intern een eigen onderwerp en persoonsvorm.',
   'Bijstelling': 'Dit geeft een extra naam aan iets wat al is genoemd.',
   'Verdeling': 'Wat je samen voor de PV kunt zetten, is meestal één zinsdeel.',

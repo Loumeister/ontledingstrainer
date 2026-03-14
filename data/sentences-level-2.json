@@ -118,7 +118,8 @@
       {
         "id": "s21t3",
         "text": "blijft",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s21t4",
@@ -158,7 +159,8 @@
       {
         "id": "s22t2",
         "text": "lijkt",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s22t3",
@@ -442,7 +444,8 @@
       {
         "id": "s28t3",
         "text": "wordt",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s28t4",
@@ -580,7 +583,8 @@
       {
         "id": "s31t3",
         "text": "lijkt",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s31t4",
@@ -784,7 +788,8 @@
       {
         "id": "s35t3",
         "text": "bleef",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s35t4",
@@ -924,7 +929,8 @@
       {
         "id": "s37t4",
         "text": "is",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s37t5",
@@ -1050,7 +1056,8 @@
       {
         "id": "s39t3",
         "text": "noemde",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s39t4",
@@ -1352,7 +1359,8 @@
       {
         "id": "s44t4",
         "text": "lijkt",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s44t5",
@@ -1517,7 +1525,8 @@
       {
         "id": "s47t3",
         "text": "is",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s47t4",
@@ -1577,7 +1586,8 @@
       {
         "id": "s48t5",
         "text": "blijft",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s48t6",
@@ -1873,7 +1883,8 @@
       {
         "id": "s53t3",
         "text": "werd",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s53t4",
@@ -1934,7 +1945,8 @@
       {
         "id": "s54t3",
         "text": "werd",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s54t4",
@@ -2050,7 +2062,8 @@
       {
         "id": "s56t6",
         "text": "bleef",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s56t7",
@@ -2227,7 +2240,8 @@
       {
         "id": "s59t4",
         "text": "lijkt",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s59t5",
@@ -2346,7 +2360,8 @@
       {
         "id": "s61t5",
         "text": "blijkt",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s61t6",
@@ -2738,7 +2753,8 @@
       {
         "id": "s66t6",
         "text": "is",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s66t7",
@@ -2890,7 +2906,8 @@
       {
         "id": "s68t6",
         "text": "lijken",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s68t7",
@@ -2944,7 +2961,8 @@
       {
         "id": "s69t3",
         "text": "is",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s69t4",
@@ -3010,7 +3028,8 @@
       {
         "id": "s70t6",
         "text": "bleef",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s70t7",
@@ -3062,7 +3081,8 @@
       {
         "id": "s71t4",
         "text": "is",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s71t5",
@@ -3114,7 +3134,8 @@
       {
         "id": "s72t3",
         "text": "werd",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s72t4",
@@ -3184,7 +3205,8 @@
       {
         "id": "s73t6",
         "text": "is",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s73t7",
@@ -3238,7 +3260,8 @@
       {
         "id": "s74t3",
         "text": "blijft",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s74t4",
@@ -3290,7 +3313,8 @@
       {
         "id": "s75t4",
         "text": "lijken",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s75t5",
@@ -3312,7 +3336,9 @@
       {
         "id": "s75t8",
         "text": "te",
-        "role": "nwd"
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s75t9"
       },
       {
         "id": "s75t9",
@@ -3342,7 +3368,8 @@
       {
         "id": "s76t3",
         "text": "is",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s76t4",
@@ -3413,7 +3440,8 @@
       {
         "id": "s77t6",
         "text": "blijken",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s77t7",
@@ -3450,7 +3478,8 @@
       {
         "id": "s78t3",
         "text": "is",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s78t4",
@@ -3530,7 +3559,8 @@
       {
         "id": "s79t6",
         "text": "werd",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s79t7",
@@ -3585,7 +3615,8 @@
       {
         "id": "s80t3",
         "text": "blijkt",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s80t4",
@@ -3663,7 +3694,8 @@
       {
         "id": "s81t6",
         "text": "blijft",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s81t7",
@@ -3715,7 +3747,8 @@
       {
         "id": "s82t3",
         "text": "waren",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s82t4",
@@ -4521,7 +4554,8 @@
       {
         "id": "s101t3",
         "text": "was",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s101t4",
@@ -4563,7 +4597,8 @@
       {
         "id": "s102t3",
         "text": "wordt",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s102t4",
@@ -4605,7 +4640,8 @@
       {
         "id": "s103t3",
         "text": "is",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s103t4",
@@ -4638,7 +4674,8 @@
       {
         "id": "s104t3",
         "text": "was",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s104t4",
@@ -4683,7 +4720,8 @@
       {
         "id": "s105t5",
         "text": "worden.",
-        "role": "wg"
+        "role": "wd",
+        "alternativeRole": "nwd"
       }
     ]
   },
@@ -4727,7 +4765,8 @@
       {
         "id": "s106t6",
         "text": "bleef",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s106t7",
@@ -4757,7 +4796,8 @@
       {
         "id": "s107t2",
         "text": "lijkt",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wd"
       },
       {
         "id": "s107t3",

@@ -36,6 +36,13 @@ const ZINSDEEL_INFO = [
     colorClass: 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/40 dark:text-yellow-100 dark:border-yellow-600',
   },
   {
+    shortLabel: 'WD',
+    label: 'Werkwoordelijk Deel',
+    description: 'Het niet-persoonlijke werkwoorddeel van een naamwoordelijk gezegde (bijv. "geworden", "te zijn"). Het staat samen met de PV en het NWD.',
+    question: 'Is er een koppelwerkwoord dat géén PV is? Dat is het WD.',
+    colorClass: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/40 dark:text-rose-100 dark:border-rose-600',
+  },
+  {
     shortLabel: 'LV',
     label: 'Lijdend Voorwerp',
     description: 'Het zinsdeel dat de handeling ondergaat.',
