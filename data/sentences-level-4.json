@@ -971,5 +971,22 @@
       { "id": "s195t7", "text": "erg", "role": "nwd", "subRole": "bijv_bep", "bijvBepTarget": "s195t8" },
       { "id": "s195t8", "text": "aardig.", "role": "nwd" }
     ]
+  },
+  {
+    "id": 200,
+    "label": "Zin 200: Letten op de hond (VV vs BWB)",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      { "id": "s200t1", "text": "Op", "role": "bwb" },
+      { "id": "s200t2", "text": "vakantie", "role": "bwb" },
+      { "id": "s200t3", "text": "letten", "role": "pv" },
+      { "id": "s200t4", "text": "de", "role": "ow" },
+      { "id": "s200t5", "text": "buren", "role": "ow" },
+      { "id": "s200t6", "text": "altijd", "role": "bwb", "newChunk": true },
+      { "id": "s200t7", "text": "op", "role": "vv" },
+      { "id": "s200t8", "text": "onze", "role": "vv", "subRole": "bijv_bep", "bijvBepTarget": "s200t9" },
+      { "id": "s200t9", "text": "hond.", "role": "vv" }
+    ]
   }
 ]

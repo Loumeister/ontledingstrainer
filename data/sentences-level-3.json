@@ -1568,5 +1568,34 @@
       { "id": "s184t10", "text": "grote", "role": "nwd", "subRole": "bijv_bep", "bijvBepTarget": "s184t11" },
       { "id": "s184t11", "text": "verrassing.", "role": "nwd" }
     ]
+  },
+  {
+    "id": 198,
+    "label": "Zin 198: Ik weet dat... (bijzin als LV)",
+    "predicateType": "WG",
+    "level": 3,
+    "tokens": [
+      { "id": "s198t1", "text": "Ik", "role": "ow" },
+      { "id": "s198t2", "text": "weet", "role": "pv" },
+      { "id": "s198t3", "text": "dat", "role": "bijzin", "subRole": "vw_onder", "bijzinFunctie": "lv" },
+      { "id": "s198t4", "text": "hij", "role": "bijzin" },
+      { "id": "s198t5", "text": "morgen", "role": "bijzin" },
+      { "id": "s198t6", "text": "komt.", "role": "bijzin" }
+    ]
+  },
+  {
+    "id": 199,
+    "label": "Zin 199: Binnen blijven (bijzin als BWB)",
+    "predicateType": "WG",
+    "level": 3,
+    "tokens": [
+      { "id": "s199t1", "text": "Wij", "role": "ow" },
+      { "id": "s199t2", "text": "bleven", "role": "pv" },
+      { "id": "s199t3", "text": "binnen", "role": "bwb" },
+      { "id": "s199t4", "text": "omdat", "role": "bijzin", "subRole": "vw_onder", "bijzinFunctie": "bwb" },
+      { "id": "s199t5", "text": "het", "role": "bijzin" },
+      { "id": "s199t6", "text": "hard", "role": "bijzin" },
+      { "id": "s199t7", "text": "regende.", "role": "bijzin" }
+    ]
   }
 ]

@@ -2176,5 +2176,36 @@
       { "id": "s178t6", "text": "opgave", "role": "lv" },
       { "id": "s178t7", "text": "samen.", "role": "bwb" }
     ]
+  },
+  {
+    "id": 196,
+    "label": "Zin 196: Koekjes bakken (basisvolgorde + BWB)",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      { "id": "s196t1", "text": "Mijn", "role": "ow", "subRole": "bijv_bep", "bijvBepTarget": "s196t2" },
+      { "id": "s196t2", "text": "zus", "role": "ow" },
+      { "id": "s196t3", "text": "bakt", "role": "pv" },
+      { "id": "s196t4", "text": "elke", "role": "bwb", "subRole": "bijv_bep", "bijvBepTarget": "s196t5" },
+      { "id": "s196t5", "text": "woensdag", "role": "bwb" },
+      { "id": "s196t6", "text": "lekkere", "role": "lv", "subRole": "bijv_bep", "bijvBepTarget": "s196t7" },
+      { "id": "s196t7", "text": "koekjes.", "role": "lv" }
+    ]
+  },
+  {
+    "id": 197,
+    "label": "Zin 197: Moe baby (basisvolgorde + BWB, NG)",
+    "predicateType": "NG",
+    "level": 1,
+    "tokens": [
+      { "id": "s197t1", "text": "De", "role": "ow" },
+      { "id": "s197t2", "text": "baby", "role": "ow" },
+      { "id": "s197t3", "text": "is", "role": "pv" },
+      { "id": "s197t4", "text": "in", "role": "bwb" },
+      { "id": "s197t5", "text": "de", "role": "bwb" },
+      { "id": "s197t6", "text": "middag", "role": "bwb" },
+      { "id": "s197t7", "text": "altijd", "role": "bwb", "newChunk": true },
+      { "id": "s197t8", "text": "moe.", "role": "nwd" }
+    ]
   }
 ]
