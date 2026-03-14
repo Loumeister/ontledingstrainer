@@ -123,6 +123,24 @@ Houd de huidige logische nummerreeks aan:
 
 Voeg je zinnen toe, gebruik dan steeds het **volgende vrije ID** en laat `label` en token-id's (`s<zinId>t<n>`) daarbij aansluiten.
 
+
+### Merge-conflicts in zinnenbestanden snel oplossen
+
+Bij grote merges kunnen `data/sentences-level-*.json` veel conflictregels geven. Gebruik dan de helper:
+
+```bash
+# kies de kant die je volledig wilt overnemen
+bash scripts/resolve_sentence_conflicts.sh ours
+# of
+bash scripts/resolve_sentence_conflicts.sh theirs
+```
+
+Dit script:
+- neemt de gekozen kant volledig over voor level 1-4
+- regenereert `TEACHERS_SENTENCE_OVERVIEW.md` en `data/sentence-parse-audit.md`
+- valideert ID-reeksen/token-id's/`pv`+`ow`
+- staged de relevante bestanden voor commit
+
 ### 2. Belangrijke Regels
 
 #### A. Aaneengesloten zinsdelen
