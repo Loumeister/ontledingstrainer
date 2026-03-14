@@ -1,6 +1,6 @@
-# Sentence parse audit (update na PR66)
+# Sentence parse audit (maart 2026)
 
-Deze controle volgt de workflow van `zinsontleding-repo-inspector` en `zinsontleding-constraint-sentence-author`, opnieuw uitgevoerd na de recente datasetwijzigingen (PR66-reeks).
+Deze controle volgt de workflow van `zinsontleding-repo-inspector` en `zinsontleding-constraint-sentence-author`, opnieuw uitgevoerd op de actuele dataset.
 
 ## Label inventory
 
@@ -25,8 +25,8 @@ De gecontroleerde zinnen gebruiken alleen rollen die door bestaande feedback/hin
 
 ## Risks / ambiguities to avoid
 
-- Verouderde review-opmerking over zin 49 verwijderd uit `data/sentences-review.json` omdat die zin in de huidige dataset niet meer overeenkomt met de oude reviewvariant.
-- 5 bevelzinnen zonder expliciet onderwerp zijn herschreven naar didactisch eenduidige varianten met expliciete `ow` (zinnen 121, 122, 123, 161, 162).
+- Vermijd schoolgrammaticale dubbellezing zonder expliciete fallback via `alternativeRole`.
+- Houd één hoofdvalkuil per nieuwe zin om feedback scherp te houden.
 
 ## Parse correctness check
 
@@ -42,4 +42,5 @@ Resultaat: **alle 204 zinnen slagen**.
 ## Numerieke ordening
 
 - Binnen elk niveaubestand staan zinnen in oplopende `id`.
-- Voor docenten is een nieuw overzicht toegevoegd met numeriek gesorteerde zin-ID's per subskill: `TEACHERS_SENTENCE_OVERVIEW.md`.
+- Globale id-reeks: **N1 1-56, N2 57-145, N3 146-177, N4 178-204**.
+- Voor docenten is een numeriek overzicht per subskill beschikbaar in `TEACHERS_SENTENCE_OVERVIEW.md`.

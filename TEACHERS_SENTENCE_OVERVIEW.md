@@ -4,8 +4,7 @@ Dit overzicht is automatisch samengesteld uit de actuele zinnenbestanden (niveau
 
 - Totaal aantal zinnen: **204**.
 - Controle: elke zin bevat expliciet een **PV** en **OW**.
-
-- ID-bereiken na hernummering: **N1 1-56**, **N2 57-145**, **N3 146-177**, **N4 178-204**.
+- ID-bereiken na hernummering: **N1 1-56, N2 57-145, N3 146-177, N4 178-204**.
 
 ## Subskillmatrix (aantallen)
 
