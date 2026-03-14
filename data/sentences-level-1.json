@@ -2462,5 +2462,347 @@
         "subRole": "nwd"
       }
     ]
+  },
+  {
+    "id": 198,
+    "label": "Zin 198: Huiswerk nakijken (basisvolgorde)",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s198t1",
+        "text": "Mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s198t2"
+      },
+      {
+        "id": "s198t2",
+        "text": "broer",
+        "role": "ow"
+      },
+      {
+        "id": "s198t3",
+        "text": "controleert",
+        "role": "pv"
+      },
+      {
+        "id": "s198t4",
+        "text": "zijn",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s198t5"
+      },
+      {
+        "id": "s198t5",
+        "text": "huiswerk.",
+        "role": "lv"
+      }
+    ]
+  },
+  {
+    "id": 199,
+    "label": "Zin 199: Bal op training (basisvolgorde + BWB)",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s199t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s199t2",
+        "text": "trainer",
+        "role": "ow"
+      },
+      {
+        "id": "s199t3",
+        "text": "pakt",
+        "role": "pv"
+      },
+      {
+        "id": "s199t4",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s199t5",
+        "text": "bal",
+        "role": "lv"
+      },
+      {
+        "id": "s199t6",
+        "text": "snel.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 200,
+    "label": "Zin 200: Lunch klaarzetten (basisvolgorde)",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s200t1",
+        "text": "Vader",
+        "role": "ow"
+      },
+      {
+        "id": "s200t2",
+        "text": "maakt",
+        "role": "pv"
+      },
+      {
+        "id": "s200t3",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s200t4",
+        "text": "lunch.",
+        "role": "lv"
+      }
+    ]
+  },
+  {
+    "id": 201,
+    "label": "Zin 201: Sommen oefenen (basisvolgorde + BWB)",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s201t1",
+        "text": "Wij",
+        "role": "ow"
+      },
+      {
+        "id": "s201t2",
+        "text": "oefenen",
+        "role": "pv"
+      },
+      {
+        "id": "s201t3",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s201t4",
+        "text": "sommen",
+        "role": "lv"
+      },
+      {
+        "id": "s201t5",
+        "text": "vanavond.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 202,
+    "label": "Zin 202: Fiets repareren (basisvolgorde)",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s202t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s202t2",
+        "text": "buurjongen",
+        "role": "ow"
+      },
+      {
+        "id": "s202t3",
+        "text": "repareert",
+        "role": "pv"
+      },
+      {
+        "id": "s202t4",
+        "text": "mijn",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s202t5"
+      },
+      {
+        "id": "s202t5",
+        "text": "fiets.",
+        "role": "lv"
+      }
+    ]
+  },
+  {
+    "id": 203,
+    "label": "Zin 203: Presentatie voorbereiden (basisvolgorde + BWB)",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s203t1",
+        "text": "Onze",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s203t2"
+      },
+      {
+        "id": "s203t2",
+        "text": "groep",
+        "role": "ow"
+      },
+      {
+        "id": "s203t3",
+        "text": "maakt",
+        "role": "pv"
+      },
+      {
+        "id": "s203t4",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s203t5",
+        "text": "presentatie",
+        "role": "lv"
+      },
+      {
+        "id": "s203t6",
+        "text": "morgen.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 204,
+    "label": "Zin 204: Tafel dekken (basisvolgorde)",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s204t1",
+        "text": "Ik",
+        "role": "ow"
+      },
+      {
+        "id": "s204t2",
+        "text": "dek",
+        "role": "pv"
+      },
+      {
+        "id": "s204t3",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s204t4",
+        "text": "tafel.",
+        "role": "lv"
+      }
+    ]
+  },
+  {
+    "id": 205,
+    "label": "Zin 205: Tennisracket zoeken (basisvolgorde + BWB)",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s205t1",
+        "text": "Saar",
+        "role": "ow"
+      },
+      {
+        "id": "s205t2",
+        "text": "zoekt",
+        "role": "pv"
+      },
+      {
+        "id": "s205t3",
+        "text": "haar",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s205t4"
+      },
+      {
+        "id": "s205t4",
+        "text": "tennisracket",
+        "role": "lv"
+      },
+      {
+        "id": "s205t5",
+        "text": "boven.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 206,
+    "label": "Zin 206: Boek inleveren (basisvolgorde)",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s206t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s206t2",
+        "text": "leerling",
+        "role": "ow"
+      },
+      {
+        "id": "s206t3",
+        "text": "levert",
+        "role": "pv"
+      },
+      {
+        "id": "s206t4",
+        "text": "het",
+        "role": "lv"
+      },
+      {
+        "id": "s206t5",
+        "text": "boek.",
+        "role": "lv"
+      }
+    ]
+  },
+  {
+    "id": 207,
+    "label": "Zin 207: Teamshirt wassen (basisvolgorde + BWB)",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s207t1",
+        "text": "Moeder",
+        "role": "ow"
+      },
+      {
+        "id": "s207t2",
+        "text": "wast",
+        "role": "pv"
+      },
+      {
+        "id": "s207t3",
+        "text": "mijn",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s207t4"
+      },
+      {
+        "id": "s207t4",
+        "text": "teamshirt",
+        "role": "lv"
+      },
+      {
+        "id": "s207t5",
+        "text": "straks.",
+        "role": "bwb"
+      }
+    ]
   }
 ]

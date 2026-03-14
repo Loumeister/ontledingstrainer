@@ -4,7 +4,7 @@ Deze audit volgt de repo-inspectie/constraint-aanpak: eerst label- en annotatiem
 
 ## Samenvatting
 
-- **Niveau 1** bevat relatief veel inversie-achtige zinnen en weinig pure `OW-PV-LV` basisvolgorde.
+- **Niveau 1** heeft nu een expliciete set met pure `OW-PV-LV` basisvolgorde (zinnen 198–207), naast bestaande inversie-achtige varianten.
 - **Niveau 2** heeft redelijke spreiding op `mv`, `vv` en `NG`, maar nog geen nevenschikking/bijzin (logisch voor niveau).
 - **Niveau 3** bevat wel `vv` en `bijstelling`, maar vrijwel geen nevenschikking en bijna geen bijzin-als-zinsdeel.
 - **Niveau 4 (expert)** is uitgebreid met nieuwe sets voor:
@@ -14,11 +14,9 @@ Deze audit volgt de repo-inspectie/constraint-aanpak: eerst label- en annotatiem
 
 ## Wat voor soort zinnen missen nog (bijgewerkte prioriteit)
 
-1. **Niveau 1 – rechte basiszinnen zonder inversie**
-   - Focus: `pv/ow/lv` in neutrale volgorde.
-   - Doel: fundament zonder woordvolgorde-afleiding.
+- **Niveau 1 update**: de nieuwe basisvolgorde-set (198–207) dekt herkenbare school/thuis/sport-contexten zonder bijzin/nevenschikking.
 
-2. **Niveau 3 – gecontroleerde nevenschikking**
+1. **Niveau 3 – gecontroleerde nevenschikking**
    - Focus: twee hoofdzinnen met `vw_neven` zonder extra bijzin.
    - Doel: zinsdeelgrens + tweede `pv/ow` herkennen.
 
