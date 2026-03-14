@@ -3336,7 +3336,9 @@
       {
         "id": "s75t8",
         "text": "te",
-        "role": "nwd"
+        "role": "nwd",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s75t9"
       },
       {
         "id": "s75t9",
