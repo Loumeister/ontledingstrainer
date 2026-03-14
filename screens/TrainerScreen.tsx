@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { ROLES } from '../constants';
+import { ROLES, ROLES_PER_LEVEL } from '../constants';
 import { RoleDefinition } from '../types';
 import { DraggableRole } from '../components/WordChip';
 import { SentenceChunk } from '../components/DropZone';
@@ -454,6 +454,24 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
   onSelectRole,
   onTouchDropChunk,
 }) => {
+  const levelRoles = selectedLevel ? ROLES_PER_LEVEL[selectedLevel] : null;
+
+  const isRoleVisible = (roleKey: string): boolean => {
+    // Always show if the current sentence contains this role
+    if (currentSentence?.tokens.some(t => t.role === roleKey || t.subRole === roleKey)) return true;
+    // No level selected → show everything
+    if (!levelRoles) return true;
+    // Focus flag overrides
+    if (roleKey === 'vv' && (focusVV || includeVV)) return true;
+    if ((roleKey === 'bijzin' || roleKey === 'vw_neven' || roleKey === 'vw_onder') && focusBijzin) return true;
+    // Level set membership
+    return levelRoles.includes(roleKey as import('../types').RoleKey);
+  };
+
+  // Which groups have visible members (used to conditionally render separators)
+  const hasBijzinGroup = ROLES.some(r => ['bijzin', 'vw_neven'].includes(r.key as string) && isRoleVisible(r.key));
+  const hasBijstelling = isRoleVisible('bijst');
+
   return (
     <div className="bg-white dark:bg-slate-800 p-3 md:p-4 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 sticky top-0 z-[100] transition-all">
       <div className="flex flex-col gap-2 md:gap-4">
@@ -470,32 +488,31 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
             </button>
           </div>
           <div className="flex flex-wrap gap-2 justify-center">
-            {/* Main syntactic roles */}
+            {/* Main syntactic roles (PV, OW, LV, MV, BWB, VV) */}
             {ROLES.filter(r => !r.isSubOnly && !['wg', 'nwd', 'ng', 'bijzin', 'vw_neven', 'bijst'].includes(r.key as string))
-                  .filter(r => (includeVV || focusVV || selectedLevel === 2 || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.role === 'vv'))) || r.key !== 'vv')
+                  .filter(r => isRoleVisible(r.key))
                   .map(role => (
               <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
             ))}
 
             <div className="w-full" />
 
-            {/* WG, NG group */}
+            {/* WG, NWD — always visible at every level */}
             {ROLES.filter(r => !r.isSubOnly && ['wg', 'nwd', 'ng'].includes(r.key as string))
                   .map(role => (
               <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
             ))}
 
-            {/* Bijzin, VW_Neven group */}
-            <div className="w-6" />
+            {/* Bijzin, VW_Neven — level 3+ or focus/sentence override */}
+            {hasBijzinGroup && <div className="w-6" />}
             {ROLES.filter(r => !r.isSubOnly && ['bijzin', 'vw_neven'].includes(r.key as string))
-                  .filter(r => r.key !== 'bijzin' || focusBijzin || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.role === 'bijzin')))
-                  .filter(r => r.key !== 'vw_neven' || focusBijzin || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.role === 'vw_neven')))
+                  .filter(r => isRoleVisible(r.key))
                   .map(role => (
               <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
             ))}
 
-            {/* Bijstelling - only for level 3, 4, null (all), or when sentence actually has bijst */}
-            {(selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.role === 'bijst'))) && (
+            {/* Bijstelling — level 3+ or sentence override */}
+            {hasBijstelling && (
               <>
                 <div className="w-3" />
                 {ROLES.filter(r => !r.isSubOnly && r.key === 'bijst')
@@ -511,7 +528,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
           <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Sleep op specifieke woorden:</p>
           <div className="flex flex-wrap gap-2">
             {ROLES.filter(r => r.isSubOnly)
-                  .filter(r => r.key !== 'vw_onder' || focusBijzin || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.subRole === 'vw_onder')))
+                  .filter(r => isRoleVisible(r.key))
                   .map(role => (
               <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
             ))}
