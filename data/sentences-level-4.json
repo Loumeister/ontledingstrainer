@@ -1629,5 +1629,607 @@
         "subRole": "wwd"
       }
     ]
+  },
+  {
+    "id": 204,
+    "label": "Zin 204: Onderwerp op afstand 1",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s204t1",
+        "text": "Na",
+        "role": "bwb"
+      },
+      {
+        "id": "s204t2",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s204t3",
+        "text": "lange",
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s204t4"
+      },
+      {
+        "id": "s204t4",
+        "text": "vergadering",
+        "role": "bwb"
+      },
+      {
+        "id": "s204t5",
+        "text": "over",
+        "role": "bwb"
+      },
+      {
+        "id": "s204t6",
+        "text": "het",
+        "role": "bwb"
+      },
+      {
+        "id": "s204t7",
+        "text": "rooster",
+        "role": "bwb"
+      },
+      {
+        "id": "s204t8",
+        "text": "besloot",
+        "role": "pv"
+      },
+      {
+        "id": "s204t9",
+        "text": "de",
+        "role": "ow"
+      },
+      {
+        "id": "s204t10",
+        "text": "mentor",
+        "role": "ow"
+      },
+      {
+        "id": "s204t11",
+        "text": "tot",
+        "role": "vv"
+      },
+      {
+        "id": "s204t12",
+        "text": "uitstel.",
+        "role": "vv"
+      }
+    ]
+  },
+  {
+    "id": 205,
+    "label": "Zin 205: Onderwerp op afstand 2",
+    "predicateType": "NG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s205t1",
+        "text": "Tijdens",
+        "role": "bwb"
+      },
+      {
+        "id": "s205t2",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s205t3",
+        "text": "laatste",
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s205t4"
+      },
+      {
+        "id": "s205t4",
+        "text": "minuten",
+        "role": "bwb"
+      },
+      {
+        "id": "s205t5",
+        "text": "van",
+        "role": "bwb"
+      },
+      {
+        "id": "s205t6",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s205t7",
+        "text": "wedstrijd",
+        "role": "bwb"
+      },
+      {
+        "id": "s205t8",
+        "text": "bleef",
+        "role": "pv"
+      },
+      {
+        "id": "s205t9",
+        "text": "de",
+        "role": "ow"
+      },
+      {
+        "id": "s205t10",
+        "text": "aanvoerder",
+        "role": "ow"
+      },
+      {
+        "id": "s205t11",
+        "text": "kalm.",
+        "role": "ng",
+        "subRole": "nwd"
+      }
+    ]
+  },
+  {
+    "id": 206,
+    "label": "Zin 206: Onderwerp op afstand 3",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s206t1",
+        "text": "Met",
+        "role": "bwb"
+      },
+      {
+        "id": "s206t2",
+        "text": "al",
+        "role": "bwb"
+      },
+      {
+        "id": "s206t3",
+        "text": "die",
+        "role": "bwb"
+      },
+      {
+        "id": "s206t4",
+        "text": "extra",
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s206t5"
+      },
+      {
+        "id": "s206t5",
+        "text": "informatie",
+        "role": "bwb"
+      },
+      {
+        "id": "s206t6",
+        "text": "kan",
+        "role": "pv"
+      },
+      {
+        "id": "s206t7",
+        "text": "de",
+        "role": "ow"
+      },
+      {
+        "id": "s206t8",
+        "text": "commissie",
+        "role": "ow"
+      },
+      {
+        "id": "s206t9",
+        "text": "morgen",
+        "role": "bwb"
+      },
+      {
+        "id": "s206t10",
+        "text": "een",
+        "role": "lv"
+      },
+      {
+        "id": "s206t11",
+        "text": "besluit",
+        "role": "lv"
+      },
+      {
+        "id": "s206t12",
+        "text": "nemen.",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 207,
+    "label": "Zin 207: Onderwerp op afstand 4",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s207t1",
+        "text": "Volgens",
+        "role": "bwb"
+      },
+      {
+        "id": "s207t2",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s207t3",
+        "text": "nieuwe",
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s207t4"
+      },
+      {
+        "id": "s207t4",
+        "text": "planning",
+        "role": "bwb"
+      },
+      {
+        "id": "s207t5",
+        "text": "heeft",
+        "role": "pv"
+      },
+      {
+        "id": "s207t6",
+        "text": "de",
+        "role": "ow"
+      },
+      {
+        "id": "s207t7",
+        "text": "coördinator",
+        "role": "ow"
+      },
+      {
+        "id": "s207t8",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s207t9",
+        "text": "groepen",
+        "role": "lv"
+      },
+      {
+        "id": "s207t10",
+        "text": "al",
+        "role": "bwb"
+      },
+      {
+        "id": "s207t11",
+        "text": "ingedeeld.",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 208,
+    "label": "Zin 208: Werkwoordspelling relevant 1",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s208t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s208t2",
+        "text": "leerlingen",
+        "role": "ow"
+      },
+      {
+        "id": "s208t3",
+        "text": "zouden",
+        "role": "pv"
+      },
+      {
+        "id": "s208t4",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s208t5",
+        "text": "fout",
+        "role": "lv"
+      },
+      {
+        "id": "s208t6",
+        "text": "sneller",
+        "role": "bwb"
+      },
+      {
+        "id": "s208t7",
+        "text": "hebben",
+        "role": "wg"
+      },
+      {
+        "id": "s208t8",
+        "text": "gezien.",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 209,
+    "label": "Zin 209: Werkwoordspelling relevant 2",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s209t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s209t2",
+        "text": "redacteur",
+        "role": "ow"
+      },
+      {
+        "id": "s209t3",
+        "text": "wordt",
+        "role": "pv"
+      },
+      {
+        "id": "s209t4",
+        "text": "vaak",
+        "role": "bwb"
+      },
+      {
+        "id": "s209t5",
+        "text": "om",
+        "role": "vv"
+      },
+      {
+        "id": "s209t6",
+        "text": "advies",
+        "role": "vv"
+      },
+      {
+        "id": "s209t7",
+        "text": "gevraagd.",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 210,
+    "label": "Zin 210: Werkwoordspelling relevant 3",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s210t1",
+        "text": "Mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s210t2"
+      },
+      {
+        "id": "s210t2",
+        "text": "broer",
+        "role": "ow"
+      },
+      {
+        "id": "s210t3",
+        "text": "heeft",
+        "role": "pv"
+      },
+      {
+        "id": "s210t4",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s210t5",
+        "text": "tekst",
+        "role": "lv"
+      },
+      {
+        "id": "s210t6",
+        "text": "gisteren",
+        "role": "bwb"
+      },
+      {
+        "id": "s210t7",
+        "text": "verbeterd.",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 211,
+    "label": "Zin 211: Werkwoordspelling relevant 4",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s211t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s211t2",
+        "text": "docent",
+        "role": "ow"
+      },
+      {
+        "id": "s211t3",
+        "text": "zou",
+        "role": "pv"
+      },
+      {
+        "id": "s211t4",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s211t5",
+        "text": "opdrachten",
+        "role": "lv"
+      },
+      {
+        "id": "s211t6",
+        "text": "vandaag",
+        "role": "bwb"
+      },
+      {
+        "id": "s211t7",
+        "text": "nakijken.",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 212,
+    "label": "Zin 212: VV vs BWB paar 1A (VV)",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s212t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s212t2",
+        "text": "spelers",
+        "role": "ow"
+      },
+      {
+        "id": "s212t3",
+        "text": "luisteren",
+        "role": "pv"
+      },
+      {
+        "id": "s212t4",
+        "text": "naar",
+        "role": "vv"
+      },
+      {
+        "id": "s212t5",
+        "text": "de",
+        "role": "vv"
+      },
+      {
+        "id": "s212t6",
+        "text": "trainer.",
+        "role": "vv"
+      }
+    ]
+  },
+  {
+    "id": 213,
+    "label": "Zin 213: VV vs BWB paar 1B (BWB)",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s213t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s213t2",
+        "text": "spelers",
+        "role": "ow"
+      },
+      {
+        "id": "s213t3",
+        "text": "lopen",
+        "role": "pv"
+      },
+      {
+        "id": "s213t4",
+        "text": "naar",
+        "role": "bwb"
+      },
+      {
+        "id": "s213t5",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s213t6",
+        "text": "trainer.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 214,
+    "label": "Zin 214: VV vs BWB paar 2A (VV)",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s214t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s214t2",
+        "text": "ouders",
+        "role": "ow"
+      },
+      {
+        "id": "s214t3",
+        "text": "wachten",
+        "role": "pv"
+      },
+      {
+        "id": "s214t4",
+        "text": "op",
+        "role": "vv"
+      },
+      {
+        "id": "s214t5",
+        "text": "de",
+        "role": "vv"
+      },
+      {
+        "id": "s214t6",
+        "text": "bus.",
+        "role": "vv"
+      }
+    ]
+  },
+  {
+    "id": 215,
+    "label": "Zin 215: VV vs BWB paar 2B (BWB)",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s215t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s215t2",
+        "text": "ouders",
+        "role": "ow"
+      },
+      {
+        "id": "s215t3",
+        "text": "springen",
+        "role": "pv"
+      },
+      {
+        "id": "s215t4",
+        "text": "op",
+        "role": "bwb"
+      },
+      {
+        "id": "s215t5",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s215t6",
+        "text": "bus.",
+        "role": "bwb"
+      }
+    ]
   }
 ]
