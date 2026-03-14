@@ -1,49 +1,49 @@
 [
   {
-    "id": 131,
-    "label": "Zin 131: Thuiswerken",
+    "id": 400,
+    "label": "Zin 400: Thuiswerken",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s131t1",
+        "id": "s400t1",
         "text": "Omdat",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bwb"
       },
       {
-        "id": "s131t2",
+        "id": "s400t2",
         "text": "ik",
         "role": "bijzin"
       },
       {
-        "id": "s131t3",
+        "id": "s400t3",
         "text": "verkouden",
         "role": "bijzin"
       },
       {
-        "id": "s131t4",
+        "id": "s400t4",
         "text": "ben,",
         "role": "bijzin"
       },
       {
-        "id": "s131t5",
+        "id": "s400t5",
         "text": "werk",
         "role": "pv"
       },
       {
-        "id": "s131t6",
+        "id": "s400t6",
         "text": "ik",
         "role": "ow"
       },
       {
-        "id": "s131t7",
+        "id": "s400t7",
         "text": "vandaag",
         "role": "bwb"
       },
       {
-        "id": "s131t8",
+        "id": "s400t8",
         "text": "thuis.",
         "role": "bwb",
         "newChunk": true
@@ -51,232 +51,232 @@
     ]
   },
   {
-    "id": 132,
-    "label": "Zin 132: Beroemde zanger",
+    "id": 401,
+    "label": "Zin 401: Beroemde zanger",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s132t1",
+        "id": "s401t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s132t2",
+        "id": "s401t2",
         "text": "beroemde",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s132t3"
+        "bijvBepTarget": "s401t3"
       },
       {
-        "id": "s132t3",
+        "id": "s401t3",
         "text": "zanger",
         "role": "ow"
       },
       {
-        "id": "s132t4",
+        "id": "s401t4",
         "text": "rende",
         "role": "pv"
       },
       {
-        "id": "s132t5",
+        "id": "s401t5",
         "text": "naar",
         "role": "bwb"
       },
       {
-        "id": "s132t6",
+        "id": "s401t6",
         "text": "zijn",
         "role": "bwb",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s132t7"
+        "bijvBepTarget": "s401t7"
       },
       {
-        "id": "s132t7",
+        "id": "s401t7",
         "text": "auto,",
         "role": "bwb"
       },
       {
-        "id": "s132t8",
+        "id": "s401t8",
         "text": "omdat",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bwb"
       },
       {
-        "id": "s132t9",
+        "id": "s401t9",
         "text": "een",
         "role": "bijzin"
       },
       {
-        "id": "s132t10",
+        "id": "s401t10",
         "text": "groep",
         "role": "bijzin"
       },
       {
-        "id": "s132t11",
+        "id": "s401t11",
         "text": "fans",
         "role": "bijzin"
       },
       {
-        "id": "s132t12",
+        "id": "s401t12",
         "text": "hem",
         "role": "bijzin"
       },
       {
-        "id": "s132t13",
+        "id": "s401t13",
         "text": "achtervolgde.",
         "role": "bijzin"
       }
     ]
   },
   {
-    "id": 133,
-    "label": "Zin 133: In de war (Nevenschikking)",
+    "id": 402,
+    "label": "Zin 402: In de war (Nevenschikking)",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
       {
-        "id": "s133t1",
+        "id": "s402t1",
         "text": "Ik",
         "role": "ow"
       },
       {
-        "id": "s133t2",
+        "id": "s402t2",
         "text": "ben",
         "role": "pv",
         "subRole": "wwd"
       },
       {
-        "id": "s133t3",
+        "id": "s402t3",
         "text": "in",
         "role": "ng",
         "subRole": "nwd"
       },
       {
-        "id": "s133t4",
+        "id": "s402t4",
         "text": "de",
         "role": "ng",
         "subRole": "nwd"
       },
       {
-        "id": "s133t5",
+        "id": "s402t5",
         "text": "war,",
         "role": "ng",
         "subRole": "nwd"
       },
       {
-        "id": "s133t6",
+        "id": "s402t6",
         "text": "maar",
         "role": "vw_neven"
       },
       {
-        "id": "s133t7",
+        "id": "s402t7",
         "text": "ik",
         "role": "ow"
       },
       {
-        "id": "s133t8",
+        "id": "s402t8",
         "text": "bedenk",
         "role": "pv"
       },
       {
-        "id": "s133t9",
+        "id": "s402t9",
         "text": "wel",
         "role": "bwb"
       },
       {
-        "id": "s133t10",
+        "id": "s402t10",
         "text": "een",
         "role": "lv"
       },
       {
-        "id": "s133t11",
+        "id": "s402t11",
         "text": "oplossing.",
         "role": "lv"
       }
     ]
   },
   {
-    "id": 134,
-    "label": "Zin 134: Max piloot (Nevenschikking)",
+    "id": 403,
+    "label": "Zin 403: Max piloot (Nevenschikking)",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
       {
-        "id": "s134t1",
+        "id": "s403t1",
         "text": "Sinds",
         "role": "bwb"
       },
       {
-        "id": "s134t2",
+        "id": "s403t2",
         "text": "vorig",
         "role": "bwb",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s134t3"
+        "bijvBepTarget": "s403t3"
       },
       {
-        "id": "s134t3",
+        "id": "s403t3",
         "text": "jaar",
         "role": "bwb"
       },
       {
-        "id": "s134t4",
+        "id": "s403t4",
         "text": "is",
         "role": "pv",
         "subRole": "wwd"
       },
       {
-        "id": "s134t5",
+        "id": "s403t5",
         "text": "Max,",
         "role": "ow"
       },
       {
-        "id": "s134t6",
+        "id": "s403t6",
         "text": "mijn",
         "role": "bijst",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s134t7"
+        "bijvBepTarget": "s403t7"
       },
       {
-        "id": "s134t7",
+        "id": "s403t7",
         "text": "buurjongen,",
         "role": "bijst"
       },
       {
-        "id": "s134t8",
+        "id": "s403t8",
         "text": "piloot,",
         "role": "ng",
         "subRole": "nwd"
       },
       {
-        "id": "s134t9",
+        "id": "s403t9",
         "text": "want",
         "role": "vw_neven"
       },
       {
-        "id": "s134t10",
+        "id": "s403t10",
         "text": "hij",
         "role": "ow"
       },
       {
-        "id": "s134t11",
+        "id": "s403t11",
         "text": "heeft",
         "role": "pv"
       },
       {
-        "id": "s134t12",
+        "id": "s403t12",
         "text": "zijn",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s134t13"
+        "bijvBepTarget": "s403t13"
       },
       {
-        "id": "s134t13",
+        "id": "s403t13",
         "text": "studie",
         "role": "lv"
       },
       {
-        "id": "s134t14",
+        "id": "s403t14",
         "text": "afgerond.",
         "role": "ng",
         "subRole": "wwd"
@@ -284,469 +284,469 @@
     ]
   },
   {
-    "id": 135,
-    "label": "Zin 135: Schoonmoeder",
+    "id": 404,
+    "label": "Zin 404: Schoonmoeder",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
       {
-        "id": "s135t1",
+        "id": "s404t1",
         "text": "Mijn",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s135t2"
+        "bijvBepTarget": "s404t2"
       },
       {
-        "id": "s135t2",
+        "id": "s404t2",
         "text": "schoonmoeder",
         "role": "ow"
       },
       {
-        "id": "s135t3",
+        "id": "s404t3",
         "text": "is",
         "role": "pv",
         "subRole": "wwd"
       },
       {
-        "id": "s135t4",
+        "id": "s404t4",
         "text": "zeer",
         "role": "ng",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s135t5"
+        "bijvBepTarget": "s404t5"
       },
       {
-        "id": "s135t5",
+        "id": "s404t5",
         "text": "goedgelovig,",
         "role": "ng",
         "subRole": "nwd"
       },
       {
-        "id": "s135t6",
+        "id": "s404t6",
         "text": "waardoor",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bwb"
       },
       {
-        "id": "s135t7",
+        "id": "s404t7",
         "text": "zij",
         "role": "bijzin"
       },
       {
-        "id": "s135t8",
+        "id": "s404t8",
         "text": "vaak",
         "role": "bijzin"
       },
       {
-        "id": "s135t9",
+        "id": "s404t9",
         "text": "bedrogen",
         "role": "bijzin"
       },
       {
-        "id": "s135t10",
+        "id": "s404t10",
         "text": "wordt.",
         "role": "bijzin"
       }
     ]
   },
   {
-    "id": 136,
-    "label": "Zin 136: Dief",
+    "id": 405,
+    "label": "Zin 405: Dief",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s136t1",
+        "id": "s405t1",
         "text": "Terwijl",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bwb"
       },
       {
-        "id": "s136t2",
+        "id": "s405t2",
         "text": "zij",
         "role": "bijzin"
       },
       {
-        "id": "s136t3",
+        "id": "s405t3",
         "text": "haar",
         "role": "bijzin"
       },
       {
-        "id": "s136t4",
+        "id": "s405t4",
         "text": "auto",
         "role": "bijzin"
       },
       {
-        "id": "s136t5",
+        "id": "s405t5",
         "text": "achteruit",
         "role": "bijzin"
       },
       {
-        "id": "s136t6",
+        "id": "s405t6",
         "text": "inparkeerde,",
         "role": "bijzin"
       },
       {
-        "id": "s136t7",
+        "id": "s405t7",
         "text": "trok",
         "role": "pv"
       },
       {
-        "id": "s136t8",
+        "id": "s405t8",
         "text": "een",
         "role": "ow"
       },
       {
-        "id": "s136t9",
+        "id": "s405t9",
         "text": "dief",
         "role": "ow"
       },
       {
-        "id": "s136t10",
+        "id": "s405t10",
         "text": "het",
         "role": "lv"
       },
       {
-        "id": "s136t11",
+        "id": "s405t11",
         "text": "portier",
         "role": "lv"
       },
       {
-        "id": "s136t12",
+        "id": "s405t12",
         "text": "open.",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 137,
-    "label": "Zin 137: Sleutel kwijt (Nevenschikking)",
+    "id": 406,
+    "label": "Zin 406: Sleutel kwijt (Nevenschikking)",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
       {
-        "id": "s137t1",
+        "id": "s406t1",
         "text": "Ik",
         "role": "ow"
       },
       {
-        "id": "s137t2",
+        "id": "s406t2",
         "text": "had",
         "role": "pv"
       },
       {
-        "id": "s137t3",
+        "id": "s406t3",
         "text": "willen",
         "role": "ng",
         "subRole": "wwd"
       },
       {
-        "id": "s137t4",
+        "id": "s406t4",
         "text": "komen,",
         "role": "ng",
         "subRole": "wwd"
       },
       {
-        "id": "s137t5",
+        "id": "s406t5",
         "text": "maar",
         "role": "vw_neven"
       },
       {
-        "id": "s137t6",
+        "id": "s406t6",
         "text": "ik",
         "role": "ow"
       },
       {
-        "id": "s137t7",
+        "id": "s406t7",
         "text": "was",
         "role": "pv",
         "subRole": "wwd"
       },
       {
-        "id": "s137t8",
+        "id": "s406t8",
         "text": "mijn",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s137t9"
+        "bijvBepTarget": "s406t9"
       },
       {
-        "id": "s137t9",
+        "id": "s406t9",
         "text": "sleutel",
         "role": "lv"
       },
       {
-        "id": "s137t10",
+        "id": "s406t10",
         "text": "kwijt,",
         "role": "ng",
         "subRole": "nwd"
       },
       {
-        "id": "s137t11",
+        "id": "s406t11",
         "text": "waardoor",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bwb"
       },
       {
-        "id": "s137t12",
+        "id": "s406t12",
         "text": "ik",
         "role": "bijzin"
       },
       {
-        "id": "s137t13",
+        "id": "s406t13",
         "text": "niet",
         "role": "bijzin"
       },
       {
-        "id": "s137t14",
+        "id": "s406t14",
         "text": "kon",
         "role": "bijzin"
       },
       {
-        "id": "s137t15",
+        "id": "s406t15",
         "text": "vertrekken.",
         "role": "bijzin"
       }
     ]
   },
   {
-    "id": 138,
-    "label": "Zin 138: Reis Azië",
+    "id": 407,
+    "label": "Zin 407: Reis Azië",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s138t1",
+        "id": "s407t1",
         "text": "Toen",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bwb"
       },
       {
-        "id": "s138t2",
+        "id": "s407t2",
         "text": "ik",
         "role": "bijzin"
       },
       {
-        "id": "s138t3",
+        "id": "s407t3",
         "text": "droomde",
         "role": "bijzin"
       },
       {
-        "id": "s138t4",
+        "id": "s407t4",
         "text": "over",
         "role": "bijzin"
       },
       {
-        "id": "s138t5",
+        "id": "s407t5",
         "text": "een",
         "role": "bijzin"
       },
       {
-        "id": "s138t6",
+        "id": "s407t6",
         "text": "verre",
         "role": "bijzin"
       },
       {
-        "id": "s138t7",
+        "id": "s407t7",
         "text": "reis",
         "role": "bijzin"
       },
       {
-        "id": "s138t8",
+        "id": "s407t8",
         "text": "door",
         "role": "bijzin"
       },
       {
-        "id": "s138t9",
+        "id": "s407t9",
         "text": "Azië,",
         "role": "bijzin"
       },
       {
-        "id": "s138t10",
+        "id": "s407t10",
         "text": "werd",
         "role": "pv"
       },
       {
-        "id": "s138t11",
+        "id": "s407t11",
         "text": "ik",
         "role": "ow"
       },
       {
-        "id": "s138t12",
+        "id": "s407t12",
         "text": "plotseling",
         "role": "bwb"
       },
       {
-        "id": "s138t13",
+        "id": "s407t13",
         "text": "gebeld.",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 139,
-    "label": "Zin 139: Groen drankje (Nevenschikking)",
+    "id": 408,
+    "label": "Zin 408: Groen drankje (Nevenschikking)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s139t1",
+        "id": "s408t1",
         "text": "Hij",
         "role": "ow"
       },
       {
-        "id": "s139t2",
+        "id": "s408t2",
         "text": "gaf",
         "role": "pv"
       },
       {
-        "id": "s139t3",
+        "id": "s408t3",
         "text": "mij",
         "role": "mv"
       },
       {
-        "id": "s139t4",
+        "id": "s408t4",
         "text": "een",
         "role": "lv"
       },
       {
-        "id": "s139t5",
+        "id": "s408t5",
         "text": "groen",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s139t6"
+        "bijvBepTarget": "s408t6"
       },
       {
-        "id": "s139t6",
+        "id": "s408t6",
         "text": "drankje",
         "role": "lv"
       },
       {
-        "id": "s139t7",
+        "id": "s408t7",
         "text": "maar",
         "role": "vw_neven"
       },
       {
-        "id": "s139t8",
+        "id": "s408t8",
         "text": "ik",
         "role": "ow"
       },
       {
-        "id": "s139t9",
+        "id": "s408t9",
         "text": "weigerde",
         "role": "pv"
       },
       {
-        "id": "s139t10",
+        "id": "s408t10",
         "text": "het.",
         "role": "lv"
       }
     ]
   },
   {
-    "id": 140,
-    "label": "Zin 140: Hamburgers of kip (Nevenschikking)",
+    "id": 409,
+    "label": "Zin 409: Hamburgers of kip (Nevenschikking)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s140t1",
+        "id": "s409t1",
         "text": "Houd",
         "role": "pv"
       },
       {
-        "id": "s140t2",
+        "id": "s409t2",
         "text": "je",
         "role": "ow"
       },
       {
-        "id": "s140t3",
+        "id": "s409t3",
         "text": "van",
         "role": "vv"
       },
       {
-        "id": "s140t4",
+        "id": "s409t4",
         "text": "hamburgers",
         "role": "vv"
       },
       {
-        "id": "s140t5",
+        "id": "s409t5",
         "text": "of",
         "role": "vw_neven"
       },
       {
-        "id": "s140t6",
+        "id": "s409t6",
         "text": "heb",
         "role": "pv"
       },
       {
-        "id": "s140t7",
+        "id": "s409t7",
         "text": "je",
         "role": "ow"
       },
       {
-        "id": "s140t8",
+        "id": "s409t8",
         "text": "liever",
         "role": "bwb"
       },
       {
-        "id": "s140t9",
+        "id": "s409t9",
         "text": "kip?",
         "role": "lv"
       }
     ]
   },
   {
-    "id": 141,
-    "label": "Zin 141: Bijvoeglijke bijzin",
+    "id": 410,
+    "label": "Zin 410: Bijvoeglijke bijzin",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
       {
-        "id": "s141t1",
+        "id": "s410t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s141t2",
+        "id": "s410t2",
         "text": "man",
         "role": "ow"
       },
       {
-        "id": "s141t3",
+        "id": "s410t3",
         "text": "die",
         "role": "bijzin",
         "bijzinFunctie": "bijv_bep",
-        "bijvBepTarget": "s141t2",
+        "bijvBepTarget": "s410t2",
         "subRole": "vw_onder"
       },
       {
-        "id": "s141t4",
+        "id": "s410t4",
         "text": "daar",
         "role": "bijzin"
       },
       {
-        "id": "s141t5",
+        "id": "s410t5",
         "text": "staat",
         "role": "bijzin"
       },
       {
-        "id": "s141t6",
+        "id": "s410t6",
         "text": "is",
         "role": "pv",
         "subRole": "wwd"
       },
       {
-        "id": "s141t7",
+        "id": "s410t7",
         "text": "mijn",
         "role": "ng",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s141t8"
+        "bijvBepTarget": "s410t8"
       },
       {
-        "id": "s141t8",
+        "id": "s410t8",
         "text": "vader.",
         "role": "ng",
         "subRole": "nwd"
@@ -754,52 +754,52 @@
     ]
   },
   {
-    "id": 142,
-    "label": "Zin 142: Gekocht boek",
+    "id": 411,
+    "label": "Zin 411: Gekocht boek",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
       {
-        "id": "s142t1",
+        "id": "s411t1",
         "text": "Het",
         "role": "ow"
       },
       {
-        "id": "s142t2",
+        "id": "s411t2",
         "text": "boek",
         "role": "ow"
       },
       {
-        "id": "s142t3",
+        "id": "s411t3",
         "text": "dat",
         "role": "bijzin",
         "bijzinFunctie": "bijv_bep",
-        "bijvBepTarget": "s142t2",
+        "bijvBepTarget": "s411t2",
         "subRole": "vw_onder"
       },
       {
-        "id": "s142t4",
+        "id": "s411t4",
         "text": "ik",
         "role": "bijzin"
       },
       {
-        "id": "s142t5",
+        "id": "s411t5",
         "text": "gisteren",
         "role": "bijzin"
       },
       {
-        "id": "s142t6",
+        "id": "s411t6",
         "text": "kocht",
         "role": "bijzin"
       },
       {
-        "id": "s142t7",
+        "id": "s411t7",
         "text": "was",
         "role": "pv",
         "subRole": "wwd"
       },
       {
-        "id": "s142t8",
+        "id": "s411t8",
         "text": "duur.",
         "role": "ng",
         "subRole": "nwd"
@@ -807,167 +807,167 @@
     ]
   },
   {
-    "id": 185,
-    "label": "Zin 185: Kat op het dak (OW op afstand + bijzin)",
+    "id": 412,
+    "label": "Zin 412: Kat op het dak (OW op afstand + bijzin)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s185t1",
+        "id": "s412t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s185t2",
+        "id": "s412t2",
         "text": "kleine",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s185t3"
+        "bijvBepTarget": "s412t3"
       },
       {
-        "id": "s185t3",
+        "id": "s412t3",
         "text": "kat",
         "role": "ow"
       },
       {
-        "id": "s185t4",
+        "id": "s412t4",
         "text": "die",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bijv_bep",
-        "bijvBepTarget": "s185t3"
+        "bijvBepTarget": "s412t3"
       },
       {
-        "id": "s185t5",
+        "id": "s412t5",
         "text": "altijd",
         "role": "bijzin"
       },
       {
-        "id": "s185t6",
+        "id": "s412t6",
         "text": "op",
         "role": "bijzin"
       },
       {
-        "id": "s185t7",
+        "id": "s412t7",
         "text": "het",
         "role": "bijzin"
       },
       {
-        "id": "s185t8",
+        "id": "s412t8",
         "text": "dak",
         "role": "bijzin"
       },
       {
-        "id": "s185t9",
+        "id": "s412t9",
         "text": "zit,",
         "role": "bijzin"
       },
       {
-        "id": "s185t10",
+        "id": "s412t10",
         "text": "ving",
         "role": "pv"
       },
       {
-        "id": "s185t11",
+        "id": "s412t11",
         "text": "vanmorgen",
         "role": "bwb"
       },
       {
-        "id": "s185t12",
+        "id": "s412t12",
         "text": "een",
         "role": "lv"
       },
       {
-        "id": "s185t13",
+        "id": "s412t13",
         "text": "dikke",
         "role": "lv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s185t14"
+        "bijvBepTarget": "s412t14"
       },
       {
-        "id": "s185t14",
+        "id": "s412t14",
         "text": "muis.",
         "role": "lv"
       }
     ]
   },
   {
-    "id": 186,
-    "label": "Zin 186: Leerlingen brugklas (OW op afstand + bijzin)",
+    "id": 413,
+    "label": "Zin 413: Leerlingen brugklas (OW op afstand + bijzin)",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
       {
-        "id": "s186t1",
+        "id": "s413t1",
         "text": "Alle",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s186t2"
+        "bijvBepTarget": "s413t2"
       },
       {
-        "id": "s186t2",
+        "id": "s413t2",
         "text": "leerlingen",
         "role": "ow"
       },
       {
-        "id": "s186t3",
+        "id": "s413t3",
         "text": "uit",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s186t2"
+        "bijvBepTarget": "s413t2"
       },
       {
-        "id": "s186t4",
+        "id": "s413t4",
         "text": "de",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s186t2"
+        "bijvBepTarget": "s413t2"
       },
       {
-        "id": "s186t5",
+        "id": "s413t5",
         "text": "brugklas",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s186t2"
+        "bijvBepTarget": "s413t2"
       },
       {
-        "id": "s186t6",
+        "id": "s413t6",
         "text": "die",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bijv_bep",
-        "bijvBepTarget": "s186t2"
+        "bijvBepTarget": "s413t2"
       },
       {
-        "id": "s186t7",
+        "id": "s413t7",
         "text": "hard",
         "role": "bijzin"
       },
       {
-        "id": "s186t8",
+        "id": "s413t8",
         "text": "hadden",
         "role": "bijzin"
       },
       {
-        "id": "s186t9",
+        "id": "s413t9",
         "text": "gewerkt,",
         "role": "bijzin"
       },
       {
-        "id": "s186t10",
+        "id": "s413t10",
         "text": "waren",
         "role": "pv",
         "subRole": "wwd"
       },
       {
-        "id": "s186t11",
+        "id": "s413t11",
         "text": "erg",
         "role": "ng",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s186t12"
+        "bijvBepTarget": "s413t12"
       },
       {
-        "id": "s186t12",
+        "id": "s413t12",
         "text": "trots.",
         "role": "ng",
         "subRole": "nwd"
@@ -975,288 +975,288 @@
     ]
   },
   {
-    "id": 187,
-    "label": "Zin 187: Wachten op de bus (VV vs BWB)",
+    "id": 414,
+    "label": "Zin 414: Wachten op de bus (VV vs BWB)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s187t1",
+        "id": "s414t1",
         "text": "Op",
         "role": "bwb"
       },
       {
-        "id": "s187t2",
+        "id": "s414t2",
         "text": "het",
         "role": "bwb"
       },
       {
-        "id": "s187t3",
+        "id": "s414t3",
         "text": "plein",
         "role": "bwb"
       },
       {
-        "id": "s187t4",
+        "id": "s414t4",
         "text": "wachtten",
         "role": "pv"
       },
       {
-        "id": "s187t5",
+        "id": "s414t5",
         "text": "wij",
         "role": "ow"
       },
       {
-        "id": "s187t6",
+        "id": "s414t6",
         "text": "op",
         "role": "vv"
       },
       {
-        "id": "s187t7",
+        "id": "s414t7",
         "text": "de",
         "role": "vv"
       },
       {
-        "id": "s187t8",
+        "id": "s414t8",
         "text": "bus.",
         "role": "vv"
       }
     ]
   },
   {
-    "id": 188,
-    "label": "Zin 188: Zorgen voor opa (VV vs BWB)",
+    "id": 415,
+    "label": "Zin 415: Zorgen voor opa (VV vs BWB)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s188t1",
+        "id": "s415t1",
         "text": "Voor",
         "role": "bwb"
       },
       {
-        "id": "s188t2",
+        "id": "s415t2",
         "text": "de",
         "role": "bwb"
       },
       {
-        "id": "s188t3",
+        "id": "s415t3",
         "text": "vakantie",
         "role": "bwb"
       },
       {
-        "id": "s188t4",
+        "id": "s415t4",
         "text": "zorgde",
         "role": "pv"
       },
       {
-        "id": "s188t5",
+        "id": "s415t5",
         "text": "mijn",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s188t6"
+        "bijvBepTarget": "s415t6"
       },
       {
-        "id": "s188t6",
+        "id": "s415t6",
         "text": "moeder",
         "role": "ow"
       },
       {
-        "id": "s188t7",
+        "id": "s415t7",
         "text": "altijd",
         "role": "bwb",
         "newChunk": true
       },
       {
-        "id": "s188t8",
+        "id": "s415t8",
         "text": "voor",
         "role": "vv"
       },
       {
-        "id": "s188t9",
+        "id": "s415t9",
         "text": "opa.",
         "role": "vv"
       }
     ]
   },
   {
-    "id": 189,
-    "label": "Zin 189: Rekenen op hulp (VV vs BWB)",
+    "id": 416,
+    "label": "Zin 416: Rekenen op hulp (VV vs BWB)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s189t1",
+        "id": "s416t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s189t2",
+        "id": "s416t2",
         "text": "leerlingen",
         "role": "ow"
       },
       {
-        "id": "s189t3",
+        "id": "s416t3",
         "text": "rekenden",
         "role": "pv"
       },
       {
-        "id": "s189t4",
+        "id": "s416t4",
         "text": "op",
         "role": "vv"
       },
       {
-        "id": "s189t5",
+        "id": "s416t5",
         "text": "hulp",
         "role": "vv"
       },
       {
-        "id": "s189t6",
+        "id": "s416t6",
         "text": "op",
         "role": "bwb"
       },
       {
-        "id": "s189t7",
+        "id": "s416t7",
         "text": "het",
         "role": "bwb"
       },
       {
-        "id": "s189t8",
+        "id": "s416t8",
         "text": "examen.",
         "role": "bwb"
       }
     ]
   },
   {
-    "id": 190,
-    "label": "Zin 190: Toets nagekeken (PV vs WG)",
+    "id": 417,
+    "label": "Zin 417: Toets nagekeken (PV vs WG)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s190t1",
+        "id": "s417t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s190t2",
+        "id": "s417t2",
         "text": "leraar",
         "role": "ow"
       },
       {
-        "id": "s190t3",
+        "id": "s417t3",
         "text": "heeft",
         "role": "pv"
       },
       {
-        "id": "s190t4",
+        "id": "s417t4",
         "text": "de",
         "role": "lv"
       },
       {
-        "id": "s190t5",
+        "id": "s417t5",
         "text": "toets",
         "role": "lv"
       },
       {
-        "id": "s190t6",
+        "id": "s417t6",
         "text": "al",
         "role": "bwb"
       },
       {
-        "id": "s190t7",
+        "id": "s417t7",
         "text": "nagekeken.",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 191,
-    "label": "Zin 191: Naar het strand gefietst (PV vs WG)",
+    "id": 418,
+    "label": "Zin 418: Naar het strand gefietst (PV vs WG)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s191t1",
+        "id": "s418t1",
         "text": "Wij",
         "role": "ow"
       },
       {
-        "id": "s191t2",
+        "id": "s418t2",
         "text": "waren",
         "role": "pv"
       },
       {
-        "id": "s191t3",
+        "id": "s418t3",
         "text": "gisteren",
         "role": "bwb"
       },
       {
-        "id": "s191t4",
+        "id": "s418t4",
         "text": "naar",
         "role": "bwb",
         "newChunk": true
       },
       {
-        "id": "s191t5",
+        "id": "s418t5",
         "text": "het",
         "role": "bwb"
       },
       {
-        "id": "s191t6",
+        "id": "s418t6",
         "text": "strand",
         "role": "bwb"
       },
       {
-        "id": "s191t7",
+        "id": "s418t7",
         "text": "gefietst.",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 192,
-    "label": "Zin 192: Ziek geworden (PV vs WG, NG)",
+    "id": 419,
+    "label": "Zin 419: Ziek geworden (PV vs WG, NG)",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
       {
-        "id": "s192t1",
+        "id": "s419t1",
         "text": "Mijn",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s192t2"
+        "bijvBepTarget": "s419t2"
       },
       {
-        "id": "s192t2",
+        "id": "s419t2",
         "text": "zusje",
         "role": "ow"
       },
       {
-        "id": "s192t3",
+        "id": "s419t3",
         "text": "is",
         "role": "pv",
         "subRole": "wwd"
       },
       {
-        "id": "s192t4",
+        "id": "s419t4",
         "text": "deze",
         "role": "bwb",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s192t5"
+        "bijvBepTarget": "s419t5"
       },
       {
-        "id": "s192t5",
+        "id": "s419t5",
         "text": "week",
         "role": "bwb"
       },
       {
-        "id": "s192t6",
+        "id": "s419t6",
         "text": "ziek",
         "role": "ng",
         "subRole": "nwd"
       },
       {
-        "id": "s192t7",
+        "id": "s419t7",
         "text": "geworden.",
         "role": "ng",
         "subRole": "wwd"
@@ -1264,151 +1264,151 @@
     ]
   },
   {
-    "id": 193,
-    "label": "Zin 193: Bijvoeglijke bijzin (dat)",
+    "id": 420,
+    "label": "Zin 420: Bijvoeglijke bijzin (dat)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s193t1",
+        "id": "s420t1",
         "text": "Het",
         "role": "ow"
       },
       {
-        "id": "s193t2",
+        "id": "s420t2",
         "text": "liedje",
         "role": "ow"
       },
       {
-        "id": "s193t3",
+        "id": "s420t3",
         "text": "dat",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bijv_bep",
-        "bijvBepTarget": "s193t2"
+        "bijvBepTarget": "s420t2"
       },
       {
-        "id": "s193t4",
+        "id": "s420t4",
         "text": "zij",
         "role": "bijzin"
       },
       {
-        "id": "s193t5",
+        "id": "s420t5",
         "text": "zong",
         "role": "bijzin"
       },
       {
-        "id": "s193t6",
+        "id": "s420t6",
         "text": "klonk",
         "role": "pv"
       },
       {
-        "id": "s193t7",
+        "id": "s420t7",
         "text": "prachtig.",
         "role": "bwb"
       }
     ]
   },
   {
-    "id": 194,
-    "label": "Zin 194: Bijvoeglijke bijzin (waar)",
+    "id": 421,
+    "label": "Zin 421: Bijvoeglijke bijzin (waar)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s194t1",
+        "id": "s421t1",
         "text": "Wij",
         "role": "ow"
       },
       {
-        "id": "s194t2",
+        "id": "s421t2",
         "text": "bezochten",
         "role": "pv"
       },
       {
-        "id": "s194t3",
+        "id": "s421t3",
         "text": "het",
         "role": "lv"
       },
       {
-        "id": "s194t4",
+        "id": "s421t4",
         "text": "kasteel",
         "role": "lv"
       },
       {
-        "id": "s194t5",
+        "id": "s421t5",
         "text": "waar",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bijv_bep",
-        "bijvBepTarget": "s194t4"
+        "bijvBepTarget": "s421t4"
       },
       {
-        "id": "s194t6",
+        "id": "s421t6",
         "text": "de",
         "role": "bijzin"
       },
       {
-        "id": "s194t7",
+        "id": "s421t7",
         "text": "koning",
         "role": "bijzin"
       },
       {
-        "id": "s194t8",
+        "id": "s421t8",
         "text": "woonde.",
         "role": "bijzin"
       }
     ]
   },
   {
-    "id": 195,
-    "label": "Zin 195: Bijvoeglijke bijzin (die)",
+    "id": 422,
+    "label": "Zin 422: Bijvoeglijke bijzin (die)",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
       {
-        "id": "s195t1",
+        "id": "s422t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s195t2",
+        "id": "s422t2",
         "text": "lerares",
         "role": "ow"
       },
       {
-        "id": "s195t3",
+        "id": "s422t3",
         "text": "die",
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bijv_bep",
-        "bijvBepTarget": "s195t2"
+        "bijvBepTarget": "s422t2"
       },
       {
-        "id": "s195t4",
+        "id": "s422t4",
         "text": "ons",
         "role": "bijzin"
       },
       {
-        "id": "s195t5",
+        "id": "s422t5",
         "text": "lesgeeft",
         "role": "bijzin"
       },
       {
-        "id": "s195t6",
+        "id": "s422t6",
         "text": "is",
         "role": "pv",
         "subRole": "wwd"
       },
       {
-        "id": "s195t7",
+        "id": "s422t7",
         "text": "erg",
         "role": "ng",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s195t8"
+        "bijvBepTarget": "s422t8"
       },
       {
-        "id": "s195t8",
+        "id": "s422t8",
         "text": "aardig.",
         "role": "ng",
         "subRole": "nwd"
@@ -1416,112 +1416,112 @@
     ]
   },
   {
-    "id": 200,
-    "label": "Zin 200: Letten op de hond (VV vs BWB)",
+    "id": 423,
+    "label": "Zin 423: Letten op de hond (VV vs BWB)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s200t1",
+        "id": "s423t1",
         "text": "Op",
         "role": "bwb"
       },
       {
-        "id": "s200t2",
+        "id": "s423t2",
         "text": "vakantie",
         "role": "bwb"
       },
       {
-        "id": "s200t3",
+        "id": "s423t3",
         "text": "letten",
         "role": "pv"
       },
       {
-        "id": "s200t4",
+        "id": "s423t4",
         "text": "de",
         "role": "ow"
       },
       {
-        "id": "s200t5",
+        "id": "s423t5",
         "text": "buren",
         "role": "ow"
       },
       {
-        "id": "s200t6",
+        "id": "s423t6",
         "text": "altijd",
         "role": "bwb",
         "newChunk": true
       },
       {
-        "id": "s200t7",
+        "id": "s423t7",
         "text": "op",
         "role": "vv"
       },
       {
-        "id": "s200t8",
+        "id": "s423t8",
         "text": "onze",
         "role": "vv",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s200t9"
+        "bijvBepTarget": "s423t9"
       },
       {
-        "id": "s200t9",
+        "id": "s423t9",
         "text": "hond.",
         "role": "vv"
       }
     ]
   },
   {
-    "id": 201,
-    "label": "Zin 201: Bleek te zijn (NG werkwoordelijk deel)",
+    "id": 424,
+    "label": "Zin 424: Bleek te zijn (NG werkwoordelijk deel)",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
       {
-        "id": "s201t1",
+        "id": "s424t1",
         "text": "De",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s201t2"
+        "bijvBepTarget": "s424t2"
       },
       {
-        "id": "s201t2",
+        "id": "s424t2",
         "text": "man",
         "role": "ow"
       },
       {
-        "id": "s201t3",
+        "id": "s424t3",
         "text": "bleek",
         "role": "pv",
         "subRole": "wwd"
       },
       {
-        "id": "s201t4",
+        "id": "s424t4",
         "text": "een",
         "role": "ng",
         "subRole": "nwd"
       },
       {
-        "id": "s201t5",
+        "id": "s424t5",
         "text": "goede",
         "role": "ng",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s201t6"
+        "bijvBepTarget": "s424t6"
       },
       {
-        "id": "s201t6",
+        "id": "s424t6",
         "text": "vader",
         "role": "ng",
         "subRole": "nwd"
       },
       {
-        "id": "s201t7",
+        "id": "s424t7",
         "text": "te",
         "role": "ng",
         "subRole": "wwd"
       },
       {
-        "id": "s201t8",
+        "id": "s424t8",
         "text": "zijn.",
         "role": "ng",
         "subRole": "wwd"
@@ -1529,44 +1529,44 @@
     ]
   },
   {
-    "id": 202,
-    "label": "Zin 202: Is geworden (NG werkwoordelijk deel)",
+    "id": 425,
+    "label": "Zin 425: Is geworden (NG werkwoordelijk deel)",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
       {
-        "id": "s202t1",
+        "id": "s425t1",
         "text": "Het",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s202t2"
+        "bijvBepTarget": "s425t2"
       },
       {
-        "id": "s202t2",
+        "id": "s425t2",
         "text": "kind",
         "role": "ow"
       },
       {
-        "id": "s202t3",
+        "id": "s425t3",
         "text": "is",
         "role": "pv",
         "subRole": "wwd"
       },
       {
-        "id": "s202t4",
+        "id": "s425t4",
         "text": "ernstig",
         "role": "ng",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s202t5"
+        "bijvBepTarget": "s425t5"
       },
       {
-        "id": "s202t5",
+        "id": "s425t5",
         "text": "ziek",
         "role": "ng",
         "subRole": "nwd"
       },
       {
-        "id": "s202t6",
+        "id": "s425t6",
         "text": "geworden.",
         "role": "ng",
         "subRole": "wwd"
@@ -1574,56 +1574,56 @@
     ]
   },
   {
-    "id": 203,
-    "label": "Zin 203: Lijkt te worden (NG werkwoordelijk deel)",
+    "id": 426,
+    "label": "Zin 426: Lijkt te worden (NG werkwoordelijk deel)",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
       {
-        "id": "s203t1",
+        "id": "s426t1",
         "text": "De",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s203t2"
+        "bijvBepTarget": "s426t2"
       },
       {
-        "id": "s203t2",
+        "id": "s426t2",
         "text": "leraar",
         "role": "ow"
       },
       {
-        "id": "s203t3",
+        "id": "s426t3",
         "text": "lijkt",
         "role": "pv",
         "subRole": "wwd"
       },
       {
-        "id": "s203t4",
+        "id": "s426t4",
         "text": "een",
         "role": "ng",
         "subRole": "nwd"
       },
       {
-        "id": "s203t5",
+        "id": "s426t5",
         "text": "strenge",
         "role": "ng",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s203t6"
+        "bijvBepTarget": "s426t6"
       },
       {
-        "id": "s203t6",
+        "id": "s426t6",
         "text": "rechter",
         "role": "ng",
         "subRole": "nwd"
       },
       {
-        "id": "s203t7",
+        "id": "s426t7",
         "text": "te",
         "role": "ng",
         "subRole": "wwd"
       },
       {
-        "id": "s203t8",
+        "id": "s426t8",
         "text": "worden.",
         "role": "ng",
         "subRole": "wwd"
@@ -1631,135 +1631,135 @@
     ]
   },
   {
-    "id": 204,
-    "label": "Zin 204: Onderwerp op afstand 1",
+    "id": 427,
+    "label": "Zin 427: Onderwerp op afstand 1",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s204t1",
+        "id": "s427t1",
         "text": "Na",
         "role": "bwb"
       },
       {
-        "id": "s204t2",
+        "id": "s427t2",
         "text": "de",
         "role": "bwb"
       },
       {
-        "id": "s204t3",
+        "id": "s427t3",
         "text": "lange",
         "role": "bwb",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s204t4"
+        "bijvBepTarget": "s427t4"
       },
       {
-        "id": "s204t4",
+        "id": "s427t4",
         "text": "vergadering",
         "role": "bwb"
       },
       {
-        "id": "s204t5",
+        "id": "s427t5",
         "text": "over",
         "role": "bwb"
       },
       {
-        "id": "s204t6",
+        "id": "s427t6",
         "text": "het",
         "role": "bwb"
       },
       {
-        "id": "s204t7",
+        "id": "s427t7",
         "text": "rooster",
         "role": "bwb"
       },
       {
-        "id": "s204t8",
+        "id": "s427t8",
         "text": "besloot",
         "role": "pv"
       },
       {
-        "id": "s204t9",
+        "id": "s427t9",
         "text": "de",
         "role": "ow"
       },
       {
-        "id": "s204t10",
+        "id": "s427t10",
         "text": "mentor",
         "role": "ow"
       },
       {
-        "id": "s204t11",
+        "id": "s427t11",
         "text": "tot",
         "role": "vv"
       },
       {
-        "id": "s204t12",
+        "id": "s427t12",
         "text": "uitstel.",
         "role": "vv"
       }
     ]
   },
   {
-    "id": 205,
-    "label": "Zin 205: Onderwerp op afstand 2",
+    "id": 428,
+    "label": "Zin 428: Onderwerp op afstand 2",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
       {
-        "id": "s205t1",
+        "id": "s428t1",
         "text": "Tijdens",
         "role": "bwb"
       },
       {
-        "id": "s205t2",
+        "id": "s428t2",
         "text": "de",
         "role": "bwb"
       },
       {
-        "id": "s205t3",
+        "id": "s428t3",
         "text": "laatste",
         "role": "bwb",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s205t4"
+        "bijvBepTarget": "s428t4"
       },
       {
-        "id": "s205t4",
+        "id": "s428t4",
         "text": "minuten",
         "role": "bwb"
       },
       {
-        "id": "s205t5",
+        "id": "s428t5",
         "text": "van",
         "role": "bwb"
       },
       {
-        "id": "s205t6",
+        "id": "s428t6",
         "text": "de",
         "role": "bwb"
       },
       {
-        "id": "s205t7",
+        "id": "s428t7",
         "text": "wedstrijd",
         "role": "bwb"
       },
       {
-        "id": "s205t8",
+        "id": "s428t8",
         "text": "bleef",
         "role": "pv"
       },
       {
-        "id": "s205t9",
+        "id": "s428t9",
         "text": "de",
         "role": "ow"
       },
       {
-        "id": "s205t10",
+        "id": "s428t10",
         "text": "aanvoerder",
         "role": "ow"
       },
       {
-        "id": "s205t11",
+        "id": "s428t11",
         "text": "kalm.",
         "role": "ng",
         "subRole": "nwd"
@@ -1767,468 +1767,765 @@
     ]
   },
   {
-    "id": 206,
-    "label": "Zin 206: Onderwerp op afstand 3",
+    "id": 429,
+    "label": "Zin 429: Onderwerp op afstand 3",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s206t1",
+        "id": "s429t1",
         "text": "Met",
         "role": "bwb"
       },
       {
-        "id": "s206t2",
+        "id": "s429t2",
         "text": "al",
         "role": "bwb"
       },
       {
-        "id": "s206t3",
+        "id": "s429t3",
         "text": "die",
         "role": "bwb"
       },
       {
-        "id": "s206t4",
+        "id": "s429t4",
         "text": "extra",
         "role": "bwb",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s206t5"
+        "bijvBepTarget": "s429t5"
       },
       {
-        "id": "s206t5",
+        "id": "s429t5",
         "text": "informatie",
         "role": "bwb"
       },
       {
-        "id": "s206t6",
+        "id": "s429t6",
         "text": "kan",
         "role": "pv"
       },
       {
-        "id": "s206t7",
+        "id": "s429t7",
         "text": "de",
         "role": "ow"
       },
       {
-        "id": "s206t8",
+        "id": "s429t8",
         "text": "commissie",
         "role": "ow"
       },
       {
-        "id": "s206t9",
+        "id": "s429t9",
         "text": "morgen",
         "role": "bwb"
       },
       {
-        "id": "s206t10",
+        "id": "s429t10",
         "text": "een",
         "role": "lv"
       },
       {
-        "id": "s206t11",
+        "id": "s429t11",
         "text": "besluit",
         "role": "lv"
       },
       {
-        "id": "s206t12",
+        "id": "s429t12",
         "text": "nemen.",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 207,
-    "label": "Zin 207: Onderwerp op afstand 4",
+    "id": 430,
+    "label": "Zin 430: Onderwerp op afstand 4",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s207t1",
+        "id": "s430t1",
         "text": "Volgens",
         "role": "bwb"
       },
       {
-        "id": "s207t2",
+        "id": "s430t2",
         "text": "de",
         "role": "bwb"
       },
       {
-        "id": "s207t3",
+        "id": "s430t3",
         "text": "nieuwe",
         "role": "bwb",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s207t4"
+        "bijvBepTarget": "s430t4"
       },
       {
-        "id": "s207t4",
+        "id": "s430t4",
         "text": "planning",
         "role": "bwb"
       },
       {
-        "id": "s207t5",
+        "id": "s430t5",
         "text": "heeft",
         "role": "pv"
       },
       {
-        "id": "s207t6",
+        "id": "s430t6",
         "text": "de",
         "role": "ow"
       },
       {
-        "id": "s207t7",
+        "id": "s430t7",
         "text": "coördinator",
         "role": "ow"
       },
       {
-        "id": "s207t8",
+        "id": "s430t8",
         "text": "de",
         "role": "lv"
       },
       {
-        "id": "s207t9",
+        "id": "s430t9",
         "text": "groepen",
         "role": "lv"
       },
       {
-        "id": "s207t10",
+        "id": "s430t10",
         "text": "al",
         "role": "bwb"
       },
       {
-        "id": "s207t11",
+        "id": "s430t11",
         "text": "ingedeeld.",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 208,
-    "label": "Zin 208: Werkwoordspelling relevant 1",
+    "id": 431,
+    "label": "Zin 431: Werkwoordspelling relevant 1",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s208t1",
+        "id": "s431t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s208t2",
+        "id": "s431t2",
         "text": "leerlingen",
         "role": "ow"
       },
       {
-        "id": "s208t3",
+        "id": "s431t3",
         "text": "zouden",
         "role": "pv"
       },
       {
-        "id": "s208t4",
+        "id": "s431t4",
         "text": "de",
         "role": "lv"
       },
       {
-        "id": "s208t5",
+        "id": "s431t5",
         "text": "fout",
         "role": "lv"
       },
       {
-        "id": "s208t6",
+        "id": "s431t6",
         "text": "sneller",
         "role": "bwb"
       },
       {
-        "id": "s208t7",
+        "id": "s431t7",
         "text": "hebben",
         "role": "wg"
       },
       {
-        "id": "s208t8",
+        "id": "s431t8",
         "text": "gezien.",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 209,
-    "label": "Zin 209: Werkwoordspelling relevant 2",
+    "id": 432,
+    "label": "Zin 432: Werkwoordspelling relevant 2",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s209t1",
+        "id": "s432t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s209t2",
+        "id": "s432t2",
         "text": "redacteur",
         "role": "ow"
       },
       {
-        "id": "s209t3",
+        "id": "s432t3",
         "text": "wordt",
         "role": "pv"
       },
       {
-        "id": "s209t4",
+        "id": "s432t4",
         "text": "vaak",
         "role": "bwb"
       },
       {
-        "id": "s209t5",
+        "id": "s432t5",
         "text": "om",
         "role": "vv"
       },
       {
-        "id": "s209t6",
+        "id": "s432t6",
         "text": "advies",
         "role": "vv"
       },
       {
-        "id": "s209t7",
+        "id": "s432t7",
         "text": "gevraagd.",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 210,
-    "label": "Zin 210: Werkwoordspelling relevant 3",
+    "id": 433,
+    "label": "Zin 433: Werkwoordspelling relevant 3",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s210t1",
+        "id": "s433t1",
         "text": "Mijn",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s210t2"
+        "bijvBepTarget": "s433t2"
       },
       {
-        "id": "s210t2",
+        "id": "s433t2",
         "text": "broer",
         "role": "ow"
       },
       {
-        "id": "s210t3",
+        "id": "s433t3",
         "text": "heeft",
         "role": "pv"
       },
       {
-        "id": "s210t4",
+        "id": "s433t4",
         "text": "de",
         "role": "lv"
       },
       {
-        "id": "s210t5",
+        "id": "s433t5",
         "text": "tekst",
         "role": "lv"
       },
       {
-        "id": "s210t6",
+        "id": "s433t6",
         "text": "gisteren",
         "role": "bwb"
       },
       {
-        "id": "s210t7",
+        "id": "s433t7",
         "text": "verbeterd.",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 211,
-    "label": "Zin 211: Werkwoordspelling relevant 4",
+    "id": 434,
+    "label": "Zin 434: Werkwoordspelling relevant 4",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s211t1",
+        "id": "s434t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s211t2",
+        "id": "s434t2",
         "text": "docent",
         "role": "ow"
       },
       {
-        "id": "s211t3",
+        "id": "s434t3",
         "text": "zou",
         "role": "pv"
       },
       {
-        "id": "s211t4",
+        "id": "s434t4",
         "text": "de",
         "role": "lv"
       },
       {
-        "id": "s211t5",
+        "id": "s434t5",
         "text": "opdrachten",
         "role": "lv"
       },
       {
-        "id": "s211t6",
+        "id": "s434t6",
         "text": "vandaag",
         "role": "bwb"
       },
       {
-        "id": "s211t7",
+        "id": "s434t7",
         "text": "nakijken.",
         "role": "wg"
       }
     ]
   },
   {
-    "id": 212,
-    "label": "Zin 212: VV vs BWB paar 1A (VV)",
+    "id": 435,
+    "label": "Zin 435: VV vs BWB paar 1A (VV)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s212t1",
+        "id": "s435t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s212t2",
+        "id": "s435t2",
         "text": "spelers",
         "role": "ow"
       },
       {
-        "id": "s212t3",
+        "id": "s435t3",
         "text": "luisteren",
         "role": "pv"
       },
       {
-        "id": "s212t4",
+        "id": "s435t4",
         "text": "naar",
         "role": "vv"
       },
       {
-        "id": "s212t5",
+        "id": "s435t5",
         "text": "de",
         "role": "vv"
       },
       {
-        "id": "s212t6",
+        "id": "s435t6",
         "text": "trainer.",
         "role": "vv"
       }
     ]
   },
   {
-    "id": 213,
-    "label": "Zin 213: VV vs BWB paar 1B (BWB)",
+    "id": 436,
+    "label": "Zin 436: VV vs BWB paar 1B (BWB)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s213t1",
+        "id": "s436t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s213t2",
+        "id": "s436t2",
         "text": "spelers",
         "role": "ow"
       },
       {
-        "id": "s213t3",
+        "id": "s436t3",
         "text": "lopen",
         "role": "pv"
       },
       {
-        "id": "s213t4",
+        "id": "s436t4",
         "text": "naar",
         "role": "bwb"
       },
       {
-        "id": "s213t5",
+        "id": "s436t5",
         "text": "de",
         "role": "bwb"
       },
       {
-        "id": "s213t6",
+        "id": "s436t6",
         "text": "trainer.",
         "role": "bwb"
       }
     ]
   },
   {
-    "id": 214,
-    "label": "Zin 214: VV vs BWB paar 2A (VV)",
+    "id": 437,
+    "label": "Zin 437: VV vs BWB paar 2A (VV)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s214t1",
+        "id": "s437t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s214t2",
+        "id": "s437t2",
         "text": "ouders",
         "role": "ow"
       },
       {
-        "id": "s214t3",
+        "id": "s437t3",
         "text": "wachten",
         "role": "pv"
       },
       {
-        "id": "s214t4",
+        "id": "s437t4",
         "text": "op",
         "role": "vv"
       },
       {
-        "id": "s214t5",
+        "id": "s437t5",
         "text": "de",
         "role": "vv"
       },
       {
-        "id": "s214t6",
+        "id": "s437t6",
         "text": "bus.",
         "role": "vv"
       }
     ]
   },
   {
-    "id": 215,
-    "label": "Zin 215: VV vs BWB paar 2B (BWB)",
+    "id": 438,
+    "label": "Zin 438: VV vs BWB paar 2B (BWB)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
       {
-        "id": "s215t1",
+        "id": "s438t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s215t2",
+        "id": "s438t2",
         "text": "ouders",
         "role": "ow"
       },
       {
-        "id": "s215t3",
+        "id": "s438t3",
         "text": "springen",
         "role": "pv"
       },
       {
-        "id": "s215t4",
+        "id": "s438t4",
         "text": "op",
         "role": "bwb"
       },
       {
-        "id": "s215t5",
+        "id": "s438t5",
         "text": "de",
         "role": "bwb"
       },
       {
-        "id": "s215t6",
+        "id": "s438t6",
         "text": "bus.",
         "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 439,
+    "label": "Zin 439: Onderwerp op afstand 5",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s439t1",
+        "text": "Dat",
+        "role": "bijzin",
+        "subRole": "vw_onder",
+        "bijzinFunctie": "lv"
+      },
+      {
+        "id": "s439t2",
+        "text": "de",
+        "role": "bijzin"
+      },
+      {
+        "id": "s439t3",
+        "text": "nieuwe",
+        "role": "bijzin"
+      },
+      {
+        "id": "s439t4",
+        "text": "planning",
+        "role": "bijzin"
+      },
+      {
+        "id": "s439t5",
+        "text": "zoveel",
+        "role": "bijzin"
+      },
+      {
+        "id": "s439t6",
+        "text": "vragen",
+        "role": "bijzin"
+      },
+      {
+        "id": "s439t7",
+        "text": "oproept,",
+        "role": "bijzin"
+      },
+      {
+        "id": "s439t8",
+        "text": "merkt",
+        "role": "pv"
+      },
+      {
+        "id": "s439t9",
+        "text": "de",
+        "role": "ow"
+      },
+      {
+        "id": "s439t10",
+        "text": "mentor",
+        "role": "ow"
+      },
+      {
+        "id": "s439t11",
+        "text": "meteen.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 440,
+    "label": "Zin 440: Onderwerp op afstand 6",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s440t1",
+        "text": "Dat",
+        "role": "bijzin",
+        "subRole": "vw_onder",
+        "bijzinFunctie": "mv"
+      },
+      {
+        "id": "s440t2",
+        "text": "jullie",
+        "role": "bijzin"
+      },
+      {
+        "id": "s440t3",
+        "text": "de",
+        "role": "bijzin"
+      },
+      {
+        "id": "s440t4",
+        "text": "opdracht",
+        "role": "bijzin"
+      },
+      {
+        "id": "s440t5",
+        "text": "al",
+        "role": "bijzin"
+      },
+      {
+        "id": "s440t6",
+        "text": "snapten,",
+        "role": "bijzin"
+      },
+      {
+        "id": "s440t7",
+        "text": "vertelde",
+        "role": "pv"
+      },
+      {
+        "id": "s440t8",
+        "text": "de",
+        "role": "ow"
+      },
+      {
+        "id": "s440t9",
+        "text": "docent",
+        "role": "ow"
+      },
+      {
+        "id": "s440t10",
+        "text": "ons",
+        "role": "mv"
+      },
+      {
+        "id": "s440t11",
+        "text": "glimlachend.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 441,
+    "label": "Zin 441: VV vs BWB paar 3A (VV)",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s441t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s441t2",
+        "text": "leerlingen",
+        "role": "ow"
+      },
+      {
+        "id": "s441t3",
+        "text": "denken",
+        "role": "pv"
+      },
+      {
+        "id": "s441t4",
+        "text": "aan",
+        "role": "vv"
+      },
+      {
+        "id": "s441t5",
+        "text": "de",
+        "role": "vv"
+      },
+      {
+        "id": "s441t6",
+        "text": "toets.",
+        "role": "vv"
+      }
+    ]
+  },
+  {
+    "id": 442,
+    "label": "Zin 442: VV vs BWB paar 3B (BWB)",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s442t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s442t2",
+        "text": "leerlingen",
+        "role": "ow"
+      },
+      {
+        "id": "s442t3",
+        "text": "schrijven",
+        "role": "pv"
+      },
+      {
+        "id": "s442t4",
+        "text": "aan",
+        "role": "bwb"
+      },
+      {
+        "id": "s442t5",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s442t6",
+        "text": "toets.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 443,
+    "label": "Zin 443: Werkwoordspelling relevant 5",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s443t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s443t2",
+        "text": "leerlingen",
+        "role": "ow"
+      },
+      {
+        "id": "s443t3",
+        "text": "zouden",
+        "role": "pv"
+      },
+      {
+        "id": "s443t4",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s443t5",
+        "text": "fouten",
+        "role": "lv"
+      },
+      {
+        "id": "s443t6",
+        "text": "gisteren",
+        "role": "bwb"
+      },
+      {
+        "id": "s443t7",
+        "text": "hebben",
+        "role": "wg"
+      },
+      {
+        "id": "s443t8",
+        "text": "verbeterd.",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 444,
+    "label": "Zin 444: Werkwoordspelling relevant 6",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s444t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s444t2",
+        "text": "mentor",
+        "role": "ow"
+      },
+      {
+        "id": "s444t3",
+        "text": "heeft",
+        "role": "pv"
+      },
+      {
+        "id": "s444t4",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s444t5",
+        "text": "zinnen",
+        "role": "lv"
+      },
+      {
+        "id": "s444t6",
+        "text": "zorgvuldig",
+        "role": "bwb"
+      },
+      {
+        "id": "s444t7",
+        "text": "nagekeken.",
+        "role": "wg"
       }
     ]
   }
