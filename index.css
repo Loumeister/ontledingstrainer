@@ -3,6 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent browser pull-to-refresh from reloading the app */
+html, body {
+  overscroll-behavior-y: contain;
+}
+
 /* Large font mode: scales all rem-based Tailwind sizes */
 .large-font-mode {
   font-size: 112.5%;

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { RoleDefinition, RoleKey } from '../types';
 
 interface DraggableRoleProps {
@@ -8,6 +8,7 @@ interface DraggableRoleProps {
   isLargeFont?: boolean;
   isSelected?: boolean;
   onSelect?: (roleKey: RoleKey) => void;
+  onTouchDropChunk?: (chunkId: string, roleKey: string) => void;
 }
 
 export const DraggableRole: React.FC<DraggableRoleProps> = ({
@@ -15,8 +16,12 @@ export const DraggableRole: React.FC<DraggableRoleProps> = ({
   onDragStart,
   isLargeFont = false,
   isSelected,
-  onSelect
+  onSelect,
+  onTouchDropChunk,
 }) => {
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+  const isDragging = useRef(false);
+
   const handleClick = () => {
     onSelect?.(role.key);
   };
@@ -28,16 +33,53 @@ export const DraggableRole: React.FC<DraggableRoleProps> = ({
     }
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    isDragging.current = false;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStartPos.current) return;
+    const dx = Math.abs(e.touches[0].clientX - touchStartPos.current.x);
+    const dy = Math.abs(e.touches[0].clientY - touchStartPos.current.y);
+    if (dx > 8 || dy > 8) {
+      isDragging.current = true;
+      // Visually select the role while dragging
+      if (!isSelected) onSelect?.(role.key);
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (isDragging.current && onTouchDropChunk) {
+      e.preventDefault(); // prevent the subsequent click from deselecting
+      const touch = e.changedTouches[0];
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const chunkEl = el?.closest('[data-chunk-id]');
+      if (chunkEl) {
+        const chunkId = chunkEl.getAttribute('data-chunk-id');
+        if (chunkId) {
+          onTouchDropChunk(chunkId, role.key);
+        }
+      }
+    }
+    isDragging.current = false;
+    touchStartPos.current = null;
+  };
+
   return (
     <div
       draggable
       onDragStart={(e) => onDragStart(e, role.key)}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       tabIndex={0}
       role="button"
       aria-label={role.label}
       aria-pressed={isSelected !== undefined ? isSelected : undefined}
+      style={{ touchAction: 'none' }}
       className={`
         relative border-2 rounded-lg cursor-move select-none transition-all duration-200
         font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5

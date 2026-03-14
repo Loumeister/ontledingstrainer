@@ -125,6 +125,7 @@ export interface TrainerState {
   handleClearSelectedRole: () => void;
   handleTapPlaceChunk: (chunkId: string) => void;
   handleTapPlaceWord: (tokenId: string) => void;
+  handleTouchDrop: (chunkId: string, roleKey: string) => void;
 
   // Quick start
   handleQuickStart: () => void;
@@ -552,6 +553,15 @@ export function useTrainer(): TrainerState {
     setSelectedRole(null);
   };
 
+  const handleTouchDrop = (chunkId: string, roleKey: string) => {
+    if (showAnswerMode) return;
+    logInteraction('label_drop', currentSentence?.id, `chunk=${chunkId},role=${roleKey}`);
+    setChunkLabels(prev => ({ ...prev, [chunkId]: roleKey as RoleKey }));
+    setValidationResult(null);
+    setHintMessage(null);
+    setSelectedRole(null);
+  };
+
   // --- Quick start ---
 
   const handleQuickStart = () => {
@@ -924,6 +934,7 @@ export function useTrainer(): TrainerState {
     handleClearSelectedRole,
     handleTapPlaceChunk,
     handleTapPlaceWord,
+    handleTouchDrop,
 
     // Quick start
     handleQuickStart,

@@ -38,6 +38,7 @@ type TrainerScreenProps = Pick<TrainerState,
   | 'selectedRole'
   | 'handleSelectRole' | 'handleClearSelectedRole'
   | 'handleTapPlaceChunk' | 'handleTapPlaceWord'
+  | 'handleTouchDrop'
 >;
 
 export const TrainerScreen: React.FC<TrainerScreenProps> = ({
@@ -65,7 +66,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   handleShowAnswerRequest, handleRetry, handleAbortRequest, handleConfirmAction,
   nextSessionSentence,
   consecutivePerfect,
-  selectedRole, handleSelectRole, handleTapPlaceChunk, handleTapPlaceWord,
+  selectedRole, handleSelectRole, handleTapPlaceChunk, handleTapPlaceWord, handleTouchDrop,
 }) => {
   const [showZinsdeelHelp, setShowZinsdeelHelp] = useState(false);
   const [streakToast, setStreakToast] = useState<string | null>(null);
@@ -249,6 +250,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   onShowZinsdeelHelp={() => setShowZinsdeelHelp(true)}
                   selectedRole={selectedRole}
                   onSelectRole={handleSelectRole}
+                  onTouchDropChunk={handleTouchDrop}
                 />
               )}
 
@@ -437,6 +439,7 @@ interface RoleToolbarProps {
   onShowZinsdeelHelp: () => void;
   selectedRole: TrainerState['selectedRole'];
   onSelectRole: TrainerState['handleSelectRole'];
+  onTouchDropChunk: TrainerState['handleTouchDrop'];
 }
 
 const RoleToolbar: React.FC<RoleToolbarProps> = ({
@@ -449,6 +452,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
   onShowZinsdeelHelp,
   selectedRole,
   onSelectRole,
+  onTouchDropChunk,
 }) => {
   return (
     <div className="bg-white dark:bg-slate-800 p-3 md:p-4 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 sticky top-0 z-[100] transition-all">
@@ -470,7 +474,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
             {ROLES.filter(r => !r.isSubOnly && !['wg', 'nwd', 'ng', 'bijzin', 'vw_neven', 'bijst'].includes(r.key as string))
                   .filter(r => (includeVV || focusVV || selectedLevel === 2 || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.role === 'vv'))) || r.key !== 'vv')
                   .map(role => (
-              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} />
+              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
             ))}
 
             <div className="w-full" />
@@ -478,7 +482,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
             {/* WG, NG group */}
             {ROLES.filter(r => !r.isSubOnly && ['wg', 'nwd', 'ng'].includes(r.key as string))
                   .map(role => (
-              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} />
+              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
             ))}
 
             {/* Bijzin, VW_Neven group */}
@@ -487,15 +491,19 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
                   .filter(r => r.key !== 'bijzin' || focusBijzin || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.role === 'bijzin')))
                   .filter(r => r.key !== 'vw_neven' || focusBijzin || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.role === 'vw_neven')))
                   .map(role => (
-              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} />
+              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
             ))}
 
-            {/* Bijstelling */}
-            <div className="w-3" />
-            {ROLES.filter(r => !r.isSubOnly && r.key === 'bijst')
-                  .map(role => (
-              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} />
-            ))}
+            {/* Bijstelling - only for level 3, 4, null (all), or when sentence actually has bijst */}
+            {(selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.role === 'bijst'))) && (
+              <>
+                <div className="w-3" />
+                {ROLES.filter(r => !r.isSubOnly && r.key === 'bijst')
+                      .map(role => (
+                  <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
+                ))}
+              </>
+            )}
           </div>
         </div>
         {includeBB && (
@@ -505,7 +513,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
             {ROLES.filter(r => r.isSubOnly)
                   .filter(r => r.key !== 'vw_onder' || focusBijzin || selectedLevel === 3 || selectedLevel === 4 || selectedLevel === null || (currentSentence && currentSentence.tokens.some(t => t.subRole === 'vw_onder')))
                   .map(role => (
-              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} />
+              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
             ))}
           </div>
         </div>
