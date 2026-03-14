@@ -4881,5 +4881,451 @@
         "subRole": "nwd"
       }
     ]
+  },
+  {
+    "id": 108,
+    "label": "Zin 108: Groet mij",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s108t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s108t2",
+        "text": "buurman",
+        "role": "ow"
+      },
+      {
+        "id": "s108t3",
+        "text": "groet",
+        "role": "pv"
+      },
+      {
+        "id": "s108t4",
+        "text": "mij",
+        "role": "lv"
+      },
+      {
+        "id": "s108t5",
+        "text": "elke",
+        "role": "bwb"
+      },
+      {
+        "id": "s108t6",
+        "text": "ochtend.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 109,
+    "label": "Zin 109: Geeft mij",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s109t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s109t2",
+        "text": "buurman",
+        "role": "ow"
+      },
+      {
+        "id": "s109t3",
+        "text": "geeft",
+        "role": "pv"
+      },
+      {
+        "id": "s109t4",
+        "text": "mij",
+        "role": "mv"
+      },
+      {
+        "id": "s109t5",
+        "text": "elke",
+        "role": "bwb"
+      },
+      {
+        "id": "s109t6",
+        "text": "ochtend",
+        "role": "bwb"
+      },
+      {
+        "id": "s109t7",
+        "text": "een",
+        "role": "lv"
+      },
+      {
+        "id": "s109t8",
+        "text": "knik.",
+        "role": "lv"
+      }
+    ]
+  },
+  {
+    "id": 110,
+    "label": "Zin 110: Belt haar",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s110t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s110t2",
+        "text": "docent",
+        "role": "ow"
+      },
+      {
+        "id": "s110t3",
+        "text": "belt",
+        "role": "pv"
+      },
+      {
+        "id": "s110t4",
+        "text": "haar",
+        "role": "lv"
+      },
+      {
+        "id": "s110t5",
+        "text": "vanavond.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 111,
+    "label": "Zin 111: Geeft haar feedback",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s111t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s111t2",
+        "text": "docent",
+        "role": "ow"
+      },
+      {
+        "id": "s111t3",
+        "text": "geeft",
+        "role": "pv"
+      },
+      {
+        "id": "s111t4",
+        "text": "haar",
+        "role": "mv"
+      },
+      {
+        "id": "s111t5",
+        "text": "vanavond",
+        "role": "bwb"
+      },
+      {
+        "id": "s111t6",
+        "text": "feedback.",
+        "role": "lv"
+      }
+    ]
+  },
+  {
+    "id": 112,
+    "label": "Zin 112: Wachten op de bus",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s112t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s112t2",
+        "text": "leerlingen",
+        "role": "ow"
+      },
+      {
+        "id": "s112t3",
+        "text": "wachten",
+        "role": "pv"
+      },
+      {
+        "id": "s112t4",
+        "text": "op",
+        "role": "vv"
+      },
+      {
+        "id": "s112t5",
+        "text": "de",
+        "role": "vv"
+      },
+      {
+        "id": "s112t6",
+        "text": "bus.",
+        "role": "vv"
+      }
+    ]
+  },
+  {
+    "id": 113,
+    "label": "Zin 113: Springen op de bus",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s113t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s113t2",
+        "text": "leerlingen",
+        "role": "ow"
+      },
+      {
+        "id": "s113t3",
+        "text": "springen",
+        "role": "pv"
+      },
+      {
+        "id": "s113t4",
+        "text": "op",
+        "role": "bwb"
+      },
+      {
+        "id": "s113t5",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s113t6",
+        "text": "bus.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 114,
+    "label": "Zin 114: Verlangen naar de stad",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s114t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s114t2",
+        "text": "toeristen",
+        "role": "ow"
+      },
+      {
+        "id": "s114t3",
+        "text": "verlangen",
+        "role": "pv"
+      },
+      {
+        "id": "s114t4",
+        "text": "naar",
+        "role": "vv"
+      },
+      {
+        "id": "s114t5",
+        "text": "de",
+        "role": "vv"
+      },
+      {
+        "id": "s114t6",
+        "text": "stad.",
+        "role": "vv"
+      }
+    ]
+  },
+  {
+    "id": 115,
+    "label": "Zin 115: Fietsen naar de stad",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s115t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s115t2",
+        "text": "toeristen",
+        "role": "ow"
+      },
+      {
+        "id": "s115t3",
+        "text": "fietsen",
+        "role": "pv"
+      },
+      {
+        "id": "s115t4",
+        "text": "naar",
+        "role": "bwb"
+      },
+      {
+        "id": "s115t5",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s115t6",
+        "text": "stad.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 116,
+    "label": "Zin 116: Twijfelen aan het plan",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s116t1",
+        "text": "Wij",
+        "role": "ow"
+      },
+      {
+        "id": "s116t2",
+        "text": "twijfelen",
+        "role": "pv"
+      },
+      {
+        "id": "s116t3",
+        "text": "aan",
+        "role": "vv"
+      },
+      {
+        "id": "s116t4",
+        "text": "het",
+        "role": "vv"
+      },
+      {
+        "id": "s116t5",
+        "text": "plan.",
+        "role": "vv"
+      }
+    ]
+  },
+  {
+    "id": 117,
+    "label": "Zin 117: Zitten aan het bureau",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s117t1",
+        "text": "Wij",
+        "role": "ow"
+      },
+      {
+        "id": "s117t2",
+        "text": "zitten",
+        "role": "pv"
+      },
+      {
+        "id": "s117t3",
+        "text": "aan",
+        "role": "bwb"
+      },
+      {
+        "id": "s117t4",
+        "text": "het",
+        "role": "bwb"
+      },
+      {
+        "id": "s117t5",
+        "text": "bureau.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 118,
+    "label": "Zin 118: Begeleidt ons",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s118t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s118t2",
+        "text": "gids",
+        "role": "ow"
+      },
+      {
+        "id": "s118t3",
+        "text": "begeleidt",
+        "role": "pv"
+      },
+      {
+        "id": "s118t4",
+        "text": "ons",
+        "role": "lv"
+      },
+      {
+        "id": "s118t5",
+        "text": "vandaag.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 119,
+    "label": "Zin 119: Biedt ons hulp",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s119t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s119t2",
+        "text": "gids",
+        "role": "ow"
+      },
+      {
+        "id": "s119t3",
+        "text": "biedt",
+        "role": "pv"
+      },
+      {
+        "id": "s119t4",
+        "text": "ons",
+        "role": "mv"
+      },
+      {
+        "id": "s119t5",
+        "text": "vandaag",
+        "role": "bwb"
+      },
+      {
+        "id": "s119t6",
+        "text": "hulp.",
+        "role": "lv"
+      }
+    ]
   }
 ]
