@@ -166,7 +166,7 @@ export function validateAnswer(
         if (subLabelOnFirstToken && roleMatchesToken(subLabelOnFirstToken, chunkTokens[0])) {
           // Student placed correct role on word instead of chunk header
           const hasDualRole = chunkTokens.some(t => {
-            const expectedSub = (!includeBB && t.subRole === 'bijv_bep') ? undefined : t.subRole;
+            const expectedSub = (!includeBB && t.subRole === 'bijv_bep') || t.subRole === 'wd' ? undefined : t.subRole;
             return expectedSub && expectedSub !== t.role;
           });
           if (!hasDualRole) {
@@ -178,7 +178,7 @@ export function validateAnswer(
           const sub = subLabels[anyMatchingSubLabel.id] as RoleKey;
           if (chunkTokens.every(t => roleMatchesToken(sub, t))) {
             const hasDualRole = chunkTokens.some(t => {
-              const expectedSub = (!includeBB && t.subRole === 'bijv_bep') ? undefined : t.subRole;
+              const expectedSub = (!includeBB && t.subRole === 'bijv_bep') || t.subRole === 'wd' ? undefined : t.subRole;
               return expectedSub && expectedSub !== t.role;
             });
             if (!hasDualRole) {
@@ -290,6 +290,7 @@ export function validateAnswer(
     const userSub = subLabels[t.id];
     let expectedSub = t.subRole;
     if (!includeBB && expectedSub === 'bijv_bep') expectedSub = undefined;
+    if (expectedSub === 'wd') expectedSub = undefined; // PV subRole:wd is display-only, not validated
     if (userSub !== expectedSub) subRoleMismatch = true;
   });
 
