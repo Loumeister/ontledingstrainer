@@ -133,5 +133,125 @@
     "focus": "er_zin_passief",
     "exampleSentence": "Er wordt vandaag hard gewerkt.",
     "rejectionReason": "Onderwerpstatus is schoolmethode-afhankelijk; risico op dubbele analyse."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 2,
+    "focus": "mv_vs_lv_minimaal_paar",
+    "exampleSentence": "De buurman groet mij elke ochtend.",
+    "pvReasoning": "Tijdsproef: groet -> groette.",
+    "owReasoning": "Wie groet? De buurman.",
+    "distractorRisk": "Voorzetselgroep of pronomen wordt snel op functie in plaats van werkwoordpatroon geclassificeerd."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 2,
+    "focus": "mv_vs_lv_minimaal_paar",
+    "exampleSentence": "De buurman geeft mij elke ochtend een knik.",
+    "pvReasoning": "Tijdsproef: geeft -> gaf.",
+    "owReasoning": "Wie geeft? De buurman.",
+    "distractorRisk": "Voorzetselgroep of pronomen wordt snel op functie in plaats van werkwoordpatroon geclassificeerd."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 2,
+    "focus": "mv_vs_lv_minimaal_paar",
+    "exampleSentence": "De docent belt haar vanavond.",
+    "pvReasoning": "Tijdsproef: belt -> belde.",
+    "owReasoning": "Wie belt? De docent.",
+    "distractorRisk": "Voorzetselgroep of pronomen wordt snel op functie in plaats van werkwoordpatroon geclassificeerd."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 2,
+    "focus": "mv_vs_lv_minimaal_paar",
+    "exampleSentence": "De docent geeft haar vanavond feedback.",
+    "pvReasoning": "Tijdsproef: geeft -> gaf.",
+    "owReasoning": "Wie geeft? De docent.",
+    "distractorRisk": "Voorzetselgroep of pronomen wordt snel op functie in plaats van werkwoordpatroon geclassificeerd."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 2,
+    "focus": "mv_vs_lv_minimaal_paar",
+    "exampleSentence": "De gids begeleidt ons vandaag.",
+    "pvReasoning": "Tijdsproef: begeleidt -> begeleidde.",
+    "owReasoning": "Wie begeleidt? De gids.",
+    "distractorRisk": "Voorzetselgroep of pronomen wordt snel op functie in plaats van werkwoordpatroon geclassificeerd."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 2,
+    "focus": "mv_vs_lv_minimaal_paar",
+    "exampleSentence": "De gids biedt ons vandaag hulp.",
+    "pvReasoning": "Tijdsproef: biedt -> bood.",
+    "owReasoning": "Wie biedt? De gids.",
+    "distractorRisk": "Voorzetselgroep of pronomen wordt snel op functie in plaats van werkwoordpatroon geclassificeerd."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 2,
+    "focus": "vv_vs_bwb_minimaal_paar",
+    "exampleSentence": "De leerlingen wachten op de bus.",
+    "pvReasoning": "Tijdsproef: wachten -> wachtten.",
+    "owReasoning": "Wie wachten? De leerlingen.",
+    "distractorRisk": "Voorzetselgroep of pronomen wordt snel op functie in plaats van werkwoordpatroon geclassificeerd."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 2,
+    "focus": "vv_vs_bwb_minimaal_paar",
+    "exampleSentence": "De leerlingen springen op de bus.",
+    "pvReasoning": "Tijdsproef: springen -> sprongen.",
+    "owReasoning": "Wie springen? De leerlingen.",
+    "distractorRisk": "Voorzetselgroep of pronomen wordt snel op functie in plaats van werkwoordpatroon geclassificeerd."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 2,
+    "focus": "vv_vs_bwb_minimaal_paar",
+    "exampleSentence": "De toeristen verlangen naar de stad.",
+    "pvReasoning": "Tijdsproef: verlangen -> verlangden.",
+    "owReasoning": "Wie verlangen? De toeristen.",
+    "distractorRisk": "Voorzetselgroep of pronomen wordt snel op functie in plaats van werkwoordpatroon geclassificeerd."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 2,
+    "focus": "vv_vs_bwb_minimaal_paar",
+    "exampleSentence": "De toeristen fietsen naar de stad.",
+    "pvReasoning": "Tijdsproef: fietsen -> fietsten.",
+    "owReasoning": "Wie fietsen? De toeristen.",
+    "distractorRisk": "Voorzetselgroep of pronomen wordt snel op functie in plaats van werkwoordpatroon geclassificeerd."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 2,
+    "focus": "vv_vs_bwb_minimaal_paar",
+    "exampleSentence": "Wij twijfelen aan het plan.",
+    "pvReasoning": "Tijdsproef: twijfelen -> twijfelden.",
+    "owReasoning": "Wie twijfelen? Wij.",
+    "distractorRisk": "Voorzetselgroep of pronomen wordt snel op functie in plaats van werkwoordpatroon geclassificeerd."
+  },
+  {
+    "_kind": "coverage-gap",
+    "status": "ADD_CANDIDATE",
+    "level": 2,
+    "focus": "vv_vs_bwb_minimaal_paar",
+    "exampleSentence": "Wij zitten aan het bureau.",
+    "pvReasoning": "Tijdsproef: zitten -> zaten.",
+    "owReasoning": "Wie zitten? Wij.",
+    "distractorRisk": "Voorzetselgroep of pronomen wordt snel op functie in plaats van werkwoordpatroon geclassificeerd."
   }
 ]
