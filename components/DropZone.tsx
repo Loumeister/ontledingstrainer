@@ -139,8 +139,9 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
 
   return (
     <div
+      data-chunk-id={chunkId}
       className={`
-        relative flex flex-col min-w-[140px] rounded-xl border-2 transition-all duration-200 group/chunk
+        relative flex flex-col min-w-[100px] sm:min-w-[140px] rounded-xl border-2 transition-all duration-200 group/chunk
         ${borderColor} ${bgColor}
         ${validationState === 'incorrect-split' ? 'opacity-80' : ''}
         ${snapPop ? 'scale-105' : 'scale-100'}
@@ -286,8 +287,8 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
 
       {/* Words Container */}
       <div className={`
-        p-3 flex flex-wrap gap-y-4 gap-x-0 justify-center items-end min-h-[60px]
-        ${isLargeFont ? 'text-xl leading-relaxed' : 'text-lg leading-tight'}
+        p-2 sm:p-3 flex flex-wrap gap-y-2 sm:gap-y-4 gap-x-0 justify-center items-end min-h-[50px] sm:min-h-[60px]
+        ${isLargeFont ? 'text-xl leading-relaxed' : 'text-base sm:text-lg leading-tight'}
       `}>
         {tokens.map((token, i) => {
            const subRole = subRoles[token.id];

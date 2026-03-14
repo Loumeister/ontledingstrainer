@@ -1,4 +1,4 @@
-import { RoleDefinition } from './types';
+import { RoleDefinition, DifficultyLevel, RoleKey } from './types';
 
 export const ROLES: RoleDefinition[] = [
   { 
@@ -95,6 +95,15 @@ export const ROLES: RoleDefinition[] = [
     isSubOnly: true 
   },
 ];
+
+// Role sets per difficulty level. A role is shown in the toolbar when it belongs to the
+// current level's set (or when the current sentence actually uses it — see RoleToolbar).
+export const ROLES_PER_LEVEL: Record<DifficultyLevel, RoleKey[]> = {
+  1: ['pv', 'ow', 'lv', 'mv', 'bwb', 'wg', 'nwd'],
+  2: ['pv', 'ow', 'lv', 'mv', 'bwb', 'vv', 'wg', 'nwd'],
+  3: ['pv', 'ow', 'lv', 'mv', 'bwb', 'vv', 'bijst', 'bijzin', 'vw_neven', 'wg', 'nwd'],
+  4: ['pv', 'ow', 'lv', 'mv', 'bwb', 'vv', 'bijst', 'bijzin', 'vw_neven', 'wg', 'nwd'],
+};
 
 export const FEEDBACK_STRUCTURE = {
   TOO_MANY_SPLITS: "Hier is te vroeg geknipt. Welke woorden horen nog bij elkaar in één blok?",
