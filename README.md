@@ -7,7 +7,7 @@ Een interactieve browser-app die leerlingen (12-15 jaar, onderbouw havo/vwo) lee
 | Onderdeel | Status | Details |
 |-----------|--------|---------|
 | **Kernfunctionaliteit** | ✅ Compleet | Tweestaps-ontleding (verdelen + benoemen), 13 rollen |
-| **Zinnen-database** | ✅ 145+ zinnen | 4 niveaus (Basis → Samengesteld) |
+| **Zinnen-database** | ✅ 204 zinnen | 4 niveaus (Basis → Samengesteld) |
 | **Feedback** | ✅ Contextueel | FEEDBACK_MATRIX met rolspecifieke uitleg |
 | **Docentenmodus** | ✅ Werkend | Editor, URL-delen, importeren |
 | **Gamification** | ✅ Basis | Confetti, streaks, badges |
@@ -19,6 +19,10 @@ Een interactieve browser-app die leerlingen (12-15 jaar, onderbouw havo/vwo) lee
 | **Werkwoordspelling** | 📋 Gepland | Module 2 (zie SPEC.md) |
 
 Zie `TODO.md` voor de volledige roadmap en `SPEC.md` voor de technische specificatie.
+
+Voor actuele zinnencontrole en docentplanning:
+- `data/sentence-parse-audit.md` (parse- en annotatie-audit)
+- `TEACHERS_SENTENCE_OVERVIEW.md` (subskills → numeriek gesorteerde zin-ID's)
 
 ## 🛠️ Installatie & Development
 
@@ -96,17 +100,28 @@ Voeg nieuwe zinnen toe aan de `SENTENCES` array:
 
 ```typescript
 {
-  id: 301,                        // Uniek nummer
-  label: "Zin 301: Korte naam",   // Zichtbaar in dropdown
+  id: 205,                        // Volgende vrije nummer na de huidige 204 zinnen
+  label: "Zin 205: Korte naam",   // Zichtbaar in dropdown
   predicateType: 'WG',            // 'WG' (Werkwoordelijk) of 'NG' (Naamwoordelijk)
   level: 2,                       // 1=Basis, 2=Middel, 3=Hoog, 4=Samengesteld
   tokens: [                       // De woorden
-    { id: "s301t1", text: "Ik", role: "ow" },
-    { id: "s301t2", text: "loop", role: "pv" },
+    { id: "s205t1", text: "Ik", role: "ow" },
+    { id: "s205t2", text: "loop", role: "pv" },
     // ...
   ]
 }
 ```
+
+### 1b. Nummering na hernummering
+
+Houd de huidige logische nummerreeks aan:
+
+- Niveau 1: `1-56`
+- Niveau 2: `57-145`
+- Niveau 3: `146-177`
+- Niveau 4: `178-204`
+
+Voeg je zinnen toe, gebruik dan steeds het **volgende vrije ID** en laat `label` en token-id's (`s<zinId>t<n>`) daarbij aansluiten.
 
 ### 2. Belangrijke Regels
 
