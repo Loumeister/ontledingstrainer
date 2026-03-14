@@ -20,6 +20,13 @@ Een interactieve browser-app die leerlingen (12-15 jaar, onderbouw havo/vwo) lee
 
 Zie `TODO.md` voor de volledige roadmap en `SPEC.md` voor de technische specificatie.
 
+
+Actuele aantallen per niveau:
+- Niveau 1: 65 zinnen
+- Niveau 2: 101 zinnen
+- Niveau 3: 40 zinnen
+- Niveau 4: 39 zinnen
+
 ## 🛠️ Installatie & Development
 
 1.  **Clone de repository:**
