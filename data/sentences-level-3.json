@@ -91,7 +91,7 @@
         "id": "s109t5",
         "text": "werd",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s109t6",
@@ -101,7 +101,8 @@
       {
         "id": "s109t7",
         "text": "woedend.",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       }
     ]
   },
@@ -558,7 +559,7 @@
         "id": "s116t6",
         "text": "blijkt",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s116t7",
@@ -578,14 +579,15 @@
       {
         "id": "s116t10",
         "text": "heel",
-        "role": "nwd",
+        "role": "ng",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s116t11"
       },
       {
         "id": "s116t11",
         "text": "tevreden.",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       }
     ]
   },
@@ -964,7 +966,7 @@
         "id": "s121t6",
         "text": "bleef",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s121t7",
@@ -991,21 +993,22 @@
       {
         "id": "s121t11",
         "text": "politiek",
-        "role": "nwd",
+        "role": "ng",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s121t13"
       },
       {
         "id": "s121t12",
         "text": "zeer",
-        "role": "nwd",
+        "role": "ng",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s121t13"
       },
       {
         "id": "s121t13",
         "text": "kwetsbaar.",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       }
     ]
   },
@@ -1031,7 +1034,7 @@
         "id": "s122t3",
         "text": "is",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s122t4",
@@ -1053,26 +1056,28 @@
       {
         "id": "s122t7",
         "text": "het",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s122t8",
         "text": "meest",
-        "role": "nwd",
+        "role": "ng",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s122t10"
       },
       {
         "id": "s122t9",
         "text": "realistische",
-        "role": "nwd",
+        "role": "ng",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s122t10"
       },
       {
         "id": "s122t10",
         "text": "plan.",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       }
     ]
   },
@@ -1138,7 +1143,7 @@
         "id": "s124t1",
         "text": "Ben",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s124t2",
@@ -1154,7 +1159,8 @@
       {
         "id": "s124t4",
         "text": "stil.",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       }
     ]
   },
@@ -1544,22 +1550,25 @@
         "id": "s180t3",
         "text": "is",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s180t4",
         "text": "op",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s180t5",
         "text": "het",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s180t6",
         "text": "dak,",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s180t7",
@@ -1580,12 +1589,13 @@
         "id": "s180t10",
         "text": "blijft",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s180t11",
         "text": "rustig",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s180t12",
@@ -1828,7 +1838,7 @@
         "id": "s184t2",
         "text": "was",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s184t3",
@@ -1869,19 +1879,21 @@
       {
         "id": "s184t9",
         "text": "een",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s184t10",
         "text": "grote",
-        "role": "nwd",
+        "role": "ng",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s184t11"
       },
       {
         "id": "s184t11",
         "text": "verrassing.",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       }
     ]
   },
@@ -1967,6 +1979,62 @@
         "id": "s199t7",
         "text": "regende.",
         "role": "bijzin"
+      }
+    ]
+  },
+  {
+    "id": 204,
+    "label": "Zin 204: Jan bleek (rechte volgorde, NG, samengesteld WWD + bijv_bep in NWD)",
+    "predicateType": "NG",
+    "level": 3,
+    "tokens": [
+      {
+        "id": "s204t1",
+        "text": "Jan",
+        "role": "ow"
+      },
+      {
+        "id": "s204t2",
+        "text": "bleek",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s204t3",
+        "text": "een",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s204t4",
+        "text": "goede",
+        "role": "ng",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s204t5"
+      },
+      {
+        "id": "s204t5",
+        "text": "koning",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s204t6",
+        "text": "geworden",
+        "role": "ng",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s204t7",
+        "text": "te",
+        "role": "ng",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s204t8",
+        "text": "zijn",
+        "role": "ng",
+        "subRole": "wwd"
       }
     ]
   }

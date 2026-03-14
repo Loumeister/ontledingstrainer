@@ -12,6 +12,7 @@ export type InteractionType =
   | 'bijzin_functie_remove'
   | 'bijvbep_link'
   | 'bijvbep_unlink'
+  | 'word_bijvbep_link'
   | 'check'
   | 'hint'
   | 'show_answer'

@@ -2225,19 +2225,20 @@
         "id": "s175t3",
         "text": "was",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s175t4",
         "text": "erg",
-        "role": "nwd",
+        "role": "ng",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s175t5"
       },
       {
         "id": "s175t5",
         "text": "spannend.",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       }
     ]
   },
@@ -2302,7 +2303,7 @@
         "id": "s177t3",
         "text": "wordt",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s177t4",
@@ -2312,7 +2313,8 @@
       {
         "id": "s177t5",
         "text": "oud.",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       }
     ]
   },
@@ -2430,7 +2432,7 @@
         "id": "s197t3",
         "text": "is",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s197t4",
@@ -2456,7 +2458,8 @@
       {
         "id": "s197t8",
         "text": "moe.",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       }
     ]
   }

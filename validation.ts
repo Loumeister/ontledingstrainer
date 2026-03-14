@@ -108,6 +108,7 @@ export function validateAnswer(
   includeBB: boolean,
   bijzinFunctieLabels?: PlacementMap,
   bijvBepLinks?: Record<string, string>,
+  wordBijvBepLinks?: Record<string, string>,
 ): { result: ValidationResult; mistakes: Record<string, number> } {
   const userChunks = buildUserChunks(sentence.tokens, splitIndices);
   const chunkStatus: Record<number, ValidationState> = {};
@@ -166,7 +167,7 @@ export function validateAnswer(
         if (subLabelOnFirstToken && roleMatchesToken(subLabelOnFirstToken, chunkTokens[0])) {
           // Student placed correct role on word instead of chunk header
           const hasDualRole = chunkTokens.some(t => {
-            const expectedSub = (!includeBB && t.subRole === 'bijv_bep') || t.subRole === 'wd' ? undefined : t.subRole;
+            const expectedSub = (!includeBB && t.subRole === 'bijv_bep') || t.subRole === 'wd' || t.subRole === 'wwd' || t.subRole === 'nwd' ? undefined : t.subRole;
             return expectedSub && expectedSub !== t.role;
           });
           if (!hasDualRole) {
@@ -178,7 +179,7 @@ export function validateAnswer(
           const sub = subLabels[anyMatchingSubLabel.id] as RoleKey;
           if (chunkTokens.every(t => roleMatchesToken(sub, t))) {
             const hasDualRole = chunkTokens.some(t => {
-              const expectedSub = (!includeBB && t.subRole === 'bijv_bep') || t.subRole === 'wd' ? undefined : t.subRole;
+              const expectedSub = (!includeBB && t.subRole === 'bijv_bep') || t.subRole === 'wd' || t.subRole === 'wwd' || t.subRole === 'nwd' ? undefined : t.subRole;
               return expectedSub && expectedSub !== t.role;
             });
             if (!hasDualRole) {
@@ -290,13 +291,34 @@ export function validateAnswer(
     const userSub = subLabels[t.id];
     let expectedSub = t.subRole;
     if (!includeBB && expectedSub === 'bijv_bep') expectedSub = undefined;
-    if (expectedSub === 'wd') expectedSub = undefined; // PV subRole:wd is display-only, not validated
+    if (expectedSub === 'wd' || expectedSub === 'wwd' || expectedSub === 'nwd') expectedSub = undefined; // display-only subRoles, not validated
     if (userSub !== expectedSub) subRoleMismatch = true;
   });
 
+  // --- Word-level bijv_bep link validation ---
+  // When a token has subRole bijv_bep + bijvBepTarget, the student must link it to the correct word.
+  let wordBijvBepLinkMismatch = false;
+  if (includeBB && wordBijvBepLinks) {
+    sentence.tokens.forEach(t => {
+      if (t.subRole !== 'bijv_bep' || !t.bijvBepTarget) return;
+      const userLink = wordBijvBepLinks[t.id];
+      if (userLink === t.bijvBepTarget) return;
+      wordBijvBepLinkMismatch = true;
+      const chunkIdx = userChunks.findIndex(c => c.tokens.some(ct => ct.id === t.id));
+      if (chunkIdx < 0 || chunkStatus[chunkIdx] !== 'correct') return;
+      const expectedTargetText = sentence.tokens.find(tt => tt.id === t.bijvBepTarget)?.text || '?';
+      if (!userLink) {
+        chunkFeedback[chunkIdx] = `Goed! Wijs nu het woord aan waar '${t.text}' bij hoort. Welk woord wordt nader bepaald?`;
+      } else {
+        chunkFeedback[chunkIdx] = `'${t.text}' bepaalt '${expectedTargetText}' nader, niet het woord dat je hebt aangewezen.`;
+      }
+      chunkStatus[chunkIdx] = 'warning';
+    });
+  }
+
   const isSplitPerfect = correctChunksCount === userChunks.length;
   const realChunkCount = countRealChunks(sentence.tokens);
-  const isPerfect = isSplitPerfect && userChunks.length === realChunkCount && !subRoleMismatch && !bijzinFunctieMismatch && !bijvBepLinkMismatch;
+  const isPerfect = isSplitPerfect && userChunks.length === realChunkCount && !subRoleMismatch && !bijzinFunctieMismatch && !bijvBepLinkMismatch && !wordBijvBepLinkMismatch;
 
   return {
     result: {

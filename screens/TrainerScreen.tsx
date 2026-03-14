@@ -14,6 +14,7 @@ type TrainerScreenProps = Pick<TrainerState,
   | 'currentSentence' | 'step' | 'mode'
   | 'splitIndices' | 'chunkLabels' | 'subLabels' | 'bijzinFunctieLabels'
   | 'bijvBepLinks' | 'linkingBijvBepId'
+  | 'wordBijvBepLinks' | 'linkingWordTokenId'
   | 'validationResult' | 'showAnswerMode' | 'hintMessage'
   | 'hasBeenScored' | 'allLabeled'
   | 'confirmAction' | 'setConfirmAction'
@@ -31,6 +32,7 @@ type TrainerScreenProps = Pick<TrainerState,
   | 'removeLabel' | 'removeSubLabel'
   | 'handleDropBijzinFunctie' | 'removeBijzinFunctieLabel'
   | 'startBijvBepLinking' | 'completeBijvBepLink' | 'cancelBijvBepLinking' | 'removeBijvBepLink'
+  | 'completeWordBijvBepLink' | 'cancelWordBijvBepLinking'
   | 'handleHint' | 'handleCheck'
   | 'handleShowAnswerRequest' | 'handleRetry' | 'handleAbortRequest' | 'handleConfirmAction'
   | 'nextSessionSentence'
@@ -45,6 +47,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   currentSentence, step, mode,
   splitIndices, chunkLabels, subLabels, bijzinFunctieLabels,
   bijvBepLinks, linkingBijvBepId,
+  wordBijvBepLinks, linkingWordTokenId,
   validationResult, showAnswerMode, hintMessage,
   hasBeenScored, allLabeled,
   confirmAction, setConfirmAction,
@@ -62,6 +65,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   removeLabel, removeSubLabel,
   handleDropBijzinFunctie, removeBijzinFunctieLabel,
   startBijvBepLinking, completeBijvBepLink, cancelBijvBepLinking, removeBijvBepLink,
+  completeWordBijvBepLink, cancelWordBijvBepLinking,
   handleHint, handleCheck,
   handleShowAnswerRequest, handleRetry, handleAbortRequest, handleConfirmAction,
   nextSessionSentence,
@@ -265,6 +269,19 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                 </div>
               )}
 
+              {linkingWordTokenId && (() => {
+                const srcToken = currentSentence.tokens.find(t => t.id === linkingWordTokenId);
+                return (
+                  <div className="w-full flex items-center justify-center gap-3 px-4 py-2 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg text-sm text-amber-700 dark:text-amber-300">
+                    <span>Klik op het woord waar <strong>'{srcToken?.text}'</strong> bij hoort</span>
+                    <button
+                      onClick={cancelWordBijvBepLinking}
+                      className="px-2 py-0.5 text-xs rounded bg-amber-100 dark:bg-amber-800 hover:bg-amber-200 dark:hover:bg-amber-700 transition-colors"
+                    >Annuleren</button>
+                  </div>
+                );
+              })()}
+
               <div className="flex flex-wrap gap-y-6 gap-x-2 justify-center items-start pt-2 px-1 flex-1 content-start">
                 {userChunks.map((chunk, idx) => {
                   const startTokenId = chunk.tokens[0].id;
@@ -311,6 +328,9 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                         hasBijzinFunctie={hasBijzinFunctie}
                         isLinkingMode={!!linkingBijvBepId}
                         isLinkingSource={linkingBijvBepId === startTokenId}
+                        wordLinkingTokenId={linkingWordTokenId}
+                        wordBijvBepLinks={wordBijvBepLinks}
+                        onCompleteWordLink={completeWordBijvBepLink}
                         validationState={validationResult?.chunkStatus[idx]}
                         feedbackMessage={validationResult?.chunkFeedback[idx]}
                         isLargeFont={largeFont}
@@ -457,8 +477,11 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
   const levelRoles = selectedLevel ? ROLES_PER_LEVEL[selectedLevel] : null;
 
   const isRoleVisible = (roleKey: string): boolean => {
-    // Always show if the current sentence contains this role
-    if (currentSentence?.tokens.some(t => t.role === roleKey || t.subRole === roleKey)) return true;
+    // Always show if the current sentence contains this role.
+    // For 'wd', only match main role (t.role) — subRole 'wd' on PV is display-only and has no chunk to label.
+    if (roleKey === 'wd') {
+      if (currentSentence?.tokens.some(t => t.role === 'wd')) return true;
+    } else if (currentSentence?.tokens.some(t => t.role === roleKey || t.subRole === roleKey)) return true;
     // No level selected → show everything
     if (!levelRoles) return true;
     // Focus flag overrides
@@ -489,7 +512,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
           </div>
           <div className="flex flex-wrap gap-2 justify-center">
             {/* Main syntactic roles (PV, OW, LV, MV, BWB, VV) */}
-            {ROLES.filter(r => !r.isSubOnly && !['wg', 'nwd', 'wd', 'ng', 'bijzin', 'vw_neven', 'bijst'].includes(r.key as string))
+            {ROLES.filter(r => !r.isSubOnly && !['wg', 'ng', 'bijzin', 'vw_neven', 'bijst'].includes(r.key as string))
                   .filter(r => isRoleVisible(r.key))
                   .map(role => (
               <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
@@ -497,9 +520,8 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
 
             <div className="w-full" />
 
-            {/* WG, NWD — always visible; WD — level 4 or when sentence uses it */}
-            {ROLES.filter(r => !r.isSubOnly && ['wg', 'nwd', 'wd'].includes(r.key as string))
-                  .filter(r => r.key === 'wd' ? isRoleVisible(r.key) : true)
+            {/* WG, NG — always visible */}
+            {ROLES.filter(r => !r.isSubOnly && ['wg', 'ng'].includes(r.key as string))
                   .map(role => (
               <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
             ))}

@@ -65,6 +65,8 @@ export interface TrainerState {
   bijzinFunctieLabels: PlacementMap;
   bijvBepLinks: Record<string, string>; // sourceId -> targetTokenId (for bvb reference tracking)
   linkingBijvBepId: string | null; // chunk/token ID currently in "linking mode"
+  wordBijvBepLinks: Record<string, string>; // word-level bijv_bep: tokenId -> targetTokenId
+  linkingWordTokenId: string | null; // token ID currently in word-level bijv_bep linking mode
   validationResult: ValidationResult | null;
   showAnswerMode: boolean;
   hintMessage: string | null;
@@ -111,6 +113,9 @@ export interface TrainerState {
   completeBijvBepLink: (targetTokenId: string) => void;
   cancelBijvBepLinking: () => void;
   removeBijvBepLink: (sourceId: string) => void;
+  completeWordBijvBepLink: (sourceId: string, targetId: string) => void;
+  cancelWordBijvBepLinking: () => void;
+  removeWordBijvBepLink: (tokenId: string) => void;
   handleHint: () => void;
   handleCheck: () => void;
   handleShowAnswerRequest: () => void;
@@ -138,6 +143,7 @@ interface PreAnswerSnapshot {
   subLabels: PlacementMap;
   bijzinFunctieLabels: PlacementMap;
   bijvBepLinks: Record<string, string>;
+  wordBijvBepLinks: Record<string, string>;
 }
 
 export function useTrainer(): TrainerState {
@@ -190,6 +196,8 @@ export function useTrainer(): TrainerState {
   const [bijzinFunctieLabels, setBijzinFunctieLabels] = useState<PlacementMap>({});
   const [bijvBepLinks, setBijvBepLinks] = useState<Record<string, string>>({});
   const [linkingBijvBepId, setLinkingBijvBepId] = useState<string | null>(null);
+  const [wordBijvBepLinks, setWordBijvBepLinks] = useState<Record<string, string>>({});
+  const [linkingWordTokenId, setLinkingWordTokenId] = useState<string | null>(null);
 
   // Tap-to-place state
   const [selectedRole, setSelectedRole] = useState<RoleKey | null>(null);
@@ -285,6 +293,8 @@ export function useTrainer(): TrainerState {
     setBijzinFunctieLabels({});
     setBijvBepLinks({});
     setLinkingBijvBepId(null);
+    setWordBijvBepLinks({});
+    setLinkingWordTokenId(null);
     setSelectedRole(null);
     setValidationResult(null);
     setShowAnswerMode(false);
@@ -450,6 +460,11 @@ export function useTrainer(): TrainerState {
     const roleKey = e.dataTransfer.getData("text/role") as RoleKey;
     if (roleKey) {
       routeChunkDrop(chunkId, roleKey);
+      // If dragged from another chunk's role badge, remove it from the source (move semantics)
+      const moveFromChunk = e.dataTransfer.getData("text/move-from-chunk");
+      if (moveFromChunk && moveFromChunk !== chunkId) {
+        setChunkLabels(prev => { const n = { ...prev }; delete n[moveFromChunk]; return n; });
+      }
     }
   };
 
@@ -459,9 +474,23 @@ export function useTrainer(): TrainerState {
     const roleKey = e.dataTransfer.getData("text/role") as RoleKey;
     if (roleKey) {
       logInteraction('sub_label_drop', currentSentence?.id, `token=${tokenId},role=${roleKey}`);
-      setSubLabels(prev => ({ ...prev, [tokenId]: roleKey }));
+      const moveFromWord = e.dataTransfer.getData("text/move-from-word");
+      if (moveFromWord && moveFromWord !== tokenId) {
+        // Move semantics: remove from source word, place on target word in one update
+        setSubLabels(prev => { const n = { ...prev, [tokenId]: roleKey }; delete n[moveFromWord]; return n; });
+        if (wordBijvBepLinks[moveFromWord]) {
+          setWordBijvBepLinks(prev => { const n = { ...prev }; delete n[moveFromWord]; return n; });
+        }
+        if (linkingWordTokenId === moveFromWord) setLinkingWordTokenId(null);
+      } else {
+        setSubLabels(prev => ({ ...prev, [tokenId]: roleKey }));
+      }
       setValidationResult(null);
       setHintMessage(null);
+      if (roleKey === 'bijv_bep') {
+        const token = currentSentence?.tokens.find(t => t.id === tokenId);
+        if (token?.bijvBepTarget) setLinkingWordTokenId(tokenId);
+      }
     }
   };
 
@@ -481,6 +510,11 @@ export function useTrainer(): TrainerState {
     const newLabels = { ...subLabels };
     delete newLabels[tokenId];
     setSubLabels(newLabels);
+    // Also remove any word-level bijv_bep link for this token
+    if (wordBijvBepLinks[tokenId]) {
+      setWordBijvBepLinks(prev => { const n = { ...prev }; delete n[tokenId]; return n; });
+    }
+    if (linkingWordTokenId === tokenId) setLinkingWordTokenId(null);
     setValidationResult(null);
     setHintMessage(null);
   };
@@ -507,6 +541,29 @@ export function useTrainer(): TrainerState {
     const newLinks = { ...bijvBepLinks };
     delete newLinks[chunkId];
     setBijvBepLinks(newLinks);
+    setValidationResult(null);
+    setHintMessage(null);
+  };
+
+  const completeWordBijvBepLink = (sourceId: string, targetTokenId: string) => {
+    logInteraction('word_bijvbep_link', currentSentence?.id, `source=${sourceId},target=${targetTokenId}`);
+    setWordBijvBepLinks(prev => ({ ...prev, [sourceId]: targetTokenId }));
+    setLinkingWordTokenId(null);
+    setValidationResult(null);
+    setHintMessage(null);
+  };
+
+  const cancelWordBijvBepLinking = () => {
+    setLinkingWordTokenId(null);
+  };
+
+  const removeWordBijvBepLink = (tokenId: string) => {
+    if (showAnswerMode) return;
+    setWordBijvBepLinks(prev => {
+      const next = { ...prev };
+      delete next[tokenId];
+      return next;
+    });
     setValidationResult(null);
     setHintMessage(null);
   };
@@ -563,6 +620,10 @@ export function useTrainer(): TrainerState {
     setSubLabels(prev => ({ ...prev, [tokenId]: selectedRole }));
     setValidationResult(null);
     setHintMessage(null);
+    if (selectedRole === 'bijv_bep') {
+      const token = currentSentence?.tokens.find(t => t.id === tokenId);
+      if (token?.bijvBepTarget) setLinkingWordTokenId(tokenId);
+    }
     setSelectedRole(null);
   };
 
@@ -639,7 +700,7 @@ export function useTrainer(): TrainerState {
 
     const { result: vResult, mistakes: currentMistakes } = validateAnswer(
       currentSentence, splitIndices, chunkLabels, subLabels, includeBB,
-      bijzinFunctieLabels, bijvBepLinks
+      bijzinFunctieLabels, bijvBepLinks, wordBijvBepLinks
     );
 
     setValidationResult(vResult);
@@ -733,6 +794,7 @@ export function useTrainer(): TrainerState {
       subLabels: { ...subLabels },
       bijzinFunctieLabels: { ...bijzinFunctieLabels },
       bijvBepLinks: { ...bijvBepLinks },
+      wordBijvBepLinks: { ...wordBijvBepLinks },
     });
 
     setSplitIndices(correctSplits);
@@ -742,6 +804,7 @@ export function useTrainer(): TrainerState {
     const correctSubLabels: PlacementMap = {};
     const correctBijzinFunctieLabels: PlacementMap = {};
     const correctBijvBepLinks: Record<string, string> = {};
+    const correctWordBijvBepLinks: Record<string, string> = {};
     let currentChunkStartId = currentSentence.tokens[0].id;
     correctChunkLabels[currentChunkStartId] = currentSentence.tokens[0].role;
     if (currentSentence.tokens[0].bijzinFunctie) {
@@ -756,7 +819,12 @@ export function useTrainer(): TrainerState {
     currentSentence.tokens.forEach((t, i) => {
       if (t.subRole) {
         if (t.subRole === 'bijv_bep' && !includeBB) { /* skip */ }
-        else { correctSubLabels[t.id] = t.subRole; }
+        else {
+          correctSubLabels[t.id] = t.subRole;
+          if (t.subRole === 'bijv_bep' && t.bijvBepTarget && includeBB) {
+            correctWordBijvBepLinks[t.id] = t.bijvBepTarget;
+          }
+        }
       }
       if (correctSplits.has(i - 1)) {
          currentChunkStartId = t.id;
@@ -778,7 +846,7 @@ export function useTrainer(): TrainerState {
       setHasBeenScored(true);
       const { result: vResult, mistakes: currentMistakes } = validateAnswer(
         currentSentence, splitIndices, chunkLabels, subLabels, includeBB,
-        bijzinFunctieLabels, bijvBepLinks
+        bijzinFunctieLabels, bijvBepLinks, wordBijvBepLinks
       );
       const realChunkCount = countRealChunks(currentSentence.tokens);
       if (mode === 'session') {
@@ -825,6 +893,8 @@ export function useTrainer(): TrainerState {
     setBijzinFunctieLabels(correctBijzinFunctieLabels);
     setBijvBepLinks(correctBijvBepLinks);
     setLinkingBijvBepId(null);
+    setWordBijvBepLinks(correctWordBijvBepLinks);
+    setLinkingWordTokenId(null);
     setShowAnswerMode(true);
     setValidationResult(null);
   };
@@ -838,13 +908,16 @@ export function useTrainer(): TrainerState {
       setSubLabels(preAnswerSnapshot.subLabels);
       setBijzinFunctieLabels(preAnswerSnapshot.bijzinFunctieLabels);
       setBijvBepLinks(preAnswerSnapshot.bijvBepLinks);
+      setWordBijvBepLinks(preAnswerSnapshot.wordBijvBepLinks);
     } else {
       setChunkLabels({});
       setSubLabels({});
       setBijzinFunctieLabels({});
       setBijvBepLinks({});
+      setWordBijvBepLinks({});
     }
     setLinkingBijvBepId(null);
+    setLinkingWordTokenId(null);
     setShowAnswerMode(false);
     setValidationResult(null);
     setHintMessage(null);
@@ -909,6 +982,7 @@ export function useTrainer(): TrainerState {
     currentSentence, step,
     splitIndices, chunkLabels, subLabels, bijzinFunctieLabels,
     bijvBepLinks, linkingBijvBepId,
+    wordBijvBepLinks, linkingWordTokenId,
     validationResult, showAnswerMode,
     hintMessage, hasBeenScored, allLabeled,
     confirmAction, setConfirmAction,
@@ -934,6 +1008,7 @@ export function useTrainer(): TrainerState {
     removeLabel, removeSubLabel,
     handleDropBijzinFunctie, removeBijzinFunctieLabel,
     startBijvBepLinking, completeBijvBepLink, cancelBijvBepLinking, removeBijvBepLink,
+    completeWordBijvBepLink, cancelWordBijvBepLinking, removeWordBijvBepLink,
     handleHint, handleCheck,
     handleShowAnswerRequest, handleRetry, handleAbortRequest,
     handleConfirmAction, resetToHome,
