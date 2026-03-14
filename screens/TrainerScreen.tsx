@@ -477,8 +477,11 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
   const levelRoles = selectedLevel ? ROLES_PER_LEVEL[selectedLevel] : null;
 
   const isRoleVisible = (roleKey: string): boolean => {
-    // Always show if the current sentence contains this role
-    if (currentSentence?.tokens.some(t => t.role === roleKey || t.subRole === roleKey)) return true;
+    // Always show if the current sentence contains this role.
+    // For 'wd', only match main role (t.role) — subRole 'wd' on PV is display-only and has no chunk to label.
+    if (roleKey === 'wd') {
+      if (currentSentence?.tokens.some(t => t.role === 'wd')) return true;
+    } else if (currentSentence?.tokens.some(t => t.role === roleKey || t.subRole === roleKey)) return true;
     // No level selected → show everything
     if (!levelRoles) return true;
     // Focus flag overrides
