@@ -31,15 +31,15 @@ const ZINSDEEL_INFO = [
   {
     shortLabel: 'NG',
     label: 'Naamwoordelijk Gezegde',
-    description: 'Zegt iets over het onderwerp, na een koppelwerkwoord (zijn, worden, lijken, schijnen, blijven).',
-    question: 'Is er een koppelwerkwoord? Wat wordt er over het OW gezegd?',
+    description: 'Het deel dat via een koppelwerkwoord (zijn, worden, lijken, blijven) iets zegt over het OW. Label alle woorden van de eigenschap of toestand als NG — inclusief eventuele hulpwerkwoorden zoals "geworden". De PV is al apart gelabeld.',
+    question: 'Wat wordt er over het OW gezegd? (niet de PV zelf)',
     colorClass: 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/40 dark:text-yellow-100 dark:border-yellow-600',
   },
   {
-    shortLabel: 'WD',
+    shortLabel: 'WWD',
     label: 'Werkwoordelijk Deel',
-    description: 'Het niet-persoonlijke werkwoorddeel van een naamwoordelijk gezegde (bijv. "geworden", "te zijn"). Het staat samen met de PV en het NWD.',
-    question: 'Is er een koppelwerkwoord dat géén PV is? Dat is het WD.',
+    description: 'Het niet-persoonlijke werkwoord dat bij het koppelwerkwoord hoort (bijv. "geworden", "te zijn"). Maakt onderdeel uit van het NG-blok. De PV zelf is ook een WWD in NG-zinnen.',
+    question: 'Is er een werkwoord naast de PV dat bij het koppelwerkwoord hoort? Dat is het WWD — het valt binnen het NG-blok.',
     colorClass: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/40 dark:text-rose-100 dark:border-rose-600',
   },
   {
@@ -87,8 +87,8 @@ const ZINSDEEL_INFO = [
   {
     shortLabel: 'BB',
     label: 'Bijvoeglijke Bepaling',
-    description: 'Voegt een eigenschap toe aan een zelfstandig naamwoord (bijv. \'de grote hond\').',
-    question: 'Welk woord zegt iets over een zelfstandig naamwoord?',
+    description: 'Voegt een eigenschap toe aan een zelfstandig naamwoord of aan de kern van een NG (bijv. "erg spannend", "volledig klaar"). De BB hoort bij het blok van het woord dat het beschrijft.',
+    question: 'Welk woord zegt iets over een zelfstandig naamwoord of de kern van het NG?',
     colorClass: 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-900/40 dark:text-teal-100 dark:border-teal-700',
   },
 ];

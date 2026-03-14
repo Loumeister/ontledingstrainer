@@ -144,22 +144,25 @@
         "id": "s133t2",
         "text": "ben",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s133t3",
         "text": "in",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s133t4",
         "text": "de",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s133t5",
         "text": "war,",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s133t6",
@@ -220,7 +223,7 @@
         "id": "s134t4",
         "text": "is",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s134t5",
@@ -242,7 +245,8 @@
       {
         "id": "s134t8",
         "text": "piloot,",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s134t9",
@@ -274,7 +278,8 @@
       {
         "id": "s134t14",
         "text": "afgerond.",
-        "role": "wd"
+        "role": "ng",
+        "subRole": "wwd"
       }
     ]
   },
@@ -300,19 +305,20 @@
         "id": "s135t3",
         "text": "is",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s135t4",
         "text": "zeer",
-        "role": "nwd",
+        "role": "ng",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s135t5"
       },
       {
         "id": "s135t5",
         "text": "goedgelovig,",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s135t6",
@@ -432,12 +438,14 @@
       {
         "id": "s137t3",
         "text": "willen",
-        "role": "wd"
+        "role": "ng",
+        "subRole": "wwd"
       },
       {
         "id": "s137t4",
         "text": "komen,",
-        "role": "wd"
+        "role": "ng",
+        "subRole": "wwd"
       },
       {
         "id": "s137t5",
@@ -453,7 +461,7 @@
         "id": "s137t7",
         "text": "was",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s137t8",
@@ -470,7 +478,8 @@
       {
         "id": "s137t10",
         "text": "kwijt,",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s137t11",
@@ -727,19 +736,20 @@
         "id": "s141t6",
         "text": "is",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s141t7",
         "text": "mijn",
-        "role": "nwd",
+        "role": "ng",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s141t8"
       },
       {
         "id": "s141t8",
         "text": "vader.",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       }
     ]
   },
@@ -786,12 +796,13 @@
         "id": "s142t7",
         "text": "was",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s142t8",
         "text": "duur.",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       }
     ]
   },
@@ -946,19 +957,20 @@
         "id": "s186t10",
         "text": "waren",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s186t11",
         "text": "erg",
-        "role": "nwd",
+        "role": "ng",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s186t12"
       },
       {
         "id": "s186t12",
         "text": "trots.",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       }
     ]
   },
@@ -1223,7 +1235,7 @@
         "id": "s192t3",
         "text": "is",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s192t4",
@@ -1240,12 +1252,14 @@
       {
         "id": "s192t6",
         "text": "ziek",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s192t7",
         "text": "geworden.",
-        "role": "wd"
+        "role": "ng",
+        "subRole": "wwd"
       }
     ]
   },
@@ -1384,19 +1398,20 @@
         "id": "s195t6",
         "text": "is",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s195t7",
         "text": "erg",
-        "role": "nwd",
+        "role": "ng",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s195t8"
       },
       {
         "id": "s195t8",
         "text": "aardig.",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       }
     ]
   },
@@ -1478,34 +1493,38 @@
         "id": "s201t3",
         "text": "bleek",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s201t4",
         "text": "een",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s201t5",
         "text": "goede",
-        "role": "nwd",
+        "role": "ng",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s201t6"
       },
       {
         "id": "s201t6",
         "text": "vader",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s201t7",
         "text": "te",
-        "role": "wd"
+        "role": "ng",
+        "subRole": "wwd"
       },
       {
         "id": "s201t8",
         "text": "zijn.",
-        "role": "wd"
+        "role": "ng",
+        "subRole": "wwd"
       }
     ]
   },
@@ -1531,24 +1550,26 @@
         "id": "s202t3",
         "text": "is",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s202t4",
         "text": "ernstig",
-        "role": "nwd",
+        "role": "ng",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s202t5"
       },
       {
         "id": "s202t5",
         "text": "ziek",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s202t6",
         "text": "geworden.",
-        "role": "wd"
+        "role": "ng",
+        "subRole": "wwd"
       }
     ]
   },
@@ -1574,34 +1595,38 @@
         "id": "s203t3",
         "text": "lijkt",
         "role": "pv",
-        "subRole": "wd"
+        "subRole": "wwd"
       },
       {
         "id": "s203t4",
         "text": "een",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s203t5",
         "text": "strenge",
-        "role": "nwd",
+        "role": "ng",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s203t6"
       },
       {
         "id": "s203t6",
         "text": "rechter",
-        "role": "nwd"
+        "role": "ng",
+        "subRole": "nwd"
       },
       {
         "id": "s203t7",
         "text": "te",
-        "role": "wd"
+        "role": "ng",
+        "subRole": "wwd"
       },
       {
         "id": "s203t8",
         "text": "worden.",
-        "role": "wd"
+        "role": "ng",
+        "subRole": "wwd"
       }
     ]
   }

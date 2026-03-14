@@ -489,7 +489,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
           </div>
           <div className="flex flex-wrap gap-2 justify-center">
             {/* Main syntactic roles (PV, OW, LV, MV, BWB, VV) */}
-            {ROLES.filter(r => !r.isSubOnly && !['wg', 'nwd', 'wd', 'ng', 'bijzin', 'vw_neven', 'bijst'].includes(r.key as string))
+            {ROLES.filter(r => !r.isSubOnly && !['wg', 'ng', 'bijzin', 'vw_neven', 'bijst'].includes(r.key as string))
                   .filter(r => isRoleVisible(r.key))
                   .map(role => (
               <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
@@ -497,9 +497,8 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
 
             <div className="w-full" />
 
-            {/* WG, NWD — always visible; WD — level 4 or when sentence uses it */}
-            {ROLES.filter(r => !r.isSubOnly && ['wg', 'nwd', 'wd'].includes(r.key as string))
-                  .filter(r => r.key === 'wd' ? isRoleVisible(r.key) : true)
+            {/* WG, NG — always visible */}
+            {ROLES.filter(r => !r.isSubOnly && ['wg', 'ng'].includes(r.key as string))
                   .map(role => (
               <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
             ))}
