@@ -37,3 +37,14 @@ Deze audit volgt de repo-inspectie/constraint-aanpak: eerst label- en annotatiem
 ## Didactische randvoorwaarde
 
 Nieuwe zinnen moeten één hoofdvalkuil per item behouden en expliciet een korte `pv`- en `ow`-redenering krijgen voor feedbackkwaliteit.
+
+
+## Opschoning inversieclusters niveau 1
+
+- Gericht opgeschoond op inversiezinnen met dezelfde rolstructuur **BWB-voorop → PV-OW-LV**.
+- Verwijderd wegens sterk overlap in didactisch profiel: **153, 158, 164, 166, 168**.
+- Clusterbalans na opschoning (minimaal 2 per cluster behouden):
+  - Cluster A (147/159/164/168/172) → **147, 159, 172**
+  - Cluster B (149/150/153/158/167) → **149, 150, 167**
+  - Cluster C (143/156/166) → **143, 156**
+- Netto effect: niveau 1 van **66 naar 61** zinnen; variatie blijft aanwezig met minder dubbeling in oefenprofiel.
