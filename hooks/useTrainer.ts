@@ -425,15 +425,31 @@ export function useTrainer(): TrainerState {
     e.dataTransfer.effectAllowed = "copy";
   };
 
+  // Smart routing: if main role is already 'bijzin' and the chunk expects a bijzin function
+  // that hasn't been filled yet, route the drop to bijzinFunctieLabels instead of chunkLabels.
+  const routeChunkDrop = (chunkId: string, roleKey: RoleKey) => {
+    if (!currentSentence) return;
+    const token = currentSentence.tokens.find(t => t.id === chunkId);
+    const bijzinFunctie = token?.bijzinFunctie;
+    const hasBijzinFunctie = !!bijzinFunctie && (bijzinFunctie !== 'bijv_bep' || includeBB);
+
+    if (chunkLabels[chunkId] === 'bijzin' && hasBijzinFunctie && !bijzinFunctieLabels[chunkId]) {
+      logInteraction('bijzin_functie_drop', currentSentence.id, `chunk=${chunkId},role=${roleKey}`);
+      setBijzinFunctieLabels(prev => ({ ...prev, [chunkId]: roleKey }));
+    } else {
+      logInteraction('label_drop', currentSentence.id, `chunk=${chunkId},role=${roleKey}`);
+      setChunkLabels(prev => ({ ...prev, [chunkId]: roleKey }));
+    }
+    setValidationResult(null);
+    setHintMessage(null);
+  };
+
   const handleDropChunk = (e: React.DragEvent<HTMLDivElement>, chunkId: string) => {
     e.preventDefault();
     if (showAnswerMode) return;
     const roleKey = e.dataTransfer.getData("text/role") as RoleKey;
     if (roleKey) {
-      logInteraction('label_drop', currentSentence?.id, `chunk=${chunkId},role=${roleKey}`);
-      setChunkLabels(prev => ({ ...prev, [chunkId]: roleKey }));
-      setValidationResult(null);
-      setHintMessage(null);
+      routeChunkDrop(chunkId, roleKey);
     }
   };
 
@@ -536,10 +552,7 @@ export function useTrainer(): TrainerState {
   const handleTapPlaceChunk = (chunkId: string) => {
     if (!selectedRole) return;
     if (showAnswerMode) return;
-    logInteraction('label_drop', currentSentence?.id, `chunk=${chunkId},role=${selectedRole}`);
-    setChunkLabels(prev => ({ ...prev, [chunkId]: selectedRole }));
-    setValidationResult(null);
-    setHintMessage(null);
+    routeChunkDrop(chunkId, selectedRole);
     setSelectedRole(null);
   };
 
@@ -555,10 +568,7 @@ export function useTrainer(): TrainerState {
 
   const handleTouchDrop = (chunkId: string, roleKey: string) => {
     if (showAnswerMode) return;
-    logInteraction('label_drop', currentSentence?.id, `chunk=${chunkId},role=${roleKey}`);
-    setChunkLabels(prev => ({ ...prev, [chunkId]: roleKey as RoleKey }));
-    setValidationResult(null);
-    setHintMessage(null);
+    routeChunkDrop(chunkId, roleKey as RoleKey);
     setSelectedRole(null);
   };
 
