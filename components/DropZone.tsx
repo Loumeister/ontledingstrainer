@@ -20,10 +20,13 @@ interface SentenceChunkProps {
   onToggleSplit: (globalTokenIndex: number) => void;
   onStartBijvBepLinking: (sourceId: string) => void;
   onRemoveBijvBepLink: (sourceId: string) => void;
-  onWordClick: (tokenId: string) => void; // For bvb linking mode
+  onWordClick: (tokenId: string) => void; // For bijzin bvb linking mode
   hasBijzinFunctie: boolean; // Whether this chunk expects a bijzin function (gated by includeBB)
-  isLinkingMode: boolean; // Whether any chunk is in bvb linking mode
-  isLinkingSource: boolean; // Whether THIS chunk is the one being linked
+  isLinkingMode: boolean; // Whether any bijzin chunk is in bvb linking mode
+  isLinkingSource: boolean; // Whether THIS chunk is the bijzin being linked
+  wordLinkingTokenId?: string | null; // Token id whose word-level bijv_bep is being linked
+  wordBijvBepLinks?: Record<string, string>; // established word-level bijv_bep links
+  onCompleteWordLink?: (sourceId: string, targetId: string) => void;
   validationState?: ValidationState;
   feedbackMessage?: string | null;
   isLargeFont?: boolean;
@@ -52,6 +55,9 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
   hasBijzinFunctie,
   isLinkingMode,
   isLinkingSource,
+  wordLinkingTokenId,
+  wordBijvBepLinks,
+  onCompleteWordLink,
   validationState,
   feedbackMessage,
   isLargeFont = false,
@@ -293,14 +299,18 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
         {tokens.map((token, i) => {
            const subRole = subRoles[token.id];
            const isWordHovered = hoveredWordId === token.id;
+           const wordLinkingActiveInChunk = !!(wordLinkingTokenId && tokens.some(t => t.id === wordLinkingTokenId));
+           const isWordLinkingSource = wordLinkingTokenId === token.id;
+           const isWordLinkingTarget = wordLinkingActiveInChunk && !isWordLinkingSource;
+           const establishedWordLink = wordBijvBepLinks?.[token.id];
 
            return (
              <React.Fragment key={token.id}>
                <div className="relative flex flex-col items-center group/word">
-                  
+
                   {/* Sub Role Chip */}
                   {subRole && (
-                    <div 
+                    <div
                       className={`
                         absolute -top-6 text-[9px] px-1.5 py-0.5 rounded-md border shadow-sm whitespace-nowrap z-10 cursor-pointer
                         ${subRole.colorClass || ''} ${subRole.borderColorClass || ''}
@@ -309,16 +319,19 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
                       title="Klik om te verwijderen"
                     >
                       {subRole.shortLabel}
+                      {establishedWordLink && <span className="ml-1 opacity-70">→</span>}
                     </div>
                   )}
 
                   {/* The Word Target */}
-                  <span 
+                  <span
                     className={`
                       text-slate-800 dark:text-slate-200 font-medium px-1 py-1 rounded transition-colors duration-200 border border-transparent
                       ${isWordHovered ? 'bg-yellow-100 dark:bg-yellow-900/50 border-yellow-300 dark:border-yellow-600 shadow-sm' : ''}
-                      ${!isWordHovered && !subRole ? 'hover:bg-slate-100 dark:hover:bg-slate-700' : ''}
+                      ${!isWordHovered && !subRole && !isWordLinkingTarget ? 'hover:bg-slate-100 dark:hover:bg-slate-700' : ''}
                       ${isLinkingMode && !isLinkingSource ? 'cursor-pointer ring-2 ring-teal-300 dark:ring-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30 hover:ring-teal-500' : ''}
+                      ${isWordLinkingSource ? 'ring-2 ring-amber-400 dark:ring-amber-500 bg-amber-50 dark:bg-amber-900/30' : ''}
+                      ${isWordLinkingTarget ? 'cursor-pointer ring-2 ring-teal-300 dark:ring-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30 hover:ring-teal-500' : ''}
                     `}
                     onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                     onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); handleWordDragEnter(token.id); }}
@@ -330,7 +343,10 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
                       setHoveredWordId(null);
                     }}
                     onClick={(e) => {
-                      if (isLinkingMode && !isLinkingSource) {
+                      if (isWordLinkingTarget && wordLinkingTokenId && onCompleteWordLink) {
+                        e.stopPropagation();
+                        onCompleteWordLink(wordLinkingTokenId, token.id);
+                      } else if (isLinkingMode && !isLinkingSource) {
                         e.stopPropagation();
                         onWordClick(token.id);
                       } else if (selectedRole && onTapPlaceWord) {

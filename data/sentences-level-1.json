@@ -2308,9 +2308,7 @@
       {
         "id": "s177t4",
         "text": "langzaam",
-        "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s177t5"
+        "role": "bwb"
       },
       {
         "id": "s177t5",

@@ -1981,5 +1981,61 @@
         "role": "bijzin"
       }
     ]
+  },
+  {
+    "id": 204,
+    "label": "Zin 204: Jan bleek (rechte volgorde, NG, samengesteld WWD + bijv_bep in NWD)",
+    "predicateType": "NG",
+    "level": 3,
+    "tokens": [
+      {
+        "id": "s204t1",
+        "text": "Jan",
+        "role": "ow"
+      },
+      {
+        "id": "s204t2",
+        "text": "bleek",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s204t3",
+        "text": "een",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s204t4",
+        "text": "goede",
+        "role": "ng",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s204t5"
+      },
+      {
+        "id": "s204t5",
+        "text": "koning",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s204t6",
+        "text": "geworden",
+        "role": "ng",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s204t7",
+        "text": "te",
+        "role": "ng",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s204t8",
+        "text": "zijn",
+        "role": "ng",
+        "subRole": "wwd"
+      }
+    ]
   }
 ]
