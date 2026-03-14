@@ -1309,44 +1309,6 @@
     ]
   },
   {
-    "id": 153,
-    "label": "Zin 153: Grondig wast mijn broer de auto.",
-    "predicateType": "WG",
-    "level": 1,
-    "tokens": [
-      {
-        "id": "s153t1",
-        "text": "Grondig",
-        "role": "bwb"
-      },
-      {
-        "id": "s153t2",
-        "text": "wast",
-        "role": "pv"
-      },
-      {
-        "id": "s153t3",
-        "text": "mijn",
-        "role": "ow"
-      },
-      {
-        "id": "s153t4",
-        "text": "broer",
-        "role": "ow"
-      },
-      {
-        "id": "s153t5",
-        "text": "de",
-        "role": "lv"
-      },
-      {
-        "id": "s153t6",
-        "text": "auto.",
-        "role": "lv"
-      }
-    ]
-  },
-  {
     "id": 154,
     "label": "Zin 154: Het antwoord vertelt de docent de klas.",
     "predicateType": "WG",
@@ -1504,44 +1466,6 @@
     ]
   },
   {
-    "id": 158,
-    "label": "Zin 158: Direct helpt de verpleegkundige de patiënt.",
-    "predicateType": "WG",
-    "level": 1,
-    "tokens": [
-      {
-        "id": "s158t1",
-        "text": "Direct",
-        "role": "bwb"
-      },
-      {
-        "id": "s158t2",
-        "text": "helpt",
-        "role": "pv"
-      },
-      {
-        "id": "s158t3",
-        "text": "de",
-        "role": "ow"
-      },
-      {
-        "id": "s158t4",
-        "text": "verpleegkundige",
-        "role": "ow"
-      },
-      {
-        "id": "s158t5",
-        "text": "de",
-        "role": "lv"
-      },
-      {
-        "id": "s158t6",
-        "text": "patiënt.",
-        "role": "lv"
-      }
-    ]
-  },
-  {
     "id": 159,
     "label": "Zin 159: Uit de kast pakt Noor een glas.",
     "predicateType": "WG",
@@ -1689,49 +1613,6 @@
     ]
   },
   {
-    "id": 164,
-    "label": "Zin 164: In haar schrift tekent Emma een ster.",
-    "predicateType": "WG",
-    "level": 1,
-    "tokens": [
-      {
-        "id": "s164t1",
-        "text": "In",
-        "role": "bwb"
-      },
-      {
-        "id": "s164t2",
-        "text": "haar",
-        "role": "bwb"
-      },
-      {
-        "id": "s164t3",
-        "text": "schrift",
-        "role": "bwb"
-      },
-      {
-        "id": "s164t4",
-        "text": "tekent",
-        "role": "pv"
-      },
-      {
-        "id": "s164t5",
-        "text": "Emma",
-        "role": "ow"
-      },
-      {
-        "id": "s164t6",
-        "text": "een",
-        "role": "lv"
-      },
-      {
-        "id": "s164t7",
-        "text": "ster.",
-        "role": "lv"
-      }
-    ]
-  },
-  {
     "id": 165,
     "label": "Zin 165: Soep serveert de kok de gasten.",
     "predicateType": "WG",
@@ -1770,49 +1651,6 @@
     ]
   },
   {
-    "id": 166,
-    "label": "Zin 166: In april plant mijn tante nieuwe bloemen.",
-    "predicateType": "WG",
-    "level": 1,
-    "tokens": [
-      {
-        "id": "s166t1",
-        "text": "In",
-        "role": "bwb"
-      },
-      {
-        "id": "s166t2",
-        "text": "april",
-        "role": "bwb"
-      },
-      {
-        "id": "s166t3",
-        "text": "plant",
-        "role": "pv"
-      },
-      {
-        "id": "s166t4",
-        "text": "mijn",
-        "role": "ow"
-      },
-      {
-        "id": "s166t5",
-        "text": "tante",
-        "role": "ow"
-      },
-      {
-        "id": "s166t6",
-        "text": "nieuwe",
-        "role": "lv"
-      },
-      {
-        "id": "s166t7",
-        "text": "bloemen.",
-        "role": "lv"
-      }
-    ]
-  },
-  {
     "id": 167,
     "label": "Zin 167: Vanavond controleert de politie het verkeer.",
     "predicateType": "WG",
@@ -1846,49 +1684,6 @@
       {
         "id": "s167t6",
         "text": "verkeer.",
-        "role": "lv"
-      }
-    ]
-  },
-  {
-    "id": 168,
-    "label": "Zin 168: In de tas bewaart Lars zijn lunch.",
-    "predicateType": "WG",
-    "level": 1,
-    "tokens": [
-      {
-        "id": "s168t1",
-        "text": "In",
-        "role": "bwb"
-      },
-      {
-        "id": "s168t2",
-        "text": "de",
-        "role": "bwb"
-      },
-      {
-        "id": "s168t3",
-        "text": "tas",
-        "role": "bwb"
-      },
-      {
-        "id": "s168t4",
-        "text": "bewaart",
-        "role": "pv"
-      },
-      {
-        "id": "s168t5",
-        "text": "Lars",
-        "role": "ow"
-      },
-      {
-        "id": "s168t6",
-        "text": "zijn",
-        "role": "lv"
-      },
-      {
-        "id": "s168t7",
-        "text": "lunch.",
         "role": "lv"
       }
     ]

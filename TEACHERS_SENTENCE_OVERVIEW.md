@@ -33,6 +33,13 @@
 
 > Niveau 1 behoudt hiermee expliciete variatie tussen basisvolgorde, inversie en object-voorop.
 
+- **inversie BWB-voorop + PV-OW-LV (opgeschoond)**
+  - Startselectie geclusterd op didactisch profiel; overlap verminderd met **5 verwijderde zinnen**: 153, 158, 164, 166, 168.
+  - **Cluster A** (start: 147/159/164/168/172) → overgebleven: **147, 159, 172** (3 voorbeelden).
+  - **Cluster B** (start: 149/150/153/158/167) → overgebleven: **149, 150, 167** (3 voorbeelden).
+  - **Cluster C** (start: 143/156/166) → overgebleven: **143, 156** (2 voorbeelden).
+  - Totaal niveau 1 aangepast van **66 → 61** zinnen.
+
 ## Matrix (dekking per subskill)
 
 | Niveau | Subskill | Status | Bronnen / zinnen |

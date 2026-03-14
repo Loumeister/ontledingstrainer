@@ -7,7 +7,7 @@ Een interactieve browser-app die leerlingen (12-15 jaar, onderbouw havo/vwo) lee
 | Onderdeel | Status | Details |
 |-----------|--------|---------|
 | **Kernfunctionaliteit** | ✅ Compleet | Tweestaps-ontleding (verdelen + benoemen), 13 rollen |
-| **Zinnen-database** | ✅ 245 zinnen | 4 niveaus (Basis → Samengesteld) |
+| **Zinnen-database** | ✅ 241 zinnen | 4 niveaus (Basis → Samengesteld) |
 | **Feedback** | ✅ Contextueel | FEEDBACK_MATRIX met rolspecifieke uitleg |
 | **Docentenmodus** | ✅ Werkend | Editor, URL-delen, importeren |
 | **Gamification** | ✅ Basis | Confetti, streaks, badges |
