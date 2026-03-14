@@ -1618,39 +1618,6 @@
     ]
   },
   {
-    "id": 161,
-    "label": "Zin 161: Mijn haar wast de kapper.",
-    "predicateType": "WG",
-    "level": 1,
-    "tokens": [
-      {
-        "id": "s161t1",
-        "text": "Mijn",
-        "role": "lv"
-      },
-      {
-        "id": "s161t2",
-        "text": "haar",
-        "role": "lv"
-      },
-      {
-        "id": "s161t3",
-        "text": "wast",
-        "role": "pv"
-      },
-      {
-        "id": "s161t4",
-        "text": "de",
-        "role": "ow"
-      },
-      {
-        "id": "s161t5",
-        "text": "kapper.",
-        "role": "ow"
-      }
-    ]
-  },
-  {
     "id": 162,
     "label": "Zin 162: Bloemen koopt Timo.",
     "predicateType": "WG",

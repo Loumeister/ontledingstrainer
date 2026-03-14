@@ -19,6 +19,19 @@
   - Nieuwe set toegevoegd in `data/sentences-level-1.json`: **zin 198 t/m 207**.
   - Contexten: school (huiswerk, sommen, presentatie, boek), thuis (lunch, tafel dekken, wassen), sport (bal, tennisracket, teamshirt).
   - Beperkingen per zin: geen bijzin/nevenschikking, maximaal één hoofdvalkuil.
+- **object-voorop (LV-PV-OW)**
+  - Behouden als duidelijke, idiomatische voorbeelden: **zin 144**, **zin 160**, **zin 170**.
+  - Minder onderscheidend item verwijderd: **zin 161**.
+
+### Niveau 1 – patroonverdeling na opschoning
+
+| Patroon | Aantal zinnen |
+|---|---:|
+| basisvolgorde | 23 |
+| inversie | 24 |
+| object-voorop | 12 |
+
+> Niveau 1 behoudt hiermee expliciete variatie tussen basisvolgorde, inversie en object-voorop.
 
 ## Matrix (dekking per subskill)
 
