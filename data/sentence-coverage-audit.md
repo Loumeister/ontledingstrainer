@@ -7,9 +7,12 @@ Deze audit volgt de repo-inspectie/constraint-aanpak: eerst label- en annotatiem
 - **Niveau 1** heeft nu een expliciete set met pure `OW-PV-LV` basisvolgorde (zinnen 198–207), naast bestaande inversie-achtige varianten.
 - **Niveau 2** heeft redelijke spreiding op `mv`, `vv` en `NG`, maar nog geen nevenschikking/bijzin (logisch voor niveau).
 - **Niveau 3** bevat wel `vv` en `bijstelling`, maar vrijwel geen nevenschikking en bijna geen bijzin-als-zinsdeel.
-- **Niveau 4 (expert)** leunt sterk op bijzin/nevenschikking, maar mist nog varianten met **onderwerp op afstand**, **vv vs bwb-minimale paren**, en **werkwoordspelling-relevante paren**.
+- **Niveau 4 (expert)** is uitgebreid met nieuwe sets voor:
+  - `onderwerp_op_afstand` (ID 204–207)
+  - `werkwoordspelling_relevant_ontleden` (ID 208–211)
+  - `vv_vs_bwb_minimaal_paar` (ID 212–215)
 
-## Wat voor soort zinnen missen nog (prioriteit)
+## Wat voor soort zinnen missen nog (bijgewerkte prioriteit)
 
 - **Niveau 1 update**: de nieuwe basisvolgorde-set (198–207) dekt herkenbare school/thuis/sport-contexten zonder bijzin/nevenschikking.
 
@@ -17,20 +20,14 @@ Deze audit volgt de repo-inspectie/constraint-aanpak: eerst label- en annotatiem
    - Focus: twee hoofdzinnen met `vw_neven` zonder extra bijzin.
    - Doel: zinsdeelgrens + tweede `pv/ow` herkennen.
 
-2. **Niveau 3/4 – onderwerp op afstand**
-   - Focus: kern-`ow` niet dicht bij `pv` (bv. lange OW-kern of vooropgeplaatste constructie).
-   - Doel: congruentieredenering i.p.v. nabijheidsheuristiek.
+3. **Niveau 4 – uitbreiding op relatieve bijzinnen als bijvoeglijke bepaling**
+   - Er zijn voorbeelden, maar nog beperkte variatie met expliciete `bijvBepTarget` in langere naamwoordgroepen.
 
-3. **Niveau 4 – vv vs bwb minimale paren**
-   - Focus: dezelfde voorzetselvorm in verschillende functies.
-   - Doel: semantisch onderscheid stabiel oefenen.
+## Afgedekte focus (deze update)
 
-4. **Niveau 4 – werkwoordspelling-relevant ontleden**
-   - Focus: pv vs deel van `wg` in samengestelde tijden.
-   - Doel: koppeling grammaticaal redeneren ↔ spellingproef.
-
-5. **Niveau 4 – bijzin als bijvoeglijke bepaling (uitbreiding)**
-   - Er zijn al voorbeelden, maar nog weinig variatie op relatieve bijzinnen met duidelijke `bijvBepTarget`.
+- **Niveau 4 – onderwerp op afstand**: toegevoegd (204–207).
+- **Niveau 4 – vv vs bwb minimale paren**: toegevoegd (212–215, twee paren).
+- **Niveau 4 – werkwoordspelling-relevant ontleden**: toegevoegd (208–211).
 
 ## Niet toevoegen zonder expliciete keuze
 

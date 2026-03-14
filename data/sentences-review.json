@@ -95,17 +95,23 @@
   },
   {
     "_kind": "coverage-gap",
-    "status": "ADD_CANDIDATE",
+    "status": "UITVOERBAAR",
     "level": 4,
     "focus": "onderwerp_op_afstand",
     "exampleSentence": "Dat die onverwachte wijziging veel onrust geeft, begrijpt iedereen.",
     "pvReasoning": "PV in hoofdzin: begrijpt (tijdproef).",
     "owReasoning": "Wie begrijpt? iedereen; de vooropplaatsing is LV-bijzin.",
-    "distractorRisk": "Eerste blok wordt ten onrechte als onderwerp van de hoofdzin gekozen."
+    "distractorRisk": "Eerste blok wordt ten onrechte als onderwerp van de hoofdzin gekozen.",
+    "addedSentenceIds": [
+      204,
+      205,
+      206,
+      207
+    ]
   },
   {
     "_kind": "coverage-gap",
-    "status": "ADD_CANDIDATE",
+    "status": "UITVOERBAAR",
     "level": 4,
     "focus": "vv_vs_bwb_minimaal_paar",
     "examplePair": [
@@ -114,17 +120,33 @@
     ],
     "pvReasoning": "wachten/werken als PV via tijdproef.",
     "owReasoning": "Wie wachten/werken? De leerlingen.",
-    "distractorRisk": "Elk voorzetselgroepje wordt als VV gezien."
+    "distractorRisk": "Elk voorzetselgroepje wordt als VV gezien.",
+    "addedSentenceIds": [
+      [
+        212,
+        213
+      ],
+      [
+        214,
+        215
+      ]
+    ]
   },
   {
     "_kind": "coverage-gap",
-    "status": "ADD_CANDIDATE",
+    "status": "UITVOERBAAR",
     "level": 4,
     "focus": "werkwoordspelling_relevant_ontleden",
     "exampleSentence": "De leerlingen zouden de zin sneller hebben herkend.",
     "pvReasoning": "PV = zouden; tijdproef en inversiecheck.",
     "owReasoning": "Wie zouden hebben herkend? De leerlingen.",
-    "distractorRisk": "'herkend' wordt foutief als PV gekozen."
+    "distractorRisk": "'herkend' wordt foutief als PV gekozen.",
+    "addedSentenceIds": [
+      208,
+      209,
+      210,
+      211
+    ]
   },
   {
     "_kind": "coverage-gap",
