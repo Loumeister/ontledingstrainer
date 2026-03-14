@@ -191,11 +191,22 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
       )}
 
       {/* Main Role Header */}
-      <div 
+      <div
+        draggable={!!assignedRole}
         className={`
           h-9 border-b border-dashed border-slate-200 dark:border-slate-600 flex items-center justify-center text-xs rounded-t-lg relative z-10 cursor-pointer transition-opacity focus-visible:ring-2 focus-visible:ring-blue-500
           ${assignedRole ? assignedRole.colorClass + ' font-bold hover:opacity-80' : 'text-slate-400 dark:text-slate-500 italic'}
         `}
+        onDragStart={(e) => {
+          if (!assignedRole) return;
+          e.stopPropagation();
+          e.dataTransfer.setData("text/role", assignedRole.key);
+          e.dataTransfer.setData("text/move-from-chunk", chunkId);
+          e.dataTransfer.effectAllowed = 'copyMove';
+        }}
+        onDragEnd={(e) => {
+          if (e.dataTransfer.dropEffect === 'none') onRemoveRole(chunkId);
+        }}
         onClick={(e) => {
           if (assignedRole) {
             e.stopPropagation();
@@ -311,12 +322,22 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
                   {/* Sub Role Chip */}
                   {subRole && (
                     <div
+                      draggable
                       className={`
-                        absolute -top-6 text-[9px] px-1.5 py-0.5 rounded-md border shadow-sm whitespace-nowrap z-10 cursor-pointer
+                        absolute -top-6 text-[9px] px-1.5 py-0.5 rounded-md border shadow-sm whitespace-nowrap z-10 cursor-move
                         ${subRole.colorClass || ''} ${subRole.borderColorClass || ''}
                       `}
+                      onDragStart={(e) => {
+                        e.stopPropagation();
+                        e.dataTransfer.setData("text/role", subRole.key);
+                        e.dataTransfer.setData("text/move-from-word", token.id);
+                        e.dataTransfer.effectAllowed = 'copyMove';
+                      }}
+                      onDragEnd={(e) => {
+                        if (e.dataTransfer.dropEffect === 'none') onRemoveSubRole(token.id);
+                      }}
                       onClick={(e) => { e.stopPropagation(); onRemoveSubRole(token.id); }}
-                      title="Klik om te verwijderen"
+                      title="Klik om te verwijderen · Sleep om te verplaatsen"
                     >
                       {subRole.shortLabel}
                       {establishedWordLink && <span className="ml-1 opacity-70">→</span>}

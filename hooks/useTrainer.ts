@@ -460,6 +460,11 @@ export function useTrainer(): TrainerState {
     const roleKey = e.dataTransfer.getData("text/role") as RoleKey;
     if (roleKey) {
       routeChunkDrop(chunkId, roleKey);
+      // If dragged from another chunk's role badge, remove it from the source (move semantics)
+      const moveFromChunk = e.dataTransfer.getData("text/move-from-chunk");
+      if (moveFromChunk && moveFromChunk !== chunkId) {
+        setChunkLabels(prev => { const n = { ...prev }; delete n[moveFromChunk]; return n; });
+      }
     }
   };
 
@@ -469,7 +474,17 @@ export function useTrainer(): TrainerState {
     const roleKey = e.dataTransfer.getData("text/role") as RoleKey;
     if (roleKey) {
       logInteraction('sub_label_drop', currentSentence?.id, `token=${tokenId},role=${roleKey}`);
-      setSubLabels(prev => ({ ...prev, [tokenId]: roleKey }));
+      const moveFromWord = e.dataTransfer.getData("text/move-from-word");
+      if (moveFromWord && moveFromWord !== tokenId) {
+        // Move semantics: remove from source word, place on target word in one update
+        setSubLabels(prev => { const n = { ...prev, [tokenId]: roleKey }; delete n[moveFromWord]; return n; });
+        if (wordBijvBepLinks[moveFromWord]) {
+          setWordBijvBepLinks(prev => { const n = { ...prev }; delete n[moveFromWord]; return n; });
+        }
+        if (linkingWordTokenId === moveFromWord) setLinkingWordTokenId(null);
+      } else {
+        setSubLabels(prev => ({ ...prev, [tokenId]: roleKey }));
+      }
       setValidationResult(null);
       setHintMessage(null);
       if (roleKey === 'bijv_bep') {
