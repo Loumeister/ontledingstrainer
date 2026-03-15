@@ -7,7 +7,7 @@ Een interactieve browser-app die leerlingen (12-15 jaar, onderbouw havo/vwo) lee
 | Onderdeel | Status | Details |
 |-----------|--------|---------|
 | **Kernfunctionaliteit** | ✅ Compleet | Tweestaps-ontleding (verdelen + benoemen), 13 rollen |
-| **Zinnen-database** | ✅ 241 zinnen | 4 niveaus (Basis → Samengesteld) |
+| **Zinnen-database** | ✅ 248 zinnen | 4 niveaus (Basis → Samengesteld) |
 | **Feedback** | ✅ Contextueel | FEEDBACK_MATRIX met rolspecifieke uitleg |
 | **Docentenmodus** | ✅ Werkend | Editor, URL-delen, importeren |
 | **Gamification** | ✅ Basis | Confetti, streaks, badges |
@@ -20,12 +20,12 @@ Een interactieve browser-app die leerlingen (12-15 jaar, onderbouw havo/vwo) lee
 
 Zie `TODO.md` voor de volledige roadmap en `SPEC.md` voor de technische specificatie.
 
+Actuele aantallen per niveau: **N1 60, N2 101, N3 42, N4 45** (totaal 248).
+ID-reeksen: **N1 1–60, N2 61–161, N3 300–341, N4 400–444**.
 
-Actuele aantallen per niveau:
-- Niveau 1: 65 zinnen
-- Niveau 2: 101 zinnen
-- Niveau 3: 40 zinnen
-- Niveau 4: 39 zinnen
+Voor actuele zinnencontrole en docentplanning:
+- `data/sentence-parse-audit.md` (parse- en annotatie-audit)
+- `TEACHERS_SENTENCE_OVERVIEW.md` (subskills → numeriek gesorteerde zin-ID's)
 
 ## 🛠️ Installatie & Development
 
@@ -103,16 +103,46 @@ Voeg nieuwe zinnen toe aan de `SENTENCES` array:
 
 ```typescript
 {
-  id: 301,                        // Uniek nummer
-  label: "Zin 301: Korte naam",   // Zichtbaar in dropdown
+  id: 162,                        // Volgende vrije nummer (N3: 342, N4: 445)
+  label: "Zin 162: Korte naam",   // Zichtbaar in dropdown
   predicateType: 'WG',            // 'WG' (Werkwoordelijk) of 'NG' (Naamwoordelijk)
   level: 2,                       // 1=Basis, 2=Middel, 3=Hoog, 4=Samengesteld
   tokens: [                       // De woorden
-    { id: "s301t1", text: "Ik", role: "ow" },
-    { id: "s301t2", text: "loop", role: "pv" },
+    { id: "s162t1", text: "Ik", role: "ow" },
+    { id: "s162t2", text: "loop", role: "pv" },
     // ...
   ]
 }
+```
+
+### 1b. Nummering per niveau
+
+Houd de huidige ID-reeks aan en voeg toe na het laatste ID:
+
+| Niveau | Huidige reeks | Volgend vrij ID |
+|--------|--------------|-----------------|
+| 1 (Basis) | 1–60 | 61 |
+| 2 (Middel) | 61–161 | 162 |
+| 3 (Hoog) | 300–341 | 342 |
+| 4 (Samengesteld) | 400–444 | 445 |
+
+Label en token-id's (`s<zinId>t<n>`) moeten overeenkomen met het gekozen ID.
+
+### 1c. Merge-conflicts in zinnenbestanden snel oplossen
+
+Bij grote merges kunnen `data/sentences-level-*.json` veel conflictregels geven. Gebruik dan de helper:
+
+```bash
+# kies de kant die je volledig wilt overnemen
+bash scripts/resolve_sentence_conflicts.sh ours
+# of
+bash scripts/resolve_sentence_conflicts.sh theirs
+```
+
+Daarna de dataset valideren:
+
+```bash
+node scripts/regenerate_sentence_docs_and_validate.cjs
 ```
 
 ### 2. Belangrijke Regels
