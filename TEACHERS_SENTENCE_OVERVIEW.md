@@ -1,5 +1,14 @@
 # Teachers sentence overview
 
+Dit overzicht is automatisch samengesteld uit de actuele zinnenbestanden (niveau 1–4).
+
+- Totaal aantal zinnen: **248**.
+- Controle: elke zin bevat expliciet een **PV** en **OW** (bevelzinnen uitgezonderd).
+- ID-reeksen na hernummering: **N1 1–60, N2 61–161, N3 300–341, N4 400–444**.
+
+> **Let op:** de ID-verwijzingen hieronder weerspiegelen de staat vóór de hernummering van maart 2026.
+> Gebruik `data/sentence-parse-audit.md` of zoek in de JSON-bestanden op de huidige ID's.
+
 ## Niveau 4 – nieuwe zinnen (uitbreiding)
 
 | Subskill | Nieuwe zin-ID's | Opmerking |
