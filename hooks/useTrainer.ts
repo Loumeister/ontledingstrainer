@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { HINTS } from '../constants';
+import { HINTS, ROLES } from '../constants';
 import { Sentence, PlacementMap, RoleKey, DifficultyLevel, SentenceResult } from '../types';
 import { useSentences } from './useSentences';
 import { getCustomSentences } from '../data/customSentenceStore';
@@ -444,9 +444,12 @@ export function useTrainer(): TrainerState {
     const hasBijzinFunctie = !!bijzinFunctie && (bijzinFunctie !== 'bijv_bep' || includeBB);
 
     if (chunkLabels[chunkId] === 'bijzin' && hasBijzinFunctie && !bijzinFunctieLabels[chunkId]) {
+      // Bijzin function slot — any role is valid here (bijv_bep is a legitimate function)
       logInteraction('bijzin_functie_drop', currentSentence.id, `chunk=${chunkId},role=${roleKey}`);
       setBijzinFunctieLabels(prev => ({ ...prev, [chunkId]: roleKey }));
     } else {
+      // Chunk label slot — sub-only roles must never become chunk labels
+      if (ROLES.find(r => r.key === roleKey)?.isSubOnly) return;
       logInteraction('label_drop', currentSentence.id, `chunk=${chunkId},role=${roleKey}`);
       setChunkLabels(prev => ({ ...prev, [chunkId]: roleKey }));
     }
