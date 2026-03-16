@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { HINTS } from '../constants';
+import { HINTS, ROLES } from '../constants';
 import { Sentence, PlacementMap, RoleKey, DifficultyLevel, SentenceResult } from '../types';
 import { useSentences } from './useSentences';
 import { getCustomSentences } from '../data/customSentenceStore';
@@ -629,6 +629,12 @@ export function useTrainer(): TrainerState {
 
   const handleTouchDrop = (chunkId: string, roleKey: string) => {
     if (showAnswerMode) return;
+    const roleDef = ROLES.find(r => r.key === roleKey);
+    if (roleDef?.isSubOnly) {
+      // Sub-only roles (wwd, nwd, bijv_bep, vw_onder) must go to word level via tap-to-place.
+      setSelectedRole(null);
+      return;
+    }
     routeChunkDrop(chunkId, roleKey as RoleKey);
     setSelectedRole(null);
   };

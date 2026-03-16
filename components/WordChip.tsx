@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { RoleDefinition, RoleKey } from '../types';
 
 interface DraggableRoleProps {
@@ -21,6 +21,24 @@ export const DraggableRole: React.FC<DraggableRoleProps> = ({
 }) => {
   const touchStartPos = useRef<{ x: number; y: number } | null>(null);
   const isDragging = useRef(false);
+  const chipRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = chipRef.current;
+    if (!el) return;
+    const handleNativeTouchMove = (e: TouchEvent) => {
+      if (!touchStartPos.current) return;
+      e.preventDefault(); // must be in non-passive listener to block page scroll
+      const dx = Math.abs(e.touches[0].clientX - touchStartPos.current.x);
+      const dy = Math.abs(e.touches[0].clientY - touchStartPos.current.y);
+      if (dx > 8 || dy > 8) {
+        isDragging.current = true;
+        if (!isSelected) onSelect?.(role.key);
+      }
+    };
+    el.addEventListener('touchmove', handleNativeTouchMove, { passive: false });
+    return () => { el.removeEventListener('touchmove', handleNativeTouchMove); };
+  }, [isSelected, onSelect, role.key]);
 
   const handleClick = () => {
     onSelect?.(role.key);
@@ -36,17 +54,6 @@ export const DraggableRole: React.FC<DraggableRoleProps> = ({
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     isDragging.current = false;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!touchStartPos.current) return;
-    const dx = Math.abs(e.touches[0].clientX - touchStartPos.current.x);
-    const dy = Math.abs(e.touches[0].clientY - touchStartPos.current.y);
-    if (dx > 8 || dy > 8) {
-      isDragging.current = true;
-      // Visually select the role while dragging
-      if (!isSelected) onSelect?.(role.key);
-    }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
@@ -68,12 +75,12 @@ export const DraggableRole: React.FC<DraggableRoleProps> = ({
 
   return (
     <div
+      ref={chipRef}
       draggable
       onDragStart={(e) => onDragStart(e, role.key)}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       tabIndex={0}
       role="button"

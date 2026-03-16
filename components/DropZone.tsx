@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Token, RoleDefinition, ValidationState } from '../types';
-import { FEEDBACK_SHORT_LABELS } from '../constants';
+import { FEEDBACK_SHORT_LABELS, ROLES } from '../constants';
 
 interface SentenceChunkProps {
   chunkIndex: number;
@@ -370,9 +370,13 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
                       } else if (isLinkingMode && !isLinkingSource) {
                         e.stopPropagation();
                         onWordClick(token.id);
-                      } else if (selectedRole && onTapPlaceWord) {
-                        e.stopPropagation();
-                        onTapPlaceWord(token.id);
+                      } else if (selectedRole) {
+                        const roleDef = ROLES.find(r => r.key === selectedRole);
+                        if (roleDef?.isSubOnly && onTapPlaceWord) {
+                          e.stopPropagation(); // sub-only: place at word level
+                          onTapPlaceWord(token.id);
+                        }
+                        // non-sub-only: let event bubble to chunk onClick → onTapPlaceChunk
                       }
                     }}
                   >
