@@ -488,7 +488,10 @@ export function useTrainer(): TrainerState {
     if (roleKey) {
       // Require the chunk to already have a main role before sub-labels can be placed
       const chunkId = getChunkIdForToken(tokenId);
-      if (!chunkId || !chunkLabels[chunkId]) return;
+      if (!chunkId || !chunkLabels[chunkId]) {
+        setHintMessage(HINTS.SUBLABEL_NEEDS_MAIN_ROLE);
+        return;
+      }
       logInteraction('sub_label_drop', currentSentence?.id, `token=${tokenId},role=${roleKey}`);
       const moveFromWord = e.dataTransfer.getData("text/move-from-word");
       if (moveFromWord && moveFromWord !== tokenId) {
@@ -634,7 +637,10 @@ export function useTrainer(): TrainerState {
     if (showAnswerMode) return;
     // Require the chunk to already have a main role before sub-labels can be placed
     const chunkId = getChunkIdForToken(tokenId);
-    if (!chunkId || !chunkLabels[chunkId]) return;
+    if (!chunkId || !chunkLabels[chunkId]) {
+      setHintMessage(HINTS.SUBLABEL_NEEDS_MAIN_ROLE);
+      return;
+    }
     logInteraction('sub_label_drop', currentSentence?.id, `token=${tokenId},role=${selectedRole}`);
     setSubLabels(prev => ({ ...prev, [tokenId]: selectedRole }));
     setValidationResult(null);

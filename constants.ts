@@ -287,6 +287,7 @@ export const HINTS = {
   MISSING_BIJZIN: "Tip: Zoek een zinsdeel met een eigen onderwerp en persoonsvorm.",
   MISSING_BIJST: "Tip: Zoek een extra naam voor iets wat al genoemd is.",
   MISSING_BIJZIN_FUNCTIE: "Tip: Welke vraag beantwoordt de volledige bijzin in de hoofdzin?",
+  SUBLABEL_NEEDS_MAIN_ROLE: "Tip: Geef het blokje eerst een hoofdlabel (bijv. WG of NG) voordat je een deelrol op een woord plaatst.",
   generic: (_roleLabel: string) => "Tip: Loop je ontleding nog eens rustig stap voor stap door.",
   ALL_PLACED: "Alles staat op een plek. Kijk nog één keer of het echt klopt.",
 };
