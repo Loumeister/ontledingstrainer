@@ -444,9 +444,12 @@ export function useTrainer(): TrainerState {
     const hasBijzinFunctie = !!bijzinFunctie && (bijzinFunctie !== 'bijv_bep' || includeBB);
 
     if (chunkLabels[chunkId] === 'bijzin' && hasBijzinFunctie && !bijzinFunctieLabels[chunkId]) {
+      // Bijzin function slot — any role is valid here (bijv_bep is a legitimate function)
       logInteraction('bijzin_functie_drop', currentSentence.id, `chunk=${chunkId},role=${roleKey}`);
       setBijzinFunctieLabels(prev => ({ ...prev, [chunkId]: roleKey }));
     } else {
+      // Chunk label slot — sub-only roles must never become chunk labels
+      if (ROLES.find(r => r.key === roleKey)?.isSubOnly) return;
       logInteraction('label_drop', currentSentence.id, `chunk=${chunkId},role=${roleKey}`);
       setChunkLabels(prev => ({ ...prev, [chunkId]: roleKey }));
     }
@@ -629,12 +632,6 @@ export function useTrainer(): TrainerState {
 
   const handleTouchDrop = (chunkId: string, roleKey: string) => {
     if (showAnswerMode) return;
-    const roleDef = ROLES.find(r => r.key === roleKey);
-    if (roleDef?.isSubOnly) {
-      // Sub-only roles (wwd, nwd, bijv_bep, vw_onder) must go to word level via tap-to-place.
-      setSelectedRole(null);
-      return;
-    }
     routeChunkDrop(chunkId, roleKey as RoleKey);
     setSelectedRole(null);
   };
