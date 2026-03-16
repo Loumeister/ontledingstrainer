@@ -255,6 +255,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   selectedRole={selectedRole}
                   onSelectRole={handleSelectRole}
                   onTouchDropChunk={handleTouchDrop}
+                  chunkLabels={chunkLabels}
                 />
               )}
 
@@ -460,6 +461,7 @@ interface RoleToolbarProps {
   selectedRole: TrainerState['selectedRole'];
   onSelectRole: TrainerState['handleSelectRole'];
   onTouchDropChunk: TrainerState['handleTouchDrop'];
+  chunkLabels: TrainerState['chunkLabels'];
 }
 
 const RoleToolbar: React.FC<RoleToolbarProps> = ({
@@ -473,6 +475,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
   selectedRole,
   onSelectRole,
   onTouchDropChunk,
+  chunkLabels,
 }) => {
   const levelRoles = selectedLevel ? ROLES_PER_LEVEL[selectedLevel] : null;
 
@@ -548,14 +551,23 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
         </div>
         {includeBB && (
         <div className="border-t border-slate-100 dark:border-slate-700 pt-3">
-          <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Sleep op specifieke woorden:</p>
-          <div className="flex flex-wrap gap-2">
-            {ROLES.filter(r => r.isSubOnly)
-                  .filter(r => isRoleVisible(r.key))
-                  .map(role => (
-              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
-            ))}
-          </div>
+          {(() => {
+            const hasAnyMainRole = Object.keys(chunkLabels).length > 0;
+            return (
+              <>
+                <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
+                  {hasAnyMainRole ? 'Sleep op specifieke woorden:' : '🔒 Deelrollen (label eerst een blokje hierboven)'}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {ROLES.filter(r => r.isSubOnly)
+                        .filter(r => isRoleVisible(r.key))
+                        .map(role => (
+                    <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} disabled={!hasAnyMainRole} />
+                  ))}
+                </div>
+              </>
+            );
+          })()}
         </div>
         )}
       </div>

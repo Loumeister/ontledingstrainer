@@ -38,7 +38,7 @@ const ZINSDEEL_INFO = [
   {
     shortLabel: 'WWD',
     label: 'Werkwoordelijk Deel',
-    description: 'Het niet-persoonlijke werkwoord dat bij het koppelwerkwoord hoort (bijv. "geworden", "te zijn"). Maakt onderdeel uit van het NG-blok. De PV zelf is ook een WWD in NG-zinnen.',
+    description: 'Het niet-persoonlijke werkwoord dat bij het koppelwerkwoord hoort (bijv. "geworden", "te zijn"). Maakt onderdeel uit van het NG-blok. De PV zelf is ook een WWD in NG-zinnen. Let op: label het blokje eerst als NG voordat je WWD op een woord plaatst.',
     question: 'Is er een werkwoord naast de PV dat bij het koppelwerkwoord hoort? Dat is het WWD — het valt binnen het NG-blok.',
     colorClass: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/40 dark:text-rose-100 dark:border-rose-600',
   },
@@ -87,7 +87,7 @@ const ZINSDEEL_INFO = [
   {
     shortLabel: 'BB',
     label: 'Bijvoeglijke Bepaling',
-    description: 'Voegt een eigenschap toe aan een zelfstandig naamwoord of aan de kern van een NG (bijv. "erg spannend", "volledig klaar"). De BB hoort bij het blok van het woord dat het beschrijft.',
+    description: 'Voegt een eigenschap toe aan een zelfstandig naamwoord of aan de kern van een NG (bijv. "erg spannend", "volledig klaar"). De BB hoort bij het blok van het woord dat het beschrijft. Let op: label het blokje eerst met een hoofdlabel voordat je BB op een woord plaatst.',
     question: 'Welk woord zegt iets over een zelfstandig naamwoord of de kern van het NG?',
     colorClass: 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-900/40 dark:text-teal-100 dark:border-teal-700',
   },

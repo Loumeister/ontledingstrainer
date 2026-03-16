@@ -135,6 +135,8 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
   };
 
   const handleWordDragEnter = (tokenId: string) => {
+    // Don't show drop-target highlight when the chunk has no main role yet
+    if (!assignedRole) return;
     setHoveredWordId(tokenId);
     setIsOverChunk(false);
   };

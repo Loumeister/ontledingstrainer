@@ -65,7 +65,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onSecretD
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold">2</div>
                 <div>
                   <p className="font-bold text-slate-900 dark:text-white">Stap 2: Benoemen</p>
-                  <p>Sleep de gekleurde kaartjes naar het juiste zinsdeel. Je kunt ook op specifieke woorden slepen (zoals bij een bijvoeglijke bepaling).</p>
+                  <p>Sleep de gekleurde kaartjes naar het juiste zinsdeel. Geef elk blokje eerst een hoofdlabel (bijv. WG of NG). Daarna kun je deelrollen (zoals WWD of BB) op losse woorden binnen dat blokje slepen.</p>
                 </div>
               </div>
             </div>

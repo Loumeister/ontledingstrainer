@@ -471,11 +471,27 @@ export function useTrainer(): TrainerState {
     }
   };
 
+  // Returns the chunk ID (= first token ID) of the chunk that contains the given token.
+  const getChunkIdForToken = (tokenId: string): string | null => {
+    if (!currentSentence) return null;
+    const chunks = buildUserChunks(currentSentence.tokens, splitIndices);
+    for (const chunk of chunks) {
+      if (chunk.tokens.some(t => t.id === tokenId)) return chunk.tokens[0].id;
+    }
+    return null;
+  };
+
   const handleDropWord = (e: React.DragEvent<HTMLSpanElement>, tokenId: string) => {
     e.preventDefault();
     if (showAnswerMode) return;
     const roleKey = e.dataTransfer.getData("text/role") as RoleKey;
     if (roleKey) {
+      // Require the chunk to already have a main role before sub-labels can be placed
+      const chunkId = getChunkIdForToken(tokenId);
+      if (!chunkId || !chunkLabels[chunkId]) {
+        setHintMessage(HINTS.SUBLABEL_NEEDS_MAIN_ROLE);
+        return;
+      }
       logInteraction('sub_label_drop', currentSentence?.id, `token=${tokenId},role=${roleKey}`);
       const moveFromWord = e.dataTransfer.getData("text/move-from-word");
       if (moveFromWord && moveFromWord !== tokenId) {
@@ -619,6 +635,12 @@ export function useTrainer(): TrainerState {
   const handleTapPlaceWord = (tokenId: string) => {
     if (!selectedRole) return;
     if (showAnswerMode) return;
+    // Require the chunk to already have a main role before sub-labels can be placed
+    const chunkId = getChunkIdForToken(tokenId);
+    if (!chunkId || !chunkLabels[chunkId]) {
+      setHintMessage(HINTS.SUBLABEL_NEEDS_MAIN_ROLE);
+      return;
+    }
     logInteraction('sub_label_drop', currentSentence?.id, `token=${tokenId},role=${selectedRole}`);
     setSubLabels(prev => ({ ...prev, [tokenId]: selectedRole }));
     setValidationResult(null);
