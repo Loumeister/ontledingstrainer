@@ -199,13 +199,13 @@ export function validateAnswer(
       } else {
         const correctRoleName = ROLES.find(r => r.key === effectiveRole)?.label || effectiveRole;
         if (effectiveRole === 'pv' && userLabel === 'wg') {
-          if (sentence.predicateType === 'WG') {
-            chunkStatus[idx] = 'correct';
-            correctChunksCount++;
+          if (sentence.level >= 4) {
+            chunkStatus[idx] = 'incorrect-role';
+            chunkFeedback[idx] = FEEDBACK_MATRIX['wg'] && FEEDBACK_MATRIX['wg']['pv'] ? FEEDBACK_MATRIX['wg']['pv'] : "Dit hoort bij het gezegde.";
+            currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
           } else {
             chunkStatus[idx] = 'warning';
             chunkFeedback[idx] = FEEDBACK_MATRIX['wg'] && FEEDBACK_MATRIX['wg']['pv'] ? FEEDBACK_MATRIX['wg']['pv'] : "Dit hoort bij het gezegde.";
-            currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
           }
         } else if (!userLabel) {
           // No label assigned at all: give constructive feedback
