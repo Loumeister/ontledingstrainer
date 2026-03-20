@@ -4,7 +4,29 @@ import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, co
 import { loadAllSentences } from '../data/sentenceLoader';
 import { getCustomSentences } from '../data/customSentenceStore';
 import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats } from '../sessionReport';
+import type { SessionReport } from '../sessionReport';
 import type { SentenceUsageData } from '../types';
+
+function mergeReportDataIntoUsage(
+  localStore: Record<number, SentenceUsageData>,
+  reports: SessionReport[]
+): Record<number, SentenceUsageData> {
+  const merged: Record<number, SentenceUsageData> = JSON.parse(JSON.stringify(localStore));
+  for (const r of reports) {
+    const isPerfectSession = r.t > 0 && r.c === r.t;
+    for (const sid of r.sids) {
+      if (!merged[sid]) {
+        merged[sid] = { attempts: 0, perfectCount: 0, showAnswerCount: 0, roleErrors: {}, splitErrors: 0, flagged: false, note: '', lastAttempted: '' };
+      }
+      merged[sid].attempts += 1;
+      if (isPerfectSession) merged[sid].perfectCount += 1;
+      if (!merged[sid].lastAttempted || r.ts > merged[sid].lastAttempted) {
+        merged[sid].lastAttempted = r.ts;
+      }
+    }
+  }
+  return merged;
+}
 
 const DOCENT_PIN = '1234';
 const EIGENAAR_PIN = '4321';
@@ -57,11 +79,11 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
         ...customSentences.map(s => ({ ...s, _isCustom: true })),
       ];
 
-      const usageStore = loadUsageData();
+      const mergedStore = mergeReportDataIntoUsage(loadUsageData(), reports);
       const enriched: EnrichedUsage[] = [];
 
       for (const s of all) {
-        const usage = usageStore[s.id];
+        const usage = mergedStore[s.id];
         if (!usage) continue;
         enriched.push({
           sentenceId: s.id,
@@ -75,7 +97,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
       }
 
       // Also include usage data for sentences no longer in the set
-      for (const [idStr, usage] of Object.entries(usageStore)) {
+      for (const [idStr, usage] of Object.entries(mergedStore)) {
         const id = Number(idStr);
         if (all.some(s => s.id === id)) continue;
         enriched.push({
@@ -91,7 +113,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
 
       setEnrichedData(enriched);
     });
-  }, [authenticated]);
+  }, [authenticated, reports]);
 
   const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,6 +225,12 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
       globalRoleErrors[role] = (globalRoleErrors[role] || 0) + count;
     }
   });
+  // Add role errors from imported reports (session-level, not per-sentence)
+  for (const r of reports) {
+    for (const [role, count] of Object.entries(r.err)) {
+      globalRoleErrors[role] = (globalRoleErrors[role] || 0) + count;
+    }
+  }
   const topRoleErrors = Object.entries(globalRoleErrors)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
