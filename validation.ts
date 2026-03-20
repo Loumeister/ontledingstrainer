@@ -199,9 +199,17 @@ export function validateAnswer(
       } else {
         const correctRoleName = ROLES.find(r => r.key === effectiveRole)?.label || effectiveRole;
         if (effectiveRole === 'pv' && userLabel === 'wg') {
-          chunkStatus[idx] = 'warning';
-          chunkFeedback[idx] = FEEDBACK_MATRIX['wg'] && FEEDBACK_MATRIX['wg']['pv'] ? FEEDBACK_MATRIX['wg']['pv'] : "Dit hoort bij het gezegde.";
-          currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
+          const pvAsWgFeedback = FEEDBACK_MATRIX['wg'] && FEEDBACK_MATRIX['wg']['pv']
+            ? FEEDBACK_MATRIX['wg']['pv']
+            : "Goed gezien dat dit bij het gezegde hoort. Verandert het woord als je de tijd of het getal aanpast?";
+          if (sentence.level >= 4) {
+            chunkStatus[idx] = 'incorrect-role';
+            chunkFeedback[idx] = pvAsWgFeedback;
+            currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
+          } else {
+            chunkStatus[idx] = 'warning';
+            chunkFeedback[idx] = pvAsWgFeedback;
+          }
         } else if (!userLabel) {
           // No label assigned at all: give constructive feedback
           chunkStatus[idx] = 'incorrect-role';
