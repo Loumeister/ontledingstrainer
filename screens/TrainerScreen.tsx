@@ -75,6 +75,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   const [showZinsdeelHelp, setShowZinsdeelHelp] = useState(false);
   const [streakToast, setStreakToast] = useState<string | null>(null);
   const [recentlySplit, setRecentlySplit] = useState<Set<number>>(new Set());
+  const shouldPinFooter = step === 'label' && !validationResult && !showAnswerMode;
 
   const handleToggleSplitWithAnim = (idx: number) => {
     toggleSplit(idx);
@@ -148,7 +149,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
       <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
       <ZinsdeelHelpModal isOpen={showZinsdeelHelp} onClose={() => setShowZinsdeelHelp(false)} />
 
-      <main className="max-w-6xl mx-auto w-full flex flex-col gap-2 md:gap-4 flex-1">
+      <main className={`max-w-6xl mx-auto w-full flex flex-col gap-2 md:gap-4 flex-1 ${shouldPinFooter ? 'md:pb-24' : ''}`}>
 
         {/* Header */}
         <header className="flex items-center justify-between">
@@ -354,11 +355,11 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
         </div>
 
         {/* Bottom Bar */}
-        <footer className="sticky bottom-0 left-0 w-full bg-white/95 dark:bg-slate-800/95 backdrop-blur border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-[500] p-2 md:p-3">
+        <footer className={`${shouldPinFooter ? 'md:sticky md:bottom-0 md:z-[500]' : 'relative z-[90]'} left-0 w-full bg-white/95 dark:bg-slate-800/95 backdrop-blur border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-2 md:p-3`}>
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
 
             {/* Left: Sentence Label */}
-            <div className="font-medium text-slate-800 dark:text-white text-sm md:text-base truncate max-w-[50%]">
+            <div className="font-medium text-slate-800 dark:text-white text-sm md:text-base truncate w-full md:w-auto md:max-w-[50%] text-center md:text-left">
               {currentSentence.label}
             </div>
 
@@ -378,9 +379,9 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
             )}
 
             {/* Right: Actions */}
-            <div className="flex gap-2">
+            <div className="flex flex-wrap justify-center md:justify-end gap-2 w-full md:w-auto">
               {step === 'split' ? (
-                <div className="flex gap-2">
+                <div className="flex flex-wrap justify-center md:justify-start gap-2">
                   <button onClick={handleNextStep} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors text-sm">
                     Naar benoemen &rarr;
                   </button>
@@ -429,7 +430,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                 </div>
               )}
 
-              <div className="w-px h-8 bg-slate-200 dark:bg-slate-600 mx-2"></div>
+              <div className="hidden md:block w-px h-8 bg-slate-200 dark:bg-slate-600 mx-2"></div>
 
               <button
                 onClick={handleAbortRequest}

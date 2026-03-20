@@ -481,13 +481,35 @@ export function useTrainer(): TrainerState {
     return null;
   };
 
+  const shouldTreatWordDropAsChunkPlacement = (roleKey: RoleKey): boolean => {
+    if (!currentSentence) return false;
+    const roleDef = ROLES.find(r => r.key === roleKey);
+    if (!roleDef || roleDef.isSubOnly) return false;
+
+    const isFoundationalLevel = currentSentence.level <= 3;
+    if (isFoundationalLevel) return true;
+
+    const usesAdvancedWordSubroles = currentSentence.tokens.some(token => {
+      if (!token.subRole) return false;
+      if (token.subRole === 'bijv_bep') return true;
+      return token.subRole === 'bijst' || token.subRole === 'nwd' || token.subRole === 'wwd';
+    });
+
+    return !usesAdvancedWordSubroles;
+  };
+
   const handleDropWord = (e: React.DragEvent<HTMLSpanElement>, tokenId: string) => {
     e.preventDefault();
     if (showAnswerMode) return;
     const roleKey = e.dataTransfer.getData("text/role") as RoleKey;
     if (roleKey) {
-      // Require the chunk to already have a main role before sub-labels can be placed
       const chunkId = getChunkIdForToken(tokenId);
+      if (chunkId && shouldTreatWordDropAsChunkPlacement(roleKey)) {
+        routeChunkDrop(chunkId, roleKey);
+        return;
+      }
+
+      // Require the chunk to already have a main role before sub-labels can be placed
       if (!chunkId || !chunkLabels[chunkId]) {
         setHintMessage(HINTS.SUBLABEL_NEEDS_MAIN_ROLE);
         return;
@@ -635,8 +657,13 @@ export function useTrainer(): TrainerState {
   const handleTapPlaceWord = (tokenId: string) => {
     if (!selectedRole) return;
     if (showAnswerMode) return;
-    // Require the chunk to already have a main role before sub-labels can be placed
     const chunkId = getChunkIdForToken(tokenId);
+    if (chunkId && shouldTreatWordDropAsChunkPlacement(selectedRole)) {
+      routeChunkDrop(chunkId, selectedRole);
+      setSelectedRole(null);
+      return;
+    }
+    // Require the chunk to already have a main role before sub-labels can be placed
     if (!chunkId || !chunkLabels[chunkId]) {
       setHintMessage(HINTS.SUBLABEL_NEEDS_MAIN_ROLE);
       return;

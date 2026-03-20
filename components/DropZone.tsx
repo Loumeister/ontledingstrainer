@@ -167,9 +167,9 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
         }
       }}
     >
-      {/* Overlay feedback bubble on top of the chunk */}
+      {/* Inline feedback (no floating overlay) to avoid overlap on mobile & desktop */}
       {feedbackMessage && !dismissedFeedback && validationState && validationState !== 'correct' && (
-        <div className="absolute top-11 left-1/2 -translate-x-1/2 w-60 max-w-[90%] p-2.5 bg-slate-800 dark:bg-slate-700 text-white text-xs rounded-lg shadow-2xl z-[9998] text-center animate-in fade-in slide-in-from-top-2 pointer-events-auto flex items-start justify-center gap-2">
+        <div className="px-2 py-1.5 text-[11px] md:text-xs leading-snug bg-slate-700 dark:bg-slate-600 text-white border-b border-slate-500/40 flex items-start gap-2">
           <span className="flex-1">{feedbackMessage}</span>
           <button
             onClick={(e) => { e.stopPropagation(); setDismissedFeedback(true); }}
@@ -179,7 +179,6 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
           >
             ×
           </button>
-          <div className="absolute -top-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-b-slate-800 dark:border-b-slate-700"></div>
         </div>
       )}
 
