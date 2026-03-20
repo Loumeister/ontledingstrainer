@@ -176,7 +176,7 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
     'ow': "Stel de vraag: wie of wat + persoonsvorm?",
     'vv': "Let op het voorzetsel: hoort dit onlosmakelijk bij een woord in de zin?",
     'bwb': "Geeft dit deel info (waar, wanneer, waarom), of is het een woord als 'niet', 'ook' of 'wel'?",
-    'mv': "Geeft dit deel antwoord op de vraag: aan of voor wie?",
+    'mv': "Ontvangt het zinsdeel iets of ondergaat het iets?",
     'ng': "Vertelt dit deel wat het onderwerp is of wordt, via een werkwoord als zijn of worden?",
     'bijst': "Geeft dit deel een extra naam aan een woord dat al genoemd is?",
     'pv': "Kijk welk woord van vorm verandert bij de tijdproef.",
@@ -186,7 +186,7 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, string>> = {
 
   'mv': {
     'ow': "Stel de vraag: wie of wat + persoonsvorm?",
-    'lv': "Controleer met de vraag: wie of wat + gezegde + onderwerp?",
+    'lv': "Ontvangt het zinsdeel iets of ondergaat het iets?",
     'vv': "Hoort het voorzetsel bij een vaste combinatie met een woord in de zin?",
     'bwb': "Geeft dit deel info over de omstandigheden, of is het een woord als 'niet' of 'ook'?",
     'pv': "Kijk welk woord van vorm verandert als je de tijd aanpast.",
