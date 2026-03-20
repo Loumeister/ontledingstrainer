@@ -128,7 +128,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   if (!currentSentence) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-2 md:p-4 font-sans transition-colors duration-300 flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-1.5 sm:p-2 md:p-4 font-sans transition-colors duration-300 flex flex-col">
 
       {/* Consecutive-perfect toast */}
       {streakToast && (
@@ -148,7 +148,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
       <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
       <ZinsdeelHelpModal isOpen={showZinsdeelHelp} onClose={() => setShowZinsdeelHelp(false)} />
 
-      <main className="max-w-6xl mx-auto w-full flex flex-col gap-4 flex-1 mb-20">
+      <main className="max-w-6xl mx-auto w-full flex flex-col gap-2 md:gap-4 flex-1">
 
         {/* Header */}
         <header className="flex items-center justify-between">
@@ -180,7 +180,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
         </div>
 
         {/* Main Content Area */}
-        <div className="space-y-4 flex-1 flex flex-col">
+        <div className="space-y-2 md:space-y-4 flex-1 flex flex-col">
           {/* Feedback Block */}
           {validationResult && (
             <div className={`p-3 rounded-xl text-center font-bold animate-in slide-in-from-top-2 duration-300 ${validationResult.isPerfect ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200 border border-green-200 dark:border-green-800' : 'bg-orange-50 text-orange-800 dark:bg-orange-900/40 dark:text-orange-200 border border-orange-200 dark:border-orange-800'}`}>
@@ -354,7 +354,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
         </div>
 
         {/* Bottom Bar */}
-        <footer className="fixed bottom-0 left-0 w-full bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-[500] p-3">
+        <footer className="sticky bottom-0 left-0 w-full bg-white/95 dark:bg-slate-800/95 backdrop-blur border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-[500] p-2 md:p-3">
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
 
             {/* Left: Sentence Label */}
@@ -499,7 +499,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
   const hasBijstelling = isRoleVisible('bijst');
 
   return (
-    <div className="bg-white dark:bg-slate-800 p-3 md:p-4 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 sticky top-0 z-[100] transition-all">
+    <div className="bg-white dark:bg-slate-800 p-2.5 md:p-4 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 sticky top-0 z-[100] transition-all max-h-[34vh] md:max-h-none overflow-y-auto">
       <div className="flex flex-col gap-2 md:gap-4">
         <div>
           <div className="flex items-center justify-between mb-2">
