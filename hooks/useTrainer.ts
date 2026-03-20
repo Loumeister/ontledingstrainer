@@ -491,7 +491,7 @@ export function useTrainer(): TrainerState {
 
     const usesAdvancedWordSubroles = currentSentence.tokens.some(token => {
       if (!token.subRole) return false;
-      if (token.subRole === 'bijv_bep') return includeBB;
+      if (token.subRole === 'bijv_bep') return true;
       return token.subRole === 'bijst' || token.subRole === 'nwd' || token.subRole === 'wwd';
     });
 
