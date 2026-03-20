@@ -181,7 +181,7 @@
   },
   {
     "id": 4,
-    "label": "Zin 4: Groente",
+    "label": "Zin 4: Eet jij eigenlijk wel genoeg groente?",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -752,7 +752,7 @@
   },
   {
     "id": 15,
-    "label": "Zin 15: Geüniformeerde surveillanten",
+    "label": "Zin 15: Bij de ingang zag ik plotseling twee geüniformeerde surveillanten verschijnen.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -784,15 +784,12 @@
       {
         "id": "s15t6",
         "text": "plotseling",
-        "role": "bwb",
-        "newChunk": true
+        "role": "bwb"
       },
       {
         "id": "s15t7",
         "text": "twee",
-        "role": "lv",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s15t9"
+        "role": "lv"
       },
       {
         "id": "s15t8",
@@ -815,16 +812,14 @@
   },
   {
     "id": 16,
-    "label": "Zin 16: Veel lawaai",
+    "label": "Zin 16: Veel lawaai maakten ze niet.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s16t1",
         "text": "Veel",
-        "role": "lv",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s16t2"
+        "role": "lv"
       },
       {
         "id": "s16t2",
@@ -850,16 +845,14 @@
   },
   {
     "id": 17,
-    "label": "Zin 17: Die film",
+    "label": "Zin 17: Die film wil ik absoluut zien.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s17t1",
         "text": "Die",
-        "role": "lv",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s17t2"
+        "role": "lv"
       },
       {
         "id": "s17t2",
@@ -890,31 +883,31 @@
   },
   {
     "id": 18,
-    "label": "Zin 18: Jouw mening",
+    "label": "Zin 18: Ik deel jouw mening niet.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s18t1",
-        "text": "Jouw",
-        "role": "lv",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s18t2"
+        "text": "Ik",
+        "role": "ow"
       },
       {
         "id": "s18t2",
-        "text": "mening",
-        "role": "lv"
-      },
-      {
-        "id": "s18t3",
         "text": "deel",
         "role": "pv"
       },
       {
+        "id": "s18t3",
+        "text": "jouw",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s18t4"
+      },
+      {
         "id": "s18t4",
-        "text": "ik",
-        "role": "ow"
+        "text": "mening",
+        "role": "lv"
       },
       {
         "id": "s18t5",
@@ -968,19 +961,19 @@
   },
   {
     "id": 20,
-    "label": "Zin 20: Vers brood bakt de bakker.",
+    "label": "Zin 20: De bakker bakt vers brood.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s20t1",
-        "text": "Vers",
-        "role": "lv"
+        "text": "De",
+        "role": "ow"
       },
       {
         "id": "s20t2",
-        "text": "brood",
-        "role": "lv"
+        "text": "bakker",
+        "role": "ow"
       },
       {
         "id": "s20t3",
@@ -989,84 +982,88 @@
       },
       {
         "id": "s20t4",
-        "text": "de",
-        "role": "ow"
+        "text": "vers",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s20t5"
       },
       {
         "id": "s20t5",
-        "text": "bakker.",
-        "role": "ow"
+        "text": "brood.",
+        "role": "lv"
       }
     ]
   },
   {
     "id": 21,
-    "label": "Zin 21: Een spannend boek leest Mila.",
+    "label": "Zin 21: Mila leest een spannend boek.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s21t1",
-        "text": "Een",
-        "role": "lv"
+        "text": "Mila",
+        "role": "ow"
       },
       {
         "id": "s21t2",
-        "text": "spannend",
-        "role": "lv"
-      },
-      {
-        "id": "s21t3",
-        "text": "boek",
-        "role": "lv"
-      },
-      {
-        "id": "s21t4",
         "text": "leest",
         "role": "pv"
       },
       {
+        "id": "s21t3",
+        "text": "een",
+        "role": "lv"
+      },
+      {
+        "id": "s21t4",
+        "text": "spannend",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s21t5"
+      },
+      {
         "id": "s21t5",
-        "text": "Mila.",
-        "role": "ow"
+        "text": "boek.",
+        "role": "lv"
       }
     ]
   },
   {
     "id": 22,
-    "label": "Zin 22: Aan de spelers geeft de trainer water.",
+    "label": "Zin 22: De trainer geeft aan de spelers water.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s22t1",
-        "text": "Aan",
-        "role": "mv"
+        "text": "De",
+        "role": "ow"
       },
       {
         "id": "s22t2",
-        "text": "de",
-        "role": "mv"
+        "text": "trainer",
+        "role": "ow"
       },
       {
         "id": "s22t3",
-        "text": "spelers",
-        "role": "mv"
-      },
-      {
-        "id": "s22t4",
         "text": "geeft",
         "role": "pv"
       },
       {
+        "id": "s22t4",
+        "text": "aan",
+        "role": "mv"
+      },
+      {
         "id": "s22t5",
         "text": "de",
-        "role": "ow"
+        "role": "mv"
       },
       {
         "id": "s22t6",
-        "text": "trainer",
-        "role": "ow"
+        "text": "spelers",
+        "role": "mv"
       },
       {
         "id": "s22t7",
@@ -1158,34 +1155,36 @@
   },
   {
     "id": 25,
-    "label": "Zin 25: Snel vindt de hond zijn bal.",
+    "label": "Zin 25: De hond vindt snel zijn bal.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s25t1",
-        "text": "Snel",
-        "role": "bwb"
-      },
-      {
-        "id": "s25t2",
-        "text": "vindt",
-        "role": "pv"
-      },
-      {
-        "id": "s25t3",
-        "text": "de",
+        "text": "De",
         "role": "ow"
       },
       {
-        "id": "s25t4",
+        "id": "s25t2",
         "text": "hond",
         "role": "ow"
       },
       {
+        "id": "s25t3",
+        "text": "vindt",
+        "role": "pv"
+      },
+      {
+        "id": "s25t4",
+        "text": "snel",
+        "role": "bwb"
+      },
+      {
         "id": "s25t5",
         "text": "zijn",
-        "role": "lv"
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s25t6"
       },
       {
         "id": "s25t6",
@@ -1234,95 +1233,97 @@
   },
   {
     "id": 27,
-    "label": "Zin 27: De oude deur repareert de timmerman.",
+    "label": "Zin 27: De timmerman repareert de oude deur.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s27t1",
         "text": "De",
-        "role": "lv"
+        "role": "ow"
       },
       {
         "id": "s27t2",
-        "text": "oude",
-        "role": "lv"
+        "text": "timmerman",
+        "role": "ow"
       },
       {
         "id": "s27t3",
-        "text": "deur",
-        "role": "lv"
-      },
-      {
-        "id": "s27t4",
         "text": "repareert",
         "role": "pv"
       },
       {
-        "id": "s27t5",
+        "id": "s27t4",
         "text": "de",
-        "role": "ow"
+        "role": "lv"
+      },
+      {
+        "id": "s27t5",
+        "text": "oude",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s27t6"
       },
       {
         "id": "s27t6",
-        "text": "timmerman.",
-        "role": "ow"
+        "text": "deur.",
+        "role": "lv"
       }
     ]
   },
   {
     "id": 28,
-    "label": "Zin 28: Op tafel legt Julia de sleutels.",
+    "label": "Zin 28: Julia legt de sleutels op tafel.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s28t1",
-        "text": "Op",
-        "role": "bwb"
-      },
-      {
-        "id": "s28t2",
-        "text": "tafel",
-        "role": "bwb"
-      },
-      {
-        "id": "s28t3",
-        "text": "legt",
-        "role": "pv"
-      },
-      {
-        "id": "s28t4",
         "text": "Julia",
         "role": "ow"
       },
       {
-        "id": "s28t5",
+        "id": "s28t2",
+        "text": "legt",
+        "role": "pv"
+      },
+      {
+        "id": "s28t3",
         "text": "de",
         "role": "lv"
       },
       {
-        "id": "s28t6",
-        "text": "sleutels.",
+        "id": "s28t4",
+        "text": "sleutels",
         "role": "lv"
+      },
+      {
+        "id": "s28t5",
+        "text": "op",
+        "role": "bwb"
+      },
+      {
+        "id": "s28t6",
+        "text": "tafel.",
+        "role": "bwb"
       }
     ]
   },
   {
     "id": 29,
-    "label": "Zin 29: Het antwoord vertelt de docent de klas.",
+    "label": "Zin 29: De docent vertelt het antwoord aan de klas.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s29t1",
-        "text": "Het",
-        "role": "lv"
+        "text": "De",
+        "role": "ow"
       },
       {
         "id": "s29t2",
-        "text": "antwoord",
-        "role": "lv"
+        "text": "docent",
+        "role": "ow"
       },
       {
         "id": "s29t3",
@@ -1331,21 +1332,26 @@
       },
       {
         "id": "s29t4",
-        "text": "de",
-        "role": "ow"
+        "text": "het",
+        "role": "lv"
       },
       {
         "id": "s29t5",
-        "text": "docent",
-        "role": "ow"
+        "text": "antwoord",
+        "role": "lv"
       },
       {
         "id": "s29t6",
-        "text": "de",
+        "text": "aan",
         "role": "mv"
       },
       {
         "id": "s29t7",
+        "text": "de",
+        "role": "mv"
+      },
+      {
+        "id": "s29t8",
         "text": "klas.",
         "role": "mv"
       }
@@ -1386,19 +1392,19 @@
   },
   {
     "id": 31,
-    "label": "Zin 31: Naar training brengt de buurjongen zijn zus.",
+    "label": "Zin 31: De buurjongen brengt zijn zus naar training.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s31t1",
-        "text": "Naar",
-        "role": "bwb"
+        "text": "De",
+        "role": "ow"
       },
       {
         "id": "s31t2",
-        "text": "training",
-        "role": "bwb"
+        "text": "buurjongen",
+        "role": "ow"
       },
       {
         "id": "s31t3",
@@ -1407,23 +1413,25 @@
       },
       {
         "id": "s31t4",
-        "text": "de",
-        "role": "ow"
+        "text": "zijn",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s31t5"
       },
       {
         "id": "s31t5",
-        "text": "buurjongen",
-        "role": "ow"
+        "text": "zus",
+        "role": "lv"
       },
       {
         "id": "s31t6",
-        "text": "zijn",
-        "role": "lv"
+        "text": "naar",
+        "role": "bwb"
       },
       {
         "id": "s31t7",
-        "text": "zus.",
-        "role": "lv"
+        "text": "training.",
+        "role": "bwb"
       }
     ]
   },
@@ -1510,19 +1518,19 @@
   },
   {
     "id": 34,
-    "label": "Zin 34: Het duel start de scheidsrechter.",
+    "label": "Zin 34: De scheidsrechter start het duel.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s34t1",
-        "text": "Het",
-        "role": "lv"
+        "text": "De",
+        "role": "ow"
       },
       {
         "id": "s34t2",
-        "text": "duel",
-        "role": "lv"
+        "text": "scheidsrechter",
+        "role": "ow"
       },
       {
         "id": "s34t3",
@@ -1531,13 +1539,13 @@
       },
       {
         "id": "s34t4",
-        "text": "de",
-        "role": "ow"
+        "text": "het",
+        "role": "lv"
       },
       {
         "id": "s34t5",
-        "text": "scheidsrechter.",
-        "role": "ow"
+        "text": "duel.",
+        "role": "lv"
       }
     ]
   },
@@ -1614,37 +1622,42 @@
   },
   {
     "id": 37,
-    "label": "Zin 37: Soep serveert de kok de gasten.",
+    "label": "Zin 37: De kok serveert soep aan de gasten.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s37t1",
-        "text": "Soep",
-        "role": "lv"
-      },
-      {
-        "id": "s37t2",
-        "text": "serveert",
-        "role": "pv"
-      },
-      {
-        "id": "s37t3",
-        "text": "de",
+        "text": "De",
         "role": "ow"
       },
       {
-        "id": "s37t4",
+        "id": "s37t2",
         "text": "kok",
         "role": "ow"
       },
       {
+        "id": "s37t3",
+        "text": "serveert",
+        "role": "pv"
+      },
+      {
+        "id": "s37t4",
+        "text": "soep",
+        "role": "lv"
+      },
+      {
         "id": "s37t5",
-        "text": "de",
+        "text": "aan",
         "role": "mv"
       },
       {
         "id": "s37t6",
+        "text": "de",
+        "role": "mv"
+      },
+      {
+        "id": "s37t7",
         "text": "gasten.",
         "role": "mv"
       }
@@ -1690,19 +1703,19 @@
   },
   {
     "id": 39,
-    "label": "Zin 39: Een jas toont de winkelier de klant.",
+    "label": "Zin 39: De winkelier toont een jas aan de klant.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s39t1",
-        "text": "Een",
-        "role": "lv"
+        "text": "De",
+        "role": "ow"
       },
       {
         "id": "s39t2",
-        "text": "jas",
-        "role": "lv"
+        "text": "winkelier",
+        "role": "ow"
       },
       {
         "id": "s39t3",
@@ -1711,21 +1724,26 @@
       },
       {
         "id": "s39t4",
-        "text": "de",
-        "role": "ow"
+        "text": "een",
+        "role": "lv"
       },
       {
         "id": "s39t5",
-        "text": "winkelier",
-        "role": "ow"
+        "text": "jas",
+        "role": "lv"
       },
       {
         "id": "s39t6",
-        "text": "de",
+        "text": "aan",
         "role": "mv"
       },
       {
         "id": "s39t7",
+        "text": "de",
+        "role": "mv"
+      },
+      {
+        "id": "s39t8",
         "text": "klant.",
         "role": "mv"
       }
@@ -1733,19 +1751,21 @@
   },
   {
     "id": 40,
-    "label": "Zin 40: De schutting schildert onze buurman.",
+    "label": "Zin 40: Onze buurman schildert de schutting.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s40t1",
-        "text": "De",
-        "role": "lv"
+        "text": "Onze",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s40t2"
       },
       {
         "id": "s40t2",
-        "text": "schutting",
-        "role": "lv"
+        "text": "buurman",
+        "role": "ow"
       },
       {
         "id": "s40t3",
@@ -1754,54 +1774,61 @@
       },
       {
         "id": "s40t4",
-        "text": "onze",
-        "role": "ow"
+        "text": "de",
+        "role": "lv"
       },
       {
         "id": "s40t5",
-        "text": "buurman.",
-        "role": "ow"
+        "text": "schutting.",
+        "role": "lv"
       }
     ]
   },
   {
     "id": 41,
-    "label": "Zin 41: Aan de docent geeft de leerling hulp.",
+    "label": "Zin 41: De leerling geeft aan de docent extra hulp.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s41t1",
-        "text": "Aan",
-        "role": "mv"
-      },
-      {
-        "id": "s41t2",
-        "text": "de",
-        "role": "mv"
-      },
-      {
-        "id": "s41t3",
-        "text": "docent",
-        "role": "mv"
-      },
-      {
-        "id": "s41t4",
-        "text": "geeft",
-        "role": "pv"
-      },
-      {
-        "id": "s41t5",
-        "text": "de",
+        "text": "De",
         "role": "ow"
       },
       {
-        "id": "s41t6",
+        "id": "s41t2",
         "text": "leerling",
         "role": "ow"
       },
       {
+        "id": "s41t3",
+        "text": "geeft",
+        "role": "pv"
+      },
+      {
+        "id": "s41t4",
+        "text": "aan",
+        "role": "mv"
+      },
+      {
+        "id": "s41t5",
+        "text": "de",
+        "role": "mv"
+      },
+      {
+        "id": "s41t6",
+        "text": "docent",
+        "role": "mv"
+      },
+      {
         "id": "s41t7",
+        "text": "extra",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s41t8"
+      },
+      {
+        "id": "s41t8",
         "text": "hulp.",
         "role": "lv"
       }
@@ -2438,7 +2465,7 @@
   },
   {
     "id": 57,
-    "label": "Zin 57: Tafel dekken (basisvolgorde)",
+    "label": "Zin 57: Ik orden de aantekeningen.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2449,7 +2476,7 @@
       },
       {
         "id": "s57t2",
-        "text": "dek",
+        "text": "orden",
         "role": "pv"
       },
       {
@@ -2459,7 +2486,7 @@
       },
       {
         "id": "s57t4",
-        "text": "tafel.",
+        "text": "aantekeningen.",
         "role": "lv"
       }
     ]
@@ -2501,7 +2528,7 @@
   },
   {
     "id": 59,
-    "label": "Zin 59: Boek inleveren (basisvolgorde)",
+    "label": "Zin 59: De leerling overhandigt het naslagwerk.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2517,7 +2544,7 @@
       },
       {
         "id": "s59t3",
-        "text": "levert",
+        "text": "overhandigt",
         "role": "pv"
       },
       {
@@ -2527,14 +2554,14 @@
       },
       {
         "id": "s59t5",
-        "text": "boek.",
+        "text": "naslagwerk.",
         "role": "lv"
       }
     ]
   },
   {
     "id": 60,
-    "label": "Zin 60: Teamshirt wassen (basisvolgorde + BWB)",
+    "label": "Zin 60: Moeder wast mijn wedstrijdtenue zorgvuldig.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2557,12 +2584,12 @@
       },
       {
         "id": "s60t4",
-        "text": "teamshirt",
+        "text": "wedstrijdtenue",
         "role": "lv"
       },
       {
         "id": "s60t5",
-        "text": "straks.",
+        "text": "zorgvuldig.",
         "role": "bwb"
       }
     ]
