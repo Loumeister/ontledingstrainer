@@ -288,10 +288,25 @@ describe('validateAnswer – label checking', () => {
     expect(result.isPerfect).toBe(false);
   });
 
-  it('gives warning for PV labeled as WG', () => {
+  it('accepts PV labeled as WG in WG-context without PV warning feedback', () => {
     const labels: PlacementMap = { t1: 'ow', t3: 'wg', t4: 'bwb' }; // PV → WG
     const { result } = validateAnswer(sentence, correctSplits, labels, {}, false);
+    expect(result.chunkStatus[1]).toBe('correct');
+    expect(result.score).toBe(3);
+    expect(result.chunkFeedback[1]).toBeUndefined();
+  });
+
+  it('keeps PV→WG as warning in NG-context', () => {
+    const ngSentence = makeSentence(sentence.tokens, { predicateType: 'NG' });
+    const labels: PlacementMap = { t1: 'ow', t3: 'wg', t4: 'bwb' };
+    const { result } = validateAnswer(ngSentence, correctSplits, labels, {}, false);
     expect(result.chunkStatus[1]).toBe('warning');
+  });
+
+  it('keeps true role swaps strict (incorrect-role)', () => {
+    const labels: PlacementMap = { t1: 'ow', t3: 'ow', t4: 'bwb' }; // PV → OW
+    const { result } = validateAnswer(sentence, correctSplits, labels, {}, false);
+    expect(result.chunkStatus[1]).toBe('incorrect-role');
   });
 
   it('tracks role mistakes', () => {
