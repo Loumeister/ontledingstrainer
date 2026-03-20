@@ -148,7 +148,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
       <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
       <ZinsdeelHelpModal isOpen={showZinsdeelHelp} onClose={() => setShowZinsdeelHelp(false)} />
 
-      <main className="max-w-6xl mx-auto w-full flex flex-col gap-2 md:gap-4 flex-1 pb-28 md:pb-24">
+      <main className="max-w-6xl mx-auto w-full flex flex-col gap-2 md:gap-4 flex-1">
 
         {/* Header */}
         <header className="flex items-center justify-between">
@@ -354,7 +354,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
         </div>
 
         {/* Bottom Bar */}
-        <footer className="fixed bottom-0 left-0 w-full bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-[500] p-2 md:p-3">
+        <footer className="sticky bottom-0 left-0 w-full bg-white/95 dark:bg-slate-800/95 backdrop-blur border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-[500] p-2 md:p-3">
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
 
             {/* Left: Sentence Label */}
@@ -499,7 +499,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
   const hasBijstelling = isRoleVisible('bijst');
 
   return (
-    <div className="bg-white dark:bg-slate-800 p-2.5 md:p-4 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 sticky top-0 z-[100] transition-all">
+    <div className="bg-white dark:bg-slate-800 p-2.5 md:p-4 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 sticky top-0 z-[100] transition-all max-h-[34vh] md:max-h-none overflow-y-auto">
       <div className="flex flex-col gap-2 md:gap-4">
         <div>
           <div className="flex items-center justify-between mb-2">
