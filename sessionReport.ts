@@ -129,6 +129,17 @@ export interface KlasStats {
   avgScore: number;
 }
 
+export interface JaarlaagStats {
+  /** First digit of class name, e.g. '1', '2', '3' — or '?' for unknown */
+  jaarlaag: string;
+  reportCount: number;
+  uniqueStudents: number;
+  uniqueKlassen: number;
+  avgScore: number;
+  /** Top role errors for this year group */
+  topRoleErrors: Array<{ role: string; count: number }>;
+}
+
 export interface AggregateStats {
   totalReports: number;
   uniqueStudents: number;
@@ -142,11 +153,19 @@ export interface AggregateStats {
   /** Normalised class names (lowercase) */
   klassen: string[];
   klasStats: KlasStats[];
+  /** Stats grouped by year (first digit of class name) */
+  jaarlaagStats: JaarlaagStats[];
 }
 
 /** Normalise class name: trim + lowercase */
 export function normaliseKlas(klas: string): string {
   return klas.trim().toLowerCase();
+}
+
+/** Extract year group (jaarlaag) from class name: first digit, or '?' */
+export function extractJaarlaag(klas: string): string {
+  const match = klas.trim().match(/^(\d)/);
+  return match ? match[1] : '?';
 }
 
 export function computeAggregateStats(
@@ -159,10 +178,7 @@ export function computeAggregateStats(
 
   const filtered = reports.filter(r => {
     if (normFilterKlas && normaliseKlas(r.klas ?? '') !== normFilterKlas) return false;
-    if (normFilterStudent) {
-      const fullName = `${r.name.trim()} ${r.initiaal ?? ''}`.toLowerCase();
-      if (!fullName.includes(normFilterStudent)) return false;
-    }
+    if (normFilterStudent && !r.name.trim().toLowerCase().includes(normFilterStudent)) return false;
     return true;
   });
 
@@ -218,6 +234,43 @@ export function computeAggregateStats(
     }))
     .sort((a, b) => a.klas.localeCompare(b.klas));
 
+  // Compute per-jaarlaag stats (always from all reports, unfiltered)
+  const jaarlaagMap = new Map<string, {
+    count: number;
+    students: Set<string>;
+    klassen: Set<string>;
+    totalC: number;
+    totalT: number;
+    roleErrors: Record<string, number>;
+  }>();
+  for (const r of reports) {
+    const jl = r.klas ? extractJaarlaag(r.klas) : '?';
+    if (!jaarlaagMap.has(jl)) jaarlaagMap.set(jl, { count: 0, students: new Set(), klassen: new Set(), totalC: 0, totalT: 0, roleErrors: {} });
+    const entry = jaarlaagMap.get(jl)!;
+    entry.count += 1;
+    if (r.name.trim()) entry.students.add(r.name.trim().toLowerCase());
+    if (r.klas) entry.klassen.add(normaliseKlas(r.klas));
+    entry.totalC += r.c;
+    entry.totalT += r.t;
+    for (const [role, count] of Object.entries(r.err)) {
+      entry.roleErrors[role] = (entry.roleErrors[role] || 0) + count;
+    }
+  }
+
+  const jaarlaagStats: JaarlaagStats[] = [...jaarlaagMap.entries()]
+    .map(([jaarlaag, s]) => ({
+      jaarlaag,
+      reportCount: s.count,
+      uniqueStudents: s.students.size,
+      uniqueKlassen: s.klassen.size,
+      avgScore: s.totalT > 0 ? (s.totalC / s.totalT) * 100 : 0,
+      topRoleErrors: Object.entries(s.roleErrors)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([role, count]) => ({ role, count })),
+    }))
+    .sort((a, b) => a.jaarlaag.localeCompare(b.jaarlaag));
+
   return {
     totalReports: filtered.length,
     uniqueStudents: names.size,
@@ -230,5 +283,6 @@ export function computeAggregateStats(
     studentNames: [...names].sort(),
     klassen: [...klassenSet].sort(),
     klasStats,
+    jaarlaagStats,
   };
 }

@@ -4,7 +4,7 @@ import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, co
 import { loadAllSentences } from '../data/sentenceLoader';
 import { getCustomSentences } from '../data/customSentenceStore';
 import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats, normaliseKlas } from '../sessionReport';
-import type { SessionReport } from '../sessionReport';
+import type { SessionReport, JaarlaagStats } from '../sessionReport';
 import { fetchReports as fetchReportsFromDrive, getScriptUrl, setScriptUrl, getApiKey, setApiKey } from '../googleDriveSync';
 import type { DriveRow } from '../googleDriveSync';
 import type { SentenceUsageData } from '../types';
@@ -779,6 +779,39 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                 <p className="text-[10px] text-slate-400 mt-1">Klik op een klas om te filteren.</p>
               </div>
             )}
+
+            {/* Per-jaarlaag breakdown */}
+            {aggregateStats.jaarlaagStats.length > 0 && (
+              <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
+                <span className="text-xs text-slate-400 block mb-2">Per jaarlaag:</span>
+                <div className="space-y-2">
+                  {aggregateStats.jaarlaagStats.map((js: JaarlaagStats) => (
+                    <div key={js.jaarlaag} className="p-2 rounded-lg bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700">
+                      <div className="flex items-center gap-3 mb-1">
+                        <span className="font-bold text-slate-700 dark:text-white text-sm">
+                          {js.jaarlaag === '?' ? 'Onbekend' : `Klas ${js.jaarlaag}`}
+                        </span>
+                        <span className="text-xs text-slate-400">{js.reportCount} rapporten · {js.uniqueStudents} leerlingen · {js.uniqueKlassen} {js.uniqueKlassen === 1 ? 'klas' : 'klassen'}</span>
+                        <span className={`ml-auto font-bold text-sm ${js.avgScore >= 60 ? 'text-emerald-600 dark:text-emerald-400' : js.avgScore >= 30 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
+                          {js.avgScore.toFixed(0)}%
+                        </span>
+                      </div>
+                      {js.topRoleErrors.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          <span className="text-[10px] text-slate-400">Veelste fouten:</span>
+                          {js.topRoleErrors.map(e => (
+                            <span key={e.role} className="text-[10px] px-1.5 py-0.5 rounded bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 font-medium">
+                              {e.role} ({e.count}×)
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1">Gebaseerd op het eerste cijfer van de klasnaam (bv. "1" uit "1ga").</p>
+              </div>
+            )}
           </div>
         )}
 
@@ -822,13 +855,48 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Per-sentence cards (mobile-friendly) */}
-        <div className="space-y-3">
-          {sorted.length === 0 ? (
-            <div className="bg-white dark:bg-slate-800 p-8 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
-              <p className="text-slate-400 text-sm">Geen gebruiksdata beschikbaar. Zodra leerlingen oefenen verschijnen hier de resultaten.</p>
-            </div>
-          ) : sorted.map(d => {
+        {/* Per-sentence cards — grouped by level when no level filter active */}
+        {(() => {
+          const LEVEL_META: Record<number, { label: string; color: string; bg: string }> = {
+            1: { label: 'Niveau 1 — Basis', color: 'text-green-700 dark:text-green-300', bg: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' },
+            2: { label: 'Niveau 2 — Middel', color: 'text-blue-700 dark:text-blue-300', bg: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' },
+            3: { label: 'Niveau 3 — Hoog', color: 'text-purple-700 dark:text-purple-300', bg: 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800' },
+            4: { label: 'Niveau 4 — Samengesteld', color: 'text-red-700 dark:text-red-300', bg: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' },
+            0: { label: 'Overig / Eigen zinnen', color: 'text-slate-700 dark:text-slate-300', bg: 'bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-600' },
+          };
+
+          if (sorted.length === 0) {
+            return (
+              <div className="bg-white dark:bg-slate-800 p-8 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
+                <p className="text-slate-400 text-sm">Geen gebruiksdata beschikbaar. Zodra leerlingen oefenen verschijnen hier de resultaten.</p>
+              </div>
+            );
+          }
+
+          // When a specific level is filtered: flat list. Otherwise: group by level.
+          const useGrouping = filterLevel === null;
+          const groups = useGrouping
+            ? [1, 2, 3, 4, 0]
+                .map(lvl => ({ lvl, items: sorted.filter(d => d.level === lvl) }))
+                .filter(g => g.items.length > 0)
+            : [{ lvl: filterLevel ?? -1, items: sorted }];
+
+          return (
+            <div className="space-y-4">
+              {groups.map(({ lvl, items }) => {
+                const meta = LEVEL_META[lvl] ?? LEVEL_META[0];
+                const avgPerfect = items.reduce((s, d) => s + d.perfectRate, 0) / items.length;
+                return (
+                  <LevelGroup
+                    key={lvl}
+                    title={useGrouping ? meta.label : ''}
+                    color={meta.color}
+                    bg={meta.bg}
+                    count={items.length}
+                    avgPerfect={useGrouping ? avgPerfect : null}
+                    useGrouping={useGrouping}
+                  >
+                    {items.map(d => {
             const roleErrorEntries = Object.entries(d.usage.roleErrors)
               .sort((a, b) => b[1] - a[1])
               .slice(0, 3);
@@ -914,7 +982,12 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
               </div>
             );
           })}
-        </div>
+                  </LevelGroup>
+                );
+              })}
+            </div>
+          );
+        })()}
 
         {/* Eigenaar-only sections — requires eigenaar PIN */}
         {isEigenaar && (
@@ -1096,3 +1169,47 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     </div>
   );
 };
+
+// --- Helper component: collapsible level group ---
+
+interface LevelGroupProps {
+  title: string;
+  color: string;
+  bg: string;
+  count: number;
+  avgPerfect: number | null;
+  useGrouping: boolean;
+  children: React.ReactNode;
+}
+
+function LevelGroup({ title, color, bg, count, avgPerfect, useGrouping, children }: LevelGroupProps) {
+  const [open, setOpen] = React.useState(true);
+
+  if (!useGrouping) {
+    return <div className="space-y-3">{children}</div>;
+  }
+
+  return (
+    <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className={`w-full flex items-center justify-between px-4 py-2.5 text-left ${bg} border-b border-slate-200 dark:border-slate-700 hover:brightness-95 transition-all`}
+      >
+        <span className={`font-bold text-sm ${color}`}>{title}</span>
+        <div className="flex items-center gap-3">
+          {avgPerfect !== null && (
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              gem. {avgPerfect.toFixed(0)}% goed · {count} {count === 1 ? 'zin' : 'zinnen'}
+            </span>
+          )}
+          <span className={`text-slate-400 dark:text-slate-500 transition-transform ${open ? 'rotate-180' : ''}`}>▼</span>
+        </div>
+      </button>
+      {open && (
+        <div className="bg-white dark:bg-slate-800 p-3 space-y-3">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
