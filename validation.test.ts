@@ -316,6 +316,26 @@ describe('validateAnswer – label checking', () => {
     expect(result.chunkStatus[1]).toBe('incorrect-role');
   });
 
+  it('still gives warning for PV→WG in NG-context before level 4', () => {
+    const ngSentence = makeSentence(sentence.tokens, { predicateType: 'NG', level: 3 });
+    const labels: PlacementMap = { t1: 'ow', t3: 'wg', t4: 'bwb' };
+    const { result } = validateAnswer(ngSentence, correctSplits, labels, {}, false);
+    expect(result.chunkStatus[1]).toBe('warning');
+  });
+
+  it('requires strict PV labeling from level 4 onward', () => {
+    const strictSentence = makeSentence(sentence.tokens, { level: 4 });
+    const labels: PlacementMap = { t1: 'ow', t3: 'wg', t4: 'bwb' }; // PV → WG
+    const { result } = validateAnswer(strictSentence, correctSplits, labels, {}, false);
+    expect(result.chunkStatus[1]).toBe('incorrect-role');
+  });
+
+  it('keeps true role swaps strict (incorrect-role)', () => {
+    const labels: PlacementMap = { t1: 'ow', t3: 'ow', t4: 'bwb' }; // PV → OW
+    const { result } = validateAnswer(sentence, correctSplits, labels, {}, false);
+    expect(result.chunkStatus[1]).toBe('incorrect-role');
+  });
+
   it('tracks role mistakes', () => {
     const labels: PlacementMap = { t1: 'lv', t3: 'ow', t4: 'bwb' };
     const { mistakes } = validateAnswer(sentence, correctSplits, labels, {}, false);
