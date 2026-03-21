@@ -35,15 +35,23 @@ Docent (/#/usage, PIN 4321)
 3. Kopieer de inhoud van `apps-script/Code.gs` (uit deze repository) en plak die.
 4. Klik op het **Opslaan**-icoon (diskette of Ctrl+S).
 
-### Stap 3 – Stel de API-sleutel in
+### Stap 3 – Haal de API-sleutel op uit de app
 
-1. Ga in Apps Script naar: **Projectinstellingen** (tandwielpictogram links).
-2. Scroll naar **Scripteigenschappen** → klik **Eigenschap toevoegen**.
-3. Naam: `API_KEY`, Waarde: *(een veilige, willekeurige string, bijv. gegenereerd in de app)*.
-4. Klik **Eigenschappen van script opslaan**.
+De app genereert automatisch een unieke API-sleutel. Haal die als volgt op:
 
-> **Tip**: De app genereert automatisch een API-sleutel en toont die in `/#/usage` onder
-> "Google Drive koppeling" (eigenaar-PIN). Kopieer die sleutel en plak hem hier.
+1. Open de **Zinsontledingstrainer** in een ander browsertabblad.
+2. Ga naar `/#/usage` en voer PIN **4321** in.
+3. Scroll naar **🔗 Google Drive koppeling**.
+4. Klik op de **Kopieer**-knop naast de API-sleutel — de sleutel staat nu op je klembord.
+
+Ga nu terug naar het **Apps Script**-tabblad:
+
+5. Klik op het **tandwielpictogram** links (Projectinstellingen).
+6. Scroll naar **Scriptproperty's** → klik **Scriptproperty toevoegen**.
+7. Vul in:
+   - **Eigenschap**: `API_KEY`
+   - **Waarde**: *(plak hier de zojuist gekopieerde sleutel)*
+8. Klik **Scriptproperty's opslaan**.
 
 ### Stap 4 – Deploy als Web App
 
