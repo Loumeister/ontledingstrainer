@@ -82,10 +82,10 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
     if (scorePercentage === 100) {
       // Gold/yellow perfection burst
       confetti({ particleCount: 200, spread: 120, origin: { y: 0.4 }, colors: ['#FFD700', '#FFA500', '#FF6347', '#FFD700'] });
-    } else if (scorePercentage >= 80 && isImproved && previousScore !== null && scorePercentage - previousScore > 10) {
+    } else if (scorePercentage >= 90 && isImproved && previousScore !== null && scorePercentage - previousScore > 10) {
       // Big improvement: blue/green growth burst
       confetti({ particleCount: 100, spread: 90, origin: { y: 0.5 }, colors: ['#3B82F6', '#10B981', '#06B6D4'] });
-    } else if (scorePercentage >= 80) {
+    } else if (scorePercentage >= 90) {
       confetti({ particleCount: 80, spread: 80, origin: { y: 0.5 } });
     }
     if (streak >= 7) {
@@ -103,7 +103,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
 
   // Recommended action
   const weakestRole = sortedMistakes.length > 0 ? sortedMistakes[0][0] : null;
-  const recommendation = scorePercentage >= 80
+  const recommendation = scorePercentage >= 90
     ? { text: 'Klaar voor een nieuwe uitdaging! Probeer een nieuwe set zinnen.', buttonText: 'Nieuwe sessie' }
     : scorePercentage >= 55
     ? { text: weakestRole ? `Focus op ${weakestRole} en probeer het nog een keer.` : 'Probeer het nog een keer.', buttonText: 'Nog een keer' }

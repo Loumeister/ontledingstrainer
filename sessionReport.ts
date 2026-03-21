@@ -286,3 +286,80 @@ export function computeAggregateStats(
     jaarlaagStats,
   };
 }
+
+// --- Per-student breakdown ---
+
+export interface StudentStats {
+  /** Display name (trimmed, original casing of first occurrence) */
+  name: string;
+  klas: string;
+  sessionCount: number;
+  avgScore: number;
+  latestScore: number;
+  bestScore: number;
+  /** ISO timestamp of most recent session */
+  latestTs: string;
+  /** Top 3 most-made role errors across all sessions */
+  topErrors: Array<{ role: string; count: number }>;
+}
+
+/**
+ * Compute per-student stats, optionally filtered to one class.
+ * Returns one entry per unique (lowercased) student name, sorted alphabetically.
+ */
+export function computeStudentStats(
+  reports: SessionReport[],
+  klas?: string,
+): StudentStats[] {
+  const normKlas = klas ? normaliseKlas(klas) : null;
+  const filtered = normKlas
+    ? reports.filter(r => normaliseKlas(r.klas ?? '') === normKlas)
+    : reports;
+
+  type Bucket = {
+    displayName: string;
+    klas: string;
+    sessions: Array<{ score: number; ts: string }>;
+    roleErrors: Record<string, number>;
+  };
+
+  const map = new Map<string, Bucket>();
+  for (const r of filtered) {
+    const key = r.name.trim().toLowerCase();
+    if (!key) continue;
+    if (!map.has(key)) {
+      map.set(key, {
+        displayName: r.name.trim(),
+        klas: normaliseKlas(r.klas ?? ''),
+        sessions: [],
+        roleErrors: {},
+      });
+    }
+    const b = map.get(key)!;
+    const score = r.t > 0 ? (r.c / r.t) * 100 : 0;
+    b.sessions.push({ score, ts: r.ts });
+    for (const [role, count] of Object.entries(r.err)) {
+      b.roleErrors[role] = (b.roleErrors[role] || 0) + count;
+    }
+  }
+
+  return [...map.entries()]
+    .map(([, b]) => {
+      const scores = b.sessions.map(s => s.score);
+      const latest = b.sessions.reduce((a, c) => (c.ts > a.ts ? c : a), b.sessions[0]);
+      return {
+        name: b.displayName,
+        klas: b.klas,
+        sessionCount: b.sessions.length,
+        avgScore: scores.reduce((a, s) => a + s, 0) / scores.length,
+        latestScore: latest.score,
+        bestScore: Math.max(...scores),
+        latestTs: latest.ts,
+        topErrors: Object.entries(b.roleErrors)
+          .sort((a, c) => c[1] - a[1])
+          .slice(0, 3)
+          .map(([role, count]) => ({ role, count })),
+      };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name, 'nl'));
+}

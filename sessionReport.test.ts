@@ -8,6 +8,7 @@ import {
   addReport,
   clearReports,
   computeAggregateStats,
+  computeStudentStats,
   SessionReport,
 } from './sessionReport';
 
@@ -182,5 +183,72 @@ describe('computeAggregateStats', () => {
     ];
     const stats = computeAggregateStats(reports);
     expect(stats.uniqueStudents).toBe(1);
+  });
+});
+
+describe('computeStudentStats', () => {
+  const base: SessionReport = { v: 1, name: 'Sofia', klas: '1ga', ts: '2025-06-01T10:00:00Z', c: 8, t: 10, lvl: 1, err: { pv: 2 }, sids: [] };
+
+  it('returns one entry per unique student', () => {
+    const reports: SessionReport[] = [
+      { ...base, name: 'Sofia', c: 8, t: 10 },
+      { ...base, name: 'Lars',  c: 5, t: 10, err: {} },
+    ];
+    const stats = computeStudentStats(reports);
+    expect(stats).toHaveLength(2);
+    expect(stats.map(s => s.name.toLowerCase())).toContain('sofia');
+    expect(stats.map(s => s.name.toLowerCase())).toContain('lars');
+  });
+
+  it('merges multiple sessions for the same student', () => {
+    const reports: SessionReport[] = [
+      { ...base, ts: '2025-06-01T10:00:00Z', c: 6, t: 10, err: { pv: 1 } },
+      { ...base, ts: '2025-06-02T10:00:00Z', c: 9, t: 10, err: { ow: 1 } },
+    ];
+    const [s] = computeStudentStats(reports);
+    expect(s.sessionCount).toBe(2);
+    expect(s.avgScore).toBeCloseTo(75);
+    expect(s.bestScore).toBeCloseTo(90);
+    expect(s.latestScore).toBeCloseTo(90);
+    expect(s.latestTs).toBe('2025-06-02T10:00:00Z');
+    expect(s.topErrors).toHaveLength(2);
+  });
+
+  it('filters by class', () => {
+    const reports: SessionReport[] = [
+      { ...base, name: 'Sofia', klas: '1ga' },
+      { ...base, name: 'Lars',  klas: '2hv' },
+    ];
+    const stats = computeStudentStats(reports, '1ga');
+    expect(stats).toHaveLength(1);
+    expect(stats[0].name.toLowerCase()).toBe('sofia');
+  });
+
+  it('is case-insensitive for class name', () => {
+    const reports: SessionReport[] = [
+      { ...base, name: 'Sofia', klas: '1GA' },
+    ];
+    const stats = computeStudentStats(reports, '1ga');
+    expect(stats).toHaveLength(1);
+  });
+
+  it('skips reports with empty name', () => {
+    const reports: SessionReport[] = [
+      { ...base, name: '' },
+      { ...base, name: 'Sofia' },
+    ];
+    const stats = computeStudentStats(reports);
+    expect(stats).toHaveLength(1);
+  });
+
+  it('sorts students alphabetically', () => {
+    const reports: SessionReport[] = [
+      { ...base, name: 'Zoë' },
+      { ...base, name: 'Anna' },
+      { ...base, name: 'Lars' },
+    ];
+    const names = computeStudentStats(reports).map(s => s.name);
+    expect(names[0]).toBe('Anna');
+    expect(names[names.length - 1]).toBe('Zoë');
   });
 });
