@@ -21,6 +21,14 @@ type ScoreScreenProps = Pick<TrainerState,
 
 const STUDENT_INFO_KEY = 'student_info_v1';
 
+// Niveau-afhankelijke drempels (advies Grammar Coach): [green, yellow, orange]
+const SCORE_THRESHOLDS: Record<number, [number, number, number]> = {
+  1: [90, 80, 65],
+  2: [90, 75, 60],
+  3: [90, 75, 55],
+  4: [85, 70, 50],
+};
+
 export const ScoreScreen: React.FC<ScoreScreenProps> = ({
   sessionStats,
   mistakeStats,
@@ -94,8 +102,33 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
     }
   }, []);
 
+  // Compute effective thresholds: level-specific, or weighted average for Mixed sessions
+  const effectiveThresholds = useMemo((): [number, number, number] => {
+    if (selectedLevel && selectedLevel >= 1 && selectedLevel <= 4) {
+      return SCORE_THRESHOLDS[selectedLevel];
+    }
+    // Mixed: weighted average of per-level thresholds based on sentence counts in the queue
+    const counts: Record<number, number> = {};
+    for (const s of sessionQueue) {
+      counts[s.level] = (counts[s.level] || 0) + 1;
+    }
+    const total = sessionQueue.length;
+    if (total === 0) return [90, 75, 55];
+    let green = 0, yellow = 0, orange = 0;
+    for (const [lvlStr, count] of Object.entries(counts)) {
+      const lvl = Number(lvlStr);
+      const [g, y, o] = SCORE_THRESHOLDS[lvl] ?? [90, 75, 55];
+      const w = count / total;
+      green += g * w;
+      yellow += y * w;
+      orange += o * w;
+    }
+    return [Math.round(green), Math.round(yellow), Math.round(orange)];
+  }, [selectedLevel, sessionQueue]);
+
   const encouragement = useMemo(() => {
-    const tier = scorePercentage >= 90 ? 3 : scorePercentage >= 75 ? 2 : scorePercentage >= 55 ? 1 : 0;
+    const [g, y, o] = effectiveThresholds;
+    const tier = scorePercentage >= g ? 3 : scorePercentage >= y ? 2 : scorePercentage >= o ? 1 : 0;
     const pool = ENCOURAGEMENT_POOLS[tier];
     return pool[Math.floor(Math.random() * pool.length)];
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -103,9 +136,10 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
 
   // Recommended action
   const weakestRole = sortedMistakes.length > 0 ? sortedMistakes[0][0] : null;
-  const recommendation = scorePercentage >= 90
+  const [tGreen, , tOrange] = effectiveThresholds;
+  const recommendation = scorePercentage >= tGreen
     ? { text: 'Klaar voor een nieuwe uitdaging! Probeer een nieuwe set zinnen.', buttonText: 'Nieuwe sessie' }
-    : scorePercentage >= 55
+    : scorePercentage >= tOrange
     ? { text: weakestRole ? `Focus op ${weakestRole} en probeer het nog een keer.` : 'Probeer het nog een keer.', buttonText: 'Nog een keer' }
     : { text: 'Probeer dezelfde zinnen opnieuw om je score te verbeteren.', buttonText: 'Opnieuw proberen' };
 

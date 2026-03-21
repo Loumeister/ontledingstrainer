@@ -9,11 +9,21 @@ import { fetchReports as fetchReportsFromDrive, getScriptUrl, setScriptUrl, getA
 import type { DriveRow } from '../googleDriveSync';
 import type { SentenceUsageData } from '../types';
 
-// Score colour: ≥90 green · ≥75 yellow · ≥55 orange · <55 red
-function scoreColor(pct: number): string {
+// Score colours — twee varianten (advies: Grammar Coach)
+//
+// Klas-/jaarlaaggemiddelde: strenger — een 75% klasgemiddelde is een signaal
+function scoreColorAggregate(pct: number): string {
   if (pct >= 90) return 'text-emerald-600 dark:text-emerald-400';
-  if (pct >= 75) return 'text-yellow-600 dark:text-yellow-400';
-  if (pct >= 55) return 'text-orange-500 dark:text-orange-400';
+  if (pct >= 80) return 'text-yellow-600 dark:text-yellow-400';
+  if (pct >= 65) return 'text-orange-500 dark:text-orange-400';
+  return 'text-red-600 dark:text-red-400';
+}
+
+// "In één keer goed"-rate: lager plafond — automatisering realistisch bij ≥70%
+function scoreColorPerfectRate(pct: number): string {
+  if (pct >= 70) return 'text-emerald-600 dark:text-emerald-400';
+  if (pct >= 55) return 'text-yellow-600 dark:text-yellow-400';
+  if (pct >= 35) return 'text-orange-500 dark:text-orange-400';
   return 'text-red-600 dark:text-red-400';
 }
 
@@ -308,7 +318,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
 
   // Easy sentences: high perfect rate with >= 3 attempts
   const easySentences = enrichedData
-    .filter(d => d.usage.attempts >= 3 && d.perfectRate >= 90)
+    .filter(d => d.usage.attempts >= 3 && d.perfectRate >= 70)
     .sort((a, b) => b.perfectRate - a.perfectRate)
     .slice(0, 5);
 
@@ -331,9 +341,9 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
 
   // Helper: describe the success rate in plain Dutch
   const describeRate = (rate: number): { text: string; emoji: string; colorClass: string } => {
-    if (rate >= 90) return { text: 'Goed begrepen', emoji: '🟢', colorClass: 'text-emerald-600 dark:text-emerald-400' };
-    if (rate >= 75) return { text: 'Redelijk', emoji: '🟡', colorClass: 'text-yellow-600 dark:text-yellow-400' };
-    if (rate >= 55) return { text: 'Lastig', emoji: '🟠', colorClass: 'text-orange-500 dark:text-orange-400' };
+    if (rate >= 70) return { text: 'Goed begrepen', emoji: '🟢', colorClass: 'text-emerald-600 dark:text-emerald-400' };
+    if (rate >= 55) return { text: 'Redelijk', emoji: '🟡', colorClass: 'text-yellow-600 dark:text-yellow-400' };
+    if (rate >= 35) return { text: 'Lastig', emoji: '🟠', colorClass: 'text-orange-500 dark:text-orange-400' };
     return { text: 'Erg moeilijk', emoji: '🔴', colorClass: 'text-red-600 dark:text-red-400' };
   };
 
@@ -384,7 +394,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
           </div>
           <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
             <div className="text-3xl mb-1">{avgPerfectRate >= 90 ? '🎉' : avgPerfectRate >= 75 ? '💪' : '📚'}</div>
-            <div className={`text-2xl font-bold ${scoreColor(avgPerfectRate)}`}>{avgPerfectRate.toFixed(0)}%</div>
+            <div className={`text-2xl font-bold ${scoreColorPerfectRate(avgPerfectRate)}`}>{avgPerfectRate.toFixed(0)}%</div>
             <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">In één keer goed</div>
           </div>
           <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
@@ -704,7 +714,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                 <br/><span className="text-xs text-slate-500">Leerlingen</span>
               </div>
               <div>
-                <span className={`font-bold ${scoreColor(aggregateStats.avgScore)}`}>
+                <span className={`font-bold ${scoreColorAggregate(aggregateStats.avgScore)}`}>
                   {aggregateStats.avgScore.toFixed(0)}%
                 </span>
                 <br/><span className="text-xs text-slate-500">Gem. score</span>
@@ -775,7 +785,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                           <td className="py-1 pr-3 text-center text-slate-600 dark:text-slate-300">{ks.reportCount}</td>
                           <td className="py-1 pr-3 text-center text-slate-600 dark:text-slate-300">{ks.uniqueStudents}</td>
                           <td className="py-1 text-center">
-                            <span className={`font-bold ${scoreColor(ks.avgScore)}`}>
+                            <span className={`font-bold ${scoreColorAggregate(ks.avgScore)}`}>
                               {ks.avgScore.toFixed(0)}%
                             </span>
                           </td>
@@ -818,10 +828,10 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                           >
                             <td className="py-1.5 pr-2 font-medium text-blue-600 dark:text-blue-400 capitalize">{ss.name}</td>
                             <td className="py-1.5 pr-2 text-center text-slate-500">{ss.sessionCount}</td>
-                            <td className={`py-1.5 pr-2 text-center font-bold ${scoreColor(ss.avgScore)}`}>
+                            <td className={`py-1.5 pr-2 text-center font-bold ${scoreColorAggregate(ss.avgScore)}`}>
                               {ss.avgScore.toFixed(0)}%
                             </td>
-                            <td className={`py-1.5 pr-2 text-center font-bold ${scoreColor(ss.bestScore)}`}>
+                            <td className={`py-1.5 pr-2 text-center font-bold ${scoreColorAggregate(ss.bestScore)}`}>
                               {ss.bestScore.toFixed(0)}%
                             </td>
                             <td className="py-1.5 pr-2 text-center text-slate-400">
@@ -852,7 +862,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                           {js.jaarlaag === '?' ? 'Onbekend' : `Klas ${js.jaarlaag}`}
                         </span>
                         <span className="text-xs text-slate-400">{js.reportCount} rapporten · {js.uniqueStudents} leerlingen · {js.uniqueKlassen} {js.uniqueKlassen === 1 ? 'klas' : 'klassen'}</span>
-                        <span className={`ml-auto font-bold text-sm ${scoreColor(js.avgScore)}`}>
+                        <span className={`ml-auto font-bold text-sm ${scoreColorAggregate(js.avgScore)}`}>
                           {js.avgScore.toFixed(0)}%
                         </span>
                       </div>
