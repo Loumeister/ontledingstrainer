@@ -68,7 +68,6 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
   const [isOverChunk, setIsOverChunk] = useState(false);
   const [isOverBijzinFunctie, setIsOverBijzinFunctie] = useState(false);
   const [hoveredWordId, setHoveredWordId] = useState<string | null>(null);
-  const [dismissedFeedback, setDismissedFeedback] = useState(false);
   const [snapPop, setSnapPop] = useState(false);
   const prevValidation = useRef<ValidationState | undefined>(undefined);
   useEffect(() => {
@@ -79,10 +78,6 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
     }
     prevValidation.current = validationState;
   }, [validationState]);
-
-  useEffect(() => {
-    setDismissedFeedback(false);
-  }, [feedbackMessage]);
 
   const badgeLabel = validationState && validationState !== 'correct'
     ? FEEDBACK_SHORT_LABELS[validationState] || null
@@ -167,21 +162,6 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
         }
       }}
     >
-      {/* Inline feedback (no floating overlay) to avoid overlap on mobile & desktop */}
-      {feedbackMessage && !dismissedFeedback && validationState && validationState !== 'correct' && (
-        <div className="px-2 py-1.5 text-[11px] md:text-xs leading-snug bg-slate-700 dark:bg-slate-600 text-white border-b border-slate-500/40 flex items-start gap-2">
-          <span className="flex-1">{feedbackMessage}</span>
-          <button
-            onClick={(e) => { e.stopPropagation(); setDismissedFeedback(true); }}
-            className="flex-shrink-0 hover:bg-white/20 rounded px-1 transition-colors"
-            title="Verberg feedback"
-            aria-label="Verberg feedback"
-          >
-            ×
-          </button>
-        </div>
-      )}
-
       {/* Compact inline badge for feedback */}
       {badgeLabel && feedbackMessage && (
         <div className={`absolute -bottom-2.5 left-1/2 -translate-x-1/2 z-20 px-2 py-0.5 rounded-full text-[10px] font-bold text-white whitespace-nowrap shadow-sm ${
