@@ -5,7 +5,13 @@ import { SCORE_TIPS, ENCOURAGEMENT_POOLS, STREAK_MILESTONES, ROLES } from '../co
 import { ScoreRing } from '../components/ScoreRing';
 import { SentenceResultCard } from '../components/SentenceResultCard';
 import { ProgressChart } from '../components/ProgressChart';
-import { loadSessionHistory, getStreak } from '../sessionHistory';
+import {
+  loadSessionHistory, getStreak,
+  getPersonalRecord, updatePersonalRecord,
+  getConsistencyStreak,
+  getPerfectSessionCount, incrementPerfectSessionCount,
+} from '../sessionHistory';
+import { updateRoleMastery, RoleMasteryStore } from '../rolemastery';
 import { buildReport, encodeReport } from '../sessionReport';
 import { postReport, getScriptUrl } from '../googleDriveSync';
 
@@ -64,6 +70,21 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
   const previousScore = history.length >= 2 ? history[history.length - 2].scorePercentage : null;
   const streak = useMemo(() => getStreak(), []);
 
+  // PR: check & update once on mount
+  const [isNewPR, prevPR] = useMemo(() => {
+    const prev = getPersonalRecord();
+    const isNew = updatePersonalRecord(scorePercentage);
+    return [isNew, prev] as [boolean, number];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Vlekkeloos (100%-teller): update once on mount when perfect
+  const perfectCount = useMemo(() => {
+    if (scorePercentage === 100) return incrementPerfectSessionCount();
+    return getPerfectSessionCount();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // All mistakes sorted by frequency
   const sortedMistakes = useMemo(() =>
     Object.entries(mistakeStats).sort((a, b) => (b[1] as number) - (a[1] as number)),
@@ -75,7 +96,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
   const totalSentences = sessionSentenceResults.length;
   const isImproved = previousScore !== null && scorePercentage > previousScore;
 
-  // Mastered roles: roles that had errors in previous sessions but none now
+  // Mastered roles: roles that had errors in previous sessions but none now (session-diff badge)
   const previousMistakeRoles = useMemo(() => {
     if (history.length < 2) return new Set<string>();
     const prev = history[history.length - 2];
@@ -86,15 +107,30 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
     return [...previousMistakeRoles].filter(r => !currentErrorRoles.has(r));
   }, [previousMistakeRoles, mistakeStats]);
 
+  // Persistente rolbeheersing: update once on mount
+  const { roleMasteryStore, newlyMasteredRoles } = useMemo(() => {
+    const allLabels = ROLES.map(r => r.label);
+    const { store, newlyMastered } = updateRoleMastery(allLabels, mistakeStats);
+    return { roleMasteryStore: store, newlyMasteredRoles: newlyMastered };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (scorePercentage === 100) {
       // Gold/yellow perfection burst
       confetti({ particleCount: 200, spread: 120, origin: { y: 0.4 }, colors: ['#FFD700', '#FFA500', '#FF6347', '#FFD700'] });
+    } else if (isNewPR) {
+      // New personal record: coral/orange burst
+      confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 }, colors: ['#F97316', '#EF4444', '#FB923C'] });
     } else if (scorePercentage >= 90 && isImproved && previousScore !== null && scorePercentage - previousScore > 10) {
       // Big improvement: blue/green growth burst
       confetti({ particleCount: 100, spread: 90, origin: { y: 0.5 }, colors: ['#3B82F6', '#10B981', '#06B6D4'] });
     } else if (scorePercentage >= 90) {
       confetti({ particleCount: 80, spread: 80, origin: { y: 0.5 } });
+    }
+    // Consistentiestreak ≥ 5: ticker-tape
+    if (consistencyStreak >= 5) {
+      setTimeout(() => confetti({ particleCount: 100, shapes: ['rect' as import('canvas-confetti').Shape], scalar: 0.5, spread: 100, origin: { y: 0.3 }, colors: ['#10B981', '#6EE7B7', '#34D399'] }), 400);
     }
     if (streak >= 7) {
       // Flame burst for weekly streak milestone
@@ -126,6 +162,13 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
     return [Math.round(green), Math.round(yellow), Math.round(orange)];
   }, [selectedLevel, sessionQueue]);
 
+  // Consistentiestreak: sessies achter elkaar boven groen
+  const [tGreenForStreak] = effectiveThresholds;
+  const consistencyStreak = useMemo(
+    () => getConsistencyStreak(history, tGreenForStreak),
+    [history, tGreenForStreak]
+  );
+
   const encouragement = useMemo(() => {
     const [g, y, o] = effectiveThresholds;
     const tier = scorePercentage >= g ? 3 : scorePercentage >= y ? 2 : scorePercentage >= o ? 1 : 0;
@@ -136,7 +179,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
 
   // Recommended action
   const weakestRole = sortedMistakes.length > 0 ? sortedMistakes[0][0] : null;
-  const [tGreen, , tOrange] = effectiveThresholds;
+  const [tGreen, , tOrange] = effectiveThresholds; // tGreenForStreak is the same value, used above
   const recommendation = scorePercentage >= tGreen
     ? { text: 'Klaar voor een nieuwe uitdaging! Probeer een nieuwe set zinnen.', buttonText: 'Nieuwe sessie' }
     : scorePercentage >= tOrange
@@ -281,14 +324,35 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-4">Sessie Voltooid!</h2>
 
           <div className="flex flex-col items-center gap-3 mb-4">
-            <ScoreRing percentage={scorePercentage} />
+            <div className={scorePercentage === 100 ? 'ring-4 ring-yellow-400 dark:ring-yellow-300 rounded-full animate-pulse-ring' : ''}>
+              <ScoreRing percentage={scorePercentage} />
+            </div>
 
             <p className="text-slate-500 dark:text-slate-400">
               {sessionStats.correct} van de {sessionStats.total} zinsdelen goed
             </p>
 
+            {/* Eigen Record sticker */}
+            {isNewPR && prevPR > 0 && (
+              <div className="flex items-center gap-1.5 px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-sm font-semibold rounded-full border border-orange-200 dark:border-orange-700 animate-in zoom-in-95 duration-300">
+                🏅 Eigen record!
+                <span className="font-normal text-xs ml-1">
+                  {scorePercentage - prevPR >= 15
+                    ? `Nieuw record — ${scorePercentage}% is jouw nieuwe norm.`
+                    : scorePercentage - prevPR >= 6
+                    ? `Groot verschil met je vorige record. Goed bezig.`
+                    : `Net iets beter dan vorige keer. Kleine stap, maar het telt.`}
+                </span>
+              </div>
+            )}
+            {isNewPR && prevPR === 0 && (
+              <div className="flex items-center gap-1.5 px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-sm font-semibold rounded-full border border-orange-200 dark:border-orange-700 animate-in zoom-in-95 duration-300">
+                🏅 Eigen record — {scorePercentage}%
+              </div>
+            )}
+
             {/* Comparison with previous session */}
-            {previousScore !== null && (
+            {previousScore !== null && !isNewPR && (
               <div className="flex items-center gap-1.5 text-sm">
                 {scorePercentage > previousScore ? (
                   <span className="text-green-600 dark:text-green-400 font-medium">
@@ -311,14 +375,37 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
 
           {/* Badges row */}
           <div className="flex flex-wrap justify-center gap-2 mt-4">
+            {/* Vlekkeloos (100%) */}
+            {scorePercentage === 100 && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-xs font-medium rounded-full border border-yellow-300 dark:border-yellow-700 animate-in zoom-in-95 duration-300">
+                ✨ Vlekkeloos
+                {perfectCount > 1 && <span className="ml-1 opacity-70">{perfectCount}×</span>}
+              </span>
+            )}
             {perfectSentences > 0 && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium rounded-full border border-green-200 dark:border-green-800">
                 &#9733; {perfectSentences}/{totalSentences} perfect
               </span>
             )}
-            {isImproved && (
+            {isImproved && !isNewPR && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full border border-blue-200 dark:border-blue-800">
                 &#9650; Stijger!
+              </span>
+            )}
+            {/* Consistentiebadges */}
+            {consistencyStreak >= 10 && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-medium rounded-full border border-emerald-200 dark:border-emerald-800 animate-in zoom-in-95 duration-300">
+                💎 Ongekend
+              </span>
+            )}
+            {consistencyStreak >= 5 && consistencyStreak < 10 && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-medium rounded-full border border-emerald-200 dark:border-emerald-800 animate-in zoom-in-95 duration-300">
+                🎯 In de Groove
+              </span>
+            )}
+            {consistencyStreak >= 3 && consistencyStreak < 5 && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-medium rounded-full border border-emerald-200 dark:border-emerald-800 animate-in zoom-in-95 duration-300">
+                📈 Op Dreef
               </span>
             )}
             {streak >= 2 && (() => {
@@ -332,7 +419,18 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
                 </span>
               );
             })()}
-            {masteredRoles.map((role, idx) => (
+            {/* Nieuw persistente rolkenner-badges */}
+            {newlyMasteredRoles.map((role, idx) => (
+              <span
+                key={`kenner-${role}`}
+                className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-xs font-medium rounded-full border border-yellow-300 dark:border-yellow-600 animate-in fade-in slide-in-from-bottom duration-300"
+                style={{ animationDelay: `${idx * 150}ms` }}
+              >
+                ★ {ROLES.find(r => r.label === role)?.shortLabel ?? role}-kenner
+              </span>
+            ))}
+            {/* Sessie-diff mastery badges (vorig systeem) */}
+            {masteredRoles.filter(r => !newlyMasteredRoles.includes(r)).map((role, idx) => (
               <span
                 key={role}
                 className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-full border border-purple-200 dark:border-purple-800 animate-in fade-in slide-in-from-bottom duration-300"
@@ -343,8 +441,30 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
             ))}
           </div>
 
+          {/* Consistentie bericht */}
+          {consistencyStreak >= 3 && scorePercentage < 100 && (
+            <p className="mt-2 text-xs text-emerald-700 dark:text-emerald-400 animate-in fade-in duration-300">
+              {consistencyStreak >= 10
+                ? 'Tien sessies boven de norm. Dat is écht sterk.'
+                : consistencyStreak >= 5
+                ? 'Vijf keer op rij. Je zinsdelen zitten er in.'
+                : 'Drie keer op rij boven de grens. Geen toeval meer.'}
+            </p>
+          )}
+
+          {/* Vlekkeloos bericht */}
+          {scorePercentage === 100 && (
+            <p className="mt-3 text-sm text-yellow-700 dark:text-yellow-300 font-medium animate-in fade-in duration-500">
+              {perfectCount === 1
+                ? 'Eerste foutloze sessie. Je weet nu dat het kan.'
+                : perfectCount >= 5
+                ? `Al ${perfectCount}× vlekkeloos. Consistentie is een vak apart.`
+                : 'Alweer geen fouten. Dit is gewoon hoe je dit nu doet.'}
+            </p>
+          )}
+
           {/* Rollenkas – mastery trophy wall */}
-          <RollenKas mistakeStats={mistakeStats} />
+          <RollenKas mistakeStats={mistakeStats} masteryStore={roleMasteryStore} />
         </section>
 
         {/* === Section 2: Per-sentence overview === */}
@@ -442,7 +562,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
             </button>
             {showProgress && (
               <div className="px-6 pb-5 space-y-3">
-                <ProgressChart history={history} />
+                <ProgressChart history={history} personalRecord={getPersonalRecord()} />
                 <WeakestRoleOverTime history={history} />
               </div>
             )}
@@ -474,7 +594,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
 
 // --- Helper sub-components ---
 
-function RollenKas({ mistakeStats }: { mistakeStats: Record<string, number> }) {
+function RollenKas({ mistakeStats, masteryStore }: { mistakeStats: Record<string, number>; masteryStore: RoleMasteryStore }) {
   const [open, setOpen] = React.useState(false);
   const errorRoles = new Set(Object.keys(mistakeStats));
 
@@ -489,18 +609,32 @@ function RollenKas({ mistakeStats }: { mistakeStats: Record<string, number> }) {
       {open && (
         <div className="mt-3 grid grid-cols-4 gap-2 animate-in fade-in slide-in-from-top duration-200">
           {ROLES.map(role => {
-            const mastered = !errorRoles.has(role.label);
+            const cleanThisSession = !errorRoles.has(role.label);
+            const mastery = masteryStore[role.label];
+            const isPersistentMaster = mastery?.mastered ?? false;
+            const consecutive = mastery?.consecutiveClean ?? 0;
             return (
               <div
                 key={role.key}
-                className={`flex flex-col items-center p-2 rounded-xl border text-xs font-medium transition-all ${
-                  mastered
-                    ? `${role.colorClass} ${role.borderColorClass}`
+                title={isPersistentMaster ? `${role.label} — beheerst` : consecutive > 0 ? `${consecutive}/3 sessies foutloos` : role.label}
+                className={`relative flex flex-col items-center p-2 rounded-xl border text-xs font-medium transition-all ${
+                  cleanThisSession
+                    ? isPersistentMaster
+                      ? `${role.colorClass} border-yellow-400 dark:border-yellow-500 ring-1 ring-yellow-400 dark:ring-yellow-500`
+                      : `${role.colorClass} ${role.borderColorClass}`
                     : 'bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-600 opacity-40 grayscale'
                 }`}
               >
-                <span className="text-lg leading-none">{mastered ? '✓' : '○'}</span>
+                <span className="text-lg leading-none">
+                  {isPersistentMaster ? '★' : cleanThisSession ? '✓' : '○'}
+                </span>
                 <span className="mt-1 text-center leading-tight">{role.shortLabel}</span>
+                {/* Voortgangsbolletjes: alleen tonen als bezig maar nog niet beheerst */}
+                {!isPersistentMaster && consecutive > 0 && cleanThisSession && (
+                  <span className="mt-0.5 text-[9px] opacity-60">
+                    {'●'.repeat(consecutive)}{'○'.repeat(Math.max(0, 3 - consecutive))}
+                  </span>
+                )}
               </div>
             );
           })}
