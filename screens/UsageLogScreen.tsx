@@ -3,11 +3,29 @@ import { loadUsageData, clearUsageData, exportUsageDataAsJson } from '../usageDa
 import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats } from '../interactionLog';
 import { loadAllSentences } from '../data/sentenceLoader';
 import { getCustomSentences } from '../data/customSentenceStore';
-import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats, normaliseKlas } from '../sessionReport';
+import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats, computeStudentStats, normaliseKlas } from '../sessionReport';
 import type { SessionReport, JaarlaagStats } from '../sessionReport';
 import { fetchReports as fetchReportsFromDrive, getScriptUrl, setScriptUrl, getApiKey, setApiKey } from '../googleDriveSync';
 import type { DriveRow } from '../googleDriveSync';
 import type { SentenceUsageData } from '../types';
+
+// Score colours — twee varianten (advies: Grammar Coach)
+//
+// Klas-/jaarlaaggemiddelde: strenger — een 75% klasgemiddelde is een signaal
+function scoreColorAggregate(pct: number): string {
+  if (pct >= 90) return 'text-emerald-600 dark:text-emerald-400';
+  if (pct >= 80) return 'text-yellow-600 dark:text-yellow-400';
+  if (pct >= 65) return 'text-orange-500 dark:text-orange-400';
+  return 'text-red-600 dark:text-red-400';
+}
+
+// "In één keer goed"-rate: lager plafond — automatisering realistisch bij ≥70%
+function scoreColorPerfectRate(pct: number): string {
+  if (pct >= 70) return 'text-emerald-600 dark:text-emerald-400';
+  if (pct >= 55) return 'text-yellow-600 dark:text-yellow-400';
+  if (pct >= 35) return 'text-orange-500 dark:text-orange-400';
+  return 'text-red-600 dark:text-red-400';
+}
 
 function mergeReportDataIntoUsage(
   localStore: Record<number, SentenceUsageData>,
@@ -288,7 +306,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
 
   // Difficult sentences: low perfect rate with >= 3 attempts
   const difficultSentences = enrichedData
-    .filter(d => d.usage.attempts >= 3 && d.perfectRate < 40)
+    .filter(d => d.usage.attempts >= 3 && d.perfectRate < 55)
     .sort((a, b) => a.perfectRate - b.perfectRate)
     .slice(0, 5);
 
@@ -300,7 +318,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
 
   // Easy sentences: high perfect rate with >= 3 attempts
   const easySentences = enrichedData
-    .filter(d => d.usage.attempts >= 3 && d.perfectRate >= 80)
+    .filter(d => d.usage.attempts >= 3 && d.perfectRate >= 70)
     .sort((a, b) => b.perfectRate - a.perfectRate)
     .slice(0, 5);
 
@@ -323,9 +341,9 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
 
   // Helper: describe the success rate in plain Dutch
   const describeRate = (rate: number): { text: string; emoji: string; colorClass: string } => {
-    if (rate >= 80) return { text: 'Goed begrepen', emoji: '🟢', colorClass: 'text-emerald-600 dark:text-emerald-400' };
-    if (rate >= 50) return { text: 'Redelijk', emoji: '🟡', colorClass: 'text-amber-600 dark:text-amber-400' };
-    if (rate >= 25) return { text: 'Lastig', emoji: '🟠', colorClass: 'text-orange-600 dark:text-orange-400' };
+    if (rate >= 70) return { text: 'Goed begrepen', emoji: '🟢', colorClass: 'text-emerald-600 dark:text-emerald-400' };
+    if (rate >= 55) return { text: 'Redelijk', emoji: '🟡', colorClass: 'text-yellow-600 dark:text-yellow-400' };
+    if (rate >= 35) return { text: 'Lastig', emoji: '🟠', colorClass: 'text-orange-500 dark:text-orange-400' };
     return { text: 'Erg moeilijk', emoji: '🔴', colorClass: 'text-red-600 dark:text-red-400' };
   };
 
@@ -375,8 +393,8 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
             <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Keer gecontroleerd</div>
           </div>
           <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
-            <div className="text-3xl mb-1">{avgPerfectRate >= 60 ? '🎉' : avgPerfectRate >= 30 ? '💪' : '📚'}</div>
-            <div className={`text-2xl font-bold ${avgPerfectRate >= 60 ? 'text-emerald-600 dark:text-emerald-400' : avgPerfectRate >= 30 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>{avgPerfectRate.toFixed(0)}%</div>
+            <div className="text-3xl mb-1">{avgPerfectRate >= 90 ? '🎉' : avgPerfectRate >= 75 ? '💪' : '📚'}</div>
+            <div className={`text-2xl font-bold ${scoreColorPerfectRate(avgPerfectRate)}`}>{avgPerfectRate.toFixed(0)}%</div>
             <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">In één keer goed</div>
           </div>
           <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
@@ -696,7 +714,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                 <br/><span className="text-xs text-slate-500">Leerlingen</span>
               </div>
               <div>
-                <span className={`font-bold ${aggregateStats.avgScore >= 60 ? 'text-emerald-600 dark:text-emerald-400' : aggregateStats.avgScore >= 30 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
+                <span className={`font-bold ${scoreColorAggregate(aggregateStats.avgScore)}`}>
                   {aggregateStats.avgScore.toFixed(0)}%
                 </span>
                 <br/><span className="text-xs text-slate-500">Gem. score</span>
@@ -767,7 +785,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                           <td className="py-1 pr-3 text-center text-slate-600 dark:text-slate-300">{ks.reportCount}</td>
                           <td className="py-1 pr-3 text-center text-slate-600 dark:text-slate-300">{ks.uniqueStudents}</td>
                           <td className="py-1 text-center">
-                            <span className={`font-bold ${ks.avgScore >= 60 ? 'text-emerald-600 dark:text-emerald-400' : ks.avgScore >= 30 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
+                            <span className={`font-bold ${scoreColorAggregate(ks.avgScore)}`}>
                               {ks.avgScore.toFixed(0)}%
                             </span>
                           </td>
@@ -779,6 +797,58 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                 <p className="text-[10px] text-slate-400 mt-1">Klik op een klas om te filteren.</p>
               </div>
             )}
+
+            {/* Per-student breakdown — only shown when a class is selected */}
+            {filterKlas && (() => {
+              const studentStats = computeStudentStats(allReports, filterKlas);
+              if (studentStats.length === 0) return null;
+              return (
+                <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
+                  <span className="text-xs text-slate-400 block mb-2">
+                    Leerlingen in klas <strong className="text-slate-600 dark:text-slate-300">{filterKlas}</strong>:
+                  </span>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="text-left text-slate-400 border-b border-slate-100 dark:border-slate-700">
+                          <th className="pb-1 pr-2 font-medium">Leerling</th>
+                          <th className="pb-1 pr-2 font-medium text-center">Sessies</th>
+                          <th className="pb-1 pr-2 font-medium text-center">Gem.</th>
+                          <th className="pb-1 pr-2 font-medium text-center">Beste</th>
+                          <th className="pb-1 pr-2 font-medium text-center">Laatste</th>
+                          <th className="pb-1 font-medium">Zwakste punt</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {studentStats.map(ss => (
+                          <tr
+                            key={ss.name}
+                            className="border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors"
+                            onClick={() => setFilterStudent(ss.name.toLowerCase())}
+                          >
+                            <td className="py-1.5 pr-2 font-medium text-blue-600 dark:text-blue-400 capitalize">{ss.name}</td>
+                            <td className="py-1.5 pr-2 text-center text-slate-500">{ss.sessionCount}</td>
+                            <td className={`py-1.5 pr-2 text-center font-bold ${scoreColorAggregate(ss.avgScore)}`}>
+                              {ss.avgScore.toFixed(0)}%
+                            </td>
+                            <td className={`py-1.5 pr-2 text-center font-bold ${scoreColorAggregate(ss.bestScore)}`}>
+                              {ss.bestScore.toFixed(0)}%
+                            </td>
+                            <td className="py-1.5 pr-2 text-center text-slate-400">
+                              {new Date(ss.latestTs).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
+                            </td>
+                            <td className="py-1.5 text-slate-500">
+                              {ss.topErrors[0]?.role ?? '—'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1">Klik op een leerling om in te zoomen.</p>
+                </div>
+              );
+            })()}
 
             {/* Per-jaarlaag breakdown */}
             {aggregateStats.jaarlaagStats.length > 0 && (
@@ -792,7 +862,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                           {js.jaarlaag === '?' ? 'Onbekend' : `Klas ${js.jaarlaag}`}
                         </span>
                         <span className="text-xs text-slate-400">{js.reportCount} rapporten · {js.uniqueStudents} leerlingen · {js.uniqueKlassen} {js.uniqueKlassen === 1 ? 'klas' : 'klassen'}</span>
-                        <span className={`ml-auto font-bold text-sm ${js.avgScore >= 60 ? 'text-emerald-600 dark:text-emerald-400' : js.avgScore >= 30 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
+                        <span className={`ml-auto font-bold text-sm ${scoreColorAggregate(js.avgScore)}`}>
                           {js.avgScore.toFixed(0)}%
                         </span>
                       </div>
@@ -915,7 +985,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
               tip = '💡 Tip: Leerlingen splitsen deze zin vaak verkeerd. Oefen het herkennen van zinsdelen.';
             } else if (d.perfectRate >= 25 && d.perfectRate < 50 && roleErrorEntries.length > 0) {
               tip = `💡 Tip: Leerlingen verwarren hier vaak het ${roleErrorEntries[0][0]}. Extra uitleg kan helpen.`;
-            } else if (d.perfectRate >= 80) {
+            } else if (d.perfectRate >= 90) {
               tip = '✨ Deze zin wordt goed beheerst!';
             }
 

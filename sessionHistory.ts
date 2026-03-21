@@ -75,3 +75,65 @@ export function getPreviousScore(): number | null {
   if (history.length === 0) return null;
   return history[history.length - 1].scorePercentage;
 }
+
+// --- Persoonlijk Record ---
+
+const PR_KEY = 'zinsontleding_pr_v1';
+
+export function getPersonalRecord(): number {
+  try {
+    const raw = localStorage.getItem(PR_KEY);
+    return raw ? Number(raw) : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** Updates PR if score is higher. Returns true if a new record was set. */
+export function updatePersonalRecord(score: number): boolean {
+  const current = getPersonalRecord();
+  if (score > current) {
+    try { localStorage.setItem(PR_KEY, String(score)); } catch { /* ignore */ }
+    return true;
+  }
+  return false;
+}
+
+// --- Consistentiestreak: opeenvolgende sessies boven drempel ---
+
+/**
+ * Returns the number of consecutive recent sessions (including the last one)
+ * that scored >= threshold. The history should already include the current session.
+ */
+export function getConsistencyStreak(history: SessionHistoryEntry[], threshold: number): number {
+  if (history.length === 0) return 0;
+  let streak = 0;
+  for (let i = history.length - 1; i >= 0; i--) {
+    if (history[i].scorePercentage >= threshold) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+// --- Vlekkeloos-teller (perfecte sessies: 100%) ---
+
+const PERFECT_KEY = 'zinsontleding_perfect_count_v1';
+
+export function getPerfectSessionCount(): number {
+  try {
+    const raw = localStorage.getItem(PERFECT_KEY);
+    return raw ? Number(raw) : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** Increments the counter and returns the new count. */
+export function incrementPerfectSessionCount(): number {
+  const next = getPerfectSessionCount() + 1;
+  try { localStorage.setItem(PERFECT_KEY, String(next)); } catch { /* ignore */ }
+  return next;
+}

@@ -3,9 +3,10 @@ import { SessionHistoryEntry } from '../types';
 
 interface ProgressChartProps {
   history: SessionHistoryEntry[];
+  personalRecord?: number; // score van het eigen record, om dat punt te markeren
 }
 
-export const ProgressChart: React.FC<ProgressChartProps> = ({ history }) => {
+export const ProgressChart: React.FC<ProgressChartProps> = ({ history, personalRecord }) => {
   if (history.length < 2) return null;
 
   const width = 280;
@@ -71,20 +72,35 @@ export const ProgressChart: React.FC<ProgressChartProps> = ({ history }) => {
           strokeLinecap="round"
         />
 
-        {/* Dots */}
-        {points.map((p, i) => (
-          <circle
-            key={i}
-            cx={p.x}
-            cy={p.y}
-            r={i === points.length - 1 ? 4 : 2.5}
-            className={
-              i === points.length - 1
-                ? 'fill-blue-600 dark:fill-blue-300'
-                : 'fill-blue-400 dark:fill-blue-500'
-            }
-          />
-        ))}
+        {/* Dots — PR-punt als diamant (◆), laatste punt iets groter */}
+        {points.map((p, i) => {
+          const isPR = personalRecord !== undefined && history[i].scorePercentage === personalRecord;
+          const isLast = i === points.length - 1;
+          if (isPR) {
+            // Diamant via rotated square
+            const s = isLast ? 5 : 4;
+            return (
+              <rect
+                key={i}
+                x={p.x - s / 2}
+                y={p.y - s / 2}
+                width={s}
+                height={s}
+                transform={`rotate(45 ${p.x} ${p.y})`}
+                className="fill-orange-500 dark:fill-orange-400"
+              />
+            );
+          }
+          return (
+            <circle
+              key={i}
+              cx={p.x}
+              cy={p.y}
+              r={isLast ? 4 : 2.5}
+              className={isLast ? 'fill-blue-600 dark:fill-blue-300' : 'fill-blue-400 dark:fill-blue-500'}
+            />
+          );
+        })}
 
         {/* Last point label */}
         {points.length > 0 && (
