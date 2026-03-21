@@ -7,6 +7,7 @@ import { SentenceResultCard } from '../components/SentenceResultCard';
 import { ProgressChart } from '../components/ProgressChart';
 import { loadSessionHistory, getStreak } from '../sessionHistory';
 import { buildReport, encodeReport } from '../sessionReport';
+import { postReport, getScriptUrl } from '../googleDriveSync';
 
 type ScoreScreenProps = Pick<TrainerState,
   | 'sessionStats'
@@ -28,8 +29,12 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
   selectedLevel,
 }) => {
   const [studentName, setStudentName] = useState('');
+  const [studentInitiaal, setStudentInitiaal] = useState('');
+  const [studentKlas, setStudentKlas] = useState('');
   const [reportCode, setReportCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [submitError, setSubmitError] = useState('');
 
   const scorePercentage = sessionStats.total > 0 ? Math.round((sessionStats.correct / sessionStats.total) * 100) : 0;
 
@@ -95,7 +100,9 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
   const [showSentences, setShowSentences] = useState(scorePercentage < 70);
   const [showProgress, setShowProgress] = useState(false);
 
-  const handleGenerateReport = () => {
+  const driveConfigured = !!getScriptUrl();
+
+  const buildAndEncodeReport = () => {
     const sentenceIds = sessionQueue.map(s => s.id);
     const report = buildReport(
       studentName.trim(),
@@ -104,9 +111,30 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
       mistakeStats,
       selectedLevel,
       sentenceIds,
+      studentInitiaal.trim() || undefined,
+      studentKlas.trim() || undefined,
     );
-    setReportCode(encodeReport(report));
+    return encodeReport(report);
+  };
+
+  const handleSendReport = async () => {
+    const naam = studentName.trim();
+    const initiaal = studentInitiaal.trim().slice(0, 1).toUpperCase();
+    const klas = studentKlas.trim();
+    if (!naam || !initiaal || !klas) return;
+
+    const code = buildAndEncodeReport();
+    setReportCode(code);
     setCopied(false);
+    setSubmitStatus('sending');
+    setSubmitError('');
+    try {
+      await postReport(naam, initiaal, klas, code);
+      setSubmitStatus('success');
+    } catch (err) {
+      setSubmitStatus('error');
+      setSubmitError(err instanceof Error ? err.message : 'Onbekende fout');
+    }
   };
 
   const handleCopyCode = () => {
@@ -300,40 +328,82 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
 
         {/* Share with teacher */}
         <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800 text-left">
-          <h3 className="font-bold text-blue-800 dark:text-blue-200 mb-2 text-sm">📤 Deel met je docent</h3>
-          {!reportCode ? (
+          <h3 className="font-bold text-blue-800 dark:text-blue-200 mb-2 text-sm">📤 Stuur resultaten naar je docent</h3>
+          {submitStatus !== 'success' ? (
             <div className="space-y-2">
-              <input
-                type="text"
-                value={studentName}
-                onChange={e => setStudentName(e.target.value)}
-                placeholder="Je naam (optioneel)"
-                className="w-full px-3 py-2 text-sm rounded-lg border border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 focus:border-blue-500 outline-none"
-              />
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  value={studentName}
+                  onChange={e => setStudentName(e.target.value)}
+                  placeholder="Voornaam *"
+                  maxLength={40}
+                  className="px-3 py-2 text-sm rounded-lg border border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 focus:border-blue-500 outline-none"
+                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={studentInitiaal}
+                    onChange={e => setStudentInitiaal(e.target.value.toUpperCase().slice(0, 1))}
+                    placeholder="1e letter achternaam *"
+                    maxLength={1}
+                    className="w-16 px-3 py-2 text-sm rounded-lg border border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 focus:border-blue-500 outline-none text-center font-mono uppercase"
+                  />
+                  <input
+                    type="text"
+                    value={studentKlas}
+                    onChange={e => setStudentKlas(e.target.value)}
+                    placeholder="Klas *  (bv. 1ga)"
+                    maxLength={10}
+                    className="flex-1 px-3 py-2 text-sm rounded-lg border border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 focus:border-blue-500 outline-none"
+                  />
+                </div>
+              </div>
+              {submitStatus === 'error' && (
+                <p className="text-xs text-red-600 dark:text-red-400">{submitError}</p>
+              )}
+              {!driveConfigured && (
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  De Drive-koppeling is nog niet ingesteld door de docent.
+                  {reportCode && ' Kopieer de code hieronder als alternatief.'}
+                </p>
+              )}
               <button
-                onClick={handleGenerateReport}
-                className="w-full py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+                onClick={handleSendReport}
+                disabled={!studentName.trim() || !studentInitiaal.trim() || !studentKlas.trim() || submitStatus === 'sending'}
+                className="w-full py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Maak rapportcode aan
+                {submitStatus === 'sending' ? 'Versturen…' : 'Verstuur naar docent'}
               </button>
+              {/* Fallback: show code after it's been generated (even on error) */}
+              {reportCode && (
+                <div className="pt-2 border-t border-blue-100 dark:border-blue-800">
+                  <p className="text-xs text-blue-700 dark:text-blue-300 mb-1">Reservecode (gebruik als het versturen mislukt):</p>
+                  <div className="flex gap-2">
+                    <input
+                      readOnly
+                      value={reportCode}
+                      className="flex-1 px-2 py-1.5 text-xs font-mono rounded-lg border border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 select-all"
+                      onFocus={e => e.target.select()}
+                    />
+                    <button
+                      onClick={handleCopyCode}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${copied ? 'bg-green-600 text-white' : 'bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-700'}`}
+                    >
+                      {copied ? <span aria-live="polite">✓ Gekopieerd</span> : 'Kopieer'}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
-            <div className="space-y-2">
-              <p className="text-xs text-blue-700 dark:text-blue-300">Kopieer deze code en geef hem aan je docent:</p>
-              <div className="flex gap-2">
-                <input
-                  readOnly
-                  value={reportCode}
-                  className="flex-1 px-2 py-1.5 text-xs font-mono rounded-lg border border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 select-all"
-                  onFocus={e => e.target.select()}
-                />
-                <button
-                  onClick={handleCopyCode}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${copied ? 'bg-green-600 text-white' : 'bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-700'}`}
-                >
-                  {copied ? <span aria-live="polite">✓ Gekopieerd</span> : 'Kopieer'}
-                </button>
-              </div>
+            <div className="text-center py-2">
+              <p className="text-green-700 dark:text-green-300 font-semibold text-sm">
+                ✓ Resultaten verstuurd naar de docent!
+              </p>
+              <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                {studentName} {studentInitiaal}. — klas {studentKlas.toLowerCase()}
+              </p>
             </div>
           )}
         </div>

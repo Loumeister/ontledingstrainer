@@ -10,8 +10,12 @@
 export interface SessionReport {
   /** Version tag for forward-compat */
   v: 1;
-  /** Student nickname (optional, user-provided) */
+  /** Student first name */
   name: string;
+  /** First letter of last name (uppercase, optional) */
+  initiaal?: string;
+  /** Class name, normalised to lowercase (e.g. "1ga", "2hv3") */
+  klas?: string;
   /** ISO-8601 timestamp */
   ts: string;
   /** Correct chunks */
@@ -93,13 +97,15 @@ export function buildReport(
   mistakeStats: Record<string, number>,
   level: number | null,
   sentenceIds: number[],
+  initiaal?: string,
+  klas?: string,
 ): SessionReport {
   // Only include non-zero errors
   const err: Record<string, number> = {};
   for (const [k, v] of Object.entries(mistakeStats)) {
     if (v > 0) err[k] = v;
   }
-  return {
+  const report: SessionReport = {
     v: 1,
     name,
     ts: new Date().toISOString(),
@@ -109,9 +115,19 @@ export function buildReport(
     err,
     sids: sentenceIds,
   };
+  if (initiaal) report.initiaal = initiaal.toUpperCase();
+  if (klas) report.klas = klas.toLowerCase().trim();
+  return report;
 }
 
 // --- Aggregate statistics from imported reports ---
+
+export interface KlasStats {
+  klas: string;
+  reportCount: number;
+  uniqueStudents: number;
+  avgScore: number;
+}
 
 export interface AggregateStats {
   totalReports: number;
@@ -123,9 +139,33 @@ export interface AggregateStats {
   levelDistribution: Record<number, number>;
   reportsPerDay: Record<string, number>;
   studentNames: string[];
+  /** Normalised class names (lowercase) */
+  klassen: string[];
+  klasStats: KlasStats[];
 }
 
-export function computeAggregateStats(reports: SessionReport[]): AggregateStats {
+/** Normalise class name: trim + lowercase */
+export function normaliseKlas(klas: string): string {
+  return klas.trim().toLowerCase();
+}
+
+export function computeAggregateStats(
+  reports: SessionReport[],
+  filterKlas?: string,
+  filterStudent?: string,
+): AggregateStats {
+  const normFilterKlas = filterKlas ? normaliseKlas(filterKlas) : null;
+  const normFilterStudent = filterStudent ? filterStudent.trim().toLowerCase() : null;
+
+  const filtered = reports.filter(r => {
+    if (normFilterKlas && normaliseKlas(r.klas ?? '') !== normFilterKlas) return false;
+    if (normFilterStudent) {
+      const fullName = `${r.name.trim()} ${r.initiaal ?? ''}`.toLowerCase();
+      if (!fullName.includes(normFilterStudent)) return false;
+    }
+    return true;
+  });
+
   const names = new Set<string>();
   let totalCorrect = 0;
   let totalChunks = 0;
@@ -133,7 +173,13 @@ export function computeAggregateStats(reports: SessionReport[]): AggregateStats 
   const levelDistribution: Record<number, number> = {};
   const reportsPerDay: Record<string, number> = {};
 
+  // Collect all classes
+  const klassenSet = new Set<string>();
   for (const r of reports) {
+    if (r.klas) klassenSet.add(normaliseKlas(r.klas));
+  }
+
+  for (const r of filtered) {
     const trimmedName = r.name.trim().toLowerCase();
     if (trimmedName) names.add(trimmedName);
     totalCorrect += r.c;
@@ -151,8 +197,29 @@ export function computeAggregateStats(reports: SessionReport[]): AggregateStats 
     reportsPerDay[day] = (reportsPerDay[day] || 0) + 1;
   }
 
+  // Compute per-class stats (always from all reports, unfiltered)
+  const klasStatsMap = new Map<string, { count: number; students: Set<string>; totalC: number; totalT: number }>();
+  for (const r of reports) {
+    const klas = r.klas ? normaliseKlas(r.klas) : '(onbekend)';
+    if (!klasStatsMap.has(klas)) klasStatsMap.set(klas, { count: 0, students: new Set(), totalC: 0, totalT: 0 });
+    const entry = klasStatsMap.get(klas)!;
+    entry.count += 1;
+    if (r.name.trim()) entry.students.add(r.name.trim().toLowerCase());
+    entry.totalC += r.c;
+    entry.totalT += r.t;
+  }
+
+  const klasStats: KlasStats[] = [...klasStatsMap.entries()]
+    .map(([klas, s]) => ({
+      klas,
+      reportCount: s.count,
+      uniqueStudents: s.students.size,
+      avgScore: s.totalT > 0 ? (s.totalC / s.totalT) * 100 : 0,
+    }))
+    .sort((a, b) => a.klas.localeCompare(b.klas));
+
   return {
-    totalReports: reports.length,
+    totalReports: filtered.length,
     uniqueStudents: names.size,
     totalCorrect,
     totalChunks,
@@ -161,5 +228,7 @@ export function computeAggregateStats(reports: SessionReport[]): AggregateStats 
     levelDistribution,
     reportsPerDay,
     studentNames: [...names].sort(),
+    klassen: [...klassenSet].sort(),
+    klasStats,
   };
 }

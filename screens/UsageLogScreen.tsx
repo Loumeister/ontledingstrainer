@@ -3,8 +3,10 @@ import { loadUsageData, clearUsageData, exportUsageDataAsJson } from '../usageDa
 import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats } from '../interactionLog';
 import { loadAllSentences } from '../data/sentenceLoader';
 import { getCustomSentences } from '../data/customSentenceStore';
-import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats } from '../sessionReport';
+import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats, normaliseKlas } from '../sessionReport';
 import type { SessionReport } from '../sessionReport';
+import { fetchReports as fetchReportsFromDrive, getScriptUrl, setScriptUrl, getApiKey, setApiKey } from '../googleDriveSync';
+import type { DriveRow } from '../googleDriveSync';
 import type { SentenceUsageData } from '../types';
 
 function mergeReportDataIntoUsage(
@@ -65,10 +67,24 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   const [showRawData, setShowRawData] = useState(false);
   const [showInteractionLog, setShowInteractionLog] = useState(false);
 
-  // Report import state
+  // Report import state (manual paste)
   const [reportInput, setReportInput] = useState('');
   const [reportMsg, setReportMsg] = useState<{ text: string; ok: boolean } | null>(null);
   const [reports, setReports] = useState(() => loadReports());
+
+  // Drive fetch state (not persisted – fetched fresh each time)
+  const [driveStatus, setDriveStatus] = useState<'idle' | 'fetching' | 'success' | 'error'>('idle');
+  const [driveError, setDriveError] = useState('');
+  const [driveReports, setDriveReports] = useState<SessionReport[]>([]);
+
+  // Filter state for reports
+  const [filterKlas, setFilterKlas] = useState('');
+  const [filterStudent, setFilterStudent] = useState('');
+
+  // Drive settings state (eigenaar only)
+  const [driveUrlInput, setDriveUrlInput] = useState(() => getScriptUrl());
+  const [apiKeyInput, setApiKeyInput] = useState(() => getApiKey());
+  const [driveSettingsSaved, setDriveSettingsSaved] = useState(false);
 
   useEffect(() => {
     if (!authenticated) return;
@@ -79,7 +95,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
         ...customSentences.map(s => ({ ...s, _isCustom: true })),
       ];
 
-      const mergedStore = mergeReportDataIntoUsage(loadUsageData(), reports);
+      const mergedStore = mergeReportDataIntoUsage(loadUsageData(), [...reports, ...driveReports]);
       const enriched: EnrichedUsage[] = [];
 
       for (const s of all) {
@@ -113,7 +129,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
 
       setEnrichedData(enriched);
     });
-  }, [authenticated, reports]);
+  }, [authenticated, reports, driveReports]);
 
   const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,6 +174,41 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
       setReports([]);
     }
   };
+
+  const handleFetchFromDrive = async () => {
+    setDriveStatus('fetching');
+    setDriveError('');
+    try {
+      const rows: DriveRow[] = await fetchReportsFromDrive();
+      const decoded: SessionReport[] = rows
+        .map(row => {
+          const r = decodeReport(row.code);
+          if (!r) return null;
+          // Merge Drive metadata (naam/initiaal/klas) into the report if not in the code
+          if (!r.name && row.naam) r.name = row.naam;
+          if (!r.initiaal && row.initiaal) r.initiaal = row.initiaal;
+          if (!r.klas && row.klas) r.klas = normaliseKlas(row.klas);
+          else if (r.klas) r.klas = normaliseKlas(r.klas);
+          return r;
+        })
+        .filter((r): r is SessionReport => r !== null);
+      setDriveReports(decoded);
+      setDriveStatus('success');
+    } catch (err) {
+      setDriveError(err instanceof Error ? err.message : 'Onbekende fout');
+      setDriveStatus('error');
+    }
+  };
+
+  const handleSaveDriveSettings = () => {
+    setScriptUrl(driveUrlInput);
+    setApiKey(apiKeyInput);
+    setDriveSettingsSaved(true);
+    setTimeout(() => setDriveSettingsSaved(false), 2000);
+  };
+
+  // Combined reports: local (manually pasted) + Drive (fetched)
+  const allReports = [...reports, ...driveReports];
 
   if (!authenticated) {
     return (
@@ -226,7 +277,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     }
   });
   // Add role errors from imported reports (session-level, not per-sentence)
-  for (const r of reports) {
+  for (const r of allReports) {
     for (const [role, count] of Object.entries(r.err)) {
       globalRoleErrors[role] = (globalRoleErrors[role] || 0) + count;
     }
@@ -267,8 +318,8 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   const totalSplitErrors = enrichedData.reduce((s, d) => s + d.usage.splitErrors, 0);
   const totalRoleErrorCount = enrichedData.reduce((s, d) => s + d.totalRoleErrors, 0);
 
-  // Aggregated stats from imported student reports
-  const aggregateStats = computeAggregateStats(reports);
+  // Aggregated stats from imported student reports (local + Drive), with optional filters
+  const aggregateStats = computeAggregateStats(allReports, filterKlas || undefined, filterStudent || undefined);
 
   // Helper: describe the success rate in plain Dutch
   const describeRate = (rate: number): { text: string; emoji: string; colorClass: string } => {
@@ -521,53 +572,120 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
             )}
           </div>
 
-          {/* Import student reports */}
+          {/* Drive fetch + import student reports */}
           <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
-            <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">📥 Leerlingrapporten importeren</h3>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Plak hier de rapportcode die een leerling heeft gegenereerd</p>
-            <div className="space-y-2">
-              <textarea
-                value={reportInput}
-                onChange={e => { setReportInput(e.target.value); setReportMsg(null); }}
-                placeholder="Plak rapportcode hier (begint met v1:)..."
-                className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:border-blue-500 outline-none resize-none h-16"
-              />
+            <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">📥 Leerlingrapporten ophalen</h3>
+
+            {/* Fetch from Drive */}
+            <div className="mb-4">
+              <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Haal alle ingestuurde resultaten op uit Google Drive</p>
               <button
-                onClick={handleImportReport}
-                disabled={!reportInput.trim()}
-                className="w-full py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleFetchFromDrive}
+                disabled={driveStatus === 'fetching' || !getScriptUrl()}
+                className="w-full py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Importeer rapport
+                {driveStatus === 'fetching' ? 'Ophalen…' : `📡 Haal resultaten op uit Drive${driveReports.length > 0 ? ` (${driveReports.length} geladen)` : ''}`}
               </button>
-              {reportMsg && (
-                <p className={`text-xs font-medium ${reportMsg.ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {reportMsg.text}
+              {driveStatus === 'success' && (
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
+                  ✓ {driveReports.length} rapport{driveReports.length !== 1 ? 'en' : ''} opgehaald
                 </p>
               )}
-              {reports.length > 0 && (
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  {reports.length} rapport{reports.length !== 1 ? 'en' : ''} opgeslagen van {aggregateStats.uniqueStudents} leerling{aggregateStats.uniqueStudents !== 1 ? 'en' : ''}
+              {driveStatus === 'error' && (
+                <p className="text-xs text-red-600 dark:text-red-400 mt-1">{driveError}</p>
+              )}
+              {!getScriptUrl() && (
+                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                  Drive-koppeling niet ingesteld. Configureer de Apps Script URL hieronder (eigenaar-PIN vereist).
                 </p>
               )}
             </div>
+
+            {/* Manual fallback import */}
+            <details className="border-t border-slate-100 dark:border-slate-700 pt-3">
+              <summary className="text-xs text-slate-400 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300">
+                Handmatig rapportcode plakken (reserve / offline)
+              </summary>
+              <div className="space-y-2 mt-2">
+                <textarea
+                  value={reportInput}
+                  onChange={e => { setReportInput(e.target.value); setReportMsg(null); }}
+                  placeholder="Plak rapportcode hier (begint met v1:)..."
+                  className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:border-blue-500 outline-none resize-none h-16"
+                />
+                <button
+                  onClick={handleImportReport}
+                  disabled={!reportInput.trim()}
+                  className="w-full py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Importeer rapport
+                </button>
+                {reportMsg && (
+                  <p className={`text-xs font-medium ${reportMsg.ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {reportMsg.text}
+                  </p>
+                )}
+              </div>
+            </details>
+
+            {allReports.length > 0 && (
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
+                Totaal: {allReports.length} rapport{allReports.length !== 1 ? 'en' : ''} van {computeAggregateStats(allReports).uniqueStudents} leerling{computeAggregateStats(allReports).uniqueStudents !== 1 ? 'en' : ''}
+              </p>
+            )}
           </div>
         </div>
 
         {/* Imported reports summary — visible for both docent and eigenaar */}
-        {reports.length > 0 && (
+        {allReports.length > 0 && (
           <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between mb-3">
               <div>
                 <h3 className="font-bold text-slate-700 dark:text-white text-base mb-0.5">👥 Overzicht leerlingrapporten</h3>
-                <p className="text-xs text-slate-400 dark:text-slate-500">Geaggregeerde resultaten uit geïmporteerde rapportcodes</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">Geaggregeerde resultaten (Drive + handmatig)</p>
               </div>
               <button
                 onClick={handleClearReports}
                 className="text-xs px-2 py-1 rounded bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 font-medium hover:bg-red-200 transition-colors"
               >
-                Wis rapporten
+                Wis lokale rapporten
               </button>
             </div>
+
+            {/* Class + student filters */}
+            {aggregateStats.klassen.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                <select
+                  value={filterKlas}
+                  onChange={e => { setFilterKlas(e.target.value); setFilterStudent(''); }}
+                  className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
+                >
+                  <option value="">Alle klassen</option>
+                  {aggregateStats.klassen.map(k => (
+                    <option key={k} value={k}>{k}</option>
+                  ))}
+                </select>
+                <select
+                  value={filterStudent}
+                  onChange={e => setFilterStudent(e.target.value)}
+                  className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
+                >
+                  <option value="">Alle leerlingen</option>
+                  {aggregateStats.studentNames.map(n => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                </select>
+                {(filterKlas || filterStudent) && (
+                  <button
+                    onClick={() => { setFilterKlas(''); setFilterStudent(''); }}
+                    className="text-xs px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                  >
+                    ✕ Filter wissen
+                  </button>
+                )}
+              </div>
+            )}
+
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-center text-sm mb-4">
               <div>
                 <span className="font-bold text-blue-600 dark:text-blue-400">{aggregateStats.totalReports}</span>
@@ -621,6 +739,44 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                       </span>
                     ))}
                 </div>
+              </div>
+            )}
+
+            {/* Per-class breakdown */}
+            {aggregateStats.klasStats.length > 0 && !filterKlas && (
+              <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
+                <span className="text-xs text-slate-400 block mb-2">Per klas:</span>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="text-left text-slate-400 border-b border-slate-100 dark:border-slate-700">
+                        <th className="pb-1 pr-3 font-medium">Klas</th>
+                        <th className="pb-1 pr-3 font-medium text-center">Rapporten</th>
+                        <th className="pb-1 pr-3 font-medium text-center">Leerlingen</th>
+                        <th className="pb-1 font-medium text-center">Gem. score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {aggregateStats.klasStats.map(ks => (
+                        <tr
+                          key={ks.klas}
+                          className="border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors"
+                          onClick={() => setFilterKlas(ks.klas)}
+                        >
+                          <td className="py-1 pr-3 font-medium text-blue-600 dark:text-blue-400">{ks.klas}</td>
+                          <td className="py-1 pr-3 text-center text-slate-600 dark:text-slate-300">{ks.reportCount}</td>
+                          <td className="py-1 pr-3 text-center text-slate-600 dark:text-slate-300">{ks.uniqueStudents}</td>
+                          <td className="py-1 text-center">
+                            <span className={`font-bold ${ks.avgScore >= 60 ? 'text-emerald-600 dark:text-emerald-400' : ks.avgScore >= 30 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
+                              {ks.avgScore.toFixed(0)}%
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1">Klik op een klas om te filteren.</p>
               </div>
             )}
           </div>
@@ -763,6 +919,61 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
         {/* Eigenaar-only sections — requires eigenaar PIN */}
         {isEigenaar && (
           <>
+            {/* Drive Settings */}
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+              <h3 className="font-bold text-slate-700 dark:text-white text-sm mb-3">
+                🔗 Google Drive koppeling
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300 font-medium ml-1">eigenaar</span>
+              </h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Apps Script Web App URL</label>
+                  <input
+                    type="url"
+                    value={driveUrlInput}
+                    onChange={e => setDriveUrlInput(e.target.value)}
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:border-blue-500 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 dark:text-slate-400 block mb-1">
+                    API-sleutel <span className="text-[10px] text-slate-400">(kopieer en plak ook in de Apps Script eigenschappen)</span>
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={apiKeyInput}
+                      onChange={e => setApiKeyInput(e.target.value)}
+                      className="flex-1 px-3 py-2 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:border-blue-500 outline-none"
+                    />
+                    <button
+                      onClick={() => { const k = crypto.randomUUID(); setApiKeyInput(k); }}
+                      className="px-2 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                      title="Genereer nieuwe sleutel"
+                    >
+                      ↻ Nieuw
+                    </button>
+                    <button
+                      onClick={() => navigator.clipboard.writeText(apiKeyInput)}
+                      className="px-2 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                    >
+                      Kopieer
+                    </button>
+                  </div>
+                </div>
+                <button
+                  onClick={handleSaveDriveSettings}
+                  className="w-full py-2 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-700 transition-colors"
+                >
+                  {driveSettingsSaved ? '✓ Opgeslagen' : 'Sla koppeling op'}
+                </button>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                  Zie <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded">docs/google-drive-koppeling.md</code> voor stap-voor-stap setup-instructies.
+                </p>
+              </div>
+            </div>
+
             {/* Session Flow Stats */}
             {(() => {
               const interactionLog = loadInteractionLog();
