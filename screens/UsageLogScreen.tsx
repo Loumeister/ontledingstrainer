@@ -102,6 +102,11 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   const [filterTimeFrom, setFilterTimeFrom] = useState('');
   const [filterTimeTo, setFilterTimeTo] = useState('');
 
+  // Sort state for the per-student table
+  type StudentSortField = 'name' | 'sessions' | 'avg' | 'best' | 'latest';
+  const [studentSortField, setStudentSortField] = useState<StudentSortField>('name');
+  const [studentSortDir, setStudentSortDir] = useState<SortDir>('asc');
+
   // Drive settings state (eigenaar only)
   const [driveUrlInput, setDriveUrlInput] = useState(() => getScriptUrl());
   const [apiKeyInput, setApiKeyInput] = useState(() => getApiKey());
@@ -854,6 +859,31 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
             {filterKlas && (() => {
               const studentStats = computeStudentStats(dateFilteredReports, filterKlas);
               if (studentStats.length === 0) return null;
+
+              const handleStudentSort = (field: StudentSortField) => {
+                if (field === studentSortField) {
+                  setStudentSortDir(d => d === 'asc' ? 'desc' : 'asc');
+                } else {
+                  setStudentSortField(field);
+                  setStudentSortDir('asc');
+                }
+              };
+              const sortedStudents = [...studentStats].sort((a, b) => {
+                let cmp = 0;
+                switch (studentSortField) {
+                  case 'name':    cmp = a.name.localeCompare(b.name, 'nl'); break;
+                  case 'sessions': cmp = a.sessionCount - b.sessionCount; break;
+                  case 'avg':    cmp = a.avgScore - b.avgScore; break;
+                  case 'best':   cmp = a.bestScore - b.bestScore; break;
+                  case 'latest': cmp = a.latestTs.localeCompare(b.latestTs); break;
+                }
+                return studentSortDir === 'asc' ? cmp : -cmp;
+              });
+              const arrow = (f: StudentSortField) =>
+                studentSortField === f ? (studentSortDir === 'asc' ? ' ↑' : ' ↓') : '';
+              const thClass = (f: StudentSortField) =>
+                `pb-1 pr-2 font-medium cursor-pointer select-none hover:text-slate-600 dark:hover:text-slate-200 transition-colors${studentSortField === f ? ' text-blue-500 dark:text-blue-400' : ''}`;
+
               return (
                 <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
                   <span className="text-xs text-slate-400 block mb-2">
@@ -863,16 +893,16 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                     <table className="w-full text-xs">
                       <thead>
                         <tr className="text-left text-slate-400 border-b border-slate-100 dark:border-slate-700">
-                          <th className="pb-1 pr-2 font-medium">Leerling</th>
-                          <th className="pb-1 pr-2 font-medium text-center">Sessies</th>
-                          <th className="pb-1 pr-2 font-medium text-center">Gem.</th>
-                          <th className="pb-1 pr-2 font-medium text-center">Beste</th>
-                          <th className="pb-1 pr-2 font-medium text-center">Laatste</th>
+                          <th className={thClass('name')} onClick={() => handleStudentSort('name')}>Leerling{arrow('name')}</th>
+                          <th className={thClass('sessions') + ' text-center'} onClick={() => handleStudentSort('sessions')}>Sessies{arrow('sessions')}</th>
+                          <th className={thClass('avg') + ' text-center'} onClick={() => handleStudentSort('avg')}>Gem.{arrow('avg')}</th>
+                          <th className={thClass('best') + ' text-center'} onClick={() => handleStudentSort('best')}>Beste{arrow('best')}</th>
+                          <th className={thClass('latest') + ' text-center'} onClick={() => handleStudentSort('latest')}>Laatste{arrow('latest')}</th>
                           <th className="pb-1 font-medium">Zwakste punt</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {studentStats.map(ss => (
+                        {sortedStudents.map(ss => (
                           <tr
                             key={ss.name}
                             className="border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors"
