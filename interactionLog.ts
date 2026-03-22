@@ -28,10 +28,30 @@ export interface InteractionEntry {
   type: InteractionType;
   sentenceId?: number;
   detail?: string;
+  userName?: string;
 }
 
 const STORAGE_KEY = 'zinsontleding_interactions_v1';
+const STUDENT_INFO_KEY = 'student_info_v1';
 const MAX_ENTRIES = 2000;
+
+/**
+ * Read the current student display name from localStorage (set on HomeScreen).
+ * Returns undefined when no name is stored yet.
+ */
+function getCurrentUserName(): string | undefined {
+  try {
+    const raw = localStorage.getItem(STUDENT_INFO_KEY);
+    if (!raw) return undefined;
+    const { name, initiaal } = JSON.parse(raw) as { name?: string; initiaal?: string };
+    if (!name) return undefined;
+    const trimmed = name.trim();
+    if (!trimmed) return undefined;
+    return initiaal ? `${trimmed} ${initiaal.toUpperCase()}.` : trimmed;
+  } catch {
+    return undefined;
+  }
+}
 
 /**
  * Load interaction log from localStorage.
@@ -65,12 +85,15 @@ export function logInteraction(
   detail?: string,
 ): void {
   const log = loadInteractionLog();
-  log.push({
+  const entry: InteractionEntry = {
     timestamp: new Date().toISOString(),
     type,
     sentenceId,
     detail,
-  });
+  };
+  const userName = getCurrentUserName();
+  if (userName) entry.userName = userName;
+  log.push(entry);
   // Trim from front if over max
   if (log.length > MAX_ENTRIES) {
     log.splice(0, log.length - MAX_ENTRIES);
@@ -213,4 +236,64 @@ export function computeSessionFlowStats(log: InteractionEntry[]): SessionFlowSta
     activeDays: [...daySet].sort(),
     activityPerDay,
   };
+}
+
+/**
+ * Per-user statistics derived from the interaction log.
+ */
+export interface UserStats {
+  userName: string;
+  sessions: number;
+  sentencesStarted: number;
+  checks: number;
+  hints: number;
+  showAnswers: number;
+  splitErrors: number;
+  roleErrors: number;
+  lastActive: string;
+}
+
+/**
+ * Compute per-user statistics from the interaction log.
+ * Only entries that have a `userName` are counted.
+ */
+export function computePerUserStats(log: InteractionEntry[]): UserStats[] {
+  const map = new Map<string, UserStats>();
+
+  for (const entry of log) {
+    if (!entry.userName) continue;
+    const name = entry.userName;
+
+    let stats = map.get(name);
+    if (!stats) {
+      stats = {
+        userName: name,
+        sessions: 0,
+        sentencesStarted: 0,
+        checks: 0,
+        hints: 0,
+        showAnswers: 0,
+        splitErrors: 0,
+        roleErrors: 0,
+        lastActive: '',
+      };
+      map.set(name, stats);
+    }
+
+    if (!stats.lastActive || entry.timestamp > stats.lastActive) {
+      stats.lastActive = entry.timestamp;
+    }
+
+    switch (entry.type) {
+      case 'session_start': stats.sessions++; break;
+      case 'sentence_start': stats.sentencesStarted++; break;
+      case 'check': stats.checks++; break;
+      case 'hint': stats.hints++; break;
+      case 'show_answer': stats.showAnswers++; break;
+      case 'error_split': stats.splitErrors++; break;
+      case 'error_role': stats.roleErrors++; break;
+    }
+  }
+
+  return [...map.values()].sort((a, b) => b.lastActive.localeCompare(a.lastActive));
 }

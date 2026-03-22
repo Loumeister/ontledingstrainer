@@ -26,6 +26,7 @@ type HomeScreenProps = Pick<TrainerState,
   | 'handleSentenceSelect'
   | 'startSharedSession'
   | 'handleQuickStart'
+  | 'studentName' | 'studentInitiaal' | 'setStudentInfo' | 'hasStudentInfo'
   | 'adaptiveMode' | 'setAdaptiveMode'
 > & {
   sharedSentences: Sentence[];
@@ -54,6 +55,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   handleSentenceSelect,
   startSharedSession,
   handleQuickStart,
+  studentName,
+  studentInitiaal,
+  setStudentInfo,
+  hasStudentInfo,
   adaptiveMode, setAdaptiveMode,
   sharedSentences,
   openSecretDocentRoute,
@@ -61,6 +66,53 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importMsg, setImportMsg] = useState<string | null>(null);
   const customCount = getCustomSentences().length;
+
+  // Name prompt state
+  const [showNamePrompt, setShowNamePrompt] = useState(false);
+  const [nameInput, setNameInput] = useState(studentName);
+  const [initiaalInput, setInitiaalInput] = useState(studentInitiaal);
+  const [pendingAction, setPendingAction] = useState<{ type: 'session' | 'quickstart' | 'shared' | 'select'; sentenceId?: number } | null>(null);
+
+  const requireNameThen = (action: 'session' | 'quickstart' | 'shared', sentenceId?: number) => {
+    if (hasStudentInfo) {
+      if (action === 'session') startSession();
+      else if (action === 'quickstart') handleQuickStart();
+      else if (action === 'shared') startSharedSession(sharedSentences);
+    } else {
+      setPendingAction({ type: action, sentenceId });
+      setNameInput(studentName);
+      setInitiaalInput(studentInitiaal);
+      setShowNamePrompt(true);
+    }
+  };
+
+  const requireNameThenSelect = (sentenceId: number) => {
+    if (hasStudentInfo) {
+      handleSentenceSelect(sentenceId);
+    } else {
+      setPendingAction({ type: 'select', sentenceId });
+      setNameInput(studentName);
+      setInitiaalInput(studentInitiaal);
+      setShowNamePrompt(true);
+    }
+  };
+
+  const handleNameSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nameInput.trim() || !initiaalInput.trim()) return;
+    setStudentInfo(nameInput, initiaalInput);
+    setShowNamePrompt(false);
+    const action = pendingAction;
+    // Trigger the pending action after a tick so localStorage is updated
+    setTimeout(() => {
+      if (!action) return;
+      if (action.type === 'session') startSession();
+      else if (action.type === 'quickstart') handleQuickStart();
+      else if (action.type === 'shared') startSharedSession(sharedSentences);
+      else if (action.type === 'select' && action.sentenceId != null) handleSentenceSelect(action.sentenceId);
+      setPendingAction(null);
+    }, 0);
+  };
 
   const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -87,6 +139,46 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         onSecretDocentAccess={openSecretDocentRoute}
       />
 
+      {/* Name prompt overlay */}
+      {showNamePrompt && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <form onSubmit={handleNameSubmit} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 max-w-sm w-full space-y-4">
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white text-center">Wie ben jij?</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 text-center">Vul je naam in zodat je docent kan zien hoe het gaat.</p>
+            <div>
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-300 block mb-1">Voornaam</label>
+              <input
+                type="text"
+                value={nameInput}
+                onChange={e => setNameInput(e.target.value)}
+                className="w-full px-3 py-2 text-sm border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:border-blue-500 outline-none"
+                autoFocus
+                placeholder="bijv. Emma"
+                maxLength={30}
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-300 block mb-1">Eerste letter achternaam</label>
+              <input
+                type="text"
+                value={initiaalInput}
+                onChange={e => setInitiaalInput(e.target.value.slice(0, 1))}
+                className="w-20 px-3 py-2 text-sm text-center font-bold uppercase border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:border-blue-500 outline-none"
+                placeholder="V"
+                maxLength={1}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={!nameInput.trim() || !initiaalInput.trim()}
+              className="w-full py-2.5 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Klaar, laten we beginnen!
+            </button>
+          </form>
+        </div>
+      )}
+
       <main className="max-w-6xl w-full bg-white dark:bg-slate-800 p-4 md:p-6 rounded-2xl shadow-lg space-y-6 border border-slate-200 dark:border-slate-700 transition-colors duration-300">
         <div className="flex flex-col md:flex-row justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-4">
           <div>
@@ -95,7 +187,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 Zinsontledingstrainer
               </span>
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">Stel je training samen:</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">
+              {hasStudentInfo ? (
+                <>Hoi <strong className="text-slate-700 dark:text-slate-200">{studentName} {studentInitiaal}.</strong> — stel je training samen: <button onClick={() => { setNameInput(studentName); setInitiaalInput(studentInitiaal); setPendingAction(null); setShowNamePrompt(true); }} className="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 text-xs underline ml-1">(wijzig naam)</button></>
+              ) : 'Stel je training samen:'}
+            </p>
           </div>
 
           {/* Top Right Controls */}
@@ -121,7 +217,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               Je docent heeft {sharedSentences.length} {sharedSentences.length === 1 ? 'zin' : 'zinnen'} voor je klaargezet.
             </p>
             <button
-              onClick={() => startSharedSession(sharedSentences)}
+              onClick={() => requireNameThen('shared')}
               className="w-full py-2.5 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
             >
               Oefenen met docentzinnen
@@ -131,7 +227,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* Quick Start */}
         <button
-          onClick={handleQuickStart}
+          onClick={() => requireNameThen('quickstart')}
           className="w-full py-4 px-6 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white text-xl font-bold rounded-xl shadow-lg mb-6 transition-colors"
         >
           ▶ Snel Starten
@@ -238,14 +334,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   <label className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase">Aantal zinnen</label>
                   <input type="number" min="1" max={availableSentences.length} value={customSessionCount} onChange={(e) => setCustomSessionCount(Math.max(1, Math.min(availableSentences.length, parseInt(e.target.value) || 1)))} className="w-full px-3 py-3 text-lg font-bold text-center border-2 border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-800 text-blue-900 dark:text-blue-100 rounded-lg focus:border-blue-500 outline-none" />
                 </div>
-                <button onClick={startSession} disabled={isLoadingSentences || availableSentences.length === 0} className="w-full h-[46px] px-8 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <button onClick={() => requireNameThen('session')} disabled={isLoadingSentences || availableSentences.length === 0} className="w-full h-[46px] px-8 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                   {isLoadingSentences ? 'Laden...' : 'Start'}
                 </button>
               </div>
             </div>
             <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-center">
               <h3 className="font-bold text-slate-700 dark:text-slate-200 mb-2 text-center">Kies één zin</h3>
-              <select className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" onChange={(e) => handleSentenceSelect(Number(e.target.value))} defaultValue="" disabled={isLoadingSentences}>
+              <select className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" onChange={(e) => requireNameThenSelect(Number(e.target.value))} defaultValue="" disabled={isLoadingSentences}>
                 <option value="" disabled>{isLoadingSentences ? 'Laden...' : '-- Selecteer --'}</option>
                 {availableSentences.map(s => (<option key={s.id} value={s.id}>{s.label}</option>))}
               </select>

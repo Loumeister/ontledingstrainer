@@ -140,6 +140,11 @@ export interface TrainerState {
   // Quick start
   handleQuickStart: () => void;
 
+  // Student identity
+  studentName: string;
+  studentInitiaal: string;
+  setStudentInfo: (name: string, initiaal: string) => void;
+  hasStudentInfo: boolean;
   // Adaptive mode
   adaptiveMode: boolean;
   setAdaptiveMode: (v: boolean) => void;
@@ -155,8 +160,36 @@ interface PreAnswerSnapshot {
   wordBijvBepLinks: Record<string, string>;
 }
 
+const STUDENT_INFO_KEY = 'student_info_v1';
+
+function loadStudentInfo(): { name: string; initiaal: string } {
+  try {
+    const raw = localStorage.getItem(STUDENT_INFO_KEY);
+    if (!raw) return { name: '', initiaal: '' };
+    const parsed = JSON.parse(raw) as { name?: string; initiaal?: string };
+    return { name: parsed.name || '', initiaal: parsed.initiaal || '' };
+  } catch {
+    return { name: '', initiaal: '' };
+  }
+}
+
 export function useTrainer(): TrainerState {
   const [mode, setMode] = useState<Mode>('free');
+
+  // Student identity (persisted in localStorage)
+  const [studentName, setStudentName] = useState(() => loadStudentInfo().name);
+  const [studentInitiaal, setStudentInitiaal] = useState(() => loadStudentInfo().initiaal);
+  const hasStudentInfo = studentName.trim().length > 0 && studentInitiaal.trim().length > 0;
+
+  const setStudentInfo = (name: string, initiaal: string) => {
+    const trimmedName = name.trim();
+    const trimmedInitiaal = initiaal.trim().charAt(0).toUpperCase();
+    setStudentName(trimmedName);
+    setStudentInitiaal(trimmedInitiaal);
+    try {
+      localStorage.setItem(STUDENT_INFO_KEY, JSON.stringify({ name: trimmedName, initiaal: trimmedInitiaal }));
+    } catch { /* localStorage may be unavailable */ }
+  };
 
   // Configuration State
   const [predicateMode, setPredicateMode] = useState<PredicateMode>('ALL');
@@ -1105,6 +1138,11 @@ export function useTrainer(): TrainerState {
     // Quick start
     handleQuickStart,
 
+    // Student identity
+    studentName,
+    studentInitiaal,
+    setStudentInfo,
+    hasStudentInfo,
     // Adaptive mode
     adaptiveMode, setAdaptiveMode,
   };
