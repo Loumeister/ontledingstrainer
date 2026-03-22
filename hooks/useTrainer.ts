@@ -7,6 +7,11 @@ import { recordAttempt, recordShowAnswer } from '../usageData';
 import { logInteraction } from '../interactionLog';
 import { saveSessionToHistory } from '../sessionHistory';
 import {
+  computeRoleConfidences,
+  saveRoleConfidences,
+  selectAdaptiveQueue,
+} from '../adaptiveSelection';
+import {
   buildUserChunks,
   countRealChunks,
   computeCorrectSplits,
@@ -134,6 +139,10 @@ export interface TrainerState {
 
   // Quick start
   handleQuickStart: () => void;
+
+  // Adaptive mode
+  adaptiveMode: boolean;
+  setAdaptiveMode: (v: boolean) => void;
 }
 
 interface PreAnswerSnapshot {
@@ -166,6 +175,16 @@ export function useTrainer(): TrainerState {
   // Level & Count
   const [selectedLevel, setSelectedLevel] = useState<DifficultyLevel | null>(null);
   const [customSessionCount, setCustomSessionCount] = useState<number>(10);
+  const [adaptiveMode, setAdaptiveModeRaw] = useState<boolean>(() => {
+    try {
+      const stored = localStorage.getItem('zinsontleding_adaptive_mode');
+      return stored !== null ? stored === 'true' : true; // default: on
+    } catch { return true; }
+  });
+  const setAdaptiveMode = (v: boolean) => {
+    setAdaptiveModeRaw(v);
+    try { localStorage.setItem('zinsontleding_adaptive_mode', String(v)); } catch { /* ignore */ }
+  };
 
   // Session State
   const [sessionQueue, setSessionQueue] = useState<Sentence[]>([]);
@@ -310,9 +329,16 @@ export function useTrainer(): TrainerState {
       alert("Geen zinnen beschikbaar met de huidige filters.");
       return;
     }
-    const shuffled = [...pool].sort(() => 0.5 - Math.random());
-    const count = Math.min(Math.max(1, customSessionCount), shuffled.length);
-    const selected = shuffled.slice(0, count);
+    const count = Math.min(Math.max(1, customSessionCount), pool.length);
+
+    let selected: Sentence[];
+    if (adaptiveMode) {
+      const confidences = computeRoleConfidences();
+      selected = selectAdaptiveQueue(pool, count, confidences);
+    } else {
+      const shuffled = [...pool].sort(() => 0.5 - Math.random());
+      selected = shuffled.slice(0, count);
+    }
 
     setSessionQueue(selected);
     setSessionIndex(0);
@@ -369,6 +395,9 @@ export function useTrainer(): TrainerState {
         mistakeStats: { ...mistakeStats },
         sentenceCount: sessionQueue.length,
       });
+      // Update role confidence scores for adaptive selection
+      const updatedConfidences = computeRoleConfidences();
+      saveRoleConfidences(updatedConfidences);
       setIsSessionFinished(true);
       setCurrentSentence(null);
       setSelectedRole(null);
@@ -1075,5 +1104,8 @@ export function useTrainer(): TrainerState {
 
     // Quick start
     handleQuickStart,
+
+    // Adaptive mode
+    adaptiveMode, setAdaptiveMode,
   };
 }
