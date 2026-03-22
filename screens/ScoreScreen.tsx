@@ -12,6 +12,7 @@ import {
   getPerfectSessionCount, incrementPerfectSessionCount,
 } from '../sessionHistory';
 import { updateRoleMastery, RoleMasteryStore } from '../rolemastery';
+import { computeRoleConfidences } from '../adaptiveSelection';
 import { buildReport, encodeReport } from '../sessionReport';
 import { postReport, getScriptUrl } from '../googleDriveSync';
 
@@ -599,6 +600,9 @@ function RollenKas({ mistakeStats, masteryStore }: { mistakeStats: Record<string
   const [open, setOpen] = React.useState(false);
   const errorRoles = new Set(Object.keys(mistakeStats));
 
+  // Load role confidence for visual indicators
+  const confidences = React.useMemo(() => computeRoleConfidences(), []);
+
   return (
     <div className="mt-4 border-t border-slate-100 dark:border-slate-700 pt-3">
       <button
@@ -630,6 +634,17 @@ function RollenKas({ mistakeStats, masteryStore }: { mistakeStats: Record<string
                   {isPersistentMaster ? '★' : cleanThisSession ? '✓' : '○'}
                 </span>
                 <span className="mt-1 text-center leading-tight">{role.shortLabel}</span>
+                {/* Confidence bar */}
+                {(() => {
+                  const conf = confidences.get(role.key);
+                  const pct = conf ? Math.round(conf.confidence * 100) : 50;
+                  const barColor = pct >= 80 ? 'bg-green-400 dark:bg-green-500' : pct >= 50 ? 'bg-yellow-400 dark:bg-yellow-500' : 'bg-red-400 dark:bg-red-500';
+                  return (
+                    <div className="w-full mt-1 h-1 rounded-full bg-slate-200 dark:bg-slate-600 overflow-hidden" title={`Beheersing: ${pct}%`}>
+                      <div className={`h-full rounded-full ${barColor} transition-all`} style={{ width: `${pct}%` }} />
+                    </div>
+                  );
+                })()}
                 {/* Voortgangsbolletjes: alleen tonen als bezig maar nog niet beheerst */}
                 {!isPersistentMaster && consecutive > 0 && cleanThisSession && (
                   <span className="mt-0.5 text-[9px] opacity-60">

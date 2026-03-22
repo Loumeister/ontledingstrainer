@@ -97,6 +97,8 @@ export default function App() {
         studentInitiaal={trainer.studentInitiaal}
         setStudentInfo={trainer.setStudentInfo}
         hasStudentInfo={trainer.hasStudentInfo}
+        adaptiveMode={trainer.adaptiveMode}
+        setAdaptiveMode={trainer.setAdaptiveMode}
         openSecretDocentRoute={() => {
           window.location.hash = '#/docent';
           setShowDocent(true);

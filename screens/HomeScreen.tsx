@@ -27,6 +27,7 @@ type HomeScreenProps = Pick<TrainerState,
   | 'startSharedSession'
   | 'handleQuickStart'
   | 'studentName' | 'studentInitiaal' | 'setStudentInfo' | 'hasStudentInfo'
+  | 'adaptiveMode' | 'setAdaptiveMode'
 > & {
   sharedSentences: Sentence[];
   openSecretDocentRoute: () => void;
@@ -58,6 +59,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   studentInitiaal,
   setStudentInfo,
   hasStudentInfo,
+  adaptiveMode, setAdaptiveMode,
   sharedSentences,
   openSecretDocentRoute,
 }) => {
@@ -324,6 +326,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <div className="text-sm text-blue-600 dark:text-blue-300 mb-4 font-medium">{availableSentences.length} zinnen beschikbaar</div>
               )}
               <div className="flex flex-col items-center gap-3">
+                <label className="flex items-center justify-between w-full p-2 rounded-lg border border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-800 cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-slate-750" title="Selecteert vaker zinnen met rollen waar je moeite mee hebt">
+                  <span className="text-xs font-bold text-blue-800 dark:text-blue-300">Slimme zinsselectie</span>
+                  <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500" checked={adaptiveMode} onChange={(e) => setAdaptiveMode(e.target.checked)} />
+                </label>
                 <div className="flex flex-col items-center gap-1 w-full">
                   <label className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase">Aantal zinnen</label>
                   <input type="number" min="1" max={availableSentences.length} value={customSessionCount} onChange={(e) => setCustomSessionCount(Math.max(1, Math.min(availableSentences.length, parseInt(e.target.value) || 1)))} className="w-full px-3 py-3 text-lg font-bold text-center border-2 border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-800 text-blue-900 dark:text-blue-100 rounded-lg focus:border-blue-500 outline-none" />
