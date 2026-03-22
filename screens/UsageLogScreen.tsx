@@ -98,6 +98,9 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   // Filter state for reports
   const [filterKlas, setFilterKlas] = useState('');
   const [filterStudent, setFilterStudent] = useState('');
+  const [filterDate, setFilterDate] = useState('');
+  const [filterTimeFrom, setFilterTimeFrom] = useState('');
+  const [filterTimeTo, setFilterTimeTo] = useState('');
 
   // Drive settings state (eigenaar only)
   const [driveUrlInput, setDriveUrlInput] = useState(() => getScriptUrl());
@@ -228,6 +231,24 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   // Combined reports: local (manually pasted) + Drive (fetched)
   const allReports = [...reports, ...driveReports];
 
+  // Date/time filtered reports (for the "Overzicht leerlingrapporten" section)
+  const dateFilteredReports = allReports.filter(r => {
+    const d = new Date(r.ts);
+    if (filterDate) {
+      const localDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      if (localDate !== filterDate) return false;
+    }
+    if (filterTimeFrom) {
+      const [h, m] = filterTimeFrom.split(':').map(Number);
+      if (d.getHours() * 60 + d.getMinutes() < h * 60 + m) return false;
+    }
+    if (filterTimeTo) {
+      const [h, m] = filterTimeTo.split(':').map(Number);
+      if (d.getHours() * 60 + d.getMinutes() > h * 60 + m) return false;
+    }
+    return true;
+  });
+
   if (!authenticated) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
@@ -337,7 +358,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   const totalRoleErrorCount = enrichedData.reduce((s, d) => s + d.totalRoleErrors, 0);
 
   // Aggregated stats from imported student reports (local + Drive), with optional filters
-  const aggregateStats = computeAggregateStats(allReports, filterKlas || undefined, filterStudent || undefined);
+  const aggregateStats = computeAggregateStats(dateFilteredReports, filterKlas || undefined, filterStudent || undefined);
 
   // Helper: describe the success rate in plain Dutch
   const describeRate = (rate: number): { text: string; emoji: string; colorClass: string } => {
@@ -670,39 +691,70 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
               </button>
             </div>
 
-            {/* Class + student filters */}
-            {aggregateStats.klassen.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3">
-                <select
-                  value={filterKlas}
-                  onChange={e => { setFilterKlas(e.target.value); setFilterStudent(''); }}
+            {/* Date/time + class/student filters */}
+            <div className="space-y-2 mb-3">
+              {/* Date and time row — always visible */}
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-xs text-slate-400 dark:text-slate-500 shrink-0">Datum:</span>
+                <input
+                  type="date"
+                  value={filterDate}
+                  onChange={e => setFilterDate(e.target.value)}
                   className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
-                >
-                  <option value="">Alle klassen</option>
-                  {aggregateStats.klassen.map(k => (
-                    <option key={k} value={k}>{k}</option>
-                  ))}
-                </select>
-                <select
-                  value={filterStudent}
-                  onChange={e => setFilterStudent(e.target.value)}
+                />
+                <span className="text-xs text-slate-400 dark:text-slate-500 shrink-0">Tijd:</span>
+                <input
+                  type="time"
+                  value={filterTimeFrom}
+                  onChange={e => setFilterTimeFrom(e.target.value)}
                   className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
-                >
-                  <option value="">Alle leerlingen</option>
-                  {aggregateStats.studentNames.map(n => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                </select>
-                {(filterKlas || filterStudent) && (
-                  <button
-                    onClick={() => { setFilterKlas(''); setFilterStudent(''); }}
-                    className="text-xs px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-                  >
-                    ✕ Filter wissen
-                  </button>
-                )}
+                  title="Vanaf tijdstip"
+                />
+                <span className="text-xs text-slate-400 dark:text-slate-500">t/m</span>
+                <input
+                  type="time"
+                  value={filterTimeTo}
+                  onChange={e => setFilterTimeTo(e.target.value)}
+                  className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
+                  title="Tot en met tijdstip"
+                />
               </div>
-            )}
+              {/* Class and student row — only when klassen available */}
+              {aggregateStats.klassen.length > 0 && (
+                <div className="flex flex-wrap gap-2 items-center">
+                  <span className="text-xs text-slate-400 dark:text-slate-500 shrink-0">Klas:</span>
+                  <select
+                    value={filterKlas}
+                    onChange={e => { setFilterKlas(e.target.value); setFilterStudent(''); }}
+                    className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
+                  >
+                    <option value="">Alle klassen</option>
+                    {aggregateStats.klassen.map(k => (
+                      <option key={k} value={k}>{k}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={filterStudent}
+                    onChange={e => setFilterStudent(e.target.value)}
+                    className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
+                  >
+                    <option value="">Alle leerlingen</option>
+                    {aggregateStats.studentNames.map(n => (
+                      <option key={n} value={n}>{n}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {/* Clear all filters */}
+              {(filterKlas || filterStudent || filterDate || filterTimeFrom || filterTimeTo) && (
+                <button
+                  onClick={() => { setFilterKlas(''); setFilterStudent(''); setFilterDate(''); setFilterTimeFrom(''); setFilterTimeTo(''); }}
+                  className="text-xs px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                >
+                  ✕ Alle filters wissen
+                </button>
+              )}
+            </div>
 
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-center text-sm mb-4">
               <div>
@@ -800,7 +852,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
 
             {/* Per-student breakdown — only shown when a class is selected */}
             {filterKlas && (() => {
-              const studentStats = computeStudentStats(allReports, filterKlas);
+              const studentStats = computeStudentStats(dateFilteredReports, filterKlas);
               if (studentStats.length === 0) return null;
               return (
                 <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
