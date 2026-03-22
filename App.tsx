@@ -95,6 +95,7 @@ export default function App() {
         handleQuickStart={trainer.handleQuickStart}
         studentName={trainer.studentName}
         studentInitiaal={trainer.studentInitiaal}
+        studentKlas={trainer.studentKlas}
         setStudentInfo={trainer.setStudentInfo}
         hasStudentInfo={trainer.hasStudentInfo}
         adaptiveMode={trainer.adaptiveMode}

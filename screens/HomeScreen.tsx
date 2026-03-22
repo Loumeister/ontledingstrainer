@@ -26,7 +26,7 @@ type HomeScreenProps = Pick<TrainerState,
   | 'handleSentenceSelect'
   | 'startSharedSession'
   | 'handleQuickStart'
-  | 'studentName' | 'studentInitiaal' | 'setStudentInfo' | 'hasStudentInfo'
+  | 'studentName' | 'studentInitiaal' | 'studentKlas' | 'setStudentInfo' | 'hasStudentInfo'
   | 'adaptiveMode' | 'setAdaptiveMode'
 > & {
   sharedSentences: Sentence[];
@@ -57,6 +57,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   handleQuickStart,
   studentName,
   studentInitiaal,
+  studentKlas,
   setStudentInfo,
   hasStudentInfo,
   adaptiveMode, setAdaptiveMode,
@@ -71,18 +72,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [nameInput, setNameInput] = useState(studentName);
   const [initiaalInput, setInitiaalInput] = useState(studentInitiaal);
+  const [klasInput, setKlasInput] = useState(studentKlas);
   const [pendingAction, setPendingAction] = useState<{ type: 'session' | 'quickstart' | 'shared' | 'select'; sentenceId?: number } | null>(null);
 
-  const requireNameThen = (action: 'session' | 'quickstart' | 'shared', sentenceId?: number) => {
+  const openNamePrompt = (action: { type: 'session' | 'quickstart' | 'shared' | 'select'; sentenceId?: number } | null) => {
+    setPendingAction(action);
+    setNameInput(studentName);
+    setInitiaalInput(studentInitiaal);
+    setKlasInput(studentKlas);
+    setShowNamePrompt(true);
+  };
+
+  const requireNameThen = (action: 'session' | 'quickstart' | 'shared') => {
     if (hasStudentInfo) {
       if (action === 'session') startSession();
       else if (action === 'quickstart') handleQuickStart();
       else if (action === 'shared') startSharedSession(sharedSentences);
     } else {
-      setPendingAction({ type: action, sentenceId });
-      setNameInput(studentName);
-      setInitiaalInput(studentInitiaal);
-      setShowNamePrompt(true);
+      openNamePrompt({ type: action });
     }
   };
 
@@ -90,17 +97,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     if (hasStudentInfo) {
       handleSentenceSelect(sentenceId);
     } else {
-      setPendingAction({ type: 'select', sentenceId });
-      setNameInput(studentName);
-      setInitiaalInput(studentInitiaal);
-      setShowNamePrompt(true);
+      openNamePrompt({ type: 'select', sentenceId });
     }
   };
 
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nameInput.trim() || !initiaalInput.trim()) return;
-    setStudentInfo(nameInput, initiaalInput);
+    if (!nameInput.trim() || !initiaalInput.trim() || !klasInput.trim()) return;
+    setStudentInfo(nameInput, initiaalInput, klasInput);
     setShowNamePrompt(false);
     const action = pendingAction;
     // Trigger the pending action after a tick so localStorage is updated
@@ -144,7 +148,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <form onSubmit={handleNameSubmit} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 max-w-sm w-full space-y-4">
             <h2 className="text-lg font-bold text-slate-800 dark:text-white text-center">Wie ben jij?</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 text-center">Vul je naam in zodat je docent kan zien hoe het gaat.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 text-center">Vul je gegevens in zodat je docent kan zien hoe het gaat.</p>
             <div>
               <label className="text-xs font-medium text-slate-600 dark:text-slate-300 block mb-1">Voornaam</label>
               <input
@@ -157,20 +161,33 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 maxLength={30}
               />
             </div>
-            <div>
-              <label className="text-xs font-medium text-slate-600 dark:text-slate-300 block mb-1">Eerste letter achternaam</label>
-              <input
-                type="text"
-                value={initiaalInput}
-                onChange={e => setInitiaalInput(e.target.value.slice(0, 1))}
-                className="w-20 px-3 py-2 text-sm text-center font-bold uppercase border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:border-blue-500 outline-none"
-                placeholder="V"
-                maxLength={1}
-              />
+            <div className="flex gap-3">
+              <div className="flex-shrink-0">
+                <label className="text-xs font-medium text-slate-600 dark:text-slate-300 block mb-1">Initiaal</label>
+                <input
+                  type="text"
+                  value={initiaalInput}
+                  onChange={e => setInitiaalInput(e.target.value.slice(0, 1))}
+                  className="w-16 px-3 py-2 text-sm text-center font-bold uppercase border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:border-blue-500 outline-none"
+                  placeholder="V"
+                  maxLength={1}
+                />
+              </div>
+              <div className="flex-1">
+                <label className="text-xs font-medium text-slate-600 dark:text-slate-300 block mb-1">Klas</label>
+                <input
+                  type="text"
+                  value={klasInput}
+                  onChange={e => setKlasInput(e.target.value)}
+                  className="w-full px-3 py-2 text-sm border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:border-blue-500 outline-none"
+                  placeholder="bijv. 2ga"
+                  maxLength={10}
+                />
+              </div>
             </div>
             <button
               type="submit"
-              disabled={!nameInput.trim() || !initiaalInput.trim()}
+              disabled={!nameInput.trim() || !initiaalInput.trim() || !klasInput.trim()}
               className="w-full py-2.5 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Klaar, laten we beginnen!
@@ -189,7 +206,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm">
               {hasStudentInfo ? (
-                <>Hoi <strong className="text-slate-700 dark:text-slate-200">{studentName} {studentInitiaal}.</strong> — stel je training samen: <button onClick={() => { setNameInput(studentName); setInitiaalInput(studentInitiaal); setPendingAction(null); setShowNamePrompt(true); }} className="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 text-xs underline ml-1">(wijzig naam)</button></>
+                <>Hoi <strong className="text-slate-700 dark:text-slate-200">{studentName} {studentInitiaal}.</strong>{studentKlas ? <> <span className="text-slate-400 dark:text-slate-500">({studentKlas})</span></> : ''} — stel je training samen: <button onClick={() => openNamePrompt(null)} className="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 text-xs underline ml-1">(wijzig)</button></>
               ) : 'Stel je training samen:'}
             </p>
           </div>

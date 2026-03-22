@@ -143,7 +143,8 @@ export interface TrainerState {
   // Student identity
   studentName: string;
   studentInitiaal: string;
-  setStudentInfo: (name: string, initiaal: string) => void;
+  studentKlas: string;
+  setStudentInfo: (name: string, initiaal: string, klas: string) => void;
   hasStudentInfo: boolean;
   // Adaptive mode
   adaptiveMode: boolean;
@@ -162,14 +163,14 @@ interface PreAnswerSnapshot {
 
 const STUDENT_INFO_KEY = 'student_info_v1';
 
-function loadStudentInfo(): { name: string; initiaal: string } {
+function loadStudentInfo(): { name: string; initiaal: string; klas: string } {
   try {
     const raw = localStorage.getItem(STUDENT_INFO_KEY);
-    if (!raw) return { name: '', initiaal: '' };
-    const parsed = JSON.parse(raw) as { name?: string; initiaal?: string };
-    return { name: parsed.name || '', initiaal: parsed.initiaal || '' };
+    if (!raw) return { name: '', initiaal: '', klas: '' };
+    const parsed = JSON.parse(raw) as { name?: string; initiaal?: string; klas?: string };
+    return { name: parsed.name || '', initiaal: parsed.initiaal || '', klas: parsed.klas || '' };
   } catch {
-    return { name: '', initiaal: '' };
+    return { name: '', initiaal: '', klas: '' };
   }
 }
 
@@ -179,15 +180,18 @@ export function useTrainer(): TrainerState {
   // Student identity (persisted in localStorage)
   const [studentName, setStudentName] = useState(() => loadStudentInfo().name);
   const [studentInitiaal, setStudentInitiaal] = useState(() => loadStudentInfo().initiaal);
+  const [studentKlas, setStudentKlas] = useState(() => loadStudentInfo().klas);
   const hasStudentInfo = studentName.trim().length > 0 && studentInitiaal.trim().length > 0;
 
-  const setStudentInfo = (name: string, initiaal: string) => {
+  const setStudentInfo = (name: string, initiaal: string, klas: string) => {
     const trimmedName = name.trim();
     const trimmedInitiaal = initiaal.trim().charAt(0).toUpperCase();
+    const trimmedKlas = klas.trim().toLowerCase();
     setStudentName(trimmedName);
     setStudentInitiaal(trimmedInitiaal);
+    setStudentKlas(trimmedKlas);
     try {
-      localStorage.setItem(STUDENT_INFO_KEY, JSON.stringify({ name: trimmedName, initiaal: trimmedInitiaal }));
+      localStorage.setItem(STUDENT_INFO_KEY, JSON.stringify({ name: trimmedName, initiaal: trimmedInitiaal, klas: trimmedKlas }));
     } catch { /* localStorage may be unavailable */ }
   };
 
@@ -1141,6 +1145,7 @@ export function useTrainer(): TrainerState {
     // Student identity
     studentName,
     studentInitiaal,
+    studentKlas,
     setStudentInfo,
     hasStudentInfo,
     // Adaptive mode
