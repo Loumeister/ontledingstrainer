@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { loadUsageData, clearUsageData, exportUsageDataAsJson } from '../usageData';
-import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats } from '../interactionLog';
+import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats, computePerUserStats } from '../interactionLog';
 import { loadAllSentences } from '../data/sentenceLoader';
 import { getCustomSentences } from '../data/customSentenceStore';
 import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats, computeStudentStats, normaliseKlas } from '../sessionReport';
@@ -538,8 +538,8 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Third insights row: level distribution + split vs label + report import */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Third insights row: level distribution + split vs label */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Level distribution */}
           <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
             <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">📊 Verdeling per niveau</h3>
@@ -616,68 +616,6 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
             )}
           </div>
 
-          {/* Drive fetch + import student reports */}
-          <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
-            <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">📥 Leerlingrapporten ophalen</h3>
-
-            {/* Fetch from Drive */}
-            <div className="mb-4">
-              <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Haal alle ingestuurde resultaten op uit Google Drive</p>
-              <button
-                onClick={handleFetchFromDrive}
-                disabled={driveStatus === 'fetching' || !getScriptUrl()}
-                className="w-full py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {driveStatus === 'fetching' ? 'Ophalen…' : `📡 Haal resultaten op uit Drive${driveReports.length > 0 ? ` (${driveReports.length} geladen)` : ''}`}
-              </button>
-              {driveStatus === 'success' && (
-                <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-                  ✓ {driveReports.length} rapport{driveReports.length !== 1 ? 'en' : ''} opgehaald
-                </p>
-              )}
-              {driveStatus === 'error' && (
-                <p className="text-xs text-red-600 dark:text-red-400 mt-1">{driveError}</p>
-              )}
-              {!getScriptUrl() && (
-                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                  Drive-koppeling niet ingesteld. Configureer de Apps Script URL hieronder (eigenaar-PIN vereist).
-                </p>
-              )}
-            </div>
-
-            {/* Manual fallback import */}
-            <details className="border-t border-slate-100 dark:border-slate-700 pt-3">
-              <summary className="text-xs text-slate-400 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300">
-                Handmatig rapportcode plakken (reserve / offline)
-              </summary>
-              <div className="space-y-2 mt-2">
-                <textarea
-                  value={reportInput}
-                  onChange={e => { setReportInput(e.target.value); setReportMsg(null); }}
-                  placeholder="Plak rapportcode hier (begint met v1:)..."
-                  className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:border-blue-500 outline-none resize-none h-16"
-                />
-                <button
-                  onClick={handleImportReport}
-                  disabled={!reportInput.trim()}
-                  className="w-full py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Importeer rapport
-                </button>
-                {reportMsg && (
-                  <p className={`text-xs font-medium ${reportMsg.ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {reportMsg.text}
-                  </p>
-                )}
-              </div>
-            </details>
-
-            {allReports.length > 0 && (
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
-                Totaal: {allReports.length} rapport{allReports.length !== 1 ? 'en' : ''} van {computeAggregateStats(allReports).uniqueStudents} leerling{computeAggregateStats(allReports).uniqueStudents !== 1 ? 'en' : ''}
-              </p>
-            )}
-          </div>
         </div>
 
         {/* Imported reports summary — visible for both docent and eigenaar */}
@@ -967,6 +905,49 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
           </div>
         )}
 
+        {/* Per-user activity from interaction log (local device data) */}
+        {(() => {
+          const interactionLog = loadInteractionLog();
+          const userStats = computePerUserStats(interactionLog);
+          if (userStats.length === 0) return null;
+          return (
+            <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+              <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">👤 Activiteit per leerling (dit apparaat)</h3>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Op basis van het lokale interactielog van dit apparaat</p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-left text-slate-400 border-b border-slate-100 dark:border-slate-700">
+                      <th className="pb-1 pr-3 font-medium">Leerling</th>
+                      <th className="pb-1 pr-3 font-medium text-center">Sessies</th>
+                      <th className="pb-1 pr-3 font-medium text-center">Zinnen</th>
+                      <th className="pb-1 pr-3 font-medium text-center">Checks</th>
+                      <th className="pb-1 pr-3 font-medium text-center">Hints</th>
+                      <th className="pb-1 pr-3 font-medium text-center">Antw. bekeken</th>
+                      <th className="pb-1 pr-3 font-medium text-center">Fouten</th>
+                      <th className="pb-1 font-medium text-center">Laatst actief</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {userStats.map(us => (
+                      <tr key={us.userName} className="border-b border-slate-50 dark:border-slate-800">
+                        <td className="py-1.5 pr-3 font-medium text-blue-600 dark:text-blue-400">{us.userName}</td>
+                        <td className="py-1.5 pr-3 text-center text-slate-600 dark:text-slate-300">{us.sessions}</td>
+                        <td className="py-1.5 pr-3 text-center text-slate-600 dark:text-slate-300">{us.sentencesStarted}</td>
+                        <td className="py-1.5 pr-3 text-center text-slate-600 dark:text-slate-300">{us.checks}</td>
+                        <td className="py-1.5 pr-3 text-center text-amber-600 dark:text-amber-400">{us.hints}</td>
+                        <td className="py-1.5 pr-3 text-center text-amber-600 dark:text-amber-400">{us.showAnswers}</td>
+                        <td className="py-1.5 pr-3 text-center text-red-600 dark:text-red-400">{us.splitErrors + us.roleErrors}</td>
+                        <td className="py-1.5 text-center text-slate-400">{new Date(us.lastActive).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Filters */}
         <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
           <div className="flex flex-wrap gap-3 items-center">
@@ -1140,6 +1121,69 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
             </div>
           );
         })()}
+
+        {/* Drive fetch + import student reports — at the bottom */}
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+          <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">📥 Leerlingrapporten ophalen</h3>
+
+          {/* Fetch from Drive */}
+          <div className="mb-4">
+            <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Haal alle ingestuurde resultaten op uit Google Drive</p>
+            <button
+              onClick={handleFetchFromDrive}
+              disabled={driveStatus === 'fetching' || !getScriptUrl()}
+              className="w-full py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {driveStatus === 'fetching' ? 'Ophalen…' : `📡 Haal resultaten op uit Drive${driveReports.length > 0 ? ` (${driveReports.length} geladen)` : ''}`}
+            </button>
+            {driveStatus === 'success' && (
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
+                ✓ {driveReports.length} rapport{driveReports.length !== 1 ? 'en' : ''} opgehaald
+              </p>
+            )}
+            {driveStatus === 'error' && (
+              <p className="text-xs text-red-600 dark:text-red-400 mt-1">{driveError}</p>
+            )}
+            {!getScriptUrl() && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                Drive-koppeling niet ingesteld. Configureer de Apps Script URL hieronder (eigenaar-PIN vereist).
+              </p>
+            )}
+          </div>
+
+          {/* Manual fallback import */}
+          <details className="border-t border-slate-100 dark:border-slate-700 pt-3">
+            <summary className="text-xs text-slate-400 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300">
+              Handmatig rapportcode plakken (reserve / offline)
+            </summary>
+            <div className="space-y-2 mt-2">
+              <textarea
+                value={reportInput}
+                onChange={e => { setReportInput(e.target.value); setReportMsg(null); }}
+                placeholder="Plak rapportcode hier (begint met v1:)..."
+                className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:border-blue-500 outline-none resize-none h-16"
+              />
+              <button
+                onClick={handleImportReport}
+                disabled={!reportInput.trim()}
+                className="w-full py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Importeer rapport
+              </button>
+              {reportMsg && (
+                <p className={`text-xs font-medium ${reportMsg.ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                  {reportMsg.text}
+                </p>
+              )}
+            </div>
+          </details>
+
+          {allReports.length > 0 && (
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
+              Totaal: {allReports.length} rapport{allReports.length !== 1 ? 'en' : ''} van {computeAggregateStats(allReports).uniqueStudents} leerling{computeAggregateStats(allReports).uniqueStudents !== 1 ? 'en' : ''}
+            </p>
+          )}
+        </div>
 
         {/* Eigenaar-only sections — requires eigenaar PIN */}
         {isEigenaar && (
@@ -1335,7 +1379,7 @@ interface LevelGroupProps {
 }
 
 function LevelGroup({ title, color, bg, count, avgPerfect, useGrouping, children }: LevelGroupProps) {
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(false);
 
   if (!useGrouping) {
     return <div className="space-y-3">{children}</div>;

@@ -93,6 +93,10 @@ export default function App() {
         sharedSentences={sharedSentences}
         startSharedSession={trainer.startSharedSession}
         handleQuickStart={trainer.handleQuickStart}
+        studentName={trainer.studentName}
+        studentInitiaal={trainer.studentInitiaal}
+        setStudentInfo={trainer.setStudentInfo}
+        hasStudentInfo={trainer.hasStudentInfo}
         openSecretDocentRoute={() => {
           window.location.hash = '#/docent';
           setShowDocent(true);

@@ -6,6 +6,7 @@ import {
   clearInteractionLog,
   computeClickthroughStats,
   computeSessionFlowStats,
+  computePerUserStats,
 } from './interactionLog';
 import type { InteractionEntry } from './interactionLog';
 
@@ -234,5 +235,76 @@ describe('computeSessionFlowStats', () => {
     expect(stats.activeDays).toEqual(['2025-06-01', '2025-06-03']);
     expect(stats.activityPerDay['2025-06-01']).toBe(3);
     expect(stats.activityPerDay['2025-06-03']).toBe(2);
+  });
+});
+
+describe('logInteraction with userName', () => {
+  it('includes userName when student_info_v1 is set in localStorage', () => {
+    store['student_info_v1'] = JSON.stringify({ name: 'Emma', initiaal: 'V' });
+    logInteraction('session_start');
+    const log = loadInteractionLog();
+    expect(log[0].userName).toBe('Emma V.');
+  });
+
+  it('omits userName when student_info_v1 is not set', () => {
+    logInteraction('session_start');
+    const log = loadInteractionLog();
+    expect(log[0].userName).toBeUndefined();
+  });
+
+  it('omits userName when name is empty', () => {
+    store['student_info_v1'] = JSON.stringify({ name: '', initiaal: 'V' });
+    logInteraction('session_start');
+    const log = loadInteractionLog();
+    expect(log[0].userName).toBeUndefined();
+  });
+});
+
+describe('computePerUserStats', () => {
+  it('returns empty array for log without userNames', () => {
+    const log: InteractionEntry[] = [
+      { timestamp: '2025-01-01T00:00:00Z', type: 'session_start' },
+      { timestamp: '2025-01-01T00:00:01Z', type: 'check', sentenceId: 1 },
+    ];
+    expect(computePerUserStats(log)).toEqual([]);
+  });
+
+  it('groups events by userName', () => {
+    const log: InteractionEntry[] = [
+      { timestamp: '2025-01-01T10:00:00Z', type: 'session_start', userName: 'Emma V.' },
+      { timestamp: '2025-01-01T10:01:00Z', type: 'sentence_start', sentenceId: 1, userName: 'Emma V.' },
+      { timestamp: '2025-01-01T10:02:00Z', type: 'check', sentenceId: 1, userName: 'Emma V.' },
+      { timestamp: '2025-01-01T10:03:00Z', type: 'error_role', sentenceId: 1, userName: 'Emma V.' },
+      { timestamp: '2025-01-01T11:00:00Z', type: 'session_start', userName: 'Luuk D.' },
+      { timestamp: '2025-01-01T11:01:00Z', type: 'sentence_start', sentenceId: 2, userName: 'Luuk D.' },
+      { timestamp: '2025-01-01T11:02:00Z', type: 'hint', sentenceId: 2, userName: 'Luuk D.' },
+      { timestamp: '2025-01-01T11:03:00Z', type: 'show_answer', sentenceId: 2, userName: 'Luuk D.' },
+    ];
+    const stats = computePerUserStats(log);
+    expect(stats).toHaveLength(2);
+
+    // Sorted by lastActive desc → Luuk first
+    expect(stats[0].userName).toBe('Luuk D.');
+    expect(stats[0].sessions).toBe(1);
+    expect(stats[0].sentencesStarted).toBe(1);
+    expect(stats[0].hints).toBe(1);
+    expect(stats[0].showAnswers).toBe(1);
+
+    expect(stats[1].userName).toBe('Emma V.');
+    expect(stats[1].sessions).toBe(1);
+    expect(stats[1].checks).toBe(1);
+    expect(stats[1].roleErrors).toBe(1);
+  });
+
+  it('ignores entries without userName', () => {
+    const log: InteractionEntry[] = [
+      { timestamp: '2025-01-01T10:00:00Z', type: 'session_start', userName: 'Emma V.' },
+      { timestamp: '2025-01-01T10:01:00Z', type: 'session_start' }, // anonymous
+      { timestamp: '2025-01-01T10:02:00Z', type: 'check', sentenceId: 1, userName: 'Emma V.' },
+    ];
+    const stats = computePerUserStats(log);
+    expect(stats).toHaveLength(1);
+    expect(stats[0].userName).toBe('Emma V.');
+    expect(stats[0].sessions).toBe(1);
   });
 });

@@ -212,9 +212,10 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
     const klas = studentKlas.trim();
     if (!naam || !klas) return;
 
-    // Save for next time
+    // Save for next time (preserve initiaal if already set)
     try {
-      localStorage.setItem(STUDENT_INFO_KEY, JSON.stringify({ name: naam, klas }));
+      const existing = JSON.parse(localStorage.getItem(STUDENT_INFO_KEY) || '{}');
+      localStorage.setItem(STUDENT_INFO_KEY, JSON.stringify({ ...existing, name: naam, klas }));
     } catch { /* ignore */ }
 
     const code = buildAndEncodeReport();
