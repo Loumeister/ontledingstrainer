@@ -93,6 +93,8 @@ export default function App() {
         sharedSentences={sharedSentences}
         startSharedSession={trainer.startSharedSession}
         handleQuickStart={trainer.handleQuickStart}
+        adaptiveMode={trainer.adaptiveMode}
+        setAdaptiveMode={trainer.setAdaptiveMode}
         openSecretDocentRoute={() => {
           window.location.hash = '#/docent';
           setShowDocent(true);
