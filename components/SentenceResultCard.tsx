@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SentenceResult, ValidationState } from '../types';
+import { SentenceResult, ValidationState, RichFeedbackEntry } from '../types';
 import { ROLES } from '../constants';
 import { buildUserChunks } from '../validation';
 
@@ -157,7 +157,7 @@ export const SentenceResultCard: React.FC<SentenceResultCardProps> = ({ result, 
                 return (
                   <p key={idxStr} className="text-xs text-slate-600 dark:text-slate-300">
                     <span className="font-medium">"{words}":</span>{' '}
-                    <span className="italic">{feedback}</span>
+                    <span className="italic">{typeof feedback === 'string' ? feedback : (feedback as RichFeedbackEntry).herstelvraag}</span>
                   </p>
                 );
               })}

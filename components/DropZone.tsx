@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Token, RoleDefinition, ValidationState } from '../types';
+import { Token, RoleDefinition, ValidationState, FeedbackEntry } from '../types';
 import { FEEDBACK_SHORT_LABELS, ROLES } from '../constants';
 
 interface SentenceChunkProps {
@@ -28,7 +28,7 @@ interface SentenceChunkProps {
   wordBijvBepLinks?: Record<string, string>; // established word-level bijv_bep links
   onCompleteWordLink?: (sourceId: string, targetId: string) => void;
   validationState?: ValidationState;
-  feedbackMessage?: string | null;
+  feedbackMessage?: FeedbackEntry | null;
   isLargeFont?: boolean;
   selectedRole?: string | null; // Currently selected role from tap-to-place
   onTapPlaceChunk?: (chunkId: string) => void; // Place selected role on a chunk

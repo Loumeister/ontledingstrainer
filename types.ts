@@ -43,7 +43,7 @@ export interface SentenceResult {
   score: number;
   total: number;
   chunkStatus: Record<number, ValidationState>;
-  chunkFeedback: Record<number, string>;
+  chunkFeedback: Record<number, FeedbackEntry>;
   isPerfect: boolean;
   mistakes: Record<string, number>;
   showAnswerUsed: boolean;
@@ -61,6 +61,24 @@ export interface SessionHistoryEntry {
   mistakeStats: Record<string, number>;
   sentenceCount: number;
 }
+
+export interface RichFeedbackEntry {
+  /** Korte herstelvraag (≤15 woorden), altijd inline zichtbaar */
+  herstelvraag: string;
+  /** Exact één woord uit herstelvraag — triggert expand bij tap/klik */
+  sleutelwoord: string;
+  uitleg: {
+    /** "Je hebt waarschijnlijk..." — 1-2 zinnen */
+    diagnose: string;
+    /** Waar de denkfout zit — 1-2 zinnen */
+    redenering: string;
+    /** Één scherpe herstelvraag of instructie */
+    herstap: string;
+  };
+}
+
+/** Union type: simpele string voor triviale feedback, RichFeedbackEntry voor contrastieve paren */
+export type FeedbackEntry = string | RichFeedbackEntry;
 
 export interface SentenceUsageData {
   attempts: number;                    // Times a student checked this sentence (first check only)

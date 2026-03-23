@@ -292,8 +292,10 @@ describe('validateAnswer – label checking', () => {
     const labels: PlacementMap = { t1: 'ow', t3: 'wg', t4: 'bwb' }; // PV → WG
     const { result } = validateAnswer(sentence, correctSplits, labels, {}, false);
     expect(result.chunkStatus[1]).toBe('warning');
-    expect(result.chunkFeedback[1]).toContain('tijd');
-    expect(result.chunkFeedback[1]).not.toBe('Dit hoort bij het gezegde.');
+    const fb = result.chunkFeedback[1];
+    const fbStr = typeof fb === 'string' ? fb : fb.herstelvraag;
+    expect(fbStr).toContain('tijd');
+    expect(fbStr).not.toBe('Dit hoort bij het gezegde.');
   });
 
   it('still gives warning for PV→WG in NG-context before level 4', () => {
