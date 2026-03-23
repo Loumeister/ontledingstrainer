@@ -12,6 +12,13 @@
 const SCRIPT_URL_KEY = 'zinsontleding_apps_script_url';
 const API_KEY_KEY = 'zinsontleding_api_key';
 
+/** Type-safe accessor for Vite env vars (avoids ImportMeta.env type issues in some TS configs). */
+function getEnv(key: string): string | undefined {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const env = (import.meta as any).env as Record<string, string | undefined> | undefined;
+  return env?.[key];
+}
+
 /** Standaard placeholder – vervang na Apps Script setup in /#/usage instellingen */
 export const PLACEHOLDER_URL = 'PLACEHOLDER';
 
@@ -20,7 +27,7 @@ export const PLACEHOLDER_URL = 'PLACEHOLDER';
  * Handig voor de admin UI om te tonen dat de koppeling al geconfigureerd is.
  */
 export function isConfigFromEnv(): boolean {
-  return !!(import.meta.env.VITE_APPS_SCRIPT_URL as string | undefined);
+  return !!getEnv('VITE_APPS_SCRIPT_URL');
 }
 
 /**
@@ -28,7 +35,7 @@ export function isConfigFromEnv(): boolean {
  */
 export function getScriptUrl(): string {
   return localStorage.getItem(SCRIPT_URL_KEY)
-    || (import.meta.env.VITE_APPS_SCRIPT_URL as string | undefined)
+    || getEnv('VITE_APPS_SCRIPT_URL')
     || '';
 }
 
@@ -44,7 +51,7 @@ export function setScriptUrl(url: string): void {
 export function getApiKey(): string {
   const stored = localStorage.getItem(API_KEY_KEY);
   if (stored) return stored;
-  const fromEnv = import.meta.env.VITE_API_KEY as string | undefined;
+  const fromEnv = getEnv('VITE_API_KEY');
   if (fromEnv) return fromEnv;
   const key = crypto.randomUUID();
   localStorage.setItem(API_KEY_KEY, key);
