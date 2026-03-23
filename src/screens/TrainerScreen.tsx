@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { ROLES, ROLES_PER_LEVEL } from '../constants';
 import { RoleDefinition } from '../types';
@@ -75,6 +75,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   const [showZinsdeelHelp, setShowZinsdeelHelp] = useState(false);
   const [streakToast, setStreakToast] = useState<string | null>(null);
   const [recentlySplit, setRecentlySplit] = useState<Set<number>>(new Set());
+  const confettiFiredFor = useRef<string | null>(null);
   const shouldPinFooter = step === 'label' && !validationResult && !showAnswerMode;
 
   const handleToggleSplitWithAnim = (idx: number) => {
@@ -94,10 +95,14 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   };
 
   useEffect(() => {
-    if (validationResult?.isPerfect) {
-      confetti({ particleCount: 90, spread: 70, origin: { y: 0.55 } });
+    if (validationResult?.isPerfect && currentSentence) {
+      const key = `${currentSentence.id}-${sessionIndex}`;
+      if (confettiFiredFor.current !== key) {
+        confettiFiredFor.current = key;
+        confetti({ particleCount: 90, spread: 70, origin: { y: 0.55 } });
+      }
     }
-  }, [validationResult]);
+  }, [validationResult, currentSentence, sessionIndex]);
 
 
   useEffect(() => {
