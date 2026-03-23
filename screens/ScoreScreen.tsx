@@ -46,6 +46,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
   selectedLevel,
 }) => {
   const [studentName, setStudentName] = useState('');
+  const [studentInitiaal, setStudentInitiaal] = useState('');
   const [studentKlas, setStudentKlas] = useState('');
   const [reportCode, setReportCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -57,9 +58,10 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
     try {
       const saved = localStorage.getItem(STUDENT_INFO_KEY);
       if (saved) {
-        const { name, klas } = JSON.parse(saved) as { name?: string; klas?: string };
+        const { name, klas, initiaal } = JSON.parse(saved) as { name?: string; klas?: string; initiaal?: string };
         if (name) setStudentName(name);
         if (klas) setStudentKlas(klas);
+        if (initiaal) setStudentInitiaal(initiaal);
       }
     } catch { /* ignore */ }
   }, []);
@@ -202,7 +204,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
       mistakeStats,
       selectedLevel,
       sentenceIds,
-      undefined,
+      studentInitiaal.trim().toUpperCase() || undefined,
       studentKlas.trim() || undefined,
     );
     return encodeReport(report);
@@ -216,7 +218,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
     // Save for next time (preserve initiaal if already set)
     try {
       const existing = JSON.parse(localStorage.getItem(STUDENT_INFO_KEY) || '{}');
-      localStorage.setItem(STUDENT_INFO_KEY, JSON.stringify({ ...existing, name: naam, klas }));
+      localStorage.setItem(STUDENT_INFO_KEY, JSON.stringify({ ...existing, name: naam, klas, initiaal: studentInitiaal }));
     } catch { /* ignore */ }
 
     const code = buildAndEncodeReport();
@@ -225,7 +227,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
     setSubmitStatus('sending');
     setSubmitError('');
     try {
-      await postReport(naam, '', klas, code);
+      await postReport(naam, studentInitiaal.trim().toUpperCase(), klas, code);
       setSubmitStatus('success');
     } catch (err) {
       setSubmitStatus('error');
@@ -265,6 +267,15 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
                 />
                 <input
                   type="text"
+                  value={studentInitiaal}
+                  onChange={e => setStudentInitiaal(e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 1).toUpperCase())}
+                  placeholder="Init. *"
+                  maxLength={1}
+                  title="Eerste letter van je achternaam"
+                  className="w-16 px-3 py-2 text-sm rounded-lg border border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 focus:border-blue-500 outline-none text-center"
+                />
+                <input
+                  type="text"
                   value={studentKlas}
                   onChange={e => setStudentKlas(e.target.value)}
                   placeholder="Klas * (bv. 1ga)"
@@ -283,7 +294,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
               )}
               <button
                 onClick={handleSendReport}
-                disabled={!studentName.trim() || !studentKlas.trim() || submitStatus === 'sending'}
+                disabled={!studentName.trim() || !studentInitiaal.trim() || !studentKlas.trim() || submitStatus === 'sending'}
                 className="w-full py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitStatus === 'sending' ? 'Versturen…' : 'Verstuur naar docent'}
@@ -315,7 +326,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
                 ✓ Resultaten verstuurd naar de docent!
               </p>
               <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                {studentName} — klas {studentKlas.toLowerCase()}
+                {studentName} {studentInitiaal}. — klas {studentKlas.toLowerCase()}
               </p>
             </div>
           )}
