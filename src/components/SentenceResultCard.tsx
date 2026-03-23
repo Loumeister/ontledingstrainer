@@ -8,9 +8,15 @@ interface SentenceResultCardProps {
   index: number;
 }
 
+const hasIncorrectChunks = (result: SentenceResult): boolean =>
+  Object.values(result.chunkStatus).some(s => s === 'incorrect-role' || s === 'incorrect-split');
+
+const showAsCorrect = (result: SentenceResult): boolean =>
+  result.isPerfect || (!hasIncorrectChunks(result) && result.score === result.total);
+
 const statusIcon = (result: SentenceResult): string => {
   if (result.showAnswerUsed && Object.keys(result.chunkStatus).length === 0) return '\u{1F441}'; // eye - answer shown without attempt
-  if (result.isPerfect) return '\u2705'; // checkmark
+  if (showAsCorrect(result)) return '\u2705'; // checkmark
   if (result.showAnswerUsed) return '\u{1F4A1}'; // lightbulb - checked then shown
   return '\u274C'; // cross
 };
@@ -70,8 +76,8 @@ export const SentenceResultCard: React.FC<SentenceResultCardProps> = ({ result, 
         <span className="text-lg shrink-0" role="img" aria-label={
           result.showAnswerUsed && Object.keys(result.chunkStatus).length === 0
             ? 'Antwoord bekeken'
-            : result.isPerfect
-            ? 'Perfect'
+            : showAsCorrect(result)
+            ? 'Correct'
             : result.showAnswerUsed
             ? 'Gecontroleerd en bekeken'
             : 'Fout'
@@ -122,7 +128,7 @@ export const SentenceResultCard: React.FC<SentenceResultCardProps> = ({ result, 
           </div>
 
           {/* Correct answer */}
-          {!result.isPerfect && (
+          {hasIncorrectChunks(result) && (
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mb-1.5">Zo had het gemoeten:</p>
               <div className="flex flex-wrap gap-1">

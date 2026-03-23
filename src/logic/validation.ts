@@ -1,5 +1,5 @@
 import { ROLES, FEEDBACK_MATRIX, FEEDBACK_STRUCTURE, FEEDBACK_SWAP, FEEDBACK_BIJZIN_FUNCTIE, HINTS } from '../constants';
-import { Sentence, PlacementMap, RoleKey, Token, ValidationState, FeedbackEntry } from '../types';
+import { Sentence, PlacementMap, RoleKey, Token, ValidationState, FeedbackEntry, RichFeedbackEntry } from '../types';
 
 export interface ChunkData {
   tokens: Token[];
@@ -144,9 +144,26 @@ export function validateAnswer(
 
     if (!isValidSplit) {
       chunkStatus[idx] = 'incorrect-split';
-      if (!isConsistentRole || missedInternalSplit) chunkFeedback[idx] = FEEDBACK_STRUCTURE.INCONSISTENT;
-      else if (splitTooEarly || startedTooLate) chunkFeedback[idx] = FEEDBACK_STRUCTURE.TOO_MANY_SPLITS;
-      else chunkFeedback[idx] = FEEDBACK_STRUCTURE.MISSING_SPLIT;
+      let splitMsg: FeedbackEntry;
+      if (!isConsistentRole || missedInternalSplit) {
+        splitMsg = FEEDBACK_STRUCTURE.INCONSISTENT;
+      } else if (splitTooEarly || startedTooLate) {
+        const userLabel = chunkLabels[firstTokenId] as RoleKey | undefined;
+        const labelFeedback = (isConsistentRole && userLabel && userLabel !== consistentRole!)
+          ? FEEDBACK_MATRIX[userLabel]?.[consistentRole!]
+          : undefined;
+        if (typeof labelFeedback === 'string') {
+          splitMsg = `${FEEDBACK_STRUCTURE.TOO_MANY_SPLITS} ${labelFeedback}`;
+        } else if (labelFeedback) {
+          const rich = labelFeedback as RichFeedbackEntry;
+          splitMsg = { ...rich, herstelvraag: `${FEEDBACK_STRUCTURE.TOO_MANY_SPLITS} ${rich.herstelvraag}` };
+        } else {
+          splitMsg = FEEDBACK_STRUCTURE.TOO_MANY_SPLITS;
+        }
+      } else {
+        splitMsg = FEEDBACK_STRUCTURE.MISSING_SPLIT;
+      }
+      chunkFeedback[idx] = splitMsg;
       currentMistakes['Verdeling'] = (currentMistakes['Verdeling'] || 0) + 1;
     } else {
       let userLabel = chunkLabels[firstTokenId];

@@ -653,3 +653,48 @@ describe('validateAnswer – vw_onder subRole is display-only', () => {
     expect(result.isPerfect).toBe(true);
   });
 });
+
+// ──────────────────────────────────────────────
+// Regression: incorrect-split with label feedback
+// ──────────────────────────────────────────────
+describe('validateAnswer – incorrect-split label-aware feedback', () => {
+  it('uses only split feedback when label matches the token role', () => {
+    // Student splits too early: ['op'] labeled correctly as 'vv' (same as token role)
+    const sentence = makeSentence([
+      makeToken({ id: 't1', text: 'Hij', role: 'ow' }),
+      makeToken({ id: 't2', text: 'rekent', role: 'pv' }),
+      makeToken({ id: 't3', text: 'op', role: 'vv' }),
+      makeToken({ id: 't4', text: 'steun.', role: 'vv' }),
+    ]);
+    const splits = new Set([1, 2]);
+    const chunkLabels: PlacementMap = { t1: 'ow', t2: 'pv', t3: 'vv', t4: 'vv' };
+    const { result } = validateAnswer(sentence, splits, chunkLabels, {}, false);
+    expect(result.chunkStatus[2]).toBe('incorrect-split');
+    const fb = result.chunkFeedback[2];
+    const fbText = typeof fb === 'string' ? fb : (fb as { herstelvraag: string }).herstelvraag;
+    // Should only contain the split message (no extra label feedback since label === consistentRole)
+    expect(fbText).toContain('teveel geknipt');
+  });
+
+  it('combines split and label feedback when label is wrong (lv on a vv chunk)', () => {
+    // Student splits too early AND labels the sub-chunk as 'lv' instead of 'vv'
+    const sentence = makeSentence([
+      makeToken({ id: 't1', text: 'De', role: 'ow' }),
+      makeToken({ id: 't2', text: 'commissie', role: 'ow' }),
+      makeToken({ id: 't3', text: 'rekent', role: 'pv' }),
+      makeToken({ id: 't4', text: 'op', role: 'vv' }),
+      makeToken({ id: 't5', text: 'steun.', role: 'vv' }),
+    ]);
+    const splits = new Set([1, 2, 3]);
+    const chunkLabels: PlacementMap = { t1: 'ow', t3: 'pv', t4: 'lv', t5: 'bwb' };
+    const { result } = validateAnswer(sentence, splits, chunkLabels, {}, false);
+    expect(result.chunkStatus[2]).toBe('incorrect-split');
+    expect(result.chunkStatus[3]).toBe('incorrect-split');
+    // Feedback for 'lv'-labeled chunk: FEEDBACK_MATRIX['lv']['vv'] exists → combined
+    const fb2 = result.chunkFeedback[2];
+    const fb2Text = typeof fb2 === 'string' ? fb2 : (fb2 as { herstelvraag: string }).herstelvraag;
+    expect(fb2Text).toContain('teveel geknipt');
+    // Combined feedback is longer than the bare split message
+    expect(fb2Text.length).toBeGreaterThan('Hier is teveel geknipt.'.length);
+  });
+});
