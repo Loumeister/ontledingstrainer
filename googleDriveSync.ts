@@ -15,20 +15,39 @@ const API_KEY_KEY = 'zinsontleding_api_key';
 /** Standaard placeholder – vervang na Apps Script setup in /#/usage instellingen */
 export const PLACEHOLDER_URL = 'PLACEHOLDER';
 
+/**
+ * Geeft aan of de Apps Script URL ingebakken is in de build via env var.
+ * Handig voor de admin UI om te tonen dat de koppeling al geconfigureerd is.
+ */
+export function isConfigFromEnv(): boolean {
+  return !!(import.meta.env.VITE_APPS_SCRIPT_URL as string | undefined);
+}
+
+/**
+ * Prioriteit: localStorage (docent-override) > env var (build-default) > leeg.
+ */
 export function getScriptUrl(): string {
-  return localStorage.getItem(SCRIPT_URL_KEY) || '';
+  return localStorage.getItem(SCRIPT_URL_KEY)
+    || (import.meta.env.VITE_APPS_SCRIPT_URL as string | undefined)
+    || '';
 }
 
 export function setScriptUrl(url: string): void {
   localStorage.setItem(SCRIPT_URL_KEY, url.trim());
 }
 
+/**
+ * Prioriteit: localStorage > env var > gegenereerde random UUID (oude gedrag).
+ * Als VITE_API_KEY is ingesteld, worden alle gebruikers (leerlingen én docent)
+ * automatisch gekoppeld aan de juiste Apps Script sleutel.
+ */
 export function getApiKey(): string {
-  let key = localStorage.getItem(API_KEY_KEY);
-  if (!key) {
-    key = crypto.randomUUID();
-    localStorage.setItem(API_KEY_KEY, key);
-  }
+  const stored = localStorage.getItem(API_KEY_KEY);
+  if (stored) return stored;
+  const fromEnv = import.meta.env.VITE_API_KEY as string | undefined;
+  if (fromEnv) return fromEnv;
+  const key = crypto.randomUUID();
+  localStorage.setItem(API_KEY_KEY, key);
   return key;
 }
 
