@@ -5,7 +5,7 @@ import { loadAllSentences } from '../data/sentenceLoader';
 import { getCustomSentences } from '../data/customSentenceStore';
 import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats, computeStudentStats, normaliseKlas } from '../sessionReport';
 import type { SessionReport, JaarlaagStats } from '../sessionReport';
-import { fetchReports as fetchReportsFromDrive, getScriptUrl, setScriptUrl, getApiKey, setApiKey } from '../googleDriveSync';
+import { fetchReports as fetchReportsFromDrive, getScriptUrl, setScriptUrl, getApiKey, setApiKey, isConfigFromEnv } from '../googleDriveSync';
 import type { DriveRow } from '../googleDriveSync';
 import type { SentenceUsageData } from '../types';
 
@@ -1195,6 +1195,11 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300 font-medium ml-1">eigenaar</span>
               </h3>
               <div className="space-y-3">
+                {isConfigFromEnv() && (
+                  <p className="text-[10px] text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1.5 rounded-lg border border-green-200 dark:border-green-800">
+                    ✓ Koppeling is ingebakken in de build (env var). Alle leerlingen uploaden automatisch naar het Google Sheet. Waarden die je hieronder opslaat hebben voorrang.
+                  </p>
+                )}
                 <div>
                   <label className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Apps Script Web App URL</label>
                   <input
