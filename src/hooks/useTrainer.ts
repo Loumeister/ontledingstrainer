@@ -11,6 +11,8 @@ import {
   saveRoleConfidences,
   selectAdaptiveQueue,
 } from '../logic/adaptiveSelection';
+import { buildReport, encodeReport } from '../services/sessionReport';
+import { postReport, getScriptUrl } from '../services/googleDriveSync';
 import {
   buildUserChunks,
   countRealChunks,
@@ -149,6 +151,10 @@ export interface TrainerState {
   // Adaptive mode
   adaptiveMode: boolean;
   setAdaptiveMode: (v: boolean) => void;
+
+  // Auto-send report status
+  autoSendStatus: 'idle' | 'sending' | 'success' | 'error';
+  autoSendError: string;
 }
 
 interface PreAnswerSnapshot {
@@ -231,6 +237,8 @@ export function useTrainer(): TrainerState {
   const [sessionSentenceResults, setSessionSentenceResults] = useState<SentenceResult[]>([]);
   const [isSessionFinished, setIsSessionFinished] = useState(false);
   const [consecutivePerfect, setConsecutivePerfect] = useState(0);
+  const [autoSendStatus, setAutoSendStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [autoSendError, setAutoSendError] = useState('');
 
   // Current Sentence State
   const [currentSentence, setCurrentSentence] = useState<Sentence | null>(null);
@@ -384,6 +392,8 @@ export function useTrainer(): TrainerState {
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
+    setAutoSendStatus('idle');
+    setAutoSendError('');
     setMode('session');
     logInteraction('session_start', undefined, `count=${count}`);
     loadSentence(selected[0]);
@@ -438,6 +448,31 @@ export function useTrainer(): TrainerState {
       setIsSessionFinished(true);
       setCurrentSentence(null);
       setSelectedRole(null);
+
+      // Auto-send report to Google Drive if student info and Drive are configured
+      const info = loadStudentInfo();
+      if (info.name && info.initiaal && info.klas && getScriptUrl()) {
+        const sentenceIds = sessionQueue.map(s => s.id);
+        const report = buildReport(
+          info.name,
+          finalCorrect,
+          finalTotal,
+          mistakeStats,
+          selectedLevel,
+          sentenceIds,
+          info.initiaal,
+          info.klas,
+        );
+        const code = encodeReport(report);
+        setAutoSendStatus('sending');
+        setAutoSendError('');
+        postReport(info.name, info.initiaal, info.klas, code)
+          .then(() => setAutoSendStatus('success'))
+          .catch((err) => {
+            setAutoSendStatus('error');
+            setAutoSendError(err instanceof Error ? err.message : 'Onbekende fout');
+          });
+      }
     }
   };
 
@@ -1150,5 +1185,8 @@ export function useTrainer(): TrainerState {
     hasStudentInfo,
     // Adaptive mode
     adaptiveMode, setAdaptiveMode,
+
+    // Auto-send report status
+    autoSendStatus, autoSendError,
   };
 }

@@ -1879,7 +1879,7 @@
   },
   {
     "id": 43,
-    "label": "Zin 43: Kleine kinderen (rechte volgorde)",
+    "label": "Zin 43: Kleine kinderen (juiste volgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -1937,7 +1937,7 @@
   },
   {
     "id": 44,
-    "label": "Zin 44: Spannend boek (rechte volgorde)",
+    "label": "Zin 44: Spannend boek (juiste volgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -1994,7 +1994,7 @@
   },
   {
     "id": 45,
-    "label": "Zin 45: Spannende film (rechte volgorde, NG)",
+    "label": "Zin 45: Spannende film (juiste volgorde, NG)",
     "predicateType": "NG",
     "level": 1,
     "tokens": [
@@ -2033,7 +2033,7 @@
   },
   {
     "id": 46,
-    "label": "Zin 46: Pizza bij oma (rechte volgorde)",
+    "label": "Zin 46: Pizza bij oma (juiste volgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2072,7 +2072,7 @@
   },
   {
     "id": 47,
-    "label": "Zin 47: Onze hond (rechte volgorde, NG)",
+    "label": "Zin 47: Onze hond (juiste volgorde, NG)",
     "predicateType": "NG",
     "level": 1,
     "tokens": [
@@ -2109,7 +2109,7 @@
   },
   {
     "id": 48,
-    "label": "Zin 48: Moeilijke opgave (rechte volgorde)",
+    "label": "Zin 48: Moeilijke opgave (juiste volgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [

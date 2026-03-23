@@ -119,6 +119,11 @@ export default function App() {
         startSession={trainer.startSession}
         sessionQueue={trainer.sessionQueue}
         selectedLevel={trainer.selectedLevel}
+        autoSendStatus={trainer.autoSendStatus}
+        autoSendError={trainer.autoSendError}
+        studentName={trainer.studentName}
+        studentInitiaal={trainer.studentInitiaal}
+        studentKlas={trainer.studentKlas}
       />
     );
   }
