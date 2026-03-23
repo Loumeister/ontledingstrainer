@@ -212,8 +212,9 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
 
   const handleSendReport = async () => {
     const naam = studentName.trim();
+    const initiaal = studentInitiaal.trim().toUpperCase();
     const klas = studentKlas.trim();
-    if (!naam || !klas) return;
+    if (!naam || !initiaal || !klas) return;
 
     // Save for next time (preserve initiaal if already set)
     try {
@@ -227,7 +228,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
     setSubmitStatus('sending');
     setSubmitError('');
     try {
-      await postReport(naam, studentInitiaal.trim().toUpperCase(), klas, code);
+      await postReport(naam, initiaal, klas, code);
       setSubmitStatus('success');
     } catch (err) {
       setSubmitStatus('error');
