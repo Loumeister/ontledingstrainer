@@ -301,7 +301,7 @@ export function validateAnswer(
     const userSub = subLabels[t.id];
     let expectedSub = t.subRole;
     if (!includeBB && expectedSub === 'bijv_bep') expectedSub = undefined;
-    if (expectedSub === 'wd' || expectedSub === 'wwd' || expectedSub === 'nwd') expectedSub = undefined; // display-only subRoles, not validated
+    if (expectedSub === 'wd' || expectedSub === 'wwd' || expectedSub === 'nwd' || expectedSub === 'vw_onder') expectedSub = undefined; // display-only subRoles, not validated
     if (userSub !== expectedSub) subRoleMismatch = true;
   });
 

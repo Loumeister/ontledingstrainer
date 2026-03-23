@@ -628,3 +628,28 @@ describe('validateAnswer – constructive feedback', () => {
     expect(result.chunkFeedback[0]).not.toContain('Gekozen');
   });
 });
+
+// ──────────────────────────────────────────────
+// Regression: vw_onder subRole must not block isPerfect
+// ──────────────────────────────────────────────
+describe('validateAnswer – vw_onder subRole is display-only', () => {
+  it('isPerfect is true when all chunks are correct and a token has subRole vw_onder', () => {
+    // Mirrors sentence 338: "Het team juichte toen de scheidsrechter afloot."
+    // "toen" has subRole 'vw_onder' — students cannot assign this label
+    const sentence = makeSentence([
+      makeToken({ id: 't1', text: 'Het', role: 'ow' }),
+      makeToken({ id: 't2', text: 'team', role: 'ow' }),
+      makeToken({ id: 't3', text: 'juichte', role: 'pv' }),
+      makeToken({ id: 't4', text: 'toen', role: 'bijzin', subRole: 'vw_onder', bijzinFunctie: 'bwb' } as Token),
+      makeToken({ id: 't5', text: 'de', role: 'bijzin' }),
+      makeToken({ id: 't6', text: 'afloot', role: 'bijzin' }),
+    ]);
+    const splits = new Set([1, 2]);
+    const chunkLabels: PlacementMap = { t1: 'ow', t3: 'pv', t4: 'bijzin' };
+    const bijzinFunctieLabels: PlacementMap = { t4: 'bwb' };
+    const { result } = validateAnswer(sentence, splits, chunkLabels, {}, false, bijzinFunctieLabels);
+    expect(result.score).toBe(3);
+    expect(result.total).toBe(3);
+    expect(result.isPerfect).toBe(true);
+  });
+});
