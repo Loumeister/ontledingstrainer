@@ -424,17 +424,21 @@ export function useTrainer(): TrainerState {
       const finalCorrect = sessionStats.correct;
       const finalTotal = sessionStats.total;
       const pct = finalTotal > 0 ? Math.round((finalCorrect / finalTotal) * 100) : 0;
-      saveSessionToHistory({
-        date: new Date().toISOString(),
-        scorePercentage: pct,
-        correct: finalCorrect,
-        total: finalTotal,
-        mistakeStats: { ...mistakeStats },
-        sentenceCount: sessionQueue.length,
-      });
-      // Update role confidence scores for adaptive selection
-      const updatedConfidences = computeRoleConfidences();
-      saveRoleConfidences(updatedConfidences);
+      try {
+        saveSessionToHistory({
+          date: new Date().toISOString(),
+          scorePercentage: pct,
+          correct: finalCorrect,
+          total: finalTotal,
+          mistakeStats: { ...mistakeStats },
+          sentenceCount: sessionQueue.length,
+        });
+        // Update role confidence scores for adaptive selection
+        const updatedConfidences = computeRoleConfidences();
+        saveRoleConfidences(updatedConfidences);
+      } catch {
+        // Persistence failure must not prevent the score screen from showing
+      }
       setIsSessionFinished(true);
       setCurrentSentence(null);
       setSelectedRole(null);
