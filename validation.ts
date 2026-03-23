@@ -1,5 +1,5 @@
-import { ROLES, FEEDBACK_MATRIX, FEEDBACK_STRUCTURE, FEEDBACK_SWAP, FEEDBACK_BIJZIN_FUNCTIE } from './constants';
-import { Sentence, PlacementMap, RoleKey, Token, ValidationState } from './types';
+import { ROLES, FEEDBACK_MATRIX, FEEDBACK_STRUCTURE, FEEDBACK_SWAP, FEEDBACK_BIJZIN_FUNCTIE, HINTS } from './constants';
+import { Sentence, PlacementMap, RoleKey, Token, ValidationState, FeedbackEntry, RichFeedbackEntry } from './types';
 
 export interface ChunkData {
   tokens: Token[];
@@ -10,7 +10,7 @@ export interface ValidationResult {
   score: number;
   total: number;
   chunkStatus: Record<number, ValidationState>;
-  chunkFeedback: Record<number, string>;
+  chunkFeedback: Record<number, FeedbackEntry>;
   isPerfect: boolean;
   bijzinWarningChunks: number[]; // Chunk indices with bijzin function warnings
 }
@@ -112,7 +112,7 @@ export function validateAnswer(
 ): { result: ValidationResult; mistakes: Record<string, number> } {
   const userChunks = buildUserChunks(sentence.tokens, splitIndices);
   const chunkStatus: Record<number, ValidationState> = {};
-  const chunkFeedback: Record<number, string> = {};
+  const chunkFeedback: Record<number, FeedbackEntry> = {};
   let correctChunksCount = 0;
   const currentMistakes: Record<string, number> = {};
 
@@ -220,8 +220,10 @@ export function validateAnswer(
           if (FEEDBACK_MATRIX[userLabel] && FEEDBACK_MATRIX[userLabel][effectiveRole]) {
             chunkFeedback[idx] = FEEDBACK_MATRIX[userLabel][effectiveRole];
           } else {
-            const userRoleName = ROLES.find(r => r.key === userLabel)?.label || userLabel;
-            chunkFeedback[idx] = `Dit zinsdeel is niet het ${userRoleName}. Het juiste antwoord is: ${correctRoleName}.`;
+            // Use HINTS for the correct role as a non-revealing fallback
+            const hintKey = `MISSING_${effectiveRole.toUpperCase()}` as keyof typeof HINTS;
+            const hint = typeof HINTS[hintKey] === 'string' ? HINTS[hintKey] as string : null;
+            chunkFeedback[idx] = hint || HINTS.generic(correctRoleName);
           }
           currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
         }

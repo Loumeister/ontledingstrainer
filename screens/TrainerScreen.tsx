@@ -120,10 +120,10 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
     ? userChunks
         .map((chunk, idx) => ({
           chunkWords: chunk.tokens.map(t => t.text).join(' '),
-          message: validationResult.chunkFeedback[idx],
+          feedback: validationResult.chunkFeedback[idx],
           state: validationResult.chunkStatus[idx],
         }))
-        .filter((item): item is FeedbackItem => !!item.message)
+        .filter((item): item is FeedbackItem => !!item.feedback)
     : [];
 
   if (!currentSentence) return null;

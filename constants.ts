@@ -1,4 +1,4 @@
-import { RoleDefinition, DifficultyLevel, RoleKey } from './types';
+import { RoleDefinition, DifficultyLevel, RoleKey, FeedbackEntry } from './types';
 
 export const ROLES: RoleDefinition[] = [
   { 
