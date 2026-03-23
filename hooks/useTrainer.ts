@@ -814,6 +814,7 @@ export function useTrainer(): TrainerState {
 
   const handleCheck = () => {
     if (!currentSentence) return;
+    if (hasBeenScored) return;
     logInteraction('check', currentSentence.id);
 
     const { result: vResult, mistakes: currentMistakes } = validateAnswer(
