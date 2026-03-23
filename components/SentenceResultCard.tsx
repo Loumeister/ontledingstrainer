@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SentenceResult, ValidationState, FeedbackEntry, RichFeedbackEntry } from '../types';
+import { SentenceResult, ValidationState, RichFeedbackEntry } from '../types';
 import { ROLES } from '../constants';
 import { buildUserChunks } from '../validation';
 
