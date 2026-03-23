@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { loadUsageData, clearUsageData, exportUsageDataAsJson } from '../services/usageData';
-import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats, computePerUserStats } from '../services/interactionLog';
+import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats } from '../services/interactionLog';
 import { loadAllSentences } from '../data/sentenceLoader';
 import { getCustomSentences } from '../data/customSentenceStore';
 import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats, computeStudentStats, normaliseKlas, renameKlas, deleteReportByIndex } from '../services/sessionReport';
@@ -1023,49 +1023,6 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
             )}
           </div>
         )}
-
-        {/* Per-user activity from interaction log (local device data) */}
-        {(() => {
-          const interactionLog = loadInteractionLog();
-          const userStats = computePerUserStats(interactionLog);
-          if (userStats.length === 0) return null;
-          return (
-            <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
-              <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">👤 Activiteit per leerling (dit apparaat)</h3>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Op basis van het lokale interactielog van dit apparaat</p>
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="text-left text-slate-400 border-b border-slate-100 dark:border-slate-700">
-                      <th className="pb-1 pr-3 font-medium">Leerling</th>
-                      <th className="pb-1 pr-3 font-medium text-center">Sessies</th>
-                      <th className="pb-1 pr-3 font-medium text-center">Zinnen</th>
-                      <th className="pb-1 pr-3 font-medium text-center">Checks</th>
-                      <th className="pb-1 pr-3 font-medium text-center">Hints</th>
-                      <th className="pb-1 pr-3 font-medium text-center">Antw. bekeken</th>
-                      <th className="pb-1 pr-3 font-medium text-center">Fouten</th>
-                      <th className="pb-1 font-medium text-center">Laatst actief</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {userStats.map(us => (
-                      <tr key={us.userName} className="border-b border-slate-50 dark:border-slate-800">
-                        <td className="py-1.5 pr-3 font-medium text-blue-600 dark:text-blue-400">{us.userName}</td>
-                        <td className="py-1.5 pr-3 text-center text-slate-600 dark:text-slate-300">{us.sessions}</td>
-                        <td className="py-1.5 pr-3 text-center text-slate-600 dark:text-slate-300">{us.sentencesStarted}</td>
-                        <td className="py-1.5 pr-3 text-center text-slate-600 dark:text-slate-300">{us.checks}</td>
-                        <td className="py-1.5 pr-3 text-center text-amber-600 dark:text-amber-400">{us.hints}</td>
-                        <td className="py-1.5 pr-3 text-center text-amber-600 dark:text-amber-400">{us.showAnswers}</td>
-                        <td className="py-1.5 pr-3 text-center text-red-600 dark:text-red-400">{us.splitErrors + us.roleErrors}</td>
-                        <td className="py-1.5 text-center text-slate-400">{new Date(us.lastActive).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          );
-        })()}
 
         {/* Filters */}
         <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
