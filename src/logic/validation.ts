@@ -1,5 +1,5 @@
-import { ROLES, FEEDBACK_MATRIX, FEEDBACK_STRUCTURE, FEEDBACK_SWAP, FEEDBACK_BIJZIN_FUNCTIE, HINTS } from './constants';
-import { Sentence, PlacementMap, RoleKey, Token, ValidationState, FeedbackEntry } from './types';
+import { ROLES, FEEDBACK_MATRIX, FEEDBACK_STRUCTURE, FEEDBACK_SWAP, FEEDBACK_BIJZIN_FUNCTIE, HINTS } from '../constants';
+import { Sentence, PlacementMap, RoleKey, Token, ValidationState, FeedbackEntry } from '../types';
 
 export interface ChunkData {
   tokens: Token[];

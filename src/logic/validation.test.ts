@@ -7,7 +7,7 @@ import {
   getConsistentRole,
   validateAnswer,
 } from './validation';
-import type { Token, Sentence, PlacementMap } from './types';
+import type { Token, Sentence, PlacementMap } from '../types';
 
 // --- Helper factories ---
 
@@ -492,7 +492,7 @@ describe('validateAnswer – perfect score', () => {
 describe('sentence data integrity', () => {
   // We'll test the JSON data files directly
   it('level 1 sentences have valid structure', async () => {
-    const data = (await import('./data/sentences-level-1.json')).default as unknown as Sentence[];
+    const data = (await import('../data/sentences-level-1.json')).default as unknown as Sentence[];
     expect(data.length).toBeGreaterThan(0);
     for (const s of data) {
       expect(s.id).toBeTypeOf('number');
@@ -510,20 +510,20 @@ describe('sentence data integrity', () => {
   });
 
   it('all sentence IDs are unique across all levels', async () => {
-    const level1 = (await import('./data/sentences-level-1.json')).default as unknown as Sentence[];
-    const level2 = (await import('./data/sentences-level-2.json')).default as unknown as Sentence[];
-    const level3 = (await import('./data/sentences-level-3.json')).default as unknown as Sentence[];
-    const level4 = (await import('./data/sentences-level-4.json')).default as unknown as Sentence[];
+    const level1 = (await import('../data/sentences-level-1.json')).default as unknown as Sentence[];
+    const level2 = (await import('../data/sentences-level-2.json')).default as unknown as Sentence[];
+    const level3 = (await import('../data/sentences-level-3.json')).default as unknown as Sentence[];
+    const level4 = (await import('../data/sentences-level-4.json')).default as unknown as Sentence[];
     const allIds = [...level1, ...level2, ...level3, ...level4].map(s => s.id);
     const uniqueIds = new Set(allIds);
     expect(uniqueIds.size).toBe(allIds.length);
   });
 
   it('all token IDs are unique within each sentence', async () => {
-    const level1 = (await import('./data/sentences-level-1.json')).default as unknown as Sentence[];
-    const level2 = (await import('./data/sentences-level-2.json')).default as unknown as Sentence[];
-    const level3 = (await import('./data/sentences-level-3.json')).default as unknown as Sentence[];
-    const level4 = (await import('./data/sentences-level-4.json')).default as unknown as Sentence[];
+    const level1 = (await import('../data/sentences-level-1.json')).default as unknown as Sentence[];
+    const level2 = (await import('../data/sentences-level-2.json')).default as unknown as Sentence[];
+    const level3 = (await import('../data/sentences-level-3.json')).default as unknown as Sentence[];
+    const level4 = (await import('../data/sentences-level-4.json')).default as unknown as Sentence[];
     for (const s of [...level1, ...level2, ...level3, ...level4]) {
       const tokenIds = s.tokens.map(t => t.id);
       const uniqueTokenIds = new Set(tokenIds);
@@ -532,10 +532,10 @@ describe('sentence data integrity', () => {
   });
 
   it('every sentence has at least one PV token', async () => {
-    const level1 = (await import('./data/sentences-level-1.json')).default as unknown as Sentence[];
-    const level2 = (await import('./data/sentences-level-2.json')).default as unknown as Sentence[];
-    const level3 = (await import('./data/sentences-level-3.json')).default as unknown as Sentence[];
-    const level4 = (await import('./data/sentences-level-4.json')).default as unknown as Sentence[];
+    const level1 = (await import('../data/sentences-level-1.json')).default as unknown as Sentence[];
+    const level2 = (await import('../data/sentences-level-2.json')).default as unknown as Sentence[];
+    const level3 = (await import('../data/sentences-level-3.json')).default as unknown as Sentence[];
+    const level4 = (await import('../data/sentences-level-4.json')).default as unknown as Sentence[];
     for (const s of [...level1, ...level2, ...level3, ...level4]) {
       const hasPv = s.tokens.some(t => t.role === 'pv');
       expect(hasPv).toBe(true);

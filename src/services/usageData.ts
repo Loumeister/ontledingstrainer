@@ -1,4 +1,4 @@
-import { SentenceUsageData } from './types';
+import { SentenceUsageData } from '../types';
 
 const STORAGE_KEY = 'zinsontleding_usage_v1';
 

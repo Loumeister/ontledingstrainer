@@ -7,14 +7,14 @@ description: Inspecteer de zinsontledingstrainer-repo op labelset, annotatieform
 
 Voer deze stappen in volgorde uit.
 
-1. Lees `types.ts` en leg vast:
+1. Lees `src/types.ts` en leg vast:
    - alle `RoleKey` waarden
    - `Sentence`/`Token` structuur
    - velden die ambiguïteit toestaan (`alternativeRole`)
-2. Lees `constants.ts` en leg vast:
+2. Lees `src/constants.ts` en leg vast:
    - actuele `ROLES` inclusief sub-only rollen
    - hints/feedbackmatrices die beïnvloeden hoe fouten uitgelegd worden
-3. Lees minimaal één bronbestand uit `data/sentences-level-*.json` en controleer:
+3. Lees minimaal één bronbestand uit `src/data/sentences-level-*.json` en controleer:
    - token-per-woord annotatie
    - chunkgrenzen via `newChunk`
    - bijzinfunctie via `bijzinFunctie`

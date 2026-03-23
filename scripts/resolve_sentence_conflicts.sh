@@ -17,10 +17,10 @@ if [[ "$SIDE" != "ours" && "$SIDE" != "theirs" ]]; then
 fi
 
 FILES=(
-  data/sentences-level-1.json
-  data/sentences-level-2.json
-  data/sentences-level-3.json
-  data/sentences-level-4.json
+  src/data/sentences-level-1.json
+  src/data/sentences-level-2.json
+  src/data/sentences-level-3.json
+  src/data/sentences-level-4.json
 )
 
 for f in "${FILES[@]}"; do

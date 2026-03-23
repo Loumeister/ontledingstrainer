@@ -20,7 +20,7 @@ import re
 import sys
 from pathlib import Path
 
-DATA_DIR = Path(__file__).parent.parent / "data"
+DATA_DIR = Path(__file__).parent.parent / "src" / "data"
 
 
 def rename_token_ids(sentence: dict, old_id: int, new_id: int) -> dict:

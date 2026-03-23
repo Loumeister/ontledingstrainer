@@ -7,7 +7,7 @@ import {
   loadRoleConfidences,
   RoleConfidence,
 } from './adaptiveSelection';
-import type { Sentence, RoleKey, SentenceUsageData } from './types';
+import type { Sentence, RoleKey, SentenceUsageData } from '../types';
 
 // ---------------------------------------------------------------------------
 // Mock localStorage
@@ -26,17 +26,17 @@ vi.stubGlobal('localStorage', localStorageMock);
 // ---------------------------------------------------------------------------
 // Mock dependencies
 // ---------------------------------------------------------------------------
-vi.mock('./sessionHistory', () => ({
+vi.mock('../services/sessionHistory', () => ({
   loadSessionHistory: vi.fn(() => []),
 }));
 
-vi.mock('./usageData', () => ({
+vi.mock('../services/usageData', () => ({
   loadUsageData: vi.fn(() => ({})),
 }));
 
 // Access the mocks
-import { loadSessionHistory } from './sessionHistory';
-import { loadUsageData } from './usageData';
+import { loadSessionHistory } from '../services/sessionHistory';
+import { loadUsageData } from '../services/usageData';
 
 const mockLoadSessionHistory = loadSessionHistory as ReturnType<typeof vi.fn>;
 const mockLoadUsageData = loadUsageData as ReturnType<typeof vi.fn>;

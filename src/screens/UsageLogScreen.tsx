@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { loadUsageData, clearUsageData, exportUsageDataAsJson } from '../usageData';
-import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats, computePerUserStats } from '../interactionLog';
+import { loadUsageData, clearUsageData, exportUsageDataAsJson } from '../services/usageData';
+import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats, computePerUserStats } from '../services/interactionLog';
 import { loadAllSentences } from '../data/sentenceLoader';
 import { getCustomSentences } from '../data/customSentenceStore';
-import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats, computeStudentStats, normaliseKlas } from '../sessionReport';
-import type { SessionReport, JaarlaagStats } from '../sessionReport';
-import { fetchReports as fetchReportsFromDrive, getScriptUrl, setScriptUrl, getApiKey, setApiKey, isConfigFromEnv } from '../googleDriveSync';
-import type { DriveRow } from '../googleDriveSync';
+import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats, computeStudentStats, normaliseKlas } from '../services/sessionReport';
+import type { SessionReport, JaarlaagStats } from '../services/sessionReport';
+import { fetchReports as fetchReportsFromDrive, getScriptUrl, setScriptUrl, getApiKey, setApiKey, isConfigFromEnv } from '../services/googleDriveSync';
+import type { DriveRow } from '../services/googleDriveSync';
 import type { SentenceUsageData } from '../types';
 
 // Score colours — twee varianten (advies: Grammar Coach)

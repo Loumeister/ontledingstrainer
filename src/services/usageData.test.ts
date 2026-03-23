@@ -8,7 +8,7 @@ import {
   updateTeacherData,
   clearUsageData,
 } from './usageData';
-import type { SentenceUsageData } from './types';
+import type { SentenceUsageData } from '../types';
 
 // Mock localStorage
 const store: Record<string, string> = {};

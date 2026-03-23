@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { SentenceResult, ValidationState, RichFeedbackEntry } from '../types';
 import { ROLES } from '../constants';
-import { buildUserChunks } from '../validation';
+import { buildUserChunks } from '../logic/validation';
 
 interface SentenceResultCardProps {
   result: SentenceResult;
