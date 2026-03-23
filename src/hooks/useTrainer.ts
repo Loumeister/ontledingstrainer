@@ -3,14 +3,14 @@ import { HINTS, ROLES } from '../constants';
 import { Sentence, PlacementMap, RoleKey, DifficultyLevel, SentenceResult } from '../types';
 import { useSentences } from './useSentences';
 import { getCustomSentences } from '../data/customSentenceStore';
-import { recordAttempt, recordShowAnswer } from '../usageData';
-import { logInteraction } from '../interactionLog';
-import { saveSessionToHistory } from '../sessionHistory';
+import { recordAttempt, recordShowAnswer } from '../services/usageData';
+import { logInteraction } from '../services/interactionLog';
+import { saveSessionToHistory } from '../services/sessionHistory';
 import {
   computeRoleConfidences,
   saveRoleConfidences,
   selectAdaptiveQueue,
-} from '../adaptiveSelection';
+} from '../logic/adaptiveSelection';
 import {
   buildUserChunks,
   countRealChunks,
@@ -18,7 +18,7 @@ import {
   validateAnswer,
   ChunkData,
   ValidationResult,
-} from '../validation';
+} from '../logic/validation';
 
 export type { ChunkData, ValidationResult };
 export type AppStep = 'split' | 'label';

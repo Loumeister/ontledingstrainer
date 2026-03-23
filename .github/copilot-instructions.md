@@ -15,16 +15,15 @@ This is a React 18 + TypeScript educational web app (Zinsontledingstrainer) that
 - Deploy: `npm run deploy` (GitHub Pages)
 
 ## Repository Structure
-- `App.tsx` — Thin shell: hash-based routing between screens
-- `hooks/` — Custom React hooks (`useTrainer.ts` is the core state manager)
-- `screens/` — Full-page screen components (Home, Trainer, Score, Editor, UsageLog)
-- `components/` — Reusable UI components (DropZone, WordChip, HelpModal, etc.)
-- `data/` — Sentence JSON files (`sentences-level-{1-4}.json`) and loaders
-- `constants.ts` — Role definitions, feedback matrix, score tips
-- `types.ts` — All TypeScript interfaces and type aliases
-- `validation.ts` — Core parsing validation logic
-- `interactionLog.ts` — Analytics event tracking
-- `usageData.ts` — localStorage persistence for usage statistics
+- `src/App.tsx` — Thin shell: hash-based routing between screens
+- `src/hooks/` — Custom React hooks (`useTrainer.ts` is the core state manager)
+- `src/screens/` — Full-page screen components (Home, Trainer, Score, Editor, UsageLog)
+- `src/components/` — Reusable UI components (DropZone, WordChip, HelpModal, etc.)
+- `src/data/` — Sentence JSON files (`sentences-level-{1-4}.json`) and loaders
+- `src/logic/` — Pure business logic (validation, adaptive selection)
+- `src/services/` — Persistence and external integrations (sessionHistory, usageData, etc.)
+- `src/constants.ts` — Role definitions, feedback matrix, score tips
+- `src/types.ts` — All TypeScript interfaces and type aliases
 - `public/` — Static assets
 
 ## Key Concepts
@@ -38,10 +37,10 @@ This is a React 18 + TypeScript educational web app (Zinsontledingstrainer) that
 1. Follow React best practices — functional components, hooks only, no class components
 2. Use Tailwind CSS for all styling — always include `dark:` variants for dark mode support
 3. Use native HTML5 drag-and-drop API (`dataTransfer.setData/getData`) — no external DnD library
-4. All state lives in `hooks/useTrainer.ts` — no external state management libraries
-5. Write unit tests with Vitest for new logic in `validation.ts`, `usageData.ts`, `interactionLog.ts`
+4. All state lives in `src/hooks/useTrainer.ts` — no external state management libraries
+5. Write unit tests with Vitest for new logic in `src/logic/` and `src/services/`
 6. All user-facing text must be in Dutch
 7. Component files use PascalCase, hook files use camelCase with `use` prefix
-8. Sentence data lives in `data/sentences-level-{1-4}.json` — see `README.md` for the `newChunk` flag rules
+8. Sentence data lives in `src/data/sentences-level-{1-4}.json` — see `README.md` for the `newChunk` flag rules
 9. Keep the app accessible: support keyboard navigation and screen readers where possible
 10. Consult `SPEC.md` for the full multi-module specification and `TODO.md` for the prioritized roadmap

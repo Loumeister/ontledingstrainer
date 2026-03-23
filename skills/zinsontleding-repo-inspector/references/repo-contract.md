@@ -2,7 +2,7 @@
 
 ## Label inventory
 
-Bronnen: `types.ts`, `constants.ts`.
+Bronnen: `src/types.ts`, `src/constants.ts`.
 
 - Hoofdrollen in data: `pv`, `ow`, `lv`, `mv`, `bwb`, `vv`, `wg`, `nwd`, `bijst`, `bijzin`, `vw_neven`, `vw_onder`.
 - Extra type-union in code: `ng` bestaat in `RoleKey`, maar staat niet als aparte rol in `ROLES`.
@@ -10,7 +10,7 @@ Bronnen: `types.ts`, `constants.ts`.
 
 ## Annotation model
 
-Bronnen: `types.ts`, `data/sentences-level-1.json`.
+Bronnen: `src/types.ts`, `src/data/sentences-level-1.json`.
 
 - Niveau: token-per-woord annotatie.
 - Kernvelden per token: `id`, `text`, `role`.
@@ -20,7 +20,7 @@ Bronnen: `types.ts`, `data/sentences-level-1.json`.
 
 ## Supported phenomena
 
-Bronnen: `constants.ts`, dataset.
+Bronnen: `src/constants.ts`, dataset.
 
 - Redekundige kern: persoonsvorm, onderwerp, voorwerpen, bepalingen.
 - Gezegde: werkwoordelijk (`wg`) en naamwoordelijk deel (`nwd`), zinstype via `predicateType: WG|NG`.
@@ -29,7 +29,7 @@ Bronnen: `constants.ts`, dataset.
 
 ## Feedback hooks
 
-Bron: `constants.ts`.
+Bron: `src/constants.ts`.
 
 - Foutuitleg per verwisseling via `FEEDBACK_MATRIX`.
 - Structuurfeedback bij foutief knippen via `FEEDBACK_STRUCTURE`.

@@ -27,38 +27,45 @@ Zinsontledingstrainer - An interactive browser-based app that teaches Dutch sent
 ## Architecture
 
 ```
-App.tsx (~143 lines)           → Thin router shell (hash-based routing)
-hooks/
-  useTrainer.ts (~825 lines)   → Core state management (23 useState, all business logic)
-  useSentences.ts              → Async sentence loading with cache
-screens/
-  HomeScreen.tsx (~250 lines)  → Configuration & session start UI
-  TrainerScreen.tsx (~432 lines) → Active two-step parsing exercise
-  ScoreScreen.tsx (~372 lines) → Session results, badges, progress chart
-  SentenceEditorScreen.tsx     → PIN-protected teacher editor (PIN: 1234)
-  UsageLogScreen.tsx           → Teacher analytics (dual PIN: 1234/4321)
-components/ (9 files, ~1675 lines total)
-  WordChip.tsx                 → Draggable role tag component
-  DropZone.tsx                 → SentenceChunk drop target with validation
-  HelpModal.tsx                → Instructions overlay
-  ConfirmationModal.tsx        → Reusable confirmation dialog
-  ScoreRing.tsx                → Animated SVG score circle
-  SentenceResultCard.tsx       → Individual sentence result display
-  ProgressChart.tsx            → SVG line chart of session history
-  ZinsdeelHelpModal.tsx        → Role-specific help with definitions
-  EditorView.tsx               → Teacher analytics dashboard
-data/
-  sentences-level-{1-4}.json   → Sentence data files (26/74/~30/~15 sentences)
-  sentences-review.json        → Review sentences
-  sentenceLoader.ts            → Dynamic import with caching + preload
-  customSentenceStore.ts       → localStorage custom sentence management
-validation.ts (~313 lines)     → Core validation engine (100% test coverage)
-constants.ts (~291 lines)      → Roles, FEEDBACK_MATRIX, hints, score tips
-types.ts (~74 lines)           → All TypeScript interfaces
-usageData.ts                   → Sentence usage tracking (localStorage)
-interactionLog.ts              → User interaction event logging
-sessionReport.ts               → Session report encode/decode
-sessionHistory.ts              → Session persistence
+src/
+  App.tsx (~143 lines)           → Thin router shell (hash-based routing)
+  types.ts (~74 lines)           → All TypeScript interfaces
+  constants.ts (~291 lines)      → Roles, FEEDBACK_MATRIX, hints, score tips
+  hooks/
+    useTrainer.ts (~825 lines)   → Core state management (23 useState, all business logic)
+    useSentences.ts              → Async sentence loading with cache
+  screens/
+    HomeScreen.tsx (~250 lines)  → Configuration & session start UI
+    TrainerScreen.tsx (~432 lines) → Active two-step parsing exercise
+    ScoreScreen.tsx (~372 lines) → Session results, badges, progress chart
+    SentenceEditorScreen.tsx     → PIN-protected teacher editor (PIN: 1234)
+    UsageLogScreen.tsx           → Teacher analytics (dual PIN: 1234/4321)
+  components/ (10 files, ~1675 lines total)
+    WordChip.tsx                 → Draggable role tag component
+    DropZone.tsx                 → SentenceChunk drop target with validation
+    HelpModal.tsx                → Instructions overlay
+    ConfirmationModal.tsx        → Reusable confirmation dialog
+    ScoreRing.tsx                → Animated SVG score circle
+    SentenceResultCard.tsx       → Individual sentence result display
+    ProgressChart.tsx            → SVG line chart of session history
+    ZinsdeelHelpModal.tsx        → Role-specific help with definitions
+    EditorView.tsx               → Teacher analytics dashboard
+    FeedbackPanel.tsx            → Structured feedback display
+  data/
+    sentences-level-{1-4}.json   → Sentence data files
+    sentences-review.json        → Review sentences
+    sentenceLoader.ts            → Dynamic import with caching + preload
+    customSentenceStore.ts       → localStorage custom sentence management
+  logic/                         → Pure business logic (no side effects)
+    validation.ts (~313 lines)   → Core validation engine (100% test coverage)
+    adaptiveSelection.ts         → Adaptive sentence selection algorithm
+  services/                      → Persistence & external integrations
+    sessionHistory.ts            → Session persistence (localStorage)
+    sessionReport.ts             → Session report encode/decode
+    usageData.ts                 → Sentence usage tracking (localStorage)
+    interactionLog.ts            → User interaction event logging
+    rolemastery.ts               → Role mastery tracking
+    googleDriveSync.ts           → Google Drive report sync
 ```
 
 ## Key Concepts
@@ -84,7 +91,7 @@ sessionHistory.ts              → Session persistence
 
 ## State Management
 
-All application state lives in `hooks/useTrainer.ts`. The hook returns a `TrainerState` object that is passed to screen components. State categories:
+All application state lives in `src/hooks/useTrainer.ts`. The hook returns a `TrainerState` object that is passed to screen components. State categories:
 
 1. **Config state**: difficulty level, predicate mode, focus filters, complexity filters
 2. **Session state**: queue, index, stats, mistake tracking
@@ -98,7 +105,7 @@ All application state lives in `hooks/useTrainer.ts`. The hook returns a `Traine
 
 ## Adding Sentences
 
-Sentences live in `data/sentences-level-{1-4}.json`. Each sentence needs:
+Sentences live in `src/data/sentences-level-{1-4}.json`. Each sentence needs:
 - Unique `id` (number) and human-readable `label`
 - `predicateType`: `'WG'` or `'NG'`
 - `level`: 1 (Basis), 2 (Middel), 3 (Hoog), 4 (Samengesteld)
@@ -110,11 +117,11 @@ See README.md for detailed rules (especially the `newChunk` flag).
 
 | Module | Coverage | Notes |
 |--------|----------|-------|
-| `validation.ts` | ✅ 100% | 47 tests, factory helpers available |
-| `usageData.ts` | ✅ Good | 13 tests, mocked localStorage |
-| `interactionLog.ts` | ✅ Good | 17 tests |
-| `sessionReport.ts` | ✅ Good | 16 tests |
-| `useTrainer.ts` | ❌ 0% | Complex state logic untested |
+| `src/logic/validation.ts` | ✅ 100% | 47 tests, factory helpers available |
+| `src/services/usageData.ts` | ✅ Good | 13 tests, mocked localStorage |
+| `src/services/interactionLog.ts` | ✅ Good | 17 tests |
+| `src/services/sessionReport.ts` | ✅ Good | 16 tests |
+| `src/hooks/useTrainer.ts` | ❌ 0% | Complex state logic untested |
 | Screens & Components | ❌ 0% | No DOM/component tests yet |
 
 ## Planning Documents

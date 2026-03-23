@@ -1,5 +1,5 @@
 ---
-applyTo: "data/sentences-level-*.json,data/**/*.json"
+applyTo: "src/data/sentences-level-*.json,src/data/**/*.json"
 ---
 
 ## Sentence Data Guidelines

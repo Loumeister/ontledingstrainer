@@ -1,4 +1,4 @@
-import { SessionHistoryEntry } from './types';
+import { SessionHistoryEntry } from '../types';
 
 const STORAGE_KEY = 'zinsontleding_session_history_v1';
 const MAX_ENTRIES = 20;

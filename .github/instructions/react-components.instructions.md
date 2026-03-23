@@ -1,5 +1,5 @@
 ---
-applyTo: "components/**/*.tsx,screens/**/*.tsx,App.tsx"
+applyTo: "src/components/**/*.tsx,src/screens/**/*.tsx,src/App.tsx"
 ---
 
 ## React Component Guidelines

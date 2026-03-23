@@ -7,7 +7,7 @@ import {
   updateTeacherData,
   clearUsageData,
   exportUsageDataAsJson,
-} from '../usageData';
+} from '../services/usageData';
 import {
   getCustomSentences,
   deleteCustomSentence,

@@ -7,10 +7,10 @@
  * deterministic ("in enige mate, maar niet volledig adaptief").
  */
 
-import { Sentence, RoleKey, SentenceUsageData } from './types';
-import { loadSessionHistory } from './sessionHistory';
-import { loadUsageData } from './usageData';
-import { ROLES } from './constants';
+import { Sentence, RoleKey, SentenceUsageData } from '../types';
+import { loadSessionHistory } from '../services/sessionHistory';
+import { loadUsageData } from '../services/usageData';
+import { ROLES } from '../constants';
 
 // ---------------------------------------------------------------------------
 // Types

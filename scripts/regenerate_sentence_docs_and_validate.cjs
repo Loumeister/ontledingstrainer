@@ -19,7 +19,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
+const DATA_DIR = path.join(__dirname, '..', 'src', 'data');
 const files = [1, 2, 3, 4].map((n) => ({
   level: n,
   path: path.join(DATA_DIR, `sentences-level-${n}.json`),

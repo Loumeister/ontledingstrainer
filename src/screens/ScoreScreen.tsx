@@ -10,11 +10,11 @@ import {
   getPersonalRecord, updatePersonalRecord,
   getConsistencyStreak,
   getPerfectSessionCount, incrementPerfectSessionCount,
-} from '../sessionHistory';
-import { updateRoleMastery, RoleMasteryStore } from '../rolemastery';
-import { computeRoleConfidences } from '../adaptiveSelection';
-import { buildReport, encodeReport } from '../sessionReport';
-import { postReport, getScriptUrl } from '../googleDriveSync';
+} from '../services/sessionHistory';
+import { updateRoleMastery, RoleMasteryStore } from '../services/rolemastery';
+import { computeRoleConfidences } from '../logic/adaptiveSelection';
+import { buildReport, encodeReport } from '../services/sessionReport';
+import { postReport, getScriptUrl } from '../services/googleDriveSync';
 
 type ScoreScreenProps = Pick<TrainerState,
   | 'sessionStats'
