@@ -88,6 +88,31 @@ export function clearReports(): void {
   localStorage.removeItem(STORAGE_KEY);
 }
 
+/** Delete a single report by its index in the stored array. */
+export function deleteReportByIndex(index: number): void {
+  const reports = loadReports();
+  if (index >= 0 && index < reports.length) {
+    reports.splice(index, 1);
+    saveReports(reports);
+  }
+}
+
+/** Rename a class across all stored reports (local only — Drive data is not affected). */
+export function renameKlas(oldKlas: string, newKlas: string): void {
+  const reports = loadReports();
+  const normOld = normaliseKlas(oldKlas);
+  const normNew = normaliseKlas(newKlas);
+  if (!normNew || normOld === normNew) return;
+  let changed = false;
+  for (const r of reports) {
+    if (normaliseKlas(r.klas ?? '') === normOld) {
+      r.klas = normNew;
+      changed = true;
+    }
+  }
+  if (changed) saveReports(reports);
+}
+
 // --- Build a report from session data ---
 
 export function buildReport(

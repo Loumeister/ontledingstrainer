@@ -3,7 +3,7 @@ import { loadUsageData, clearUsageData, exportUsageDataAsJson } from '../service
 import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats, computePerUserStats } from '../services/interactionLog';
 import { loadAllSentences } from '../data/sentenceLoader';
 import { getCustomSentences } from '../data/customSentenceStore';
-import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats, computeStudentStats, normaliseKlas } from '../services/sessionReport';
+import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats, computeStudentStats, normaliseKlas, renameKlas, deleteReportByIndex } from '../services/sessionReport';
 import type { SessionReport, JaarlaagStats } from '../services/sessionReport';
 import { fetchReports as fetchReportsFromDrive, getScriptUrl, setScriptUrl, getApiKey, setApiKey, isConfigFromEnv } from '../services/googleDriveSync';
 import type { DriveRow } from '../services/googleDriveSync';
@@ -102,6 +102,10 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   const [filterTimeFrom, setFilterTimeFrom] = useState('');
   const [filterTimeTo, setFilterTimeTo] = useState('');
 
+  // Editable class name state
+  const [editingKlas, setEditingKlas] = useState<string | null>(null);
+  const [editingKlasValue, setEditingKlasValue] = useState('');
+
   // Sort state for the per-student table
   type StudentSortField = 'name' | 'sessions' | 'avg' | 'best' | 'latest';
   const [studentSortField, setStudentSortField] = useState<StudentSortField>('name');
@@ -192,6 +196,28 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     const name = decoded.name || 'Anoniem';
     setReportMsg({ text: `✓ Rapport van ${name} toegevoegd (${decoded.c}/${decoded.t} goed)`, ok: true });
     setReportInput('');
+  };
+
+  const handleRefreshData = () => {
+    setReports(loadReports());
+    // driveReports stay in memory – re-trigger enrichment by updating reports
+  };
+
+  const handleRenameKlas = (oldKlas: string) => {
+    const newKlas = editingKlasValue.trim().toLowerCase();
+    if (newKlas && newKlas !== oldKlas) {
+      renameKlas(oldKlas, newKlas);
+      setReports(loadReports());
+    }
+    setEditingKlas(null);
+    setEditingKlasValue('');
+  };
+
+  const handleDeleteReport = (index: number) => {
+    if (confirm('Dit rapport verwijderen? Dit kan niet ongedaan worden.')) {
+      deleteReportByIndex(index);
+      setReports(loadReports());
+    }
   };
 
   const handleClearReports = () => {
@@ -393,6 +419,9 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
               </p>
             </div>
             <div className="flex gap-2 flex-wrap">
+              <button onClick={handleRefreshData} className="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+                🔄 Vernieuw
+              </button>
               <button onClick={() => exportUsageDataAsJson(usageStore)} className="px-3 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors">
                 ⬇ Download gegevens
               </button>
@@ -487,56 +516,52 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Second insights row */}
+        {/* Second insights row — only shown when there's data */}
+        {(gaveUpSentences.length > 0 || easySentences.length > 0) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Gave-up sentences */}
+          {gaveUpSentences.length > 0 && (
           <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
             <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">🏳️ Opgegeven zinnen</h3>
             <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Zinnen waar leerlingen het antwoord meteen bekeken hebben</p>
-            {gaveUpSentences.length === 0 ? (
-              <p className="text-slate-400 text-sm italic">Leerlingen proberen het zelf — prima!</p>
-            ) : (
-              <div className="space-y-2">
-                {gaveUpSentences.map(d => (
-                  <div key={d.sentenceId} className="flex items-center gap-2 p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/40">
-                    <span className="text-base">👀</span>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-200 block truncate">{d.label}</span>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                        {d.usage.showAnswerCount}× antwoord bekeken
-                      </span>
-                    </div>
+            <div className="space-y-2">
+              {gaveUpSentences.map(d => (
+                <div key={d.sentenceId} className="flex items-center gap-2 p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/40">
+                  <span className="text-base">👀</span>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200 block truncate">{d.label}</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                      {d.usage.showAnswerCount}× antwoord bekeken
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              ))}
+            </div>
           </div>
+          )}
 
           {/* Easy sentences */}
+          {easySentences.length > 0 && (
           <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
             <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">✅ Goed begrepen zinnen</h3>
             <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Zinnen die leerlingen goed beheersen</p>
-            {easySentences.length === 0 ? (
-              <p className="text-slate-400 text-sm italic">
-                {totalAttempts < 10 ? 'Nog niet genoeg data.' : 'Nog geen zinnen consequent goed gemaakt.'}
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {easySentences.map(d => (
-                  <div key={d.sentenceId} className="flex items-center gap-2 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/40">
-                    <span className="text-base">🟢</span>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-200 block truncate">{d.label}</span>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                        {d.perfectRate.toFixed(0)}% goed bij {d.usage.attempts} pogingen
-                      </span>
-                    </div>
+            <div className="space-y-2">
+              {easySentences.map(d => (
+                <div key={d.sentenceId} className="flex items-center gap-2 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/40">
+                  <span className="text-base">🟢</span>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200 block truncate">{d.label}</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                      {d.perfectRate.toFixed(0)}% goed bij {d.usage.attempts} pogingen
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              ))}
+            </div>
           </div>
+          )}
         </div>
+        )}
 
         {/* Third insights row: level distribution + split vs label */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -776,7 +801,31 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                           className="border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors"
                           onClick={() => setFilterKlas(ks.klas)}
                         >
-                          <td className="py-1 pr-3 font-medium text-blue-600 dark:text-blue-400">{ks.klas}</td>
+                          <td className="py-1 pr-3 font-medium text-blue-600 dark:text-blue-400">
+                            {editingKlas === ks.klas ? (
+                              <span className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                                <input
+                                  type="text"
+                                  value={editingKlasValue}
+                                  onChange={e => setEditingKlasValue(e.target.value)}
+                                  onKeyDown={e => { if (e.key === 'Enter') handleRenameKlas(ks.klas); if (e.key === 'Escape') setEditingKlas(null); }}
+                                  className="w-20 px-1 py-0.5 text-xs rounded border border-blue-300 dark:border-blue-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 outline-none"
+                                  autoFocus
+                                />
+                                <button onClick={() => handleRenameKlas(ks.klas)} className="text-emerald-600 hover:text-emerald-700 text-xs" title="Opslaan">✓</button>
+                                <button onClick={() => setEditingKlas(null)} className="text-slate-400 hover:text-slate-600 text-xs" title="Annuleren">✕</button>
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1">
+                                {ks.klas}
+                                <button
+                                  onClick={e => { e.stopPropagation(); setEditingKlas(ks.klas); setEditingKlasValue(ks.klas); }}
+                                  className="text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 text-[10px]"
+                                  title="Klasnaam wijzigen"
+                                >✎</button>
+                              </span>
+                            )}
+                          </td>
                           <td className="py-1 pr-3 text-center text-slate-600 dark:text-slate-300">{ks.reportCount}</td>
                           <td className="py-1 pr-3 text-center text-slate-600 dark:text-slate-300">{ks.uniqueStudents}</td>
                           <td className="py-1 text-center">
@@ -789,7 +838,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                     </tbody>
                   </table>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-1">Klik op een klas om te filteren.</p>
+                <p className="text-[10px] text-slate-400 mt-1">Klik op een klas om te filteren. Klik ✎ om een klasnaam te wijzigen (alleen lokaal).</p>
               </div>
             )}
 
@@ -866,6 +915,76 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                     </table>
                   </div>
                   <p className="text-[10px] text-slate-400 mt-1">Klik op een leerling om in te zoomen.</p>
+                </div>
+              );
+            })()}
+
+            {/* Student detail drill-down — individual reports */}
+            {filterStudent && (() => {
+              const sentenceMap = new Map(enrichedData.map(e => [e.sentenceId, e.label]));
+              const studentReports = allReports
+                .map((r, idx) => ({ report: r, originalIndex: idx < reports.length ? idx : -1 }))
+                .filter(({ report: r }) => r.name.toLowerCase() === filterStudent.toLowerCase())
+                .sort((a, b) => b.report.ts.localeCompare(a.report.ts));
+
+              if (studentReports.length === 0) return null;
+
+              return (
+                <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
+                  <span className="text-xs text-slate-400 block mb-2">
+                    Sessies van <strong className="text-slate-600 dark:text-slate-300 capitalize">{filterStudent}</strong>:
+                  </span>
+                  <div className="space-y-3">
+                    {studentReports.map(({ report: r, originalIndex }, i) => {
+                      const pct = r.t > 0 ? Math.round((r.c / r.t) * 100) : 0;
+                      const errEntries = Object.entries(r.err || {}).sort((a, b) => b[1] - a[1]);
+                      return (
+                        <div key={i} className="p-3 rounded-lg bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-slate-400">
+                                {new Date(r.ts).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                {' '}
+                                {new Date(r.ts).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                              {r.lvl && <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 font-medium">Niv. {r.lvl}</span>}
+                              <span className={`text-xs font-bold ${scoreColorAggregate(pct)}`}>{pct}%</span>
+                              <span className="text-[10px] text-slate-400">({r.c}/{r.t} goed)</span>
+                            </div>
+                            {originalIndex >= 0 && (
+                              <button
+                                onClick={() => handleDeleteReport(originalIndex)}
+                                className="text-xs text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
+                                title="Verwijder dit rapport"
+                              >🗑</button>
+                            )}
+                          </div>
+                          {errEntries.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-2">
+                              <span className="text-[10px] text-slate-400">Fouten:</span>
+                              {errEntries.map(([role, count]) => (
+                                <span key={role} className="text-[10px] px-1.5 py-0.5 rounded bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 font-medium">
+                                  {role} ({count}×)
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {r.sids && r.sids.length > 0 && (
+                            <div>
+                              <span className="text-[10px] text-slate-400 block mb-1">Zinnen ({r.sids.length}):</span>
+                              <div className="flex flex-wrap gap-1">
+                                {r.sids.map(sid => (
+                                  <span key={sid} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-600/50 text-slate-600 dark:text-slate-300" title={sentenceMap.get(sid) || `Zin ${sid}`}>
+                                    {sentenceMap.get(sid)?.replace(/^Zin \d+:\s*/, '') || `#${sid}`}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               );
             })()}
@@ -1122,72 +1241,75 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
           );
         })()}
 
-        {/* Drive fetch + import student reports — at the bottom */}
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
-          <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">📥 Leerlingrapporten ophalen</h3>
-
-          {/* Fetch from Drive */}
-          <div className="mb-4">
-            <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Haal alle ingestuurde resultaten op uit Google Drive</p>
-            <button
-              onClick={handleFetchFromDrive}
-              disabled={driveStatus === 'fetching' || !getScriptUrl()}
-              className="w-full py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {driveStatus === 'fetching' ? 'Ophalen…' : `📡 Haal resultaten op uit Drive${driveReports.length > 0 ? ` (${driveReports.length} geladen)` : ''}`}
-            </button>
-            {driveStatus === 'success' && (
-              <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-                ✓ {driveReports.length} rapport{driveReports.length !== 1 ? 'en' : ''} opgehaald
-              </p>
-            )}
-            {driveStatus === 'error' && (
-              <p className="text-xs text-red-600 dark:text-red-400 mt-1">{driveError}</p>
-            )}
-            {!getScriptUrl() && (
-              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                Drive-koppeling niet ingesteld. Configureer de Apps Script URL hieronder (eigenaar-PIN vereist).
-              </p>
-            )}
-          </div>
-
-          {/* Manual fallback import */}
-          <details className="border-t border-slate-100 dark:border-slate-700 pt-3">
-            <summary className="text-xs text-slate-400 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300">
-              Handmatig rapportcode plakken (reserve / offline)
-            </summary>
-            <div className="space-y-2 mt-2">
-              <textarea
-                value={reportInput}
-                onChange={e => { setReportInput(e.target.value); setReportMsg(null); }}
-                placeholder="Plak rapportcode hier (begint met v1:)..."
-                className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:border-blue-500 outline-none resize-none h-16"
-              />
-              <button
-                onClick={handleImportReport}
-                disabled={!reportInput.trim()}
-                className="w-full py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Importeer rapport
-              </button>
-              {reportMsg && (
-                <p className={`text-xs font-medium ${reportMsg.ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {reportMsg.text}
-                </p>
-              )}
-            </div>
-          </details>
-
-          {allReports.length > 0 && (
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
-              Totaal: {allReports.length} rapport{allReports.length !== 1 ? 'en' : ''} van {computeAggregateStats(allReports).uniqueStudents} leerling{computeAggregateStats(allReports).uniqueStudents !== 1 ? 'en' : ''}
-            </p>
-          )}
-        </div>
-
         {/* Eigenaar-only sections — requires eigenaar PIN */}
         {isEigenaar && (
           <>
+            {/* Drive fetch + import student reports */}
+            <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+              <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">
+                📥 Leerlingrapporten ophalen
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300 font-medium ml-1">eigenaar</span>
+              </h3>
+
+              {/* Fetch from Drive */}
+              <div className="mb-4">
+                <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Haal alle ingestuurde resultaten op uit Google Drive</p>
+                <button
+                  onClick={handleFetchFromDrive}
+                  disabled={driveStatus === 'fetching' || !getScriptUrl()}
+                  className="w-full py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {driveStatus === 'fetching' ? 'Ophalen…' : `📡 Haal resultaten op uit Drive${driveReports.length > 0 ? ` (${driveReports.length} geladen)` : ''}`}
+                </button>
+                {driveStatus === 'success' && (
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
+                    ✓ {driveReports.length} rapport{driveReports.length !== 1 ? 'en' : ''} opgehaald
+                  </p>
+                )}
+                {driveStatus === 'error' && (
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">{driveError}</p>
+                )}
+                {!getScriptUrl() && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                    Drive-koppeling niet ingesteld. Configureer de Apps Script URL hieronder.
+                  </p>
+                )}
+              </div>
+
+              {/* Manual fallback import */}
+              <details className="border-t border-slate-100 dark:border-slate-700 pt-3">
+                <summary className="text-xs text-slate-400 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300">
+                  Handmatig rapportcode plakken (reserve / offline)
+                </summary>
+                <div className="space-y-2 mt-2">
+                  <textarea
+                    value={reportInput}
+                    onChange={e => { setReportInput(e.target.value); setReportMsg(null); }}
+                    placeholder="Plak rapportcode hier (begint met v1:)..."
+                    className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:border-blue-500 outline-none resize-none h-16"
+                  />
+                  <button
+                    onClick={handleImportReport}
+                    disabled={!reportInput.trim()}
+                    className="w-full py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Importeer rapport
+                  </button>
+                  {reportMsg && (
+                    <p className={`text-xs font-medium ${reportMsg.ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                      {reportMsg.text}
+                    </p>
+                  )}
+                </div>
+              </details>
+
+              {allReports.length > 0 && (
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
+                  Totaal: {allReports.length} rapport{allReports.length !== 1 ? 'en' : ''} van {computeAggregateStats(allReports).uniqueStudents} leerling{computeAggregateStats(allReports).uniqueStudents !== 1 ? 'en' : ''}
+                </p>
+              )}
+            </div>
+
             {/* Drive Settings */}
             <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
               <h3 className="font-bold text-slate-700 dark:text-white text-sm mb-3">
