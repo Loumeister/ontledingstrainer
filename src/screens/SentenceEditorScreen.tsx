@@ -499,7 +499,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
                 >
                   Alle niveaus
                 </button>
-                {([1, 2, 3, 4] as DifficultyLevel[]).map(lvl => (
+                {([0, 1, 2, 3, 4] as DifficultyLevel[]).map(lvl => (
                   <button
                     key={lvl}
                     onClick={() => setLevelFilter(lvl)}
@@ -745,9 +745,9 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
           <div>
             <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Moeilijkheidsgraad</label>
             <div className="flex gap-2">
-              {([1, 2, 3, 4] as DifficultyLevel[]).map(lvl => (
+              {([0, 1, 2, 3, 4] as DifficultyLevel[]).map(lvl => (
                 <button key={lvl} onClick={() => setLevel(lvl)} className={`flex-1 py-2 text-sm font-bold rounded-lg border-2 transition-all ${level === lvl ? 'bg-blue-600 text-white border-blue-600' : 'border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'}`}>
-                  {lvl === 1 ? 'Basis' : lvl === 2 ? 'Middel' : lvl === 3 ? 'Hoog' : 'Sameng.'}
+                  {lvl === 0 ? 'Instap' : lvl === 1 ? 'Basis' : lvl === 2 ? 'Middel' : lvl === 3 ? 'Hoog' : 'Expert'}
                 </button>
               ))}
             </div>

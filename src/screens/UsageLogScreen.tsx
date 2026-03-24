@@ -573,12 +573,12 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
               <p className="text-slate-400 text-sm italic">Nog geen data.</p>
             ) : (
               <div className="space-y-2">
-                {[1, 2, 3, 4].map(lvl => {
+                {[0, 1, 2, 3, 4].map(lvl => {
                   const count = levelDistribution[lvl] || 0;
                   const maxCount = Math.max(...Object.values(levelDistribution), 1);
                   const pct = (count / maxCount) * 100;
-                  const labels = ['', 'Basis', 'Middel', 'Hoog', 'Samengesteld'];
-                  const colors = ['', 'from-green-300 to-green-500', 'from-blue-300 to-blue-500', 'from-purple-300 to-purple-500', 'from-red-300 to-red-500'];
+                  const labels = ['Instap', 'Basis', 'Middel', 'Hoog', 'Expert'];
+                  const colors = ['from-emerald-300 to-emerald-500', 'from-green-300 to-green-500', 'from-blue-300 to-blue-500', 'from-purple-300 to-purple-500', 'from-red-300 to-red-500'];
                   return (
                     <div key={lvl}>
                       <div className="flex items-center justify-between mb-0.5">

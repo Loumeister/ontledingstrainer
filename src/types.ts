@@ -2,7 +2,7 @@ export type RoleKey = 'pv' | 'ow' | 'lv' | 'mv' | 'bwb' | 'bijv_bep' | 'vv' | 'w
 
 export type PredicateType = 'WG' | 'NG';
 
-export type DifficultyLevel = 1 | 2 | 3 | 4; // 1 = Basis, 2 = Gemiddeld, 3 = Gevorderd, 4 = Expert
+export type DifficultyLevel = 0 | 1 | 2 | 3 | 4; // 0 = Instap, 1 = Basis, 2 = Middel, 3 = Gevorderd, 4 = Expert
 
 export interface Token {
   id: string;
