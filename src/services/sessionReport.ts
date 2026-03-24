@@ -28,6 +28,12 @@ export interface SessionReport {
   err: Record<string, number>;
   /** Sentence IDs attempted */
   sids: number[];
+  /** Per-sentence results: { sid, ok } where ok = isPerfect */
+  res?: Array<{ sid: number; ok: boolean }>;
+  /** Number of times "Toon antwoord" was used */
+  hint?: number;
+  /** Session duration in seconds */
+  dur?: number;
 }
 
 const STORAGE_KEY = 'zinsontleding_reports_v1';
@@ -124,6 +130,11 @@ export function buildReport(
   sentenceIds: number[],
   initiaal?: string,
   klas?: string,
+  extra?: {
+    res?: Array<{ sid: number; ok: boolean }>;
+    hint?: number;
+    dur?: number;
+  },
 ): SessionReport {
   // Only include non-zero errors
   const err: Record<string, number> = {};
@@ -142,6 +153,9 @@ export function buildReport(
   };
   if (initiaal) report.initiaal = initiaal.toUpperCase();
   if (klas) report.klas = klas.toLowerCase().trim();
+  if (extra?.res) report.res = extra.res;
+  if (extra?.hint !== undefined && extra.hint > 0) report.hint = extra.hint;
+  if (extra?.dur !== undefined && extra.dur > 0) report.dur = extra.dur;
   return report;
 }
 

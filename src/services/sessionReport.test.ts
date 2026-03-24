@@ -100,6 +100,44 @@ describe('buildReport', () => {
     const report = buildReport('Test', 5, 5, { pv: 0, ow: 0 }, 1, []);
     expect(report.err).toEqual({});
   });
+
+  it('includes res, hint, dur when provided via extra', () => {
+    const res = [{ sid: 1, ok: true }, { sid: 2, ok: false }];
+    const report = buildReport('Lisa', 7, 10, {}, 2, [1, 2], 'V', '2ga', { res, hint: 1, dur: 120 });
+    expect(report.res).toEqual(res);
+    expect(report.hint).toBe(1);
+    expect(report.dur).toBe(120);
+  });
+
+  it('omits hint when zero', () => {
+    const report = buildReport('Lisa', 7, 10, {}, 2, [1, 2], undefined, undefined, { hint: 0 });
+    expect(report.hint).toBeUndefined();
+  });
+
+  it('omits dur when zero', () => {
+    const report = buildReport('Lisa', 7, 10, {}, 2, [1, 2], undefined, undefined, { dur: 0 });
+    expect(report.dur).toBeUndefined();
+  });
+
+  it('round-trips new fields through encode/decode', () => {
+    const res = [{ sid: 5, ok: true }];
+    const report = buildReport('Jan', 9, 10, { pv: 1 }, 3, [5], 'D', '3vwo', { res, hint: 2, dur: 95 });
+    const code = encodeReport(report);
+    const decoded = decodeReport(code);
+    expect(decoded?.res).toEqual(res);
+    expect(decoded?.hint).toBe(2);
+    expect(decoded?.dur).toBe(95);
+  });
+
+  it('decodes old reports without res/hint/dur (backward compat)', () => {
+    const oldReport: SessionReport = { v: 1, name: 'Oud', ts: '2025-01-01T00:00:00Z', c: 5, t: 10, lvl: 1, err: {}, sids: [1] };
+    const code = encodeReport(oldReport);
+    const decoded = decodeReport(code);
+    expect(decoded).toEqual(oldReport);
+    expect(decoded?.res).toBeUndefined();
+    expect(decoded?.hint).toBeUndefined();
+    expect(decoded?.dur).toBeUndefined();
+  });
 });
 
 describe('loadReports / saveReports / addReport / clearReports', () => {
