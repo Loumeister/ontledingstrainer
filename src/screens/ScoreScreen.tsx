@@ -85,7 +85,13 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
   );
 
   // Badges
-  const perfectSentences = sessionSentenceResults.filter(r => r.isPerfect).length;
+  const correctSentences = sessionSentenceResults.filter(r => {
+    if (r.isPerfect) return true;
+    const hasIncorrect = Object.values(r.chunkStatus).some(
+      s => s === 'incorrect-role' || s === 'incorrect-split'
+    );
+    return !hasIncorrect && r.score === r.total;
+  }).length;
   const totalSentences = sessionSentenceResults.length;
   const isImproved = previousScore !== null && scorePercentage > previousScore;
 
@@ -376,9 +382,9 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
                 {perfectCount > 1 && <span className="ml-1 opacity-70">{perfectCount}×</span>}
               </span>
             )}
-            {perfectSentences > 0 && (
+            {correctSentences > 0 && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium rounded-full border border-green-200 dark:border-green-800">
-                &#9733; {perfectSentences}/{totalSentences} perfect
+                &#9733; {correctSentences}/{totalSentences} correct
               </span>
             )}
             {isImproved && !isNewPR && (
@@ -472,7 +478,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
               <h3 className="font-bold text-slate-800 dark:text-white">
                 Per zin bekijken
                 <span className="text-sm font-normal text-slate-400 dark:text-slate-500 ml-2">
-                  ({perfectSentences}/{totalSentences} perfect)
+                  ({correctSentences}/{totalSentences} correct)
                 </span>
               </h3>
               <span className={`text-slate-400 dark:text-slate-500 transition-transform ${showSentences ? 'rotate-180' : ''}`}>

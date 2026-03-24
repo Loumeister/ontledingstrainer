@@ -2519,5 +2519,192 @@
         "subRole": "nwd"
       }
     ]
+  },
+  {
+    "id": 450,
+    "label": "Zin 450: Tot onze grote verbazing werd onze collega miljonair (inversie, NG + twee BWB)",
+    "predicateType": "NG",
+    "level": 3,
+    "tokens": [
+      {
+        "id": "s450t1",
+        "text": "Tot",
+        "role": "bwb"
+      },
+      {
+        "id": "s450t2",
+        "text": "onze",
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s450t4"
+      },
+      {
+        "id": "s450t3",
+        "text": "grote",
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s450t4"
+      },
+      {
+        "id": "s450t4",
+        "text": "verbazing",
+        "role": "bwb"
+      },
+      {
+        "id": "s450t5",
+        "text": "werd",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s450t6",
+        "text": "onze",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s450t7"
+      },
+      {
+        "id": "s450t7",
+        "text": "collega",
+        "role": "ow"
+      },
+      {
+        "id": "s450t8",
+        "text": "na",
+        "role": "bwb",
+        "newChunk": true
+      },
+      {
+        "id": "s450t9",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s450t10",
+        "text": "loterijtrekking",
+        "role": "bwb"
+      },
+      {
+        "id": "s450t11",
+        "text": "miljonair.",
+        "role": "ng",
+        "subRole": "nwd"
+      }
+    ]
+  },
+  {
+    "id": 454,
+    "label": "Zin 454: Taco is nooit een erg productieve werknemer geweest (samengestelde tijd, NG complex)",
+    "predicateType": "NG",
+    "level": 3,
+    "tokens": [
+      {
+        "id": "s454t1",
+        "text": "Taco",
+        "role": "ow"
+      },
+      {
+        "id": "s454t2",
+        "text": "is",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s454t3",
+        "text": "nooit",
+        "role": "bwb"
+      },
+      {
+        "id": "s454t4",
+        "text": "een",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s454t5",
+        "text": "erg",
+        "role": "ng",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s454t7"
+      },
+      {
+        "id": "s454t6",
+        "text": "productieve",
+        "role": "ng",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s454t7"
+      },
+      {
+        "id": "s454t7",
+        "text": "werknemer",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s454t8",
+        "text": "geweest.",
+        "role": "ng",
+        "subRole": "wwd"
+      }
+    ]
+  },
+  {
+    "id": 456,
+    "label": "Zin 456: Die snelle telefoon is veel te duur geworden (samengestelde tijd, NG met intensiveerder)",
+    "predicateType": "NG",
+    "level": 3,
+    "tokens": [
+      {
+        "id": "s456t1",
+        "text": "Die",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s456t3"
+      },
+      {
+        "id": "s456t2",
+        "text": "snelle",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s456t3"
+      },
+      {
+        "id": "s456t3",
+        "text": "telefoon",
+        "role": "ow"
+      },
+      {
+        "id": "s456t4",
+        "text": "is",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s456t5",
+        "text": "veel",
+        "role": "ng",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s456t7"
+      },
+      {
+        "id": "s456t6",
+        "text": "te",
+        "role": "ng",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s456t7"
+      },
+      {
+        "id": "s456t7",
+        "text": "duur",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s456t8",
+        "text": "geworden.",
+        "role": "ng",
+        "subRole": "wwd"
+      }
+    ]
   }
 ]

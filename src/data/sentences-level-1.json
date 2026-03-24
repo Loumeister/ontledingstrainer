@@ -2593,5 +2593,182 @@
         "role": "bwb"
       }
     ]
+  },
+  {
+    "id": 445,
+    "label": "Zin 445: Jonas lijkt een jofele vent (basisvolgorde, NG met naamwoord)",
+    "predicateType": "NG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s445t1",
+        "text": "Jonas",
+        "role": "ow"
+      },
+      {
+        "id": "s445t2",
+        "text": "lijkt",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s445t3",
+        "text": "een",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s445t4",
+        "text": "jofele",
+        "role": "ng",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s445t5"
+      },
+      {
+        "id": "s445t5",
+        "text": "vent.",
+        "role": "ng",
+        "subRole": "nwd"
+      }
+    ]
+  },
+  {
+    "id": 446,
+    "label": "Zin 446: Cindy is programmeur in Bangladesh (basisvolgorde, NG + BWB)",
+    "predicateType": "NG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s446t1",
+        "text": "Cindy",
+        "role": "ow"
+      },
+      {
+        "id": "s446t2",
+        "text": "is",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s446t3",
+        "text": "programmeur",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s446t4",
+        "text": "in",
+        "role": "bwb"
+      },
+      {
+        "id": "s446t5",
+        "text": "Bangladesh.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 447,
+    "label": "Zin 447: Praktische opdrachten zijn voor deze klas heel moeilijk (NG + BWB)",
+    "predicateType": "NG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s447t1",
+        "text": "Praktische",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s447t2"
+      },
+      {
+        "id": "s447t2",
+        "text": "opdrachten",
+        "role": "ow"
+      },
+      {
+        "id": "s447t3",
+        "text": "zijn",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s447t4",
+        "text": "voor",
+        "role": "bwb"
+      },
+      {
+        "id": "s447t5",
+        "text": "deze",
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s447t6"
+      },
+      {
+        "id": "s447t6",
+        "text": "klas",
+        "role": "bwb"
+      },
+      {
+        "id": "s447t7",
+        "text": "heel",
+        "role": "ng",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s447t8"
+      },
+      {
+        "id": "s447t8",
+        "text": "moeilijk.",
+        "role": "ng",
+        "subRole": "nwd"
+      }
+    ]
+  },
+  {
+    "id": 448,
+    "label": "Zin 448: Breien is voor deze mannen een eitje (basisvolgorde, NG met naamwoord + BWB)",
+    "predicateType": "NG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s448t1",
+        "text": "Breien",
+        "role": "ow"
+      },
+      {
+        "id": "s448t2",
+        "text": "is",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s448t3",
+        "text": "voor",
+        "role": "bwb"
+      },
+      {
+        "id": "s448t4",
+        "text": "deze",
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s448t5"
+      },
+      {
+        "id": "s448t5",
+        "text": "mannen",
+        "role": "bwb"
+      },
+      {
+        "id": "s448t6",
+        "text": "een",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s448t7",
+        "text": "eitje.",
+        "role": "ng",
+        "subRole": "nwd"
+      }
+    ]
   }
 ]
