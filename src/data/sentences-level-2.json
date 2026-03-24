@@ -5327,5 +5327,401 @@
         "role": "lv"
       }
     ]
+  },
+  {
+    "id": 449,
+    "label": "Zin 449: Roosmarijn is alsnog manager geworden (samengestelde tijd, NG met nwd+wwd)",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s449t1",
+        "text": "Roosmarijn",
+        "role": "ow"
+      },
+      {
+        "id": "s449t2",
+        "text": "is",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s449t3",
+        "text": "alsnog",
+        "role": "bwb"
+      },
+      {
+        "id": "s449t4",
+        "text": "manager",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s449t5",
+        "text": "geworden.",
+        "role": "ng",
+        "subRole": "wwd"
+      }
+    ]
+  },
+  {
+    "id": 451,
+    "label": "Zin 451: Met die kleuren is het bos prachtig dit seizoen (inversie, NG + twee BWB)",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s451t1",
+        "text": "Met",
+        "role": "bwb"
+      },
+      {
+        "id": "s451t2",
+        "text": "die",
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s451t3"
+      },
+      {
+        "id": "s451t3",
+        "text": "kleuren",
+        "role": "bwb"
+      },
+      {
+        "id": "s451t4",
+        "text": "is",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s451t5",
+        "text": "het",
+        "role": "ow"
+      },
+      {
+        "id": "s451t6",
+        "text": "bos",
+        "role": "ow"
+      },
+      {
+        "id": "s451t7",
+        "text": "prachtig",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s451t8",
+        "text": "dit",
+        "role": "bwb",
+        "newChunk": true,
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s451t9"
+      },
+      {
+        "id": "s451t9",
+        "text": "seizoen.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 452,
+    "label": "Zin 452: Vincent is nooit een betrouwbare jongen geweest (samengestelde tijd, NG met naamwoord)",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s452t1",
+        "text": "Vincent",
+        "role": "ow"
+      },
+      {
+        "id": "s452t2",
+        "text": "is",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s452t3",
+        "text": "nooit",
+        "role": "bwb"
+      },
+      {
+        "id": "s452t4",
+        "text": "een",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s452t5",
+        "text": "betrouwbare",
+        "role": "ng",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s452t6"
+      },
+      {
+        "id": "s452t6",
+        "text": "jongen",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s452t7",
+        "text": "geweest.",
+        "role": "ng",
+        "subRole": "wwd"
+      }
+    ]
+  },
+  {
+    "id": 453,
+    "label": "Zin 453: Achteraf bleek deze snoeischaar de beste (inversie, NG genominaliseerd bijvoeglijk naamwoord)",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s453t1",
+        "text": "Achteraf",
+        "role": "bwb"
+      },
+      {
+        "id": "s453t2",
+        "text": "bleek",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s453t3",
+        "text": "deze",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s453t4"
+      },
+      {
+        "id": "s453t4",
+        "text": "snoeischaar",
+        "role": "ow"
+      },
+      {
+        "id": "s453t5",
+        "text": "de",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s453t6",
+        "text": "beste.",
+        "role": "ng",
+        "subRole": "nwd"
+      }
+    ]
+  },
+  {
+    "id": 455,
+    "label": "Zin 455: Erna is lang ziek geweest (samengestelde tijd, NG + BWB)",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s455t1",
+        "text": "Erna",
+        "role": "ow"
+      },
+      {
+        "id": "s455t2",
+        "text": "is",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s455t3",
+        "text": "lang",
+        "role": "bwb"
+      },
+      {
+        "id": "s455t4",
+        "text": "ziek",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s455t5",
+        "text": "geweest.",
+        "role": "ng",
+        "subRole": "wwd"
+      }
+    ]
+  },
+  {
+    "id": 457,
+    "label": "Zin 457: Mijn vader is nu ook fan van Antoon geworden (samengestelde tijd, NG met complement)",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s457t1",
+        "text": "Mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s457t2"
+      },
+      {
+        "id": "s457t2",
+        "text": "vader",
+        "role": "ow"
+      },
+      {
+        "id": "s457t3",
+        "text": "is",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s457t4",
+        "text": "nu",
+        "role": "bwb"
+      },
+      {
+        "id": "s457t5",
+        "text": "ook",
+        "role": "bwb"
+      },
+      {
+        "id": "s457t6",
+        "text": "fan",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s457t7",
+        "text": "van",
+        "role": "ng"
+      },
+      {
+        "id": "s457t8",
+        "text": "Antoon",
+        "role": "ng"
+      },
+      {
+        "id": "s457t9",
+        "text": "geworden.",
+        "role": "ng",
+        "subRole": "wwd"
+      }
+    ]
+  },
+  {
+    "id": 458,
+    "label": "Zin 458: Gisteren is Francisca heel de dag vrolijk gebleven (inversie, samengestelde tijd, NG)",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s458t1",
+        "text": "Gisteren",
+        "role": "bwb"
+      },
+      {
+        "id": "s458t2",
+        "text": "is",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s458t3",
+        "text": "Francisca",
+        "role": "ow"
+      },
+      {
+        "id": "s458t4",
+        "text": "heel",
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s458t6"
+      },
+      {
+        "id": "s458t5",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s458t6",
+        "text": "dag",
+        "role": "bwb"
+      },
+      {
+        "id": "s458t7",
+        "text": "vrolijk",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s458t8",
+        "text": "gebleven.",
+        "role": "ng",
+        "subRole": "wwd"
+      }
+    ]
+  },
+  {
+    "id": 459,
+    "label": "Zin 459: Met twee linkerhanden word je nooit een goede bouwvakker (inversie, samengestelde tijd, NG)",
+    "predicateType": "NG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s459t1",
+        "text": "Met",
+        "role": "bwb"
+      },
+      {
+        "id": "s459t2",
+        "text": "twee",
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s459t3"
+      },
+      {
+        "id": "s459t3",
+        "text": "linkerhanden",
+        "role": "bwb"
+      },
+      {
+        "id": "s459t4",
+        "text": "word",
+        "role": "pv",
+        "subRole": "wwd"
+      },
+      {
+        "id": "s459t5",
+        "text": "je",
+        "role": "ow"
+      },
+      {
+        "id": "s459t6",
+        "text": "nooit",
+        "role": "bwb",
+        "newChunk": true
+      },
+      {
+        "id": "s459t7",
+        "text": "een",
+        "role": "ng",
+        "subRole": "nwd"
+      },
+      {
+        "id": "s459t8",
+        "text": "goede",
+        "role": "ng",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s459t9"
+      },
+      {
+        "id": "s459t9",
+        "text": "bouwvakker.",
+        "role": "ng",
+        "subRole": "nwd"
+      }
+    ]
   }
 ]
