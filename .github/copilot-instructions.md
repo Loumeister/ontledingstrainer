@@ -1,4 +1,4 @@
-This is a React 18 + TypeScript educational web app (Zinsontledingstrainer) that teaches Dutch sentence parsing to students aged 12-15. It is fully client-side with no backend, deployed to GitHub Pages. All UI text is in Dutch.
+This is a React 18 + TypeScript educational web app (Ontleedlab) that teaches Dutch sentence parsing to students aged 12-15. It is fully client-side with no backend, deployed to GitHub Pages. All UI text is in Dutch.
 
 ## Code Standards
 
@@ -27,7 +27,7 @@ This is a React 18 + TypeScript educational web app (Zinsontledingstrainer) that
 - `public/` — Static assets
 
 ## Key Concepts
-- **Two-step parsing**: Step 1 (Verdelen) splits sentence into chunks → Step 2 (Benoemen) labels each chunk with a grammatical role
+- **Two-step parsing**: Step 1 (Zinsdeelproef) splits sentence into chunks → Step 2 (Benoemen) labels each chunk with a grammatical role
 - **13 grammatical roles**: PV, OW, LV, MV, BWB, Bijvoeglijke bepaling, VV, WG, Naamwoordelijk gezegde, Bijstelling, Bijzin, VW-neven, VW-onder
 - **Token**: A word with a grammatical role; key fields: `role`, `subRole`, `newChunk`, `alternativeRole`, `bijzinFunctie`
 - **Chunk**: Consecutive tokens belonging to the same constituent

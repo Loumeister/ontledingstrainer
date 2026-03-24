@@ -159,7 +159,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
         {/* Header */}
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h1 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-white tracking-tight">Zinsontledingstrainer</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-white tracking-tight">Ontleedlab</h1>
           </div>
 
           <div className="flex gap-2">
@@ -176,7 +176,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
         <div className="flex justify-center">
           <div className="flex items-center gap-3 text-sm font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-full shadow-sm border border-slate-100 dark:border-slate-700">
             <div className={`flex items-center gap-2 cursor-pointer transition-colors ${step === 'split' ? 'text-blue-600 dark:text-blue-400 font-bold' : ''}`} onClick={() => !showAnswerMode && handleBackStep()}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs border ${step === 'split' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/50 dark:border-blue-400' : 'border-slate-300 dark:border-slate-600'}`}>1</span>Verdelen
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs border ${step === 'split' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/50 dark:border-blue-400' : 'border-slate-300 dark:border-slate-600'}`}>1</span>Zinsdeelproef
             </div>
             <span className="text-slate-300 dark:text-slate-600">&rarr;</span>
             <div className={`flex items-center gap-2 cursor-pointer transition-colors ${step === 'label' ? 'text-blue-600 dark:text-blue-400 font-bold' : ''}`}>
@@ -212,7 +212,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
           {/* STEP 1: SPLITTING VIEW */}
           {step === 'split' && (
             <div className="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 text-center animate-in fade-in duration-300 flex-1 flex flex-col justify-center">
-              <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200 mb-2">Stap 1: Verdelen</h2>
+              <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200 mb-2">Stap 1: Zinsdeelproef</h2>
               <p className="text-slate-500 dark:text-slate-400 mb-6">Klik tussen de woorden om de zin in zinsdelen te knippen.</p>
 
               <div className={`flex flex-wrap items-center justify-center gap-y-6 select-none py-4 ${largeFont ? 'text-2xl md:text-3xl leading-relaxed' : 'text-xl md:text-2xl leading-loose'}`}>

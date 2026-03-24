@@ -25,7 +25,7 @@ Docent (/#/usage, PIN 4321)
 ### Stap 1 – Maak een Google Sheet aan
 
 1. Ga naar [sheets.google.com](https://sheets.google.com) en maak een nieuw leeg spreadsheet.
-2. Geef het een duidelijke naam, bijv. **"Zinsontledingstrainer – Resultaten"**.
+2. Geef het een duidelijke naam, bijv. **"Ontleedlab – Resultaten"**.
 3. Laat het tabblad leeg; de Apps Script maakt automatisch een tabblad "Resultaten" aan.
 
 ### Stap 2 – Maak een Apps Script aan
@@ -39,7 +39,7 @@ Docent (/#/usage, PIN 4321)
 
 De app genereert automatisch een unieke API-sleutel. Haal die als volgt op:
 
-1. Open de **Zinsontledingstrainer** in een ander browsertabblad.
+1. Open **Ontleedlab** in een ander browsertabblad.
 2. Ga naar `/#/usage` en voer PIN **4321** in.
 3. Scroll naar **🔗 Google Drive koppeling**.
 4. Klik op de **Kopieer**-knop naast de API-sleutel — de sleutel staat nu op je klembord.

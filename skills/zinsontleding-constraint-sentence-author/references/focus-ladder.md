@@ -1,4 +1,4 @@
-# Focus ladder voor zinsontledingstrainer
+# Focus ladder voor Ontleedlab
 
 Gebruik oplopende complexiteit. Houd één hoofdprobleem per zin aan.
 

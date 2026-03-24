@@ -1,6 +1,6 @@
 ---
 name: zinsontleding-repo-inspector
-description: Inspecteer de zinsontledingstrainer-repo op labelset, annotatieformaat, chunk-conventies en feedbackstructuur vóórdat nieuwe oefeningen of generatorlogica worden toegevoegd. Gebruik bij elke taak die nieuwe zinnen, validatie of feedbackregels wil maken of aanpassen.
+description: Inspecteer de Ontleedlab-repo op labelset, annotatieformaat, chunk-conventies en feedbackstructuur vóórdat nieuwe oefeningen of generatorlogica worden toegevoegd. Gebruik bij elke taak die nieuwe zinnen, validatie of feedbackregels wil maken of aanpassen.
 ---
 
 # Repo-inspectie workflow (verplicht eerst)

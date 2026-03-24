@@ -1,6 +1,6 @@
 # TODO & Roadmap
 
-Dit document bevat de toekomstplannen en ideeën voor de Zinsontledingstrainer, gebaseerd op recent didactisch onderzoek (o.a. Chamalaun 2023, Steenbakkers, SLO-leerlijnen, 'Spelling en didactiek' 2024) en een uitgebreide code-review (maart 2025).
+Dit document bevat de toekomstplannen en ideeën voor Ontleedlab, gebaseerd op recent didactisch onderzoek (o.a. Chamalaun 2023, Steenbakkers, SLO-leerlijnen, 'Spelling en didactiek' 2024) en een uitgebreide code-review (maart 2025).
 
 > **Context:** Dit is een eenpersoonsproject met LLM/agent-ondersteuning. Alle voorstellen zijn haalbaar in die context: kleine, onafhankelijke taken die goed door AI-agents uitgevoerd kunnen worden.
 
@@ -93,7 +93,7 @@ De huidige app biedt alle 13 zinsdelen tegelijk aan. De theorie benadrukt dat le
 **Nieuw concept — de "Rollenladder":**
 In plaats van 4 vaste fasen (PV → PV+OW → kern → alles) implementeren we een adaptieve ladder die zich aanpast aan het prestatieniveau:
 
-*   **Trede 1 - PV herkennen:** Leerling hoeft alleen de persoonsvorm te identificeren. Verdelenstap wordt overgeslagen; alleen benoemen. Validatie accepteert "rest" als niet-PV.
+*   **Trede 1 - PV herkennen:** Leerling hoeft alleen de persoonsvorm te identificeren. Zinsdeelproef wordt overgeslagen; alleen benoemen. Validatie accepteert "rest" als niet-PV.
 *   **Trede 2 - PV + OW:** Twee rollen actief. De toolbar toont alleen PV en OW; andere rollen zijn verborgen.
 *   **Trede 3 - Kern:** PV, OW, LV, MV, BWB. De vijf basisrollen.
 *   **Trede 4 - Uitgebreid:** + VV, WG/NG. Werkwoordelijk en naamwoordelijk gezegde.
@@ -268,7 +268,7 @@ Dark mode is volledig geïmplementeerd via class-toggle. → ✅ Compleet.
 ### 13. Werkwoordspelling-module
 *Bron: integrale benadering grammatica-spelling, Chamalaun (2023)*
 
-Een aparte module die voortbouwt op de grammaticakennis uit de zinsontledingstrainer. De zinsontleding is de **voorwaarde** voor correcte werkwoordspelling.
+Een aparte module die voortbouwt op de grammaticakennis uit Ontleedlab. De zinsontleding is de **voorwaarde** voor correcte werkwoordspelling.
 
 **Submodules (modulair, niet lineair):**
 *   **PV in tegenwoordige tijd:** stam + t-regel, met analogie-hulp ("denk aan lopen")
@@ -353,7 +353,7 @@ interface ComplexSentence extends Sentence {
 
 **UI Wijzigingen:**
 1.  **Stap 0 (Nieuw)**: Zin splitsen in deelzinnen.
-2.  **Stap 1 & 2**: Verdelen en benoemen per clause.
+2.  **Stap 1 & 2**: Zinsdeelproef en benoemen per clause.
 
 ### 21. Spaced Repetition voor Zwakke Rollen
 *Bron: Ebbinghaus vergeetcurve, adaptief leren*

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Zinsontledingstrainer - An interactive browser-based app that teaches Dutch sentence parsing (zinsontleding) to students aged 12-15 (onderbouw havo/vwo). One-person project developed with LLM/agent assistance.
+Ontleedlab - An interactive browser-based app that teaches Dutch sentence parsing (zinsontleding) to students aged 12-15 (onderbouw havo/vwo). One-person project developed with LLM/agent assistance.
 
 ## Tech Stack
 
@@ -70,7 +70,7 @@ src/
 
 ## Key Concepts
 
-- **Two-step parsing**: Step 1 (Verdelen/Split) → Step 2 (Benoemen/Label)
+- **Two-step parsing**: Step 1 (Zinsdeelproef/Split) → Step 2 (Benoemen/Label)
 - **Roles**: 13 grammatical roles (PV, OW, LV, MV, BWB, VV, WG, NG, Bijzin, etc.)
 - **Token**: A word in a sentence with a grammatical role
 - **Chunk**: A group of consecutive tokens belonging to the same constituent

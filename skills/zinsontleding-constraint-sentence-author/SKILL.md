@@ -1,6 +1,6 @@
 ---
 name: zinsontleding-constraint-sentence-author
-description: Maak didactisch bruikbare, eenduidig ontleedbare Nederlandse oefenzinnen voor de zinsontledingstrainer met een constraint-based aanpak (blueprints, validatie, uitleg en moeilijkheidsopbouw). Gebruik na repo-inspectie wanneer nieuwe oefenitems, sentenceBlueprints, difficultyModel of validatieregels nodig zijn.
+description: Maak didactisch bruikbare, eenduidig ontleedbare Nederlandse oefenzinnen voor Ontleedlab met een constraint-based aanpak (blueprints, validatie, uitleg en moeilijkheidsopbouw). Gebruik na repo-inspectie wanneer nieuwe oefenitems, sentenceBlueprints, difficultyModel of validatieregels nodig zijn.
 ---
 
 # Constraint-based authoring workflow

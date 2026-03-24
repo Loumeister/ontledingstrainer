@@ -1,6 +1,6 @@
-# Handleiding Zinsontledingstrainer
+# Handleiding Ontleedlab
 
-Welkom bij de Zinsontledingstrainer! Deze app helpt je stap voor stap beter te worden in het ontleden van zinnen.
+Welkom bij Ontleedlab! Deze app helpt je stap voor stap beter te worden in het ontleden van zinnen.
 
 ## Snel Starten
 
@@ -10,7 +10,7 @@ Welkom bij de Zinsontledingstrainer! Deze app helpt je stap voor stap beter te w
 
 Je ontleedt elke zin in twee stappen:
 
-1.  **Stap 1: Verdelen (Knippen)** ✂️
+1.  **Stap 1: Zinsdeelproef (Knippen)** ✂️
     *   Klik (of tik) tussen de woorden om de zin in stukjes (zinsdelen) te knippen.
     *   Foutje gemaakt? Klik nog een keer op het schaartje om de delen weer aan elkaar te plakken.
     *   *Tip:* Een lidwoord (de/het/een) staat nooit alleen!

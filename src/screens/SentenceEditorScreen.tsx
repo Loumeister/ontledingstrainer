@@ -585,7 +585,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
             disabled={!sentenceText.trim()}
             className="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Verdelen & Benoemen
+            Zinsdeelproef & Benoemen
           </button>
         </div>
       </div>
@@ -602,7 +602,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
           {/* Header */}
           <div className="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-slate-800 dark:text-white">Verdelen & Benoemen</h2>
+              <h2 className="text-lg font-bold text-slate-800 dark:text-white">Zinsdeelproef & Benoemen</h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">Knip de zin in zinsdelen en sleep er labels op.</p>
             </div>
             <button onClick={() => setPhase('input')} className="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors px-3 py-1">Wijzig tekst</button>

@@ -57,7 +57,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onSecretD
               <div className="flex gap-4">
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold">1</div>
                 <div>
-                  <p className="font-bold text-slate-900 dark:text-white">Stap 1: Verdelen</p>
+                  <p className="font-bold text-slate-900 dark:text-white">Stap 1: Zinsdeelproef</p>
                   <p>Klik tussen de woorden om de zin in stukjes te knippen. Foutje? Klik nog een keer op het schaartje om te plakken.</p>
                 </div>
               </div>
