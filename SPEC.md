@@ -57,8 +57,8 @@ De app richt zich primair op 2F, met uitbreidingsmogelijkheden naar 3F.
 
 ### Status: Werkend ✅
 
-De huidige Zinsontledingstrainer. Tweestapsproces:
-1. **Verdelen**: Zin in zinsdelen knippen
+De huidige Ontleedlab. Tweestapsproces:
+1. **Zinsdeelproef**: Zin in zinsdelen knippen
 2. **Benoemen**: Zinsdelen labelen via drag-and-drop
 
 ### Bestaande features

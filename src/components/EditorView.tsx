@@ -227,7 +227,7 @@ export function EditorView({ darkMode }: Props) {
       <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 md:px-6 py-3 flex items-center gap-4">
         <div className="flex-1">
           <span className="font-bold text-slate-800 dark:text-white text-lg">Docentenomgeving</span>
-          <span className="ml-2 text-xs text-slate-400 dark:text-slate-500">Zinsontledingstrainer</span>
+          <span className="ml-2 text-xs text-slate-400 dark:text-slate-500">Ontleedlab</span>
         </div>
         <nav className="flex gap-1 bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
           <button

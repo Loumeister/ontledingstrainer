@@ -5,7 +5,7 @@ description: Use when working on Dutch zinsontleding pedagogy: feedback quality,
 
 # Grammar Coach
 
-Use this skill for didactic quality in the Zinsontledingstrainer.
+Use this skill for didactic quality in Ontleedlab.
 
 ## Core goals
 - Keep feedback diagnostisch: explain *why* an answer is wrong, not just that it is wrong.

@@ -1,5 +1,5 @@
 /**
- * Zinsontledingstrainer – Google Apps Script Web App
+ * Ontleedlab – Google Apps Script Web App
  *
  * Sla dit bestand op in een nieuw Google Apps Script project dat gekoppeld is
  * aan een Google Sheet. Zie docs/google-drive-koppeling.md voor stap-voor-stap
@@ -30,7 +30,7 @@ function doGet(e) {
 
   // Ping – geen authenticatie vereist
   if (action === 'ping') {
-    return jsonResponse({ ok: true, msg: 'Zinsontledingstrainer API actief' });
+    return jsonResponse({ ok: true, msg: 'Ontleedlab API actief' });
   }
 
   // Verificeer API-sleutel voor alle andere acties

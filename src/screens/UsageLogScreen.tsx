@@ -597,8 +597,8 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
 
           {/* Split vs Label errors */}
           <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
-            <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">⚖️ Verdelen vs. Benoemen</h3>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Waar gaat het vaker mis: verdelen of benoemen?</p>
+            <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">⚖️ Zinsdeelproef vs. Benoemen</h3>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Waar gaat het vaker mis: de zinsdeelproef of benoemen?</p>
             {totalSplitErrors === 0 && totalRoleErrorCount === 0 ? (
               <p className="text-slate-400 text-sm italic">Nog geen fouten gemaakt!</p>
             ) : (
@@ -635,7 +635,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                     ? '💡 Leerlingen hebben meer moeite met het verdelen van zinnen in zinsdelen.'
                     : totalRoleErrorCount > totalSplitErrors
                     ? '💡 Leerlingen verdelen goed, maar benoemen de zinsdelen nog niet altijd juist.'
-                    : '💡 Verdelen en benoemen gaan ongeveer even goed.'}
+                    : '💡 Zinsdeelproef en benoemen gaan ongeveer even goed.'}
                 </p>
               </div>
             )}

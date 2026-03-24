@@ -202,7 +202,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div>
             <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight mb-1">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
-                Zinsontledingstrainer
+                Ontleedlab
               </span>
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm">

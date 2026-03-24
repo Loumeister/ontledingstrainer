@@ -1,4 +1,4 @@
-# Zinsontledingstrainer - Technische Documentatie
+# Ontleedlab - Technische Documentatie
 
 Een interactieve browser-app die leerlingen (12-15 jaar, onderbouw havo/vwo) leert om Nederlandse zinnen te ontleden. Gebouwd met **React 18**, **TypeScript**, **Vite** en **Tailwind CSS**. Volledig client-side, geen backend nodig.
 
@@ -32,7 +32,7 @@ Voor actuele zinnencontrole en docentplanning:
 1.  **Clone de repository:**
     ```bash
     git clone <jouw-repo-url>
-    cd zinsontledingstrainer
+    cd ontleedlab
     ```
 2.  **Installeer dependencies:**
     ```bash
