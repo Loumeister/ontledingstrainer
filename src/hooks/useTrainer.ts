@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { HINTS, ROLES } from '../constants';
 import { Sentence, PlacementMap, RoleKey, DifficultyLevel, SentenceResult } from '../types';
 import { useSentences } from './useSentences';
@@ -239,6 +239,7 @@ export function useTrainer(): TrainerState {
   const [consecutivePerfect, setConsecutivePerfect] = useState(0);
   const [autoSendStatus, setAutoSendStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [autoSendError, setAutoSendError] = useState('');
+  const sessionStartTimeRef = useRef<number | null>(null);
 
   // Current Sentence State
   const [currentSentence, setCurrentSentence] = useState<Sentence | null>(null);
@@ -394,6 +395,7 @@ export function useTrainer(): TrainerState {
     setConsecutivePerfect(0);
     setAutoSendStatus('idle');
     setAutoSendError('');
+    sessionStartTimeRef.current = Date.now();
     setMode('session');
     logInteraction('session_start', undefined, `count=${count}`);
     loadSentence(selected[0]);
@@ -409,6 +411,7 @@ export function useTrainer(): TrainerState {
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
+    sessionStartTimeRef.current = Date.now();
     setMode('session');
     logInteraction('session_start', undefined, `shared,count=${shuffled.length}`);
     loadSentence(shuffled[0]);
@@ -457,6 +460,11 @@ export function useTrainer(): TrainerState {
       const info = loadStudentInfo();
       if (info.name && info.initiaal && info.klas && getScriptUrl()) {
         const sentenceIds = sessionQueue.map(s => s.id);
+        const dur = sessionStartTimeRef.current !== null
+          ? Math.round((Date.now() - sessionStartTimeRef.current) / 1000)
+          : undefined;
+        const hint = sessionSentenceResults.filter(r => r.showAnswerUsed).length;
+        const res = sessionSentenceResults.map(r => ({ sid: r.sentence.id, ok: r.isPerfect }));
         const report = buildReport(
           info.name,
           finalCorrect,
@@ -466,6 +474,7 @@ export function useTrainer(): TrainerState {
           sentenceIds,
           info.initiaal,
           info.klas,
+          { res, hint, dur },
         );
         const code = encodeReport(report);
         setAutoSendStatus('sending');
