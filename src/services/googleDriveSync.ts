@@ -113,5 +113,9 @@ export async function fetchReports(): Promise<DriveRow[]> {
   const response = await fetch(url.toString());
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-  return await response.json() as DriveRow[];
+  const data = await response.json() as DriveRow[] | { ok: false; error?: string };
+  if (!Array.isArray(data)) {
+    throw new Error(data.error ?? 'Onverwacht antwoord van de server (geen array)');
+  }
+  return data;
 }
