@@ -115,10 +115,19 @@ export const ROLES: RoleDefinition[] = [
 // Role sets per difficulty level. A role is shown in the toolbar when it belongs to the
 // current level's set (or when the current sentence actually uses it — see RoleToolbar).
 export const ROLES_PER_LEVEL: Record<DifficultyLevel, RoleKey[]> = {
+  0: ['pv', 'ow', 'lv', 'mv', 'bwb'],
   1: ['pv', 'ow', 'lv', 'mv', 'bwb', 'wg', 'ng'],
   2: ['pv', 'ow', 'lv', 'mv', 'bwb', 'vv', 'wg', 'ng'],
   3: ['pv', 'ow', 'lv', 'mv', 'bwb', 'vv', 'bijst', 'bijzin', 'vw_neven', 'wg', 'ng'],
   4: ['pv', 'ow', 'lv', 'mv', 'bwb', 'vv', 'bijst', 'bijzin', 'vw_neven', 'wg', 'ng'],
+};
+
+export const LEVEL_TOOLTIPS: Record<DifficultyLevel, string> = {
+  0: 'Alleen zinnen met een werkwoordelijk gezegde (WG). Korte, eenvoudige zinnen (4-7 woorden) met: persoonsvorm, onderwerp, lijdend voorwerp, meewerkend voorwerp en bijwoordelijke bepaling.',
+  1: 'Zinnen met zowel werkwoordelijk (WG) als naamwoordelijk gezegde (NG). Je leert het verschil herkennen en oefent met samengestelde gezegdes (WG/NG + werkwoordelijk deel).',
+  2: 'Het voorzetselvoorwerp (VZV) komt erbij. Je leert het verschil tussen een bijwoordelijke bepaling en een voorzetselvoorwerp. Langere zinnen met meer variatie.',
+  3: 'Bijstellingen en nevenschikking (en, maar, of) komen erbij. Meer zinsdelen per zin en lastiger woordvolgorde. Sommige zinnen bevatten een bijzin.',
+  4: 'Samengestelde zinnen met bijzinnen en onderschikking. Je herkent hoofd- en bijzinnen, benoemt hun functie en ontleedt complexe zinsstructuren.',
 };
 
 export const FEEDBACK_STRUCTURE = {

@@ -4,6 +4,7 @@ const cache: Partial<Record<DifficultyLevel, Sentence[]>> = {};
 
 async function loadJson(level: DifficultyLevel): Promise<Sentence[]> {
   switch (level) {
+    case 0: return (await import('./sentences-level-0.json')).default as unknown as Sentence[];
     case 1: return (await import('./sentences-level-1.json')).default as unknown as Sentence[];
     case 2: return (await import('./sentences-level-2.json')).default as unknown as Sentence[];
     case 3: return (await import('./sentences-level-3.json')).default as unknown as Sentence[];
@@ -19,7 +20,7 @@ export async function loadSentencesByLevel(level: DifficultyLevel): Promise<Sent
 }
 
 export async function loadAllSentences(): Promise<Sentence[]> {
-  const levels: DifficultyLevel[] = [1, 2, 3, 4];
+  const levels: DifficultyLevel[] = [0, 1, 2, 3, 4];
   const results = await Promise.all(levels.map(loadSentencesByLevel));
   return results.flat();
 }
