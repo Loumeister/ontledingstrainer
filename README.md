@@ -49,10 +49,8 @@ Voor actuele zinnencontrole en docentplanning:
 De app moet gebuild worden omdat browsers geen TypeScript (`.tsx`) begrijpen.
 
 **Automatisch deployen (aanbevolen):**
-1.  Zorg dat je ingelogd bent bij git.
-2.  Run: `npm run deploy`
-    *   Dit script bouwt de app (`npm run build`).
-    *   Het pusht de inhoud van de `dist` map naar de `gh-pages` branch.
+De productie-deploy loopt via de GitHub Actions workflow in `.github/workflows/deploy.yml`.
+Bij een push naar `main` bouwt die workflow de app en publiceert `dist` naar GitHub Pages.
 
 **Handmatig:**
 1.  Run: `npm run build`
