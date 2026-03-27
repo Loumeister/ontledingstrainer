@@ -47,7 +47,7 @@
  *  10. [eigenaar] Interaction log viewer + raw data viewer
  */
 import React, { useState, useEffect } from 'react';
-import { sha256 } from '../services/authHash';
+import LoginScreen from '../components/LoginScreen';
 import { loadUsageData, clearUsageData, exportUsageDataAsJson } from '../services/usageData';
 import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats } from '../services/interactionLog';
 import { loadAllSentences } from '../data/sentenceLoader';
@@ -130,8 +130,6 @@ function mergeReportDataIntoUsage(
   return merged;
 }
 
-const DOCENT_HASH = import.meta.env.VITE_DOCENT_HASH ?? '';
-const EIGENAAR_HASH = import.meta.env.VITE_EIGENAAR_HASH ?? '';
 const PIN_SESSION_KEY = 'editor-pin-ok';
 // Keep legacy key name for backward compat with existing browser sessions
 const EIGENAAR_SESSION_KEY = 'eigenaar-pin-ok';
@@ -154,8 +152,6 @@ interface EnrichedUsage {
 }
 
 export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
-  const [pinInput, setPinInput] = useState('');
-  const [pinError, setPinError] = useState(false);
   const [authenticated, setAuthenticated] = useState(() => sessionStorage.getItem(PIN_SESSION_KEY) === 'true');
   const [isEigenaar, setIsEigenaar] = useState(() => sessionStorage.getItem(EIGENAAR_SESSION_KEY) === 'true');
 
@@ -266,23 +262,17 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     });
   }, [authenticated, reports, driveReports]);
 
-  const handlePinSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    sha256(pinInput).then(hash => {
-      if (hash === EIGENAAR_HASH) {
-        sessionStorage.setItem(PIN_SESSION_KEY, 'true');
-        sessionStorage.setItem(EIGENAAR_SESSION_KEY, 'true');
-        setAuthenticated(true);
-        setIsEigenaar(true);
-        setPinError(false);
-      } else if (hash === DOCENT_HASH) {
-        sessionStorage.setItem(PIN_SESSION_KEY, 'true');
-        setAuthenticated(true);
-        setPinError(false);
-      } else {
-        setPinError(true);
-      }
-    });
+  const handleAuth = (role: 'docent' | 'eigenaar' | 'editor') => {
+    if (role === 'editor') {
+      window.location.hash = '#/editor';
+      return;
+    }
+    sessionStorage.setItem(PIN_SESSION_KEY, 'true');
+    if (role === 'eigenaar') {
+      sessionStorage.setItem(EIGENAAR_SESSION_KEY, 'true');
+      setIsEigenaar(true);
+    }
+    setAuthenticated(true);
   };
 
   // ---------------------------------------------------------------------------
@@ -462,27 +452,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   });
 
   if (!authenticated) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
-        <form onSubmit={handlePinSubmit} className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 max-w-sm w-full space-y-4">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white text-center">Gebruiksdata</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 text-center">Voer het wachtwoord in om de gebruiksdata te bekijken.</p>
-          <input
-            type="password"
-            value={pinInput}
-            onChange={e => { setPinInput(e.target.value); setPinError(false); }}
-            className="w-full px-4 py-3 text-lg border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:border-blue-500 outline-none"
-            autoFocus
-            placeholder="Wachtwoord"
-          />
-          {pinError && <p className="text-red-500 text-sm text-center font-medium">Onjuist wachtwoord</p>}
-          <div className="flex gap-3">
-            <button type="button" onClick={onBack} className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Terug</button>
-            <button type="submit" className="flex-1 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors">Open</button>
-          </div>
-        </form>
-      </div>
-    );
+    return <LoginScreen onBack={onBack} onAuthenticated={handleAuth} />;
   }
 
   // ---------------------------------------------------------------------------

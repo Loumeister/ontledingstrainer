@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { sha256 } from '../services/authHash';
+import LoginScreen from '../components/LoginScreen';
 import { Token, RoleKey, PredicateType, DifficultyLevel, RoleDefinition } from '../types';
 import { ROLES } from '../constants';
 import { DraggableRole } from '../components/WordChip';
@@ -15,7 +15,6 @@ import type { Sentence } from '../types';
 
 type ListFilter = 'all' | 'builtin' | 'custom';
 
-const EDITOR_HASH = import.meta.env.VITE_DOCENT_HASH ?? '';
 const PIN_SESSION_KEY = 'editor-pin-ok';
 
 type EditorPhase = 'list' | 'input' | 'edit' | 'meta' | 'preview';
@@ -790,45 +789,19 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
 // ─── Standalone screen with PIN auth (for #/editor route) ───────────────────
 
 export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBack }) => {
-  const [pinInput, setPinInput] = useState('');
-  const [pinError, setPinError] = useState(false);
   const [authenticated, setAuthenticated] = useState(() => sessionStorage.getItem(PIN_SESSION_KEY) === 'true');
 
-  const handlePinSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    sha256(pinInput).then(hash => {
-      if (hash === EDITOR_HASH) {
-        sessionStorage.setItem(PIN_SESSION_KEY, 'true');
-        setAuthenticated(true);
-        setPinError(false);
-      } else {
-        setPinError(true);
-      }
-    });
+  const handleAuth = (role: 'docent' | 'eigenaar' | 'editor') => {
+    if (role === 'docent' || role === 'eigenaar') {
+      window.location.hash = '#/usage';
+      return;
+    }
+    sessionStorage.setItem(PIN_SESSION_KEY, 'true');
+    setAuthenticated(true);
   };
 
   if (!authenticated) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
-        <form onSubmit={handlePinSubmit} className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 max-w-sm w-full space-y-4">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white text-center">Docenten-editor</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 text-center">Voer het wachtwoord in om de editor te openen.</p>
-          <input
-            type="password"
-            value={pinInput}
-            onChange={e => { setPinInput(e.target.value); setPinError(false); }}
-            className="w-full px-4 py-3 text-lg border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:border-blue-500 outline-none"
-            autoFocus
-            placeholder="Wachtwoord"
-          />
-          {pinError && <p className="text-red-500 text-sm text-center font-medium">Onjuist wachtwoord</p>}
-          <div className="flex gap-3">
-            <button type="button" onClick={onBack} className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Terug</button>
-            <button type="submit" className="flex-1 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors">Open</button>
-          </div>
-        </form>
-      </div>
-    );
+    return <LoginScreen onBack={onBack} onAuthenticated={handleAuth} />;
   }
 
   return <SentenceEditorContent onBack={onBack} />;
