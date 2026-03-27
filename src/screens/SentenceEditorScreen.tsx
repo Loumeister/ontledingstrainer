@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import LoginScreen from '../components/LoginScreen';
+import { EDITOR_SESSION_KEY } from '../components/LoginScreen';
 import { Token, RoleKey, PredicateType, DifficultyLevel, RoleDefinition } from '../types';
 import { ROLES } from '../constants';
 import { DraggableRole } from '../components/WordChip';
@@ -15,7 +15,7 @@ import type { Sentence } from '../types';
 
 type ListFilter = 'all' | 'builtin' | 'custom';
 
-const PIN_SESSION_KEY = 'editor-pin-ok';
+const PIN_SESSION_KEY = EDITOR_SESSION_KEY;
 
 type EditorPhase = 'list' | 'input' | 'edit' | 'meta' | 'preview';
 
@@ -789,15 +789,11 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
 // ─── Standalone screen with PIN auth (for #/editor route) ───────────────────
 
 export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBack }) => {
-  const [authenticated, setAuthenticated] = useState(() => sessionStorage.getItem(PIN_SESSION_KEY) === 'true');
-
-  const handleAuth = (_role: 'docent' | 'eigenaar' | 'editor') => {
-    sessionStorage.setItem(PIN_SESSION_KEY, 'true');
-    setAuthenticated(true);
-  };
+  const [authenticated] = useState(() => sessionStorage.getItem(PIN_SESSION_KEY) === 'true');
 
   if (!authenticated) {
-    return <LoginScreen allowedRoles={['editor']} onBack={onBack} onAuthenticated={handleAuth} />;
+    window.location.hash = '#/login';
+    return null;
   }
 
   return <SentenceEditorContent onBack={onBack} />;

@@ -47,7 +47,7 @@
  *  10. [eigenaar] Interaction log viewer + raw data viewer
  */
 import React, { useState, useEffect } from 'react';
-import LoginScreen from '../components/LoginScreen';
+import { USAGE_SESSION_KEY, EIGENAAR_SESSION_KEY as EIGENAAR_KEY } from '../components/LoginScreen';
 import { loadUsageData, clearUsageData, exportUsageDataAsJson } from '../services/usageData';
 import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats } from '../services/interactionLog';
 import { loadAllSentences } from '../data/sentenceLoader';
@@ -130,9 +130,8 @@ function mergeReportDataIntoUsage(
   return merged;
 }
 
-const PIN_SESSION_KEY = 'editor-pin-ok';
-// Keep legacy key name for backward compat with existing browser sessions
-const EIGENAAR_SESSION_KEY = 'eigenaar-pin-ok';
+const PIN_SESSION_KEY = USAGE_SESSION_KEY;
+const EIGENAAR_SESSION_KEY = EIGENAAR_KEY;
 
 type SortField = 'id' | 'attempts' | 'perfectRate' | 'showAnswer' | 'splitErrors' | 'lastAttempted';
 type SortDir = 'asc' | 'desc';
@@ -152,8 +151,8 @@ interface EnrichedUsage {
 }
 
 export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
-  const [authenticated, setAuthenticated] = useState(() => sessionStorage.getItem(PIN_SESSION_KEY) === 'true');
-  const [isEigenaar, setIsEigenaar] = useState(() => sessionStorage.getItem(EIGENAAR_SESSION_KEY) === 'true');
+  const [authenticated] = useState(() => sessionStorage.getItem(PIN_SESSION_KEY) === 'true');
+  const [isEigenaar] = useState(() => sessionStorage.getItem(EIGENAAR_SESSION_KEY) === 'true');
 
   const [enrichedData, setEnrichedData] = useState<EnrichedUsage[]>([]);
   const [sortField, setSortField] = useState<SortField>('attempts');
@@ -261,15 +260,6 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
       setEnrichedData(enriched);
     });
   }, [authenticated, reports, driveReports]);
-
-  const handleAuth = (role: 'docent' | 'eigenaar' | 'editor') => {
-    sessionStorage.setItem(PIN_SESSION_KEY, 'true');
-    if (role === 'eigenaar') {
-      sessionStorage.setItem(EIGENAAR_SESSION_KEY, 'true');
-      setIsEigenaar(true);
-    }
-    setAuthenticated(true);
-  };
 
   // ---------------------------------------------------------------------------
   // Event handlers
@@ -448,7 +438,8 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   });
 
   if (!authenticated) {
-    return <LoginScreen allowedRoles={['docent']} onBack={onBack} onAuthenticated={handleAuth} />;
+    window.location.hash = '#/login';
+    return null;
   }
 
   // ---------------------------------------------------------------------------

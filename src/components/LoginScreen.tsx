@@ -1,45 +1,51 @@
 import { useState } from 'react';
 import { sha256 } from '../services/authHash';
 
-const DOCENT_HASH = import.meta.env.VITE_DOCENT_HASH ?? '';
+const DOCENT_HASH   = import.meta.env.VITE_DOCENT_HASH   ?? '';
 const EIGENAAR_HASH = import.meta.env.VITE_EIGENAAR_HASH ?? '';
-const EDITOR_HASH = import.meta.env.VITE_EDITOR_HASH ?? '';
+const EDITOR_HASH   = import.meta.env.VITE_EDITOR_HASH   ?? '';
 
-export type AuthRole = 'docent' | 'eigenaar' | 'editor';
+// Session storage keys — kept in one place so screens can import them.
+export const USAGE_SESSION_KEY    = 'usage-pin-ok';
+export const EDITOR_SESSION_KEY   = 'editor-pin-ok';
+export const EIGENAAR_SESSION_KEY = 'eigenaar-pin-ok';
 
-type RoleOption = { value: AuthRole; label: string; hash: string };
+type RoleOption = { value: string; label: string; hash: string };
 
-const ALL_ROLES: RoleOption[] = [
-  { value: 'docent',   label: 'Docent',        hash: DOCENT_HASH },
-  { value: 'eigenaar', label: 'Eigenaar',       hash: EIGENAAR_HASH },
-  { value: 'editor',   label: 'Zinnen-editor',  hash: EDITOR_HASH },
+const ROLES: RoleOption[] = [
+  { value: 'docent',   label: 'Docent',       hash: DOCENT_HASH },
+  { value: 'eigenaar', label: 'Eigenaar',      hash: EIGENAAR_HASH },
+  { value: 'editor',   label: 'Zinnen-editor', hash: EDITOR_HASH },
 ];
 
-interface LoginScreenProps {
-  /** Which roles to show in the dropdown. Eigenaar is always appended if not already included. */
-  allowedRoles: AuthRole[];
-  onBack: () => void;
-  onAuthenticated: (role: AuthRole) => void;
-}
-
-export default function LoginScreen({ allowedRoles, onBack, onAuthenticated }: LoginScreenProps) {
-  // Eigenaar can always log in from any screen
-  const roleKeys = Array.from(new Set([...allowedRoles, 'eigenaar' as AuthRole]));
-  const roles = ALL_ROLES.filter(r => roleKeys.includes(r.value));
-
-  const [selectedRole, setSelectedRole] = useState<AuthRole | ''>('');
+export default function LoginScreen() {
+  const [selectedRole, setSelectedRole] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedRole) return;
-    const role = roles.find(r => r.value === selectedRole)!;
+    const role = ROLES.find(r => r.value === selectedRole);
+    if (!role) return;
+
     sha256(password).then(hash => {
-      if (hash === role.hash) {
-        onAuthenticated(selectedRole);
-      } else {
+      if (hash !== role.hash) {
         setError(true);
+        return;
+      }
+
+      if (selectedRole === 'docent') {
+        sessionStorage.setItem(USAGE_SESSION_KEY, 'true');
+        window.location.hash = '#/usage';
+      } else if (selectedRole === 'eigenaar') {
+        // Eigenaar gets access to everything
+        sessionStorage.setItem(USAGE_SESSION_KEY, 'true');
+        sessionStorage.setItem(EDITOR_SESSION_KEY, 'true');
+        sessionStorage.setItem(EIGENAAR_SESSION_KEY, 'true');
+        window.location.hash = '#/usage';
+      } else if (selectedRole === 'editor') {
+        sessionStorage.setItem(EDITOR_SESSION_KEY, 'true');
+        window.location.hash = '#/editor';
       }
     });
   };
@@ -63,11 +69,11 @@ export default function LoginScreen({ allowedRoles, onBack, onAuthenticated }: L
           </label>
           <select
             value={selectedRole}
-            onChange={e => { setSelectedRole(e.target.value as AuthRole | ''); setError(false); setPassword(''); }}
+            onChange={e => { setSelectedRole(e.target.value); setError(false); setPassword(''); }}
             className="w-full px-3 py-2.5 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:border-blue-500 outline-none text-sm"
           >
             <option value="">— Selecteer uw rol —</option>
-            {roles.map(r => (
+            {ROLES.map(r => (
               <option key={r.value} value={r.value}>{r.label}</option>
             ))}
           </select>
@@ -98,7 +104,7 @@ export default function LoginScreen({ allowedRoles, onBack, onAuthenticated }: L
         <div className="flex gap-3">
           <button
             type="button"
-            onClick={onBack}
+            onClick={() => { window.location.hash = '#/'; }}
             className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
             Terug

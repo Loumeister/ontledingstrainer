@@ -6,6 +6,7 @@ import { TrainerScreen } from './screens/TrainerScreen';
 import { SentenceEditorScreen } from './screens/SentenceEditorScreen';
 import { EditorView } from './components/EditorView';
 import { UsageLogScreen } from './screens/UsageLogScreen';
+import LoginScreen from './components/LoginScreen';
 import { preloadCommonLevels } from './data/sentenceLoader';
 import { decodeShared } from './data/customSentenceStore';
 import type { Sentence } from './types';
@@ -16,6 +17,7 @@ const initialSharedSentences: Sentence[] = sharedParam ? decodeShared(sharedPara
 
 export default function App() {
   const trainer = useTrainer();
+  const [showLogin, setShowLogin] = useState(() => window.location.hash === '#/login');
   const [showEditor, setShowEditor] = useState(() => window.location.hash === '#/editor');
   const [showDocent, setShowDocent] = useState(() => window.location.hash === '#/docent');
   const [showUsageLog, setShowUsageLog] = useState(() => window.location.hash === '#/usage');
@@ -29,6 +31,7 @@ export default function App() {
   // Listen for hash changes
   useEffect(() => {
     const onHashChange = () => {
+      setShowLogin(window.location.hash === '#/login');
       setShowEditor(window.location.hash === '#/editor');
       setShowDocent(window.location.hash === '#/docent');
       setShowUsageLog(window.location.hash === '#/usage');
@@ -36,6 +39,11 @@ export default function App() {
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
+
+  // Login screen
+  if (showLogin) {
+    return <LoginScreen />;
+  }
 
   // Usage log screen (hidden route)
   if (showUsageLog) {
