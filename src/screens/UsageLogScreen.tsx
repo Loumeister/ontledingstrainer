@@ -47,6 +47,7 @@
  *  10. [eigenaar] Interaction log viewer + raw data viewer
  */
 import React, { useState, useEffect } from 'react';
+import { USAGE_SESSION_KEY, EIGENAAR_SESSION_KEY as EIGENAAR_KEY } from '../components/LoginScreen';
 import { loadUsageData, clearUsageData, exportUsageDataAsJson } from '../services/usageData';
 import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats } from '../services/interactionLog';
 import { loadAllSentences } from '../data/sentenceLoader';
@@ -57,6 +58,7 @@ import { fetchReports as fetchReportsFromDrive, getScriptUrl, setScriptUrl, getA
 import type { DriveRow } from '../services/googleDriveSync';
 import { applyAliases, setKlasAlias, setStudentAlias } from '../services/nameAliases';
 import type { SentenceUsageData, Sentence } from '../types';
+import FeedbackEditorTab from '../components/FeedbackEditorTab';
 
 // ---------------------------------------------------------------------------
 // Score colour helpers
@@ -128,11 +130,8 @@ function mergeReportDataIntoUsage(
   return merged;
 }
 
-const DOCENT_PIN = '1234';
-const EIGENAAR_PIN = '4321';
-const PIN_SESSION_KEY = 'editor-pin-ok';
-// Keep legacy key name for backward compat with existing browser sessions
-const EIGENAAR_SESSION_KEY = 'eigenaar-pin-ok';
+const PIN_SESSION_KEY = USAGE_SESSION_KEY;
+const EIGENAAR_SESSION_KEY = EIGENAAR_KEY;
 
 type SortField = 'id' | 'attempts' | 'perfectRate' | 'showAnswer' | 'splitErrors' | 'lastAttempted';
 type SortDir = 'asc' | 'desc';
@@ -152,10 +151,8 @@ interface EnrichedUsage {
 }
 
 export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
-  const [pinInput, setPinInput] = useState('');
-  const [pinError, setPinError] = useState(false);
-  const [authenticated, setAuthenticated] = useState(() => sessionStorage.getItem(PIN_SESSION_KEY) === 'true');
-  const [isEigenaar, setIsEigenaar] = useState(() => sessionStorage.getItem(EIGENAAR_SESSION_KEY) === 'true');
+  const [authenticated] = useState(() => sessionStorage.getItem(PIN_SESSION_KEY) === 'true');
+  const [isEigenaar] = useState(() => sessionStorage.getItem(EIGENAAR_SESSION_KEY) === 'true');
 
   const [enrichedData, setEnrichedData] = useState<EnrichedUsage[]>([]);
   const [sortField, setSortField] = useState<SortField>('attempts');
@@ -263,23 +260,6 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
       setEnrichedData(enriched);
     });
   }, [authenticated, reports, driveReports]);
-
-  const handlePinSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pinInput === EIGENAAR_PIN) {
-      sessionStorage.setItem(PIN_SESSION_KEY, 'true');
-      sessionStorage.setItem(EIGENAAR_SESSION_KEY, 'true');
-      setAuthenticated(true);
-      setIsEigenaar(true);
-      setPinError(false);
-    } else if (pinInput === DOCENT_PIN) {
-      sessionStorage.setItem(PIN_SESSION_KEY, 'true');
-      setAuthenticated(true);
-      setPinError(false);
-    } else {
-      setPinError(true);
-    }
-  };
 
   // ---------------------------------------------------------------------------
   // Event handlers
@@ -458,29 +438,8 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   });
 
   if (!authenticated) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
-        <form onSubmit={handlePinSubmit} className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 max-w-sm w-full space-y-4">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white text-center">Gebruiksdata</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 text-center">Voer de pincode in om de gebruiksdata te bekijken.</p>
-          <input
-            type="password"
-            inputMode="numeric"
-            maxLength={8}
-            value={pinInput}
-            onChange={e => { setPinInput(e.target.value); setPinError(false); }}
-            className="w-full px-4 py-3 text-center text-2xl tracking-[0.5em] font-bold border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:border-blue-500 outline-none"
-            autoFocus
-            placeholder="****"
-          />
-          {pinError && <p className="text-red-500 text-sm text-center font-medium">Onjuiste pincode</p>}
-          <div className="flex gap-3">
-            <button type="button" onClick={onBack} className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Terug</button>
-            <button type="submit" className="flex-1 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors">Open</button>
-          </div>
-        </form>
-      </div>
-    );
+    window.location.hash = '#/login';
+    return null;
   }
 
   // ---------------------------------------------------------------------------
@@ -1764,6 +1723,19 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                   {JSON.stringify(loadInteractionLog().slice(-200), null, 2)}
                 </pre>
               )}
+            </div>
+
+            {/* Feedback Editor */}
+            <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+              <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">
+                ✏️ Feedback bewerken
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300 font-medium ml-1">eigenaar</span>
+              </h3>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mb-4">
+                Pas de feedbackteksten aan die leerlingen te zien krijgen bij een fout.
+                Klik op een rol om de verwarringsparen uit te klappen.
+              </p>
+              <FeedbackEditorTab />
             </div>
 
             {/* Raw Usage Data */}

@@ -1,4 +1,5 @@
-import { ROLES, FEEDBACK_MATRIX, FEEDBACK_STRUCTURE, FEEDBACK_SWAP, FEEDBACK_BIJZIN_FUNCTIE, HINTS } from '../constants';
+import { ROLES, FEEDBACK_STRUCTURE, FEEDBACK_SWAP, FEEDBACK_BIJZIN_FUNCTIE, HINTS } from '../constants';
+import { getEffectiveFeedback } from './feedbackLookup';
 import { Sentence, PlacementMap, RoleKey, Token, ValidationState, FeedbackEntry, RichFeedbackEntry } from '../types';
 
 export interface ChunkData {
@@ -150,7 +151,7 @@ export function validateAnswer(
       } else if (splitTooEarly || startedTooLate) {
         const userLabel = chunkLabels[firstTokenId] as RoleKey | undefined;
         const labelFeedback = (isConsistentRole && userLabel && userLabel !== consistentRole!)
-          ? FEEDBACK_MATRIX[userLabel]?.[consistentRole!]
+          ? getEffectiveFeedback(userLabel, consistentRole!)
           : undefined;
         if (typeof labelFeedback === 'string') {
           splitMsg = `${FEEDBACK_STRUCTURE.TOO_MANY_SPLITS} ${labelFeedback}`;
@@ -216,9 +217,8 @@ export function validateAnswer(
       } else {
         const correctRoleName = ROLES.find(r => r.key === effectiveRole)?.label || effectiveRole;
         if (effectiveRole === 'pv' && userLabel === 'wg') {
-          const pvAsWgFeedback = FEEDBACK_MATRIX['wg'] && FEEDBACK_MATRIX['wg']['pv']
-            ? FEEDBACK_MATRIX['wg']['pv']
-            : "Goed gezien dat dit bij het gezegde hoort. Verandert het woord als je de tijd of het getal aanpast?";
+          const pvAsWgFeedback = getEffectiveFeedback('wg', 'pv')
+            ?? "Goed gezien dat dit bij het gezegde hoort. Verandert het woord als je de tijd of het getal aanpast?";
           if (sentence.level >= 4) {
             chunkStatus[idx] = 'incorrect-role';
             chunkFeedback[idx] = pvAsWgFeedback;
@@ -234,8 +234,9 @@ export function validateAnswer(
           currentMistakes[correctRoleName] = (currentMistakes[correctRoleName] || 0) + 1;
         } else {
           chunkStatus[idx] = 'incorrect-role';
-          if (FEEDBACK_MATRIX[userLabel] && FEEDBACK_MATRIX[userLabel][effectiveRole]) {
-            chunkFeedback[idx] = FEEDBACK_MATRIX[userLabel][effectiveRole];
+          const matrixEntry = getEffectiveFeedback(userLabel, effectiveRole);
+          if (matrixEntry) {
+            chunkFeedback[idx] = matrixEntry;
           } else {
             // Use HINTS for the correct role as a non-revealing fallback
             const hintKey = `MISSING_${effectiveRole.toUpperCase()}` as keyof typeof HINTS;
