@@ -153,6 +153,7 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
       onDragOver={handleDragOverChunk}
       onDrop={(e) => {
         setIsOverChunk(false);
+        setHoveredWordId(null);
         onDropChunk(e, chunkId);
       }}
       onDragLeave={handleDragLeaveChunk}
