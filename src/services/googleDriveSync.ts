@@ -97,6 +97,54 @@ export async function postReport(
 }
 
 /**
+ * Hernoemt een klas in de Google Sheet (alle rijen met oldKlas worden bijgewerkt naar newKlas).
+ * Geeft het aantal bijgewerkte rijen terug.
+ */
+export async function renameKlasOnDrive(oldKlas: string, newKlas: string): Promise<number> {
+  const scriptUrl = getScriptUrl();
+  if (!scriptUrl || scriptUrl === PLACEHOLDER_URL) {
+    throw new Error('Apps Script URL is nog niet ingesteld.');
+  }
+
+  const url = new URL(scriptUrl);
+  url.searchParams.set('action', 'renameKlas');
+  url.searchParams.set('oldKlas', oldKlas.trim().toLowerCase());
+  url.searchParams.set('newKlas', newKlas.trim().toLowerCase());
+  url.searchParams.set('apiKey', getApiKey());
+
+  const response = await fetch(url.toString());
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+  const data = await response.json() as { ok?: boolean; updated?: number; error?: string };
+  if (!data.ok) throw new Error(data.error ?? 'Onbekende fout van de server');
+  return data.updated ?? 0;
+}
+
+/**
+ * Hernoemt een leerling in de Google Sheet (alle rijen met oldName worden bijgewerkt naar newName).
+ * Geeft het aantal bijgewerkte rijen terug.
+ */
+export async function renameStudentOnDrive(oldName: string, newName: string): Promise<number> {
+  const scriptUrl = getScriptUrl();
+  if (!scriptUrl || scriptUrl === PLACEHOLDER_URL) {
+    throw new Error('Apps Script URL is nog niet ingesteld.');
+  }
+
+  const url = new URL(scriptUrl);
+  url.searchParams.set('action', 'renameStudent');
+  url.searchParams.set('oldName', oldName.trim());
+  url.searchParams.set('newName', newName.trim());
+  url.searchParams.set('apiKey', getApiKey());
+
+  const response = await fetch(url.toString());
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+  const data = await response.json() as { ok?: boolean; updated?: number; error?: string };
+  if (!data.ok) throw new Error(data.error ?? 'Onbekende fout van de server');
+  return data.updated ?? 0;
+}
+
+/**
  * Haalt alle rapportrijen op uit de Google Sheet.
  * Gooit een Error als de URL niet geconfigureerd is of het verzoek mislukt.
  */

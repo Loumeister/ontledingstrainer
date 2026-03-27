@@ -7,6 +7,7 @@ import {
   saveReports,
   addReport,
   clearReports,
+  renameStudent,
   computeAggregateStats,
   computeStudentStats,
   SessionReport,
@@ -137,6 +138,61 @@ describe('buildReport', () => {
     expect(decoded?.res).toBeUndefined();
     expect(decoded?.hint).toBeUndefined();
     expect(decoded?.dur).toBeUndefined();
+  });
+
+  it('includes sols when provided via extra', () => {
+    const sols = [{ sid: 1, sp: [2, 5], lb: { 's1w0': 'pv', 's1w2': 'ow' } }];
+    const report = buildReport('Jan', 9, 10, {}, 2, [1], 'D', '2ga', { sols });
+    expect(report.sols).toEqual(sols);
+  });
+
+  it('omits sols when not provided', () => {
+    const report = buildReport('Jan', 9, 10, {}, 2, [1]);
+    expect(report.sols).toBeUndefined();
+  });
+
+  it('omits sols when empty array', () => {
+    const report = buildReport('Jan', 9, 10, {}, 2, [1], undefined, undefined, { sols: [] });
+    expect(report.sols).toBeUndefined();
+  });
+
+  it('sols round-trips through encode/decode', () => {
+    const sols = [{ sid: 3, sp: [1, 3], lb: { 's3w0': 'lv' } }];
+    const report = buildReport('Jan', 9, 10, {}, 2, [3], undefined, undefined, { sols });
+    const decoded = decodeReport(encodeReport(report));
+    expect(decoded?.sols).toEqual(sols);
+  });
+});
+
+describe('renameStudent', () => {
+  it('renames matching reports (case-insensitive)', () => {
+    addReport(buildReport('Jan', 8, 10, {}, 1, [1]));
+    addReport(buildReport('Piet', 7, 10, {}, 1, [2]));
+    renameStudent('jan', 'Johannes');
+    const reports = loadReports();
+    expect(reports[0].name).toBe('Johannes');
+    expect(reports[1].name).toBe('Piet');
+  });
+
+  it('is a no-op when old name not found', () => {
+    addReport(buildReport('Jan', 8, 10, {}, 1, [1]));
+    renameStudent('notexist', 'X');
+    expect(loadReports()[0].name).toBe('Jan');
+  });
+
+  it('is a no-op when new name normalises the same as old', () => {
+    addReport(buildReport('Jan', 8, 10, {}, 1, [1]));
+    renameStudent('jan', 'jan');
+    expect(loadReports()[0].name).toBe('Jan');
+  });
+
+  it('renames across multiple reports', () => {
+    addReport(buildReport('jan', 8, 10, {}, 1, [1]));
+    addReport(buildReport('JAN', 5, 10, {}, 1, [2]));
+    renameStudent('jan', 'Johannes');
+    const reports = loadReports();
+    expect(reports[0].name).toBe('Johannes');
+    expect(reports[1].name).toBe('Johannes');
   });
 });
 

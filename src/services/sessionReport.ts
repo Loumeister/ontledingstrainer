@@ -34,6 +34,15 @@ export interface SessionReport {
   hint?: number;
   /** Session duration in seconds */
   dur?: number;
+  /** Per-sentence student solutions for detailed teacher feedback */
+  sols?: Array<{
+    /** Sentence ID */
+    sid: number;
+    /** Token indices where a new chunk starts (splitIndices) */
+    sp: number[];
+    /** chunkFirstTokenId → roleKey as submitted by the student */
+    lb: Record<string, string>;
+  }>;
 }
 
 const STORAGE_KEY = 'zinsontleding_reports_v1';
@@ -103,7 +112,23 @@ export function deleteReportByIndex(index: number): void {
   }
 }
 
-/** Rename a class across all stored reports (local only — Drive data is not affected). */
+/** Rename a student across all stored reports (local only — call renameStudentOnDrive for the Sheet). */
+export function renameStudent(oldName: string, newName: string): void {
+  const reports = loadReports();
+  const normOld = oldName.trim().toLowerCase();
+  const normNew = newName.trim().toLowerCase();
+  if (!normNew || normOld === normNew) return;
+  let changed = false;
+  for (const r of reports) {
+    if (r.name.trim().toLowerCase() === normOld) {
+      r.name = newName.trim();
+      changed = true;
+    }
+  }
+  if (changed) saveReports(reports);
+}
+
+/** Rename a class across all stored reports (local only — call renameKlasOnDrive for the Sheet). */
 export function renameKlas(oldKlas: string, newKlas: string): void {
   const reports = loadReports();
   const normOld = normaliseKlas(oldKlas);
@@ -134,6 +159,7 @@ export function buildReport(
     res?: Array<{ sid: number; ok: boolean }>;
     hint?: number;
     dur?: number;
+    sols?: Array<{ sid: number; sp: number[]; lb: Record<string, string> }>;
   },
 ): SessionReport {
   // Only include non-zero errors
@@ -156,6 +182,7 @@ export function buildReport(
   if (extra?.res) report.res = extra.res;
   if (extra?.hint !== undefined && extra.hint > 0) report.hint = extra.hint;
   if (extra?.dur !== undefined && extra.dur > 0) report.dur = extra.dur;
+  if (extra?.sols && extra.sols.length > 0) report.sols = extra.sols;
   return report;
 }
 
