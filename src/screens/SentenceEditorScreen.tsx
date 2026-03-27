@@ -23,12 +23,13 @@ interface SentenceEditorScreenProps {
   onBack: () => void;
 }
 
-export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBack }) => {
-  // PIN state
-  const [pinInput, setPinInput] = useState('');
-  const [pinError, setPinError] = useState(false);
-  const [authenticated, setAuthenticated] = useState(() => sessionStorage.getItem(PIN_SESSION_KEY) === 'true');
+interface SentenceEditorContentProps {
+  onBack?: () => void;
+  onSentenceChange?: () => void;
+  embedded?: boolean;
+}
 
+export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ onBack, onSentenceChange, embedded }) => {
   // Editor state
   const [phase, setPhase] = useState<EditorPhase>('list');
   const [sentenceText, setSentenceText] = useState('');
@@ -51,7 +52,10 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
   const [listFilter, setListFilter] = useState<ListFilter>('all');
   const [levelFilter, setLevelFilter] = useState<DifficultyLevel | null>(null);
 
-  const refreshList = () => setSentences(getCustomSentences());
+  const refreshList = () => {
+    setSentences(getCustomSentences());
+    onSentenceChange?.();
+  };
 
   useEffect(() => {
     loadAllSentences().then(setBuiltInSentences);
@@ -90,43 +94,8 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     setTimeout(() => setStatusMsg(null), 2500);
   };
 
-  // PIN check
-  const handlePinSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pinInput === EDITOR_PIN) {
-      sessionStorage.setItem(PIN_SESSION_KEY, 'true');
-      setAuthenticated(true);
-      setPinError(false);
-    } else {
-      setPinError(true);
-    }
-  };
-
-  if (!authenticated) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
-        <form onSubmit={handlePinSubmit} className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 max-w-sm w-full space-y-4">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white text-center">Docenten-editor</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 text-center">Voer de pincode in om de editor te openen.</p>
-          <input
-            type="password"
-            inputMode="numeric"
-            maxLength={8}
-            value={pinInput}
-            onChange={e => { setPinInput(e.target.value); setPinError(false); }}
-            className="w-full px-4 py-3 text-center text-2xl tracking-[0.5em] font-bold border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:border-blue-500 outline-none"
-            autoFocus
-            placeholder="****"
-          />
-          {pinError && <p className="text-red-500 text-sm text-center font-medium">Onjuiste pincode</p>}
-          <div className="flex gap-3">
-            <button type="button" onClick={onBack} className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Terug</button>
-            <button type="submit" className="flex-1 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors">Open</button>
-          </div>
-        </form>
-      </div>
-    );
-  }
+  const baseClass = embedded ? '' : 'min-h-screen bg-slate-50 dark:bg-slate-900';
+  const pageClass = `${baseClass} p-2 md:p-4`;
 
   // --- Helper functions ---
 
@@ -457,7 +426,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     const customCount = sentences.length;
 
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-2 md:p-4">
+      <div className={pageClass}>
         <div className="max-w-4xl mx-auto space-y-4">
           <div className="bg-white dark:bg-slate-800 p-4 md:p-6 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between mb-6">
@@ -465,7 +434,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
                 <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Zinnen-editor</h1>
                 <p className="text-sm text-slate-500 dark:text-slate-400">{builtInCount} ingebouwde + {customCount} eigen zinnen</p>
               </div>
-              <button onClick={onBack} className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors">Terug</button>
+              {onBack && <button onClick={onBack} className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors">Terug</button>}
             </div>
 
             {statusMsg && (
@@ -559,7 +528,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
   // INPUT phase
   if (phase === 'input') {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-2 md:p-4 flex items-center justify-center">
+      <div className={`${pageClass} flex items-center justify-center`}>
         <div className="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 max-w-2xl w-full space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-slate-800 dark:text-white">
@@ -597,7 +566,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
   // EDIT phase — combined split + label
   if (phase === 'edit') {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-2 md:p-4 pb-24">
+      <div className={`${pageClass} pb-24`}>
         <div className="max-w-5xl mx-auto space-y-4">
           {/* Header */}
           <div className="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-between">
@@ -720,7 +689,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
   // META phase
   if (phase === 'meta') {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-2 md:p-4 flex items-center justify-center">
+      <div className={`${pageClass} flex items-center justify-center`}>
         <div className="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 max-w-lg w-full space-y-6">
           <h2 className="text-xl font-bold text-slate-800 dark:text-white">Eigenschappen</h2>
 
@@ -768,7 +737,7 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
     const sentence = buildSentence();
 
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-2 md:p-4 flex items-center justify-center">
+      <div className={`${pageClass} flex items-center justify-center`}>
         <div className="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 max-w-2xl w-full space-y-6">
           <h2 className="text-xl font-bold text-slate-800 dark:text-white">Voorbeeld</h2>
 
@@ -815,6 +784,53 @@ export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBa
   }
 
   return null;
+};
+
+// ─── Standalone screen with PIN auth (for #/editor route) ───────────────────
+
+export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBack }) => {
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState(false);
+  const [authenticated, setAuthenticated] = useState(() => sessionStorage.getItem(PIN_SESSION_KEY) === 'true');
+
+  const handlePinSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pinInput === EDITOR_PIN) {
+      sessionStorage.setItem(PIN_SESSION_KEY, 'true');
+      setAuthenticated(true);
+      setPinError(false);
+    } else {
+      setPinError(true);
+    }
+  };
+
+  if (!authenticated) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
+        <form onSubmit={handlePinSubmit} className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 max-w-sm w-full space-y-4">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white text-center">Docenten-editor</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 text-center">Voer de pincode in om de editor te openen.</p>
+          <input
+            type="password"
+            inputMode="numeric"
+            maxLength={8}
+            value={pinInput}
+            onChange={e => { setPinInput(e.target.value); setPinError(false); }}
+            className="w-full px-4 py-3 text-center text-2xl tracking-[0.5em] font-bold border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:border-blue-500 outline-none"
+            autoFocus
+            placeholder="****"
+          />
+          {pinError && <p className="text-red-500 text-sm text-center font-medium">Onjuiste pincode</p>}
+          <div className="flex gap-3">
+            <button type="button" onClick={onBack} className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Terug</button>
+            <button type="submit" className="flex-1 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors">Open</button>
+          </div>
+        </form>
+      </div>
+    );
+  }
+
+  return <SentenceEditorContent onBack={onBack} />;
 };
 
 // --- EditorChunk sub-component ---

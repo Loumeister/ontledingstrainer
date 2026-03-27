@@ -5,7 +5,6 @@ import { SentenceUsageData } from '../types';
 import {
   loadUsageData,
   updateTeacherData,
-  clearUsageData,
   exportUsageDataAsJson,
 } from '../services/usageData';
 import {
@@ -15,6 +14,7 @@ import {
   buildShareUrl,
 } from '../data/customSentenceStore';
 import type { Sentence } from '../types';
+import { SentenceEditorContent } from '../screens/SentenceEditorScreen';
 
 // ─── Thresholds ───────────────────────────────────────────────────────────────
 const ERROR_RATE_HIGH = 0.6;   // ≥60% errors → too difficult
@@ -94,7 +94,7 @@ function SentenceInterpretation({ errorRate, showAnswerCount, attempts, topError
 
 const EDITOR_PASSWORD = 'docent2025';
 
-type Tab = 'stats' | 'sentences';
+type Tab = 'stats' | 'sentences' | 'editor';
 type SortKey = 'id' | 'attempts' | 'errorRate' | 'showAnswer' | 'flagged';
 
 interface Props {
@@ -122,7 +122,6 @@ export function EditorView({ darkMode }: Props) {
   const [search, setSearch] = useState('');
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [editingNote, setEditingNote] = useState<{ id: number; text: string } | null>(null);
-  const [confirmClear, setConfirmClear] = useState(false);
 
   // ── Sentences tab state ──────────────────────────────────────
   const [customSentences, setCustomSentences] = useState<Sentence[]>([]);
@@ -176,8 +175,12 @@ export function EditorView({ darkMode }: Props) {
     setConfirmDeleteId(null);
   };
 
-  const handleCopyShareUrl = () => {
-    const url = buildShareUrl(customSentences);
+  const handleCopyShareUrl = (selectedIds: Set<number>) => {
+    const toShare = selectedIds.size > 0
+      ? customSentences.filter(s => selectedIds.has(s.id))
+      : customSentences;
+    if (toShare.length === 0) return;
+    const url = buildShareUrl(toShare);
     navigator.clipboard.writeText(url).then(() => {
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2500);
@@ -225,6 +228,9 @@ export function EditorView({ darkMode }: Props) {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans">
       {/* Top bar with tabs */}
       <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 md:px-6 py-3 flex items-center gap-4">
+        <button onClick={() => { window.location.hash = ''; }} className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors" title="Terug naar beginscherm">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+        </button>
         <div className="flex-1">
           <span className="font-bold text-slate-800 dark:text-white text-lg">Docentenomgeving</span>
           <span className="ml-2 text-xs text-slate-400 dark:text-slate-500">Ontleedlab</span>
@@ -245,6 +251,12 @@ export function EditorView({ darkMode }: Props) {
               <span className="ml-1.5 bg-blue-600 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{customSentences.length}</span>
             )}
           </button>
+          <button
+            onClick={() => setActiveTab('editor')}
+            className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${activeTab === 'editor' ? 'bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+          >
+            Nieuwe zin
+          </button>
         </nav>
       </div>
 
@@ -260,10 +272,9 @@ export function EditorView({ darkMode }: Props) {
           search={search} setSearch={setSearch}
           expandedId={expandedId} setExpandedId={setExpandedId}
           editingNote={editingNote} setEditingNote={setEditingNote}
-          confirmClear={confirmClear} setConfirmClear={setConfirmClear}
           toggleFlag={toggleFlag}
           saveNote={saveNote}
-          onClearStats={() => { clearUsageData(); setConfirmClear(false); refreshStats(); }}
+          onRefreshStats={refreshStats}
           onExportStats={() => exportUsageDataAsJson(usageData)}
         />
       )}
@@ -278,6 +289,14 @@ export function EditorView({ darkMode }: Props) {
           onDelete={handleDelete}
           onCopyShareUrl={handleCopyShareUrl}
           onExport={handleExport}
+        />
+      )}
+
+      {/* ── TAB: NIEUWE ZIN (embedded editor) ─────────────────── */}
+      {activeTab === 'editor' && (
+        <SentenceEditorContent
+          embedded
+          onSentenceChange={() => { refreshCustom(); }}
         />
       )}
     </div>
@@ -297,10 +316,9 @@ interface StatsTabProps {
   expandedId: number | null; setExpandedId: (v: number | null) => void;
   editingNote: { id: number; text: string } | null;
   setEditingNote: (v: { id: number; text: string } | null) => void;
-  confirmClear: boolean; setConfirmClear: (v: boolean) => void;
   toggleFlag: (id: number) => void;
   saveNote: (id: number, text: string) => void;
-  onClearStats: () => void;
+  onRefreshStats: () => void;
   onExportStats: () => void;
 }
 
@@ -308,8 +326,7 @@ function StatsTab({
   allSentences, loadingSentences, usageData, sortKey, setSortKey, sortDesc, setSortDesc,
   filterFlagged, setFilterFlagged, search, setSearch,
   expandedId, setExpandedId, editingNote, setEditingNote,
-  confirmClear, setConfirmClear,
-  toggleFlag, saveNote, onClearStats, onExportStats,
+  toggleFlag, saveNote, onRefreshStats, onExportStats,
 }: StatsTabProps) {
 
   const handleSort = (k: SortKey) => {
@@ -373,19 +390,6 @@ function StatsTab({
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6">
-      {confirmClear && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-xl max-w-sm w-full border border-slate-200 dark:border-slate-700">
-            <h3 className="font-bold text-slate-800 dark:text-white mb-2">Alle statistieken wissen?</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Dit verwijdert alle gebruiksstatistieken, vlaggen en notities permanent.</p>
-            <div className="flex gap-3 justify-end">
-              <button onClick={() => setConfirmClear(false)} className="px-4 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg font-medium transition-colors">Annuleer</button>
-              <button onClick={onClearStats} className="px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors">Ja, wissen</button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ── Samenvatting ───────────────────────────────────────── */}
       {!loadingSentences && (
         <div className="mb-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 md:p-5">
@@ -443,8 +447,8 @@ function StatsTab({
           <span className="text-sm text-slate-400 dark:text-slate-500 self-center">{sorted.length} zinnen</span>
         </div>
         <div className="flex gap-2">
+          <button onClick={onRefreshStats} className="px-4 py-2 text-sm font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Ververs</button>
           <button onClick={onExportStats} className="px-4 py-2 text-sm font-semibold bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">Exporteer JSON</button>
-          <button onClick={() => setConfirmClear(true)} className="px-4 py-2 text-sm font-semibold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors">Data wissen</button>
         </div>
       </div>
 
@@ -597,7 +601,7 @@ interface SentencesTabProps {
   setConfirmDeleteId: (id: number | null) => void;
   copySuccess: boolean;
   onDelete: (id: number) => void;
-  onCopyShareUrl: () => void;
+  onCopyShareUrl: (selectedIds: Set<number>) => void;
   onExport: () => void;
 }
 
@@ -605,7 +609,20 @@ function SentencesTab({
   customSentences, confirmDeleteId, setConfirmDeleteId,
   copySuccess, onDelete, onCopyShareUrl, onExport,
 }: SentencesTabProps) {
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const levelLabel = (l: number) => ['', 'Basis', 'Middel', 'Hoog'][l] ?? String(l);
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const selectAll = () => setSelectedIds(new Set(customSentences.map(s => s.id)));
+  const selectNone = () => setSelectedIds(new Set());
+  const selectedCount = selectedIds.size;
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6">
@@ -622,31 +639,32 @@ function SentencesTab({
         </div>
       )}
 
-      <div className="flex flex-wrap justify-between items-center mb-4 gap-3">
-        <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+      <div className="flex flex-wrap justify-between items-center mb-3 gap-2">
+        <h2 className="text-base font-bold text-slate-800 dark:text-white">
           Mijn zinnen
           <span className="ml-2 text-sm font-normal text-slate-400 dark:text-slate-500">{customSentences.length} opgeslagen</span>
         </h2>
         {customSentences.length > 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-xs text-slate-400 dark:text-slate-500">
+              {selectedCount > 0 ? `${selectedCount} van ${customSentences.length} geselecteerd` : 'Geen selectie'}
+            </span>
+            <button onClick={selectedCount === customSentences.length ? selectNone : selectAll} className="px-2 py-1 text-xs font-medium rounded border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+              {selectedCount === customSentences.length ? 'Niets selecteren' : 'Alles selecteren'}
+            </button>
             <button
-              onClick={onCopyShareUrl}
-              className={`px-4 py-2 text-sm font-semibold rounded-lg border transition-colors ${copySuccess ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700' : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600'}`}
+              onClick={() => onCopyShareUrl(selectedIds)}
+              disabled={selectedCount === 0}
+              className={`px-3 py-1.5 text-sm font-semibold rounded-lg border transition-colors ${copySuccess ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700' : selectedCount === 0 ? 'bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-700 dark:text-slate-500 dark:border-slate-600 cursor-not-allowed' : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600'}`}
             >
               {copySuccess ? '✓ Link gekopieerd!' : 'Deel met leerlingen'}
             </button>
-            <button onClick={onExport} className="px-4 py-2 text-sm font-semibold bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+            <button onClick={onExport} className="px-3 py-1.5 text-sm font-semibold bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
               Exporteer JSON
             </button>
           </div>
         )}
       </div>
-
-      {customSentences.length > 0 && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-4 mb-4 text-sm text-blue-800 dark:text-blue-200">
-          <strong>Deel met leerlingen:</strong> klik "Deel met leerlingen" om een speciale URL te kopiëren. Stuur die naar je leerlingen — ze zien een oranje banner en kunnen direct met jouw zinnen oefenen.
-        </div>
-      )}
 
       {customSentences.length === 0 ? (
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 p-12 text-center">
@@ -654,7 +672,7 @@ function SentencesTab({
           <p className="text-xs text-slate-400 dark:text-slate-500">Importeer een JSON-bestand via het beginscherm om eigen zinnen te gebruiken.</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {customSentences.map(s => {
             const chunks: { text: string; role: string }[] = [];
             let cur: string[] = []; let curRole = '';
@@ -664,28 +682,31 @@ function SentencesTab({
               cur.push(t.text); curRole = t.role;
             });
             if (cur.length > 0) chunks.push({ text: cur.join(' '), role: curRole });
+            const isSelected = selectedIds.has(s.id);
 
             return (
-              <div key={s.id} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm">
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex-1">
-                    <p className="font-semibold text-slate-800 dark:text-white text-base leading-snug">{s.label}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">{levelLabel(s.level)}</span>
-                      <span className="text-xs px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">{s.predicateType}</span>
-                    </div>
-                  </div>
-                  <button onClick={() => setConfirmDeleteId(s.id)} className="flex-shrink-0 text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1" title="Verwijder zin">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              <div key={s.id} className={`bg-white dark:bg-slate-800 rounded-lg border p-2.5 shadow-sm transition-colors ${isSelected ? 'border-blue-400 dark:border-blue-500 bg-blue-50/50 dark:bg-blue-900/10' : 'border-slate-200 dark:border-slate-700'}`}>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => toggleSelect(s.id)}
+                    className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 flex-shrink-0"
+                  />
+                  <p className="font-semibold text-slate-800 dark:text-white text-sm leading-snug flex-1 truncate">{s.label}</p>
+                  <span className="text-[10px] px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex-shrink-0">{levelLabel(s.level)}</span>
+                  <span className="text-[10px] px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex-shrink-0">{s.predicateType}</span>
+                  <button onClick={() => setConfirmDeleteId(s.id)} className="flex-shrink-0 text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors p-0.5" title="Verwijder zin">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                   </button>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-1 ml-6">
                   {chunks.map((c, i) => {
                     const rd = ROLES.find(r => r.key === c.role);
                     return (
-                      <span key={i} className={`inline-flex flex-col items-center px-2 py-1 rounded-lg border text-xs ${rd?.colorClass ?? 'bg-slate-100 text-slate-600'} ${rd?.borderColorClass ?? 'border-slate-200'}`}>
+                      <span key={i} className={`inline-flex flex-col items-center px-1.5 py-0.5 rounded border text-[11px] ${rd?.colorClass ?? 'bg-slate-100 text-slate-600'} ${rd?.borderColorClass ?? 'border-slate-200'}`}>
                         <span className="font-medium">{c.text}</span>
-                        <span className="opacity-60 text-[10px] font-bold">{rd?.shortLabel ?? c.role}</span>
+                        <span className="opacity-60 text-[9px] font-bold">{rd?.shortLabel ?? c.role}</span>
                       </span>
                     );
                   })}
