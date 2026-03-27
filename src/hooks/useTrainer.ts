@@ -109,7 +109,9 @@ export interface TrainerState {
   toggleSplit: (tokenIndex: number) => void;
   handleNextStep: () => void;
   handleBackStep: () => void;
+  isDragging: boolean;
   handleDragStart: (e: React.DragEvent<HTMLDivElement>, roleKey: string) => void;
+  handleDragEnd: () => void;
   handleDropChunk: (e: React.DragEvent<HTMLDivElement>, chunkId: string) => void;
   handleDropWord: (e: React.DragEvent<HTMLSpanElement>, tokenId: string) => void;
   removeLabel: (chunkId: string) => void;
@@ -544,10 +546,15 @@ export function useTrainer(): TrainerState {
     return buildUserChunks(currentSentence.tokens, splitIndices);
   };
 
+  const [isDragging, setIsDragging] = useState(false);
+
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, roleKey: string) => {
     e.dataTransfer.setData("text/role", roleKey);
     e.dataTransfer.effectAllowed = "copy";
+    setIsDragging(true);
   };
+
+  const handleDragEnd = () => setIsDragging(false);
 
   // Smart routing: if main role is already 'bijzin' and the chunk expects a bijzin function
   // that hasn't been filled yet, route the drop to bijzinFunctieLabels instead of chunkLabels.
@@ -598,18 +605,10 @@ export function useTrainer(): TrainerState {
   const shouldTreatWordDropAsChunkPlacement = (roleKey: RoleKey): boolean => {
     if (!currentSentence) return false;
     const roleDef = ROLES.find(r => r.key === roleKey);
-    if (!roleDef || roleDef.isSubOnly) return false;
-
-    const isFoundationalLevel = currentSentence.level <= 3;
-    if (isFoundationalLevel) return true;
-
-    const usesAdvancedWordSubroles = currentSentence.tokens.some(token => {
-      if (!token.subRole) return false;
-      if (token.subRole === 'bijv_bep') return true;
-      return token.subRole === 'bijst' || token.subRole === 'nwd' || token.subRole === 'wwd';
-    });
-
-    return !usesAdvancedWordSubroles;
+    // Non-sub-only roles (PV, OW, LV, MV, BWB, WG, NG, VV, bijzin…) always go to the chunk,
+    // regardless of sentence level. Sub-only roles (bijv_bep, bijst, nwd, wwd) fall through to
+    // word-level sub-label placement.
+    return !!roleDef && !roleDef.isSubOnly;
   };
 
   const handleDropWord = (e: React.DragEvent<HTMLSpanElement>, tokenId: string) => {
@@ -1170,7 +1169,7 @@ export function useTrainer(): TrainerState {
     startSession, startSharedSession, nextSessionSentence,
     handleSentenceSelect, toggleSplit,
     handleNextStep, handleBackStep,
-    handleDragStart, handleDropChunk, handleDropWord,
+    isDragging, handleDragStart, handleDragEnd, handleDropChunk, handleDropWord,
     removeLabel, removeSubLabel,
     handleDropBijzinFunctie, removeBijzinFunctieLabel,
     startBijvBepLinking, completeBijvBepLink, cancelBijvBepLinking, removeBijvBepLink,
