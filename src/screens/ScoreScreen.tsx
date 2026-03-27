@@ -193,6 +193,13 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
 
   const buildAndEncodeReport = () => {
     const sentenceIds = sessionQueue.map(s => s.id);
+    const hint = sessionSentenceResults.filter(r => r.showAnswerUsed).length;
+    const res = sessionSentenceResults.map(r => ({ sid: r.sentence.id, ok: r.isPerfect }));
+    const sols = sessionSentenceResults.map(r => ({
+      sid: r.sentence.id,
+      sp: r.splitIndices,
+      lb: r.userLabels as Record<string, string>,
+    }));
     const report = buildReport(
       studentNameProp.trim(),
       sessionStats.correct,
@@ -202,6 +209,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
       sentenceIds,
       studentInitiaalProp.trim().toUpperCase() || undefined,
       studentKlasProp.trim() || undefined,
+      { res, hint: hint > 0 ? hint : undefined, sols },
     );
     return encodeReport(report);
   };

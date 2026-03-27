@@ -1,16 +1,69 @@
+/**
+ * UsageLogScreen — Teacher analytics dashboard (/#/usage)
+ *
+ * Access:
+ *   PIN 1234 (docent)  → zinsontleding stats + Overzicht leerlingrapporten
+ *   PIN 4321 (eigenaar) → all of the above + Drive fetch/settings + raw logs
+ *
+ * Data sources:
+ *   1. Local usage store (usageData.ts) — per-sentence attempt/perfect/error counts
+ *      recorded on THIS device (teacher's own practice, or class Chromebook).
+ *   2. Local session reports (sessionReport.ts) — compact codes pasted manually
+ *      or fetched from Drive; decoded into SessionReport objects.
+ *   3. Drive reports (googleDriveSync.ts) — fetched fresh from the Google Sheet
+ *      on demand; not persisted locally beyond the current page session.
+ *
+ * Key computed data:
+ *   enrichedData   — joins all sentences with their local usage; drives the
+ *                    sentence-level cards and teacher insights.
+ *   allReports     — local + Drive reports combined; drives the Overzicht section.
+ *   aggregateStats — aggregate stats over allReports filtered by klas/student/date;
+ *                    drives the class/student breakdowns.
+ *
+ * State overview (24 useState calls):
+ *   Authentication  — pinInput, pinError, authenticated, isEigenaar
+ *   Sentence data   — enrichedData, sentenceMap (token map for solution display)
+ *   Sentence sort   — sortField, sortDir, filterSource, filterLevel
+ *   Report data     — reports (local), driveReports, driveStatus, driveError
+ *   Report filters  — filterKlas, filterStudent, filterDate, filterTimeFrom, filterTimeTo
+ *   Class editing   — editingKlas, editingKlasValue (inline rename)
+ *   Class merge     — mergingKlas, mergeTargetKlas, mergeStatus, mergeError
+ *   Student sort    — studentSortField, studentSortDir
+ *   Student rename  — editingStudent, editingStudentValue, studentRenameStatus, studentRenameError
+ *   Solution expand — expandedSols (Set<string> of expanded report keys)
+ *   Drive settings  — driveUrlInput, apiKeyInput, driveSettingsSaved
+ *   UI toggles      — showRawData, showInteractionLog, reportInput, reportMsg
+ *
+ * JSX layout (top to bottom):
+ *   1. PIN gate (unauthenticated)
+ *   2. Header (title + action buttons)
+ *   3. Quick Snapshot (4 KPI tiles)
+ *   4. Overzicht leerlingrapporten (filters, class/student tables, student detail)
+ *   5. Teacher-friendly insights (role errors, difficult sentences, gave-up, easy, level dist.)
+ *   6. Sentence filter bar + per-sentence cards (grouped by level)
+ *   7. [eigenaar] Drive fetch + manual import
+ *   8. [eigenaar] Drive settings
+ *   9. [eigenaar] Session flow stats + clickthrough stats
+ *  10. [eigenaar] Interaction log viewer + raw data viewer
+ */
 import React, { useState, useEffect } from 'react';
 import { loadUsageData, clearUsageData, exportUsageDataAsJson } from '../services/usageData';
 import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats } from '../services/interactionLog';
 import { loadAllSentences } from '../data/sentenceLoader';
 import { getCustomSentences } from '../data/customSentenceStore';
-import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats, computeStudentStats, normaliseKlas, renameKlas, deleteReportByIndex } from '../services/sessionReport';
+import { decodeReport, addReport, loadReports, clearReports, computeAggregateStats, computeStudentStats, normaliseKlas, renameKlas, renameStudent, deleteReportByIndex } from '../services/sessionReport';
 import type { SessionReport, JaarlaagStats } from '../services/sessionReport';
-import { fetchReports as fetchReportsFromDrive, getScriptUrl, setScriptUrl, getApiKey, setApiKey, isConfigFromEnv } from '../services/googleDriveSync';
+import { fetchReports as fetchReportsFromDrive, getScriptUrl, setScriptUrl, getApiKey, setApiKey, isConfigFromEnv, renameKlasOnDrive, renameStudentOnDrive } from '../services/googleDriveSync';
 import type { DriveRow } from '../services/googleDriveSync';
-import type { SentenceUsageData } from '../types';
+import { applyAliases, setKlasAlias, setStudentAlias } from '../services/nameAliases';
+import type { SentenceUsageData, Sentence } from '../types';
 
-// Score colours — twee varianten (advies: Grammar Coach)
-//
+// ---------------------------------------------------------------------------
+// Score colour helpers
+// Two thresholds: one for class/aggregate averages (strict) and one for
+// the "in één keer goed"-rate (lenient — automatisation is hard).
+// ---------------------------------------------------------------------------
+
 // Klas-/jaarlaaggemiddelde: strenger — een 75% klasgemiddelde is een signaal
 function scoreColorAggregate(pct: number): string {
   if (pct >= 90) return 'text-emerald-600 dark:text-emerald-400';
@@ -27,6 +80,17 @@ function scoreColorPerfectRate(pct: number): string {
   return 'text-red-600 dark:text-red-400';
 }
 
+// ---------------------------------------------------------------------------
+// mergeReportDataIntoUsage
+//
+// Overlays imported session reports on top of the local usage store so that
+// sentences practiced by students (via Drive/manual import) appear in the
+// per-sentence stats alongside the teacher's own local data.
+//
+// Reports with `res` (per-sentence results, new format) are processed per
+// sentence. Reports without `res` (old format) fall back to assuming the
+// whole-session perfect flag applies to every sentence in the session.
+// ---------------------------------------------------------------------------
 function mergeReportDataIntoUsage(
   localStore: Record<number, SentenceUsageData>,
   reports: SessionReport[]
@@ -132,6 +196,24 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   const [apiKeyInput, setApiKeyInput] = useState(() => getApiKey());
   const [driveSettingsSaved, setDriveSettingsSaved] = useState(false);
 
+  // Sentence token map — for solution display in student detail
+  const [sentenceMap, setSentenceMap] = useState<Map<number, Sentence>>(new Map());
+
+  // Class merge state
+  const [mergingKlas, setMergingKlas] = useState<string | null>(null);
+  const [mergeTargetKlas, setMergeTargetKlas] = useState('');
+  const [mergeStatus, setMergeStatus] = useState<'idle' | 'merging' | 'success' | 'error'>('idle');
+  const [mergeError, setMergeError] = useState('');
+
+  // Student rename state
+  const [editingStudent, setEditingStudent] = useState<string | null>(null);
+  const [editingStudentValue, setEditingStudentValue] = useState('');
+  const [studentRenameStatus, setStudentRenameStatus] = useState<'idle' | 'renaming' | 'success' | 'error'>('idle');
+  const [studentRenameError, setStudentRenameError] = useState('');
+
+  // Expanded solution sections per session (key: report timestamp)
+  const [expandedSols, setExpandedSols] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     if (!authenticated) return;
     const customSentences = getCustomSentences();
@@ -140,6 +222,11 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
         ...builtIn.map(s => ({ ...s, _isCustom: false })),
         ...customSentences.map(s => ({ ...s, _isCustom: true })),
       ];
+
+      // Build sentence token map for solution display
+      const tokenMap = new Map<number, Sentence>();
+      for (const s of all) tokenMap.set(s.id, s);
+      setSentenceMap(tokenMap);
 
       const mergedStore = mergeReportDataIntoUsage(loadUsageData(), [...reports, ...driveReports]);
       const enriched: EnrichedUsage[] = [];
@@ -194,6 +281,10 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     }
   };
 
+  // ---------------------------------------------------------------------------
+  // Event handlers
+  // ---------------------------------------------------------------------------
+
   const handleClearData = () => {
     if (confirm('Alle gebruiksdata wissen? Dit kan niet ongedaan worden.')) {
       clearUsageData();
@@ -219,14 +310,78 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     // driveReports stay in memory – re-trigger enrichment by updating reports
   };
 
+  // Rename a class locally + set persistent alias + fire-and-forget Drive update.
+  // "Rename" means the class keeps its identity but the label changes.
+  // For merging two separate classes into one, use handleMergeKlas.
   const handleRenameKlas = (oldKlas: string) => {
     const newKlas = editingKlasValue.trim().toLowerCase();
     if (newKlas && newKlas !== oldKlas) {
       renameKlas(oldKlas, newKlas);
+      setKlasAlias(oldKlas, newKlas);
       setReports(loadReports());
+      // Best-effort Drive update (fire-and-forget; no blocking UI for rename)
+      if (getScriptUrl()) {
+        renameKlasOnDrive(oldKlas, newKlas).catch(() => { /* ignore — local change already saved */ });
+      }
     }
     setEditingKlas(null);
     setEditingKlasValue('');
+  };
+
+  // Merge sourceKlas into mergeTargetKlas (the currently selected dropdown value).
+  // Order: 1) rename locally, 2) set alias so future Drive fetches apply it,
+  //         3) await Drive Sheet update (blocks UI with spinner).
+  const handleMergeKlas = async (sourceKlas: string) => {
+    const target = mergeTargetKlas.trim().toLowerCase();
+    if (!target || target === sourceKlas) return;
+    setMergeStatus('merging');
+    setMergeError('');
+    try {
+      renameKlas(sourceKlas, target);
+      setKlasAlias(sourceKlas, target);
+      setReports(loadReports());
+      if (getScriptUrl()) {
+        await renameKlasOnDrive(sourceKlas, target);
+      }
+      setMergeStatus('success');
+      setMergingKlas(null);
+      setMergeTargetKlas('');
+      setTimeout(() => setMergeStatus('idle'), 2000);
+    } catch (err) {
+      setMergeStatus('error');
+      setMergeError(err instanceof Error ? err.message : 'Fout bij samenvoegen');
+    }
+  };
+
+  // Rename a student across all local reports + set alias + await Drive Sheet update.
+  // Also updates filterStudent so the drill-down stays open under the new name.
+  const handleRenameStudent = async (oldName: string) => {
+    const newName = editingStudentValue.trim();
+    if (!newName || newName.toLowerCase() === oldName.toLowerCase()) {
+      setEditingStudent(null);
+      setEditingStudentValue('');
+      return;
+    }
+    setStudentRenameStatus('renaming');
+    setStudentRenameError('');
+    try {
+      renameStudent(oldName, newName);
+      setStudentAlias(oldName, newName);
+      setReports(loadReports());
+      if (filterStudent.toLowerCase() === oldName.toLowerCase()) {
+        setFilterStudent(newName.toLowerCase());
+      }
+      if (getScriptUrl()) {
+        await renameStudentOnDrive(oldName, newName);
+      }
+      setStudentRenameStatus('success');
+      setEditingStudent(null);
+      setEditingStudentValue('');
+      setTimeout(() => setStudentRenameStatus('idle'), 2000);
+    } catch (err) {
+      setStudentRenameStatus('error');
+      setStudentRenameError(err instanceof Error ? err.message : 'Fout bij hernoemen');
+    }
   };
 
   const handleDeleteReport = (index: number) => {
@@ -243,6 +398,10 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     }
   };
 
+  // Fetch all report rows from the Google Sheet, decode each report code,
+  // fill in metadata from the Sheet row when not present in the code itself,
+  // and apply stored name/class aliases. Drive reports are not saved locally —
+  // they live in driveReports state only until the page is closed.
   const handleFetchFromDrive = async () => {
     setDriveStatus('fetching');
     setDriveError('');
@@ -257,6 +416,8 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
           if (!r.initiaal && row.initiaal) r.initiaal = row.initiaal;
           if (!r.klas && row.klas) r.klas = normaliseKlas(row.klas);
           else if (r.klas) r.klas = normaliseKlas(r.klas);
+          // Apply local name/class aliases so renames persist across refetches
+          applyAliases(r);
           return r;
         })
         .filter((r): r is SessionReport => r !== null);
@@ -322,7 +483,14 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     );
   }
 
-  // --- Sorting & Filtering ---
+  // ---------------------------------------------------------------------------
+  // Derived data — computed per render from enrichedData + allReports + filters.
+  // These are NOT memoized (no useMemo). The dataset is small enough that
+  // re-computing on every render is fast (~1ms). If this ever causes jank on
+  // slow Chromebooks, wrap the most expensive ones in useMemo.
+  // ---------------------------------------------------------------------------
+
+  // Sentence-level filter + sort (drives the per-sentence card grid at the bottom)
   const filtered = enrichedData.filter(d => {
     if (filterSource === 'custom' && !d.isCustom) return false;
     if (filterSource === 'builtin' && d.isCustom) return false;
@@ -349,10 +517,13 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     setSortDir(dir);
   };
 
-  // --- Summary stats ---
+  // Quick Snapshot KPIs — local usage only (enrichedData = this device's data)
   const totalAttempts = enrichedData.reduce((s, d) => s + d.usage.attempts, 0);
   const totalPerfect = enrichedData.reduce((s, d) => s + d.usage.perfectCount, 0);
-  const totalShowAnswer = enrichedData.reduce((s, d) => s + d.usage.showAnswerCount, 0);
+  // Include hint counts from session reports (local usage data only tracks this device's interactions)
+  const totalShowAnswer =
+    enrichedData.reduce((s, d) => s + d.usage.showAnswerCount, 0) +
+    allReports.reduce((s, r) => s + (r.hint ?? 0), 0);
   const avgPerfectRate = totalAttempts > 0 ? (totalPerfect / totalAttempts) * 100 : 0;
 
   // Top 5 role errors across all sentences
@@ -474,6 +645,538 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
             <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Antwoord bekeken</div>
           </div>
         </div>
+
+        {/* Imported reports summary — visible for both docent and eigenaar */}
+          <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="font-bold text-slate-700 dark:text-white text-base mb-0.5">👥 Overzicht leerlingrapporten</h3>
+                <p className="text-xs text-slate-400 dark:text-slate-500">Geaggregeerde resultaten (Drive + handmatig)</p>
+              </div>
+              {allReports.length > 0 && (
+                <button
+                  onClick={handleClearReports}
+                  className="text-xs px-2 py-1 rounded bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 font-medium hover:bg-red-200 transition-colors"
+                >
+                  Wis lokale rapporten
+                </button>
+              )}
+            </div>
+            {allReports.length === 0 ? (
+              <div className="text-center py-6">
+                <p className="text-slate-500 dark:text-slate-400 mb-1">Nog geen leerlingrapporten ontvangen.</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">Rapporten worden automatisch verzameld via Google Drive, of je kunt ze handmatig importeren via de rapportcode.</p>
+              </div>
+            ) : (
+            <>
+
+            {/* Date/time + class/student filters */}
+            <div className="space-y-2 mb-3">
+              {/* Date and time row — always visible */}
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-xs text-slate-400 dark:text-slate-500 shrink-0">Datum:</span>
+                <input
+                  type="date"
+                  value={filterDate}
+                  onChange={e => setFilterDate(e.target.value)}
+                  className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
+                />
+                <span className="text-xs text-slate-400 dark:text-slate-500 shrink-0">Tijd:</span>
+                <input
+                  type="time"
+                  value={filterTimeFrom}
+                  onChange={e => setFilterTimeFrom(e.target.value)}
+                  className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
+                  title="Vanaf tijdstip"
+                />
+                <span className="text-xs text-slate-400 dark:text-slate-500">t/m</span>
+                <input
+                  type="time"
+                  value={filterTimeTo}
+                  onChange={e => setFilterTimeTo(e.target.value)}
+                  className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
+                  title="Tot en met tijdstip"
+                />
+              </div>
+              {/* Class and student row — only when klassen available */}
+              {aggregateStats.klassen.length > 0 && (
+                <div className="flex flex-wrap gap-2 items-center">
+                  <span className="text-xs text-slate-400 dark:text-slate-500 shrink-0">Klas:</span>
+                  <select
+                    value={filterKlas}
+                    onChange={e => { setFilterKlas(e.target.value); setFilterStudent(''); }}
+                    className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
+                  >
+                    <option value="">Alle klassen</option>
+                    {aggregateStats.klassen.map(k => (
+                      <option key={k} value={k}>{k}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={filterStudent}
+                    onChange={e => setFilterStudent(e.target.value)}
+                    className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
+                  >
+                    <option value="">Alle leerlingen</option>
+                    {aggregateStats.studentNames.map(n => (
+                      <option key={n} value={n}>{n}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {/* Clear all filters */}
+              {(filterKlas || filterStudent || filterDate || filterTimeFrom || filterTimeTo) && (
+                <button
+                  onClick={() => { setFilterKlas(''); setFilterStudent(''); setFilterDate(''); setFilterTimeFrom(''); setFilterTimeTo(''); }}
+                  className="text-xs px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                >
+                  ✕ Alle filters wissen
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-center text-sm mb-4">
+              <div>
+                <span className="font-bold text-blue-600 dark:text-blue-400">{aggregateStats.totalReports}</span>
+                <br/><span className="text-xs text-slate-500">Rapporten</span>
+              </div>
+              <div>
+                <span className="font-bold text-indigo-600 dark:text-indigo-400">{aggregateStats.uniqueStudents}</span>
+                <br/><span className="text-xs text-slate-500">Leerlingen</span>
+              </div>
+              <div>
+                <span className={`font-bold ${scoreColorAggregate(aggregateStats.avgScore)}`}>
+                  {aggregateStats.avgScore.toFixed(0)}%
+                </span>
+                <br/><span className="text-xs text-slate-500">Gem. score</span>
+              </div>
+              <div>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">{aggregateStats.totalCorrect}</span>
+                <br/><span className="text-xs text-slate-500">Totaal goed</span>
+              </div>
+              <div>
+                <span className="font-bold text-slate-600 dark:text-slate-400">{aggregateStats.totalChunks}</span>
+                <br/><span className="text-xs text-slate-500">Totaal zinsdelen</span>
+              </div>
+            </div>
+            {/* Top errors from reports */}
+            {Object.keys(aggregateStats.globalRoleErrors).length > 0 && (
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-700">
+                <span className="text-xs text-slate-400 block mb-2">Meest voorkomende fouten (uit rapporten):</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.entries(aggregateStats.globalRoleErrors)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5)
+                    .map(([role, count]) => (
+                      <span key={role} className="text-[11px] px-2 py-1 rounded-lg bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 font-medium">
+                        {role} ({count}×)
+                      </span>
+                    ))}
+                </div>
+              </div>
+            )}
+            {/* Activity per day from reports */}
+            {Object.keys(aggregateStats.reportsPerDay).length > 1 && (
+              <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
+                <span className="text-xs text-slate-400 block mb-2">Rapporten per dag:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.entries(aggregateStats.reportsPerDay)
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .map(([day, count]) => (
+                      <span key={day} className="text-[11px] px-2 py-1 rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 font-medium">
+                        {new Date(day).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}: {count}
+                      </span>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {/* Per-class breakdown */}
+            {aggregateStats.klasStats.length > 0 && !filterKlas && (
+              <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
+                <span className="text-xs text-slate-400 block mb-2">Per klas:</span>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="text-left text-slate-400 border-b border-slate-100 dark:border-slate-700">
+                        <th className="pb-1 pr-3 font-medium">Klas</th>
+                        <th className="pb-1 pr-3 font-medium text-center">Rapporten</th>
+                        <th className="pb-1 pr-3 font-medium text-center">Leerlingen</th>
+                        <th className="pb-1 font-medium text-center">Gem. score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {aggregateStats.klasStats.map(ks => (
+                        <React.Fragment key={ks.klas}>
+                        <tr
+                          className="border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors"
+                          onClick={() => setFilterKlas(ks.klas)}
+                        >
+                          <td className="py-1 pr-3 font-medium text-blue-600 dark:text-blue-400">
+                            {editingKlas === ks.klas ? (
+                              <span className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                                <input
+                                  type="text"
+                                  value={editingKlasValue}
+                                  onChange={e => setEditingKlasValue(e.target.value)}
+                                  onKeyDown={e => { if (e.key === 'Enter') handleRenameKlas(ks.klas); if (e.key === 'Escape') setEditingKlas(null); }}
+                                  className="w-20 px-1 py-0.5 text-xs rounded border border-blue-300 dark:border-blue-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 outline-none"
+                                  autoFocus
+                                />
+                                <button onClick={() => handleRenameKlas(ks.klas)} className="text-emerald-600 hover:text-emerald-700 text-xs" title="Opslaan">✓</button>
+                                <button onClick={() => setEditingKlas(null)} className="text-slate-400 hover:text-slate-600 text-xs" title="Annuleren">✕</button>
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1">
+                                {ks.klas}
+                                <button
+                                  onClick={e => { e.stopPropagation(); setEditingKlas(ks.klas); setEditingKlasValue(ks.klas); setMergingKlas(null); }}
+                                  className="text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 text-[10px]"
+                                  title="Klasnaam wijzigen"
+                                >✎</button>
+                                {aggregateStats.klasStats.length > 1 && (
+                                  <button
+                                    onClick={e => { e.stopPropagation(); setMergingKlas(mergingKlas === ks.klas ? null : ks.klas); setMergeTargetKlas(''); setMergeStatus('idle'); setEditingKlas(null); }}
+                                    className="text-slate-300 hover:text-orange-500 dark:text-slate-600 dark:hover:text-orange-400 text-[10px]"
+                                    title="Samenvoegen met andere klas"
+                                  >⇒</button>
+                                )}
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-1 pr-3 text-center text-slate-600 dark:text-slate-300">{ks.reportCount}</td>
+                          <td className="py-1 pr-3 text-center text-slate-600 dark:text-slate-300">{ks.uniqueStudents}</td>
+                          <td className="py-1 text-center">
+                            <span className={`font-bold ${scoreColorAggregate(ks.avgScore)}`}>
+                              {ks.avgScore.toFixed(0)}%
+                            </span>
+                          </td>
+                        </tr>
+                        {mergingKlas === ks.klas && (
+                          <tr className="bg-orange-50 dark:bg-orange-900/10">
+                            <td colSpan={4} className="py-2 px-2" onClick={e => e.stopPropagation()}>
+                              <div className="flex flex-wrap items-center gap-2 text-xs">
+                                <span className="text-orange-700 dark:text-orange-300 font-medium">Samenvoegen met:</span>
+                                <select
+                                  value={mergeTargetKlas}
+                                  onChange={e => setMergeTargetKlas(e.target.value)}
+                                  className="px-2 py-1 rounded border border-orange-300 dark:border-orange-700 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs"
+                                >
+                                  <option value="">— kies klas —</option>
+                                  {aggregateStats.klasStats
+                                    .filter(k => k.klas !== ks.klas)
+                                    .map(k => <option key={k.klas} value={k.klas}>{k.klas}</option>)}
+                                </select>
+                                <button
+                                  onClick={() => handleMergeKlas(ks.klas)}
+                                  disabled={!mergeTargetKlas || mergeStatus === 'merging'}
+                                  className="px-2 py-1 rounded bg-orange-600 text-white font-medium hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  {mergeStatus === 'merging' ? 'Bezig…' : 'Samenvoegen'}
+                                </button>
+                                <button
+                                  onClick={() => { setMergingKlas(null); setMergeStatus('idle'); }}
+                                  className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                >Annuleren</button>
+                                {mergeStatus === 'success' && <span className="text-emerald-600 dark:text-emerald-400">✓ Samengevoegd</span>}
+                                {mergeStatus === 'error' && <span className="text-red-600 dark:text-red-400">{mergeError}</span>}
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                        </React.Fragment>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1">Klik op een klas om te filteren. Klik ✎ om te hernoemen · ⇒ om samen te voegen (ook in Sheet).</p>
+              </div>
+            )}
+
+            {/* Per-student breakdown — only shown when a class is selected */}
+            {filterKlas && (() => {
+              const studentStats = computeStudentStats(dateFilteredReports, filterKlas);
+              if (studentStats.length === 0) return null;
+
+              const handleStudentSort = (field: StudentSortField) => {
+                if (field === studentSortField) {
+                  setStudentSortDir(d => d === 'asc' ? 'desc' : 'asc');
+                } else {
+                  setStudentSortField(field);
+                  setStudentSortDir('asc');
+                }
+              };
+              const sortedStudents = [...studentStats].sort((a, b) => {
+                let cmp = 0;
+                switch (studentSortField) {
+                  case 'name':    cmp = a.name.localeCompare(b.name, 'nl'); break;
+                  case 'sessions': cmp = a.sessionCount - b.sessionCount; break;
+                  case 'avg':    cmp = a.avgScore - b.avgScore; break;
+                  case 'best':   cmp = a.bestScore - b.bestScore; break;
+                  case 'latest': cmp = a.latestTs.localeCompare(b.latestTs); break;
+                }
+                return studentSortDir === 'asc' ? cmp : -cmp;
+              });
+              const arrow = (f: StudentSortField) =>
+                studentSortField === f ? (studentSortDir === 'asc' ? ' ↑' : ' ↓') : '';
+              const thClass = (f: StudentSortField) =>
+                `pb-1 pr-2 font-medium cursor-pointer select-none hover:text-slate-600 dark:hover:text-slate-200 transition-colors${studentSortField === f ? ' text-blue-500 dark:text-blue-400' : ''}`;
+
+              return (
+                <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
+                  <span className="text-xs text-slate-400 block mb-2">
+                    Leerlingen in klas <strong className="text-slate-600 dark:text-slate-300">{filterKlas}</strong>:
+                  </span>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="text-left text-slate-400 border-b border-slate-100 dark:border-slate-700">
+                          <th className={thClass('name')} onClick={() => handleStudentSort('name')}>Leerling{arrow('name')}</th>
+                          <th className={thClass('sessions') + ' text-center'} onClick={() => handleStudentSort('sessions')}>Sessies{arrow('sessions')}</th>
+                          <th className={thClass('avg') + ' text-center'} onClick={() => handleStudentSort('avg')}>Gem.{arrow('avg')}</th>
+                          <th className={thClass('best') + ' text-center'} onClick={() => handleStudentSort('best')}>Beste{arrow('best')}</th>
+                          <th className={thClass('latest') + ' text-center'} onClick={() => handleStudentSort('latest')}>Laatste{arrow('latest')}</th>
+                          <th className="pb-1 font-medium">Zwakste punt</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sortedStudents.map(ss => (
+                          <tr
+                            key={ss.name}
+                            className="border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors"
+                            onClick={() => setFilterStudent(ss.name.toLowerCase())}
+                          >
+                            <td className="py-1.5 pr-2 font-medium text-blue-600 dark:text-blue-400 capitalize">
+                              {editingStudent === ss.name.toLowerCase() ? (
+                                <span className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                                  <input
+                                    type="text"
+                                    value={editingStudentValue}
+                                    onChange={e => setEditingStudentValue(e.target.value)}
+                                    onKeyDown={e => { if (e.key === 'Enter') handleRenameStudent(ss.name); if (e.key === 'Escape') setEditingStudent(null); }}
+                                    className="w-24 px-1 py-0.5 text-xs rounded border border-blue-300 dark:border-blue-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 outline-none"
+                                    autoFocus
+                                  />
+                                  <button onClick={() => handleRenameStudent(ss.name)} className="text-emerald-600 hover:text-emerald-700 text-xs" title="Opslaan" disabled={studentRenameStatus === 'renaming'}>
+                                    {studentRenameStatus === 'renaming' ? '…' : '✓'}
+                                  </button>
+                                  <button onClick={() => setEditingStudent(null)} className="text-slate-400 hover:text-slate-600 text-xs" title="Annuleren">✕</button>
+                                  {studentRenameStatus === 'error' && <span className="text-red-500 text-[10px]">{studentRenameError}</span>}
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-1">
+                                  {ss.name}
+                                  <button
+                                    onClick={e => { e.stopPropagation(); setEditingStudent(ss.name.toLowerCase()); setEditingStudentValue(ss.name); setStudentRenameStatus('idle'); }}
+                                    className="text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 text-[10px]"
+                                    title="Naam wijzigen"
+                                  >✎</button>
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-1.5 pr-2 text-center text-slate-500">{ss.sessionCount}</td>
+                            <td className={`py-1.5 pr-2 text-center font-bold ${scoreColorAggregate(ss.avgScore)}`}>
+                              {ss.avgScore.toFixed(0)}%
+                            </td>
+                            <td className={`py-1.5 pr-2 text-center font-bold ${scoreColorAggregate(ss.bestScore)}`}>
+                              {ss.bestScore.toFixed(0)}%
+                            </td>
+                            <td className="py-1.5 pr-2 text-center text-slate-400">
+                              {new Date(ss.latestTs).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
+                            </td>
+                            <td className="py-1.5 text-slate-500">
+                              {ss.topErrors[0]?.role ?? '—'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1">Klik op een leerling om in te zoomen.</p>
+                </div>
+              );
+            })()}
+
+            {/* Student detail drill-down — individual reports */}
+            {filterStudent && (() => {
+              const sentenceLabelMap = new Map(enrichedData.map(e => [e.sentenceId, e.label]));
+              const studentReports = allReports
+                .map((r, idx) => ({ report: r, originalIndex: idx < reports.length ? idx : -1 }))
+                .filter(({ report: r }) => r.name.toLowerCase() === filterStudent.toLowerCase())
+                .sort((a, b) => b.report.ts.localeCompare(a.report.ts));
+
+              if (studentReports.length === 0) return null;
+
+              return (
+                <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
+                  <span className="text-xs text-slate-400 block mb-2">
+                    Sessies van <strong className="text-slate-600 dark:text-slate-300 capitalize">{filterStudent}</strong>:
+                  </span>
+                  <div className="space-y-3">
+                    {studentReports.map(({ report: r, originalIndex }, i) => {
+                      const pct = r.t > 0 ? Math.round((r.c / r.t) * 100) : 0;
+                      const errEntries = Object.entries(r.err || {}).sort((a, b) => b[1] - a[1]);
+                      const solsKey = r.ts;
+                      const solsExpanded = expandedSols.has(solsKey);
+                      return (
+                        <div key={i} className="p-3 rounded-lg bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-slate-400">
+                                {new Date(r.ts).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                {' '}
+                                {new Date(r.ts).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                              {r.lvl && <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 font-medium">Niv. {r.lvl}</span>}
+                              <span className={`text-xs font-bold ${scoreColorAggregate(pct)}`}>{pct}%</span>
+                              <span className="text-[10px] text-slate-400">({r.c}/{r.t} goed)</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {r.sols && r.sols.length > 0 && (
+                                <button
+                                  onClick={() => setExpandedSols(prev => {
+                                    const next = new Set(prev);
+                                    if (next.has(solsKey)) next.delete(solsKey); else next.add(solsKey);
+                                    return next;
+                                  })}
+                                  className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 hover:bg-blue-100 transition-colors"
+                                >
+                                  {solsExpanded ? '▲ Verberg antwoorden' : '▼ Bekijk antwoorden'}
+                                </button>
+                              )}
+                              {originalIndex >= 0 && (
+                                <button
+                                  onClick={() => handleDeleteReport(originalIndex)}
+                                  className="text-xs text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
+                                  title="Verwijder dit rapport"
+                                >🗑</button>
+                              )}
+                            </div>
+                          </div>
+                          {errEntries.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-2">
+                              <span className="text-[10px] text-slate-400">Fouten:</span>
+                              {errEntries.map(([role, count]) => (
+                                <span key={role} className="text-[10px] px-1.5 py-0.5 rounded bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 font-medium">
+                                  {role} ({count}×)
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {r.sids && r.sids.length > 0 && !r.sols && (
+                            <div>
+                              <span className="text-[10px] text-slate-400 block mb-1">Zinnen ({r.sids.length}):</span>
+                              <div className="flex flex-wrap gap-1">
+                                {r.sids.map(sid => (
+                                  <span key={sid} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-600/50 text-slate-600 dark:text-slate-300" title={sentenceLabelMap.get(sid) || `Zin ${sid}`}>
+                                    {sentenceLabelMap.get(sid)?.replace(/^Zin \d+:\s*/, '') || `#${sid}`}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {/* Student solution display — per-sentence breakdown */}
+                          {r.sols && solsExpanded && (
+                            <div className="mt-2 space-y-3">
+                              {r.sols.map(sol => {
+                                const sentence = sentenceMap.get(sol.sid);
+                                const label = sentenceLabelMap.get(sol.sid) || `Zin ${sol.sid}`;
+                                const resEntry = r.res?.find(x => x.sid === sol.sid);
+                                const isPerfect = resEntry?.ok ?? false;
+                                return (
+                                  <div key={sol.sid} className={`rounded-lg p-2 border ${isPerfect ? 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800'}`}>
+                                    <div className="flex items-center gap-1 mb-1.5">
+                                      <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 truncate">{label.replace(/^Zin \d+:\s*/, '')}</span>
+                                      <span className="ml-auto text-[10px]">{isPerfect ? '✅' : '❌'}</span>
+                                    </div>
+                                    {sentence ? (
+                                      <div className="flex flex-wrap items-end gap-1">
+                                        {sentence.tokens.map((token, idx) => {
+                                          const isNewChunk = idx === 0 || sol.sp.includes(idx);
+                                          // Determine what role was assigned to this chunk
+                                          const chunkFirstId = isNewChunk
+                                            ? token.id
+                                            : (() => {
+                                                for (let j = idx - 1; j >= 0; j--) {
+                                                  if (j === 0 || sol.sp.includes(j)) return sentence.tokens[j].id;
+                                                }
+                                                return sentence.tokens[0].id;
+                                              })();
+                                          const assignedRole = sol.lb[chunkFirstId];
+                                          const expectedRole = token.role;
+                                          const isCorrectRole = assignedRole === expectedRole || assignedRole === token.alternativeRole;
+                                          return (
+                                            <React.Fragment key={token.id}>
+                                              {isNewChunk && idx > 0 && (
+                                                <span className="text-slate-300 dark:text-slate-600 text-[10px] select-none">|</span>
+                                              )}
+                                              <span className={`text-[11px] px-1 py-0.5 rounded ${isNewChunk && assignedRole ? (isCorrectRole ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200') : 'bg-slate-100 dark:bg-slate-600/50 text-slate-700 dark:text-slate-200'}`}>
+                                                {token.text}
+                                                {isNewChunk && assignedRole && (
+                                                  <span className="ml-0.5 text-[9px] opacity-70">[{assignedRole}]</span>
+                                                )}
+                                              </span>
+                                            </React.Fragment>
+                                          );
+                                        })}
+                                      </div>
+                                    ) : (
+                                      <div className="flex flex-wrap gap-1">
+                                        {Object.entries(sol.lb).map(([chunkId, role]) => (
+                                          <span key={chunkId} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-600/50 text-slate-700 dark:text-slate-200">
+                                            {chunkId}: <strong>{role}</strong>
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Per-jaarlaag breakdown */}
+            {aggregateStats.jaarlaagStats.length > 0 && (
+              <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
+                <span className="text-xs text-slate-400 block mb-2">Per jaarlaag:</span>
+                <div className="space-y-2">
+                  {aggregateStats.jaarlaagStats.map((js: JaarlaagStats) => (
+                    <div key={js.jaarlaag} className="p-2 rounded-lg bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700">
+                      <div className="flex items-center gap-3 mb-1">
+                        <span className="font-bold text-slate-700 dark:text-white text-sm">
+                          {js.jaarlaag === '?' ? 'Onbekend' : `Klas ${js.jaarlaag}`}
+                        </span>
+                        <span className="text-xs text-slate-400">{js.reportCount} rapporten · {js.uniqueStudents} leerlingen · {js.uniqueKlassen} {js.uniqueKlassen === 1 ? 'klas' : 'klassen'}</span>
+                        <span className={`ml-auto font-bold text-sm ${scoreColorAggregate(js.avgScore)}`}>
+                          {js.avgScore.toFixed(0)}%
+                        </span>
+                      </div>
+                      {js.topRoleErrors.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          <span className="text-[10px] text-slate-400">Veelste fouten:</span>
+                          {js.topRoleErrors.map(e => (
+                            <span key={e.role} className="text-[10px] px-1.5 py-0.5 rounded bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 font-medium">
+                              {e.role} ({e.count}×)
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1">Gebaseerd op het eerste cijfer van de klasnaam (bv. "1" uit "1ga").</p>
+              </div>
+            )}
+            </>
+            )}
+          </div>
 
         {/* Teacher-friendly insights */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -658,396 +1361,6 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
           </div>
 
         </div>
-
-        {/* Imported reports summary — visible for both docent and eigenaar */}
-          <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h3 className="font-bold text-slate-700 dark:text-white text-base mb-0.5">👥 Overzicht leerlingrapporten</h3>
-                <p className="text-xs text-slate-400 dark:text-slate-500">Geaggregeerde resultaten (Drive + handmatig)</p>
-              </div>
-              {allReports.length > 0 && (
-                <button
-                  onClick={handleClearReports}
-                  className="text-xs px-2 py-1 rounded bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 font-medium hover:bg-red-200 transition-colors"
-                >
-                  Wis lokale rapporten
-                </button>
-              )}
-            </div>
-            {allReports.length === 0 ? (
-              <div className="text-center py-6">
-                <p className="text-slate-500 dark:text-slate-400 mb-1">Nog geen leerlingrapporten ontvangen.</p>
-                <p className="text-xs text-slate-400 dark:text-slate-500">Rapporten worden automatisch verzameld via Google Drive, of je kunt ze handmatig importeren via de rapportcode.</p>
-              </div>
-            ) : (
-            <>
-
-            {/* Date/time + class/student filters */}
-            <div className="space-y-2 mb-3">
-              {/* Date and time row — always visible */}
-              <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-xs text-slate-400 dark:text-slate-500 shrink-0">Datum:</span>
-                <input
-                  type="date"
-                  value={filterDate}
-                  onChange={e => setFilterDate(e.target.value)}
-                  className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
-                />
-                <span className="text-xs text-slate-400 dark:text-slate-500 shrink-0">Tijd:</span>
-                <input
-                  type="time"
-                  value={filterTimeFrom}
-                  onChange={e => setFilterTimeFrom(e.target.value)}
-                  className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
-                  title="Vanaf tijdstip"
-                />
-                <span className="text-xs text-slate-400 dark:text-slate-500">t/m</span>
-                <input
-                  type="time"
-                  value={filterTimeTo}
-                  onChange={e => setFilterTimeTo(e.target.value)}
-                  className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
-                  title="Tot en met tijdstip"
-                />
-              </div>
-              {/* Class and student row — only when klassen available */}
-              {aggregateStats.klassen.length > 0 && (
-                <div className="flex flex-wrap gap-2 items-center">
-                  <span className="text-xs text-slate-400 dark:text-slate-500 shrink-0">Klas:</span>
-                  <select
-                    value={filterKlas}
-                    onChange={e => { setFilterKlas(e.target.value); setFilterStudent(''); }}
-                    className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
-                  >
-                    <option value="">Alle klassen</option>
-                    {aggregateStats.klassen.map(k => (
-                      <option key={k} value={k}>{k}</option>
-                    ))}
-                  </select>
-                  <select
-                    value={filterStudent}
-                    onChange={e => setFilterStudent(e.target.value)}
-                    className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
-                  >
-                    <option value="">Alle leerlingen</option>
-                    {aggregateStats.studentNames.map(n => (
-                      <option key={n} value={n}>{n}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              {/* Clear all filters */}
-              {(filterKlas || filterStudent || filterDate || filterTimeFrom || filterTimeTo) && (
-                <button
-                  onClick={() => { setFilterKlas(''); setFilterStudent(''); setFilterDate(''); setFilterTimeFrom(''); setFilterTimeTo(''); }}
-                  className="text-xs px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-                >
-                  ✕ Alle filters wissen
-                </button>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-center text-sm mb-4">
-              <div>
-                <span className="font-bold text-blue-600 dark:text-blue-400">{aggregateStats.totalReports}</span>
-                <br/><span className="text-xs text-slate-500">Rapporten</span>
-              </div>
-              <div>
-                <span className="font-bold text-indigo-600 dark:text-indigo-400">{aggregateStats.uniqueStudents}</span>
-                <br/><span className="text-xs text-slate-500">Leerlingen</span>
-              </div>
-              <div>
-                <span className={`font-bold ${scoreColorAggregate(aggregateStats.avgScore)}`}>
-                  {aggregateStats.avgScore.toFixed(0)}%
-                </span>
-                <br/><span className="text-xs text-slate-500">Gem. score</span>
-              </div>
-              <div>
-                <span className="font-bold text-emerald-600 dark:text-emerald-400">{aggregateStats.totalCorrect}</span>
-                <br/><span className="text-xs text-slate-500">Totaal goed</span>
-              </div>
-              <div>
-                <span className="font-bold text-slate-600 dark:text-slate-400">{aggregateStats.totalChunks}</span>
-                <br/><span className="text-xs text-slate-500">Totaal zinsdelen</span>
-              </div>
-            </div>
-            {/* Top errors from reports */}
-            {Object.keys(aggregateStats.globalRoleErrors).length > 0 && (
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-700">
-                <span className="text-xs text-slate-400 block mb-2">Meest voorkomende fouten (uit rapporten):</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {Object.entries(aggregateStats.globalRoleErrors)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 5)
-                    .map(([role, count]) => (
-                      <span key={role} className="text-[11px] px-2 py-1 rounded-lg bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 font-medium">
-                        {role} ({count}×)
-                      </span>
-                    ))}
-                </div>
-              </div>
-            )}
-            {/* Activity per day from reports */}
-            {Object.keys(aggregateStats.reportsPerDay).length > 1 && (
-              <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
-                <span className="text-xs text-slate-400 block mb-2">Rapporten per dag:</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {Object.entries(aggregateStats.reportsPerDay)
-                    .sort(([a], [b]) => a.localeCompare(b))
-                    .map(([day, count]) => (
-                      <span key={day} className="text-[11px] px-2 py-1 rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 font-medium">
-                        {new Date(day).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}: {count}
-                      </span>
-                    ))}
-                </div>
-              </div>
-            )}
-
-            {/* Per-class breakdown */}
-            {aggregateStats.klasStats.length > 0 && !filterKlas && (
-              <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
-                <span className="text-xs text-slate-400 block mb-2">Per klas:</span>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="text-left text-slate-400 border-b border-slate-100 dark:border-slate-700">
-                        <th className="pb-1 pr-3 font-medium">Klas</th>
-                        <th className="pb-1 pr-3 font-medium text-center">Rapporten</th>
-                        <th className="pb-1 pr-3 font-medium text-center">Leerlingen</th>
-                        <th className="pb-1 font-medium text-center">Gem. score</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {aggregateStats.klasStats.map(ks => (
-                        <tr
-                          key={ks.klas}
-                          className="border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors"
-                          onClick={() => setFilterKlas(ks.klas)}
-                        >
-                          <td className="py-1 pr-3 font-medium text-blue-600 dark:text-blue-400">
-                            {editingKlas === ks.klas ? (
-                              <span className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                                <input
-                                  type="text"
-                                  value={editingKlasValue}
-                                  onChange={e => setEditingKlasValue(e.target.value)}
-                                  onKeyDown={e => { if (e.key === 'Enter') handleRenameKlas(ks.klas); if (e.key === 'Escape') setEditingKlas(null); }}
-                                  className="w-20 px-1 py-0.5 text-xs rounded border border-blue-300 dark:border-blue-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 outline-none"
-                                  autoFocus
-                                />
-                                <button onClick={() => handleRenameKlas(ks.klas)} className="text-emerald-600 hover:text-emerald-700 text-xs" title="Opslaan">✓</button>
-                                <button onClick={() => setEditingKlas(null)} className="text-slate-400 hover:text-slate-600 text-xs" title="Annuleren">✕</button>
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-1">
-                                {ks.klas}
-                                <button
-                                  onClick={e => { e.stopPropagation(); setEditingKlas(ks.klas); setEditingKlasValue(ks.klas); }}
-                                  className="text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 text-[10px]"
-                                  title="Klasnaam wijzigen"
-                                >✎</button>
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-1 pr-3 text-center text-slate-600 dark:text-slate-300">{ks.reportCount}</td>
-                          <td className="py-1 pr-3 text-center text-slate-600 dark:text-slate-300">{ks.uniqueStudents}</td>
-                          <td className="py-1 text-center">
-                            <span className={`font-bold ${scoreColorAggregate(ks.avgScore)}`}>
-                              {ks.avgScore.toFixed(0)}%
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <p className="text-[10px] text-slate-400 mt-1">Klik op een klas om te filteren. Klik ✎ om een klasnaam te wijzigen (alleen lokaal).</p>
-              </div>
-            )}
-
-            {/* Per-student breakdown — only shown when a class is selected */}
-            {filterKlas && (() => {
-              const studentStats = computeStudentStats(dateFilteredReports, filterKlas);
-              if (studentStats.length === 0) return null;
-
-              const handleStudentSort = (field: StudentSortField) => {
-                if (field === studentSortField) {
-                  setStudentSortDir(d => d === 'asc' ? 'desc' : 'asc');
-                } else {
-                  setStudentSortField(field);
-                  setStudentSortDir('asc');
-                }
-              };
-              const sortedStudents = [...studentStats].sort((a, b) => {
-                let cmp = 0;
-                switch (studentSortField) {
-                  case 'name':    cmp = a.name.localeCompare(b.name, 'nl'); break;
-                  case 'sessions': cmp = a.sessionCount - b.sessionCount; break;
-                  case 'avg':    cmp = a.avgScore - b.avgScore; break;
-                  case 'best':   cmp = a.bestScore - b.bestScore; break;
-                  case 'latest': cmp = a.latestTs.localeCompare(b.latestTs); break;
-                }
-                return studentSortDir === 'asc' ? cmp : -cmp;
-              });
-              const arrow = (f: StudentSortField) =>
-                studentSortField === f ? (studentSortDir === 'asc' ? ' ↑' : ' ↓') : '';
-              const thClass = (f: StudentSortField) =>
-                `pb-1 pr-2 font-medium cursor-pointer select-none hover:text-slate-600 dark:hover:text-slate-200 transition-colors${studentSortField === f ? ' text-blue-500 dark:text-blue-400' : ''}`;
-
-              return (
-                <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
-                  <span className="text-xs text-slate-400 block mb-2">
-                    Leerlingen in klas <strong className="text-slate-600 dark:text-slate-300">{filterKlas}</strong>:
-                  </span>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs">
-                      <thead>
-                        <tr className="text-left text-slate-400 border-b border-slate-100 dark:border-slate-700">
-                          <th className={thClass('name')} onClick={() => handleStudentSort('name')}>Leerling{arrow('name')}</th>
-                          <th className={thClass('sessions') + ' text-center'} onClick={() => handleStudentSort('sessions')}>Sessies{arrow('sessions')}</th>
-                          <th className={thClass('avg') + ' text-center'} onClick={() => handleStudentSort('avg')}>Gem.{arrow('avg')}</th>
-                          <th className={thClass('best') + ' text-center'} onClick={() => handleStudentSort('best')}>Beste{arrow('best')}</th>
-                          <th className={thClass('latest') + ' text-center'} onClick={() => handleStudentSort('latest')}>Laatste{arrow('latest')}</th>
-                          <th className="pb-1 font-medium">Zwakste punt</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {sortedStudents.map(ss => (
-                          <tr
-                            key={ss.name}
-                            className="border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors"
-                            onClick={() => setFilterStudent(ss.name.toLowerCase())}
-                          >
-                            <td className="py-1.5 pr-2 font-medium text-blue-600 dark:text-blue-400 capitalize">{ss.name}</td>
-                            <td className="py-1.5 pr-2 text-center text-slate-500">{ss.sessionCount}</td>
-                            <td className={`py-1.5 pr-2 text-center font-bold ${scoreColorAggregate(ss.avgScore)}`}>
-                              {ss.avgScore.toFixed(0)}%
-                            </td>
-                            <td className={`py-1.5 pr-2 text-center font-bold ${scoreColorAggregate(ss.bestScore)}`}>
-                              {ss.bestScore.toFixed(0)}%
-                            </td>
-                            <td className="py-1.5 pr-2 text-center text-slate-400">
-                              {new Date(ss.latestTs).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
-                            </td>
-                            <td className="py-1.5 text-slate-500">
-                              {ss.topErrors[0]?.role ?? '—'}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  <p className="text-[10px] text-slate-400 mt-1">Klik op een leerling om in te zoomen.</p>
-                </div>
-              );
-            })()}
-
-            {/* Student detail drill-down — individual reports */}
-            {filterStudent && (() => {
-              const sentenceMap = new Map(enrichedData.map(e => [e.sentenceId, e.label]));
-              const studentReports = allReports
-                .map((r, idx) => ({ report: r, originalIndex: idx < reports.length ? idx : -1 }))
-                .filter(({ report: r }) => r.name.toLowerCase() === filterStudent.toLowerCase())
-                .sort((a, b) => b.report.ts.localeCompare(a.report.ts));
-
-              if (studentReports.length === 0) return null;
-
-              return (
-                <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
-                  <span className="text-xs text-slate-400 block mb-2">
-                    Sessies van <strong className="text-slate-600 dark:text-slate-300 capitalize">{filterStudent}</strong>:
-                  </span>
-                  <div className="space-y-3">
-                    {studentReports.map(({ report: r, originalIndex }, i) => {
-                      const pct = r.t > 0 ? Math.round((r.c / r.t) * 100) : 0;
-                      const errEntries = Object.entries(r.err || {}).sort((a, b) => b[1] - a[1]);
-                      return (
-                        <div key={i} className="p-3 rounded-lg bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-slate-400">
-                                {new Date(r.ts).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                {' '}
-                                {new Date(r.ts).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}
-                              </span>
-                              {r.lvl && <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 font-medium">Niv. {r.lvl}</span>}
-                              <span className={`text-xs font-bold ${scoreColorAggregate(pct)}`}>{pct}%</span>
-                              <span className="text-[10px] text-slate-400">({r.c}/{r.t} goed)</span>
-                            </div>
-                            {originalIndex >= 0 && (
-                              <button
-                                onClick={() => handleDeleteReport(originalIndex)}
-                                className="text-xs text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
-                                title="Verwijder dit rapport"
-                              >🗑</button>
-                            )}
-                          </div>
-                          {errEntries.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mb-2">
-                              <span className="text-[10px] text-slate-400">Fouten:</span>
-                              {errEntries.map(([role, count]) => (
-                                <span key={role} className="text-[10px] px-1.5 py-0.5 rounded bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 font-medium">
-                                  {role} ({count}×)
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                          {r.sids && r.sids.length > 0 && (
-                            <div>
-                              <span className="text-[10px] text-slate-400 block mb-1">Zinnen ({r.sids.length}):</span>
-                              <div className="flex flex-wrap gap-1">
-                                {r.sids.map(sid => (
-                                  <span key={sid} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-600/50 text-slate-600 dark:text-slate-300" title={sentenceMap.get(sid) || `Zin ${sid}`}>
-                                    {sentenceMap.get(sid)?.replace(/^Zin \d+:\s*/, '') || `#${sid}`}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* Per-jaarlaag breakdown */}
-            {aggregateStats.jaarlaagStats.length > 0 && (
-              <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700">
-                <span className="text-xs text-slate-400 block mb-2">Per jaarlaag:</span>
-                <div className="space-y-2">
-                  {aggregateStats.jaarlaagStats.map((js: JaarlaagStats) => (
-                    <div key={js.jaarlaag} className="p-2 rounded-lg bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700">
-                      <div className="flex items-center gap-3 mb-1">
-                        <span className="font-bold text-slate-700 dark:text-white text-sm">
-                          {js.jaarlaag === '?' ? 'Onbekend' : `Klas ${js.jaarlaag}`}
-                        </span>
-                        <span className="text-xs text-slate-400">{js.reportCount} rapporten · {js.uniqueStudents} leerlingen · {js.uniqueKlassen} {js.uniqueKlassen === 1 ? 'klas' : 'klassen'}</span>
-                        <span className={`ml-auto font-bold text-sm ${scoreColorAggregate(js.avgScore)}`}>
-                          {js.avgScore.toFixed(0)}%
-                        </span>
-                      </div>
-                      {js.topRoleErrors.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          <span className="text-[10px] text-slate-400">Veelste fouten:</span>
-                          {js.topRoleErrors.map(e => (
-                            <span key={e.role} className="text-[10px] px-1.5 py-0.5 rounded bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 font-medium">
-                              {e.role} ({e.count}×)
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <p className="text-[10px] text-slate-400 mt-1">Gebaseerd op het eerste cijfer van de klasnaam (bv. "1" uit "1ga").</p>
-              </div>
-            )}
-            </>
-            )}
-          </div>
 
         {/* Filters */}
         <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">

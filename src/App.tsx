@@ -148,7 +148,7 @@ export default function App() {
       sessionIndex={trainer.sessionIndex} sessionQueue={trainer.sessionQueue}
       userChunks={trainer.userChunks}
       toggleSplit={trainer.toggleSplit} handleNextStep={trainer.handleNextStep} handleBackStep={trainer.handleBackStep}
-      handleDragStart={trainer.handleDragStart} handleDropChunk={trainer.handleDropChunk} handleDropWord={trainer.handleDropWord}
+      isDragging={trainer.isDragging} handleDragStart={trainer.handleDragStart} handleDragEnd={trainer.handleDragEnd} handleDropChunk={trainer.handleDropChunk} handleDropWord={trainer.handleDropWord}
       removeLabel={trainer.removeLabel} removeSubLabel={trainer.removeSubLabel}
       handleDropBijzinFunctie={trainer.handleDropBijzinFunctie} removeBijzinFunctieLabel={trainer.removeBijzinFunctieLabel}
       startBijvBepLinking={trainer.startBijvBepLinking} completeBijvBepLink={trainer.completeBijvBepLink} cancelBijvBepLinking={trainer.cancelBijvBepLinking} removeBijvBepLink={trainer.removeBijvBepLink}

@@ -467,6 +467,11 @@ export function useTrainer(): TrainerState {
           : undefined;
         const hint = sessionSentenceResults.filter(r => r.showAnswerUsed).length;
         const res = sessionSentenceResults.map(r => ({ sid: r.sentence.id, ok: r.isPerfect }));
+        const sols = sessionSentenceResults.map(r => ({
+          sid: r.sentence.id,
+          sp: r.splitIndices,
+          lb: r.userLabels as Record<string, string>,
+        }));
         const report = buildReport(
           info.name,
           finalCorrect,
@@ -476,7 +481,7 @@ export function useTrainer(): TrainerState {
           sentenceIds,
           info.initiaal,
           info.klas,
-          { res, hint, dur },
+          { res, hint, dur, sols },
         );
         const code = encodeReport(report);
         setAutoSendStatus('sending');

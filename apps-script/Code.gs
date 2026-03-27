@@ -43,6 +43,14 @@ function doGet(e) {
     return handleSubmit(params);
   }
 
+  if (action === 'renameKlas') {
+    return handleRenameKlas(params);
+  }
+
+  if (action === 'renameStudent') {
+    return handleRenameStudent(params);
+  }
+
   // Standaard: lees alle rijen
   return handleRead();
 }
@@ -71,6 +79,47 @@ function handleSubmit(params) {
   ]);
 
   return jsonResponse({ ok: true });
+}
+
+function handleRenameKlas(params) {
+  var oldKlas = (params.oldKlas || '').trim().toLowerCase();
+  var newKlas = (params.newKlas || '').trim().toLowerCase();
+  if (!oldKlas || !newKlas || oldKlas === newKlas) {
+    return jsonResponse({ ok: false, error: 'oldKlas en newKlas zijn verplicht en mogen niet gelijk zijn' });
+  }
+  var sheet = getOrCreateSheet();
+  var range = sheet.getDataRange();
+  var values = range.getValues();
+  var updated = 0;
+  for (var i = 1; i < values.length; i++) {
+    if (String(values[i][3] || '').trim().toLowerCase() === oldKlas) {
+      sheet.getRange(i + 1, 4).setValue(newKlas);
+      updated++;
+    }
+  }
+  return jsonResponse({ ok: true, updated: updated });
+}
+
+function handleRenameStudent(params) {
+  var oldName = (params.oldName || '').trim().toLowerCase();
+  var newName = (params.newName || '').trim();
+  if (!oldName || !newName) {
+    return jsonResponse({ ok: false, error: 'oldName en newName zijn verplicht' });
+  }
+  if (oldName === newName.toLowerCase()) {
+    return jsonResponse({ ok: true, updated: 0 });
+  }
+  var sheet = getOrCreateSheet();
+  var range = sheet.getDataRange();
+  var values = range.getValues();
+  var updated = 0;
+  for (var i = 1; i < values.length; i++) {
+    if (String(values[i][1] || '').trim().toLowerCase() === oldName) {
+      sheet.getRange(i + 1, 2).setValue(newName);
+      updated++;
+    }
+  }
+  return jsonResponse({ ok: true, updated: updated });
 }
 
 function handleRead() {
