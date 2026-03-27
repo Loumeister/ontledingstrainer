@@ -57,6 +57,7 @@ import { fetchReports as fetchReportsFromDrive, getScriptUrl, setScriptUrl, getA
 import type { DriveRow } from '../services/googleDriveSync';
 import { applyAliases, setKlasAlias, setStudentAlias } from '../services/nameAliases';
 import type { SentenceUsageData, Sentence } from '../types';
+import FeedbackEditorTab from '../components/FeedbackEditorTab';
 
 // ---------------------------------------------------------------------------
 // Score colour helpers
@@ -1764,6 +1765,19 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                   {JSON.stringify(loadInteractionLog().slice(-200), null, 2)}
                 </pre>
               )}
+            </div>
+
+            {/* Feedback Editor */}
+            <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+              <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">
+                ✏️ Feedback bewerken
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300 font-medium ml-1">eigenaar</span>
+              </h3>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mb-4">
+                Pas de feedbackteksten aan die leerlingen te zien krijgen bij een fout.
+                Klik op een rol om de verwarringsparen uit te klappen.
+              </p>
+              <FeedbackEditorTab />
             </div>
 
             {/* Raw Usage Data */}
