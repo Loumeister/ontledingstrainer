@@ -36,6 +36,9 @@ jobs:
         env:
           VITE_APPS_SCRIPT_URL: ${{ secrets.VITE_APPS_SCRIPT_URL }}
           VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
+          VITE_DOCENT_HASH: ${{ secrets.VITE_DOCENT_HASH }}
+          VITE_EIGENAAR_HASH: ${{ secrets.VITE_EIGENAAR_HASH }}
+          VITE_EDITOR_HASH: ${{ secrets.VITE_EDITOR_HASH }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3.0.1
