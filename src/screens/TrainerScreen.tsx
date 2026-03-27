@@ -28,7 +28,7 @@ type TrainerScreenProps = Pick<TrainerState,
   | 'sessionIndex' | 'sessionQueue'
   | 'userChunks'
   | 'toggleSplit' | 'handleNextStep' | 'handleBackStep'
-  | 'handleDragStart' | 'handleDropChunk' | 'handleDropWord'
+  | 'isDragging' | 'handleDragStart' | 'handleDragEnd' | 'handleDropChunk' | 'handleDropWord'
   | 'removeLabel' | 'removeSubLabel'
   | 'handleDropBijzinFunctie' | 'removeBijzinFunctieLabel'
   | 'startBijvBepLinking' | 'completeBijvBepLink' | 'cancelBijvBepLinking' | 'removeBijvBepLink'
@@ -61,7 +61,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   sessionIndex, sessionQueue,
   userChunks,
   toggleSplit, handleNextStep, handleBackStep,
-  handleDragStart, handleDropChunk, handleDropWord,
+  isDragging, handleDragStart, handleDragEnd, handleDropChunk, handleDropWord,
   removeLabel, removeSubLabel,
   handleDropBijzinFunctie, removeBijzinFunctieLabel,
   startBijvBepLinking, completeBijvBepLink, cancelBijvBepLinking, removeBijvBepLink,
@@ -257,6 +257,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   selectedLevel={selectedLevel}
                   largeFont={largeFont}
                   handleDragStart={handleDragStart}
+                  handleDragEnd={handleDragEnd}
                   onShowZinsdeelHelp={() => setShowZinsdeelHelp(true)}
                   selectedRole={selectedRole}
                   onSelectRole={handleSelectRole}
@@ -344,6 +345,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                         selectedRole={selectedRole}
                         onTapPlaceChunk={handleTapPlaceChunk}
                         onTapPlaceWord={handleTapPlaceWord}
+                        splitsDisabled={isDragging || !!selectedRole}
                       />
 
                       {idx < userChunks.length - 1 && (
@@ -463,6 +465,7 @@ interface RoleToolbarProps {
   selectedLevel: TrainerState['selectedLevel'];
   largeFont: boolean;
   handleDragStart: TrainerState['handleDragStart'];
+  handleDragEnd: TrainerState['handleDragEnd'];
   onShowZinsdeelHelp: () => void;
   selectedRole: TrainerState['selectedRole'];
   onSelectRole: TrainerState['handleSelectRole'];
@@ -477,6 +480,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
   selectedLevel,
   largeFont,
   handleDragStart,
+  handleDragEnd,
   onShowZinsdeelHelp,
   selectedRole,
   onSelectRole,
@@ -524,7 +528,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
             {ROLES.filter(r => !r.isSubOnly && !['wg', 'ng', 'bijzin', 'vw_neven', 'bijst'].includes(r.key as string))
                   .filter(r => isRoleVisible(r.key))
                   .map(role => (
-              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
+              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} onDragEnd={handleDragEnd} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
             ))}
 
             <div className="w-full" />
@@ -532,7 +536,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
             {/* WG, NG — always visible */}
             {ROLES.filter(r => !r.isSubOnly && ['wg', 'ng'].includes(r.key as string))
                   .map(role => (
-              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
+              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} onDragEnd={handleDragEnd} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
             ))}
 
             {/* Bijzin, VW_Neven — level 3+ or focus/sentence override */}
@@ -540,7 +544,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
             {ROLES.filter(r => !r.isSubOnly && ['bijzin', 'vw_neven'].includes(r.key as string))
                   .filter(r => isRoleVisible(r.key))
                   .map(role => (
-              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
+              <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} onDragEnd={handleDragEnd} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
             ))}
 
             {/* Bijstelling — level 3+ or sentence override */}
@@ -549,7 +553,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
                 <div className="w-3" />
                 {ROLES.filter(r => !r.isSubOnly && r.key === 'bijst')
                       .map(role => (
-                  <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
+                  <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} onDragEnd={handleDragEnd} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
                 ))}
               </>
             )}

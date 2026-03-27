@@ -33,6 +33,7 @@ interface SentenceChunkProps {
   selectedRole?: string | null; // Currently selected role from tap-to-place
   onTapPlaceChunk?: (chunkId: string) => void; // Place selected role on a chunk
   onTapPlaceWord?: (tokenId: string) => void; // Place selected role as sub-label on a word
+  splitsDisabled?: boolean; // Disable splitters during drag or tap-to-place
 }
 
 export const SentenceChunk: React.FC<SentenceChunkProps> = ({
@@ -63,7 +64,8 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
   isLargeFont = false,
   selectedRole,
   onTapPlaceChunk,
-  onTapPlaceWord
+  onTapPlaceWord,
+  splitsDisabled = false,
 }) => {
   const [isOverChunk, setIsOverChunk] = useState(false);
   const [isOverBijzinFunctie, setIsOverBijzinFunctie] = useState(false);
@@ -121,7 +123,6 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
 
   const handleDragOverChunk = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    if (hoveredWordId) return;
     setIsOverChunk(true);
   };
 
@@ -151,7 +152,6 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
       `}
       onDragOver={handleDragOverChunk}
       onDrop={(e) => {
-        if (hoveredWordId) return;
         setIsOverChunk(false);
         onDropChunk(e, chunkId);
       }}
@@ -367,27 +367,33 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
 
                {/* Splitter */}
                {i < tokens.length - 1 && (
-                 <div
-                   className="w-4 h-8 flex items-center justify-center cursor-pointer group/splitter mx-[-2px] z-10 hover:w-6 transition-all focus-visible:ring-2 focus-visible:ring-blue-500"
-                   onClick={(e) => {
-                     e.stopPropagation();
-                     onToggleSplit(startIndex + i);
-                   }}
-                   onKeyDown={(e) => {
-                     if (e.key === 'Enter' || e.key === ' ') {
-                       e.preventDefault();
+                 splitsDisabled ? (
+                   <div className="w-4 h-8 flex items-center justify-center mx-[-2px] z-10 pointer-events-none">
+                     <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600"></div>
+                   </div>
+                 ) : (
+                   <div
+                     className="w-4 h-8 flex items-center justify-center cursor-pointer group/splitter mx-[-2px] z-10 hover:w-6 transition-all focus-visible:ring-2 focus-visible:ring-blue-500"
+                     onClick={(e) => {
                        e.stopPropagation();
                        onToggleSplit(startIndex + i);
-                     }
-                   }}
-                   tabIndex={0}
-                   role="button"
-                   aria-label="Splits hier"
-                   title="Splits hier"
-                 >
-                   <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 group-hover/splitter:bg-blue-400 transition-colors"></div>
-                   <div className="absolute opacity-0 group-hover/splitter:opacity-100 text-[10px] transform -translate-y-4 bg-blue-600 text-white px-1 rounded">✂️</div>
-                 </div>
+                     }}
+                     onKeyDown={(e) => {
+                       if (e.key === 'Enter' || e.key === ' ') {
+                         e.preventDefault();
+                         e.stopPropagation();
+                         onToggleSplit(startIndex + i);
+                       }
+                     }}
+                     tabIndex={0}
+                     role="button"
+                     aria-label="Splits hier"
+                     title="Splits hier"
+                   >
+                     <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 group-hover/splitter:bg-blue-400 transition-colors"></div>
+                     <div className="absolute opacity-0 group-hover/splitter:opacity-100 text-[10px] transform -translate-y-4 bg-blue-600 text-white px-1 rounded">✂️</div>
+                   </div>
+                 )
                )}
              </React.Fragment>
            );

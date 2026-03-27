@@ -1,10 +1,11 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { RoleDefinition, RoleKey } from '../types';
 
 interface DraggableRoleProps {
   role: RoleDefinition;
   onDragStart: (e: React.DragEvent<HTMLDivElement>, roleKey: string) => void;
+  onDragEnd?: () => void;
   isLargeFont?: boolean;
   isSelected?: boolean;
   onSelect?: (roleKey: RoleKey) => void;
@@ -15,6 +16,7 @@ interface DraggableRoleProps {
 export const DraggableRole: React.FC<DraggableRoleProps> = ({
   role,
   onDragStart,
+  onDragEnd,
   isLargeFont = false,
   isSelected,
   onSelect,
@@ -24,6 +26,7 @@ export const DraggableRole: React.FC<DraggableRoleProps> = ({
   const touchStartPos = useRef<{ x: number; y: number } | null>(null);
   const isDragging = useRef(false);
   const chipRef = useRef<HTMLDivElement>(null);
+  const [isDraggingHtml, setIsDraggingHtml] = useState(false);
 
   useEffect(() => {
     const el = chipRef.current;
@@ -83,7 +86,17 @@ export const DraggableRole: React.FC<DraggableRoleProps> = ({
     <div
       ref={chipRef}
       draggable={!disabled}
-      onDragStart={disabled ? undefined : (e) => onDragStart(e, role.key)}
+      onDragStart={disabled ? undefined : (e) => {
+        setIsDraggingHtml(true);
+        if (chipRef.current) {
+          e.dataTransfer.setDragImage(chipRef.current, chipRef.current.offsetWidth / 2, chipRef.current.offsetHeight / 2);
+        }
+        onDragStart(e, role.key);
+      }}
+      onDragEnd={disabled ? undefined : () => {
+        setIsDraggingHtml(false);
+        onDragEnd?.();
+      }}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       onTouchStart={handleTouchStart}
@@ -104,6 +117,7 @@ export const DraggableRole: React.FC<DraggableRoleProps> = ({
           : `cursor-move hover:shadow-md hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-blue-500 ${role.colorClass} ${role.borderColorClass}`
         }
         ${!disabled && isSelected ? 'ring-2 ring-offset-2 ring-blue-400 animate-pulse' : ''}
+        ${isDraggingHtml ? 'opacity-0' : ''}
       `}
     >
       <span className={`mr-1.5 opacity-60 uppercase tracking-wide hidden md:inline-block ${isLargeFont ? 'text-xs' : 'text-[10px]'}`}>
