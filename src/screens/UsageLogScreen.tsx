@@ -263,10 +263,6 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   }, [authenticated, reports, driveReports]);
 
   const handleAuth = (role: 'docent' | 'eigenaar' | 'editor') => {
-    if (role === 'editor') {
-      window.location.hash = '#/editor';
-      return;
-    }
     sessionStorage.setItem(PIN_SESSION_KEY, 'true');
     if (role === 'eigenaar') {
       sessionStorage.setItem(EIGENAAR_SESSION_KEY, 'true');
@@ -452,7 +448,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   });
 
   if (!authenticated) {
-    return <LoginScreen onBack={onBack} onAuthenticated={handleAuth} />;
+    return <LoginScreen allowedRoles={['docent']} onBack={onBack} onAuthenticated={handleAuth} />;
   }
 
   // ---------------------------------------------------------------------------

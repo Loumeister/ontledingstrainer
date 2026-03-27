@@ -791,17 +791,13 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
 export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBack }) => {
   const [authenticated, setAuthenticated] = useState(() => sessionStorage.getItem(PIN_SESSION_KEY) === 'true');
 
-  const handleAuth = (role: 'docent' | 'eigenaar' | 'editor') => {
-    if (role === 'docent' || role === 'eigenaar') {
-      window.location.hash = '#/usage';
-      return;
-    }
+  const handleAuth = (_role: 'docent' | 'eigenaar' | 'editor') => {
     sessionStorage.setItem(PIN_SESSION_KEY, 'true');
     setAuthenticated(true);
   };
 
   if (!authenticated) {
-    return <LoginScreen onBack={onBack} onAuthenticated={handleAuth} />;
+    return <LoginScreen allowedRoles={['editor']} onBack={onBack} onAuthenticated={handleAuth} />;
   }
 
   return <SentenceEditorContent onBack={onBack} />;

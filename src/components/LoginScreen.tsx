@@ -9,18 +9,24 @@ export type AuthRole = 'docent' | 'eigenaar' | 'editor';
 
 type RoleOption = { value: AuthRole; label: string; hash: string };
 
-const ROLES: RoleOption[] = [
+const ALL_ROLES: RoleOption[] = [
   { value: 'docent',   label: 'Docent',        hash: DOCENT_HASH },
   { value: 'eigenaar', label: 'Eigenaar',       hash: EIGENAAR_HASH },
   { value: 'editor',   label: 'Zinnen-editor',  hash: EDITOR_HASH },
 ];
 
 interface LoginScreenProps {
+  /** Which roles to show in the dropdown. Eigenaar is always appended if not already included. */
+  allowedRoles: AuthRole[];
   onBack: () => void;
   onAuthenticated: (role: AuthRole) => void;
 }
 
-export default function LoginScreen({ onBack, onAuthenticated }: LoginScreenProps) {
+export default function LoginScreen({ allowedRoles, onBack, onAuthenticated }: LoginScreenProps) {
+  // Eigenaar can always log in from any screen
+  const roleKeys = Array.from(new Set([...allowedRoles, 'eigenaar' as AuthRole]));
+  const roles = ALL_ROLES.filter(r => roleKeys.includes(r.value));
+
   const [selectedRole, setSelectedRole] = useState<AuthRole | ''>('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
@@ -28,7 +34,7 @@ export default function LoginScreen({ onBack, onAuthenticated }: LoginScreenProp
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRole) return;
-    const role = ROLES.find(r => r.value === selectedRole)!;
+    const role = roles.find(r => r.value === selectedRole)!;
     sha256(password).then(hash => {
       if (hash === role.hash) {
         onAuthenticated(selectedRole);
@@ -61,7 +67,7 @@ export default function LoginScreen({ onBack, onAuthenticated }: LoginScreenProp
             className="w-full px-3 py-2.5 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:border-blue-500 outline-none text-sm"
           >
             <option value="">— Selecteer uw rol —</option>
-            {ROLES.map(r => (
+            {roles.map(r => (
               <option key={r.value} value={r.value}>{r.label}</option>
             ))}
           </select>
