@@ -1,3 +1,51 @@
+/**
+ * UsageLogScreen — Teacher analytics dashboard (/#/usage)
+ *
+ * Access:
+ *   PIN 1234 (docent)  → zinsontleding stats + Overzicht leerlingrapporten
+ *   PIN 4321 (eigenaar) → all of the above + Drive fetch/settings + raw logs
+ *
+ * Data sources:
+ *   1. Local usage store (usageData.ts) — per-sentence attempt/perfect/error counts
+ *      recorded on THIS device (teacher's own practice, or class Chromebook).
+ *   2. Local session reports (sessionReport.ts) — compact codes pasted manually
+ *      or fetched from Drive; decoded into SessionReport objects.
+ *   3. Drive reports (googleDriveSync.ts) — fetched fresh from the Google Sheet
+ *      on demand; not persisted locally beyond the current page session.
+ *
+ * Key computed data:
+ *   enrichedData   — joins all sentences with their local usage; drives the
+ *                    sentence-level cards and teacher insights.
+ *   allReports     — local + Drive reports combined; drives the Overzicht section.
+ *   aggregateStats — aggregate stats over allReports filtered by klas/student/date;
+ *                    drives the class/student breakdowns.
+ *
+ * State overview (24 useState calls):
+ *   Authentication  — pinInput, pinError, authenticated, isEigenaar
+ *   Sentence data   — enrichedData, sentenceMap (token map for solution display)
+ *   Sentence sort   — sortField, sortDir, filterSource, filterLevel
+ *   Report data     — reports (local), driveReports, driveStatus, driveError
+ *   Report filters  — filterKlas, filterStudent, filterDate, filterTimeFrom, filterTimeTo
+ *   Class editing   — editingKlas, editingKlasValue (inline rename)
+ *   Class merge     — mergingKlas, mergeTargetKlas, mergeStatus, mergeError
+ *   Student sort    — studentSortField, studentSortDir
+ *   Student rename  — editingStudent, editingStudentValue, studentRenameStatus, studentRenameError
+ *   Solution expand — expandedSols (Set<string> of expanded report keys)
+ *   Drive settings  — driveUrlInput, apiKeyInput, driveSettingsSaved
+ *   UI toggles      — showRawData, showInteractionLog, reportInput, reportMsg
+ *
+ * JSX layout (top to bottom):
+ *   1. PIN gate (unauthenticated)
+ *   2. Header (title + action buttons)
+ *   3. Quick Snapshot (4 KPI tiles)
+ *   4. Overzicht leerlingrapporten (filters, class/student tables, student detail)
+ *   5. Teacher-friendly insights (role errors, difficult sentences, gave-up, easy, level dist.)
+ *   6. Sentence filter bar + per-sentence cards (grouped by level)
+ *   7. [eigenaar] Drive fetch + manual import
+ *   8. [eigenaar] Drive settings
+ *   9. [eigenaar] Session flow stats + clickthrough stats
+ *  10. [eigenaar] Interaction log viewer + raw data viewer
+ */
 import React, { useState, useEffect } from 'react';
 import { loadUsageData, clearUsageData, exportUsageDataAsJson } from '../services/usageData';
 import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats } from '../services/interactionLog';
@@ -10,8 +58,12 @@ import type { DriveRow } from '../services/googleDriveSync';
 import { applyAliases, setKlasAlias, setStudentAlias } from '../services/nameAliases';
 import type { SentenceUsageData, Sentence } from '../types';
 
-// Score colours — twee varianten (advies: Grammar Coach)
-//
+// ---------------------------------------------------------------------------
+// Score colour helpers
+// Two thresholds: one for class/aggregate averages (strict) and one for
+// the "in één keer goed"-rate (lenient — automatisation is hard).
+// ---------------------------------------------------------------------------
+
 // Klas-/jaarlaaggemiddelde: strenger — een 75% klasgemiddelde is een signaal
 function scoreColorAggregate(pct: number): string {
   if (pct >= 90) return 'text-emerald-600 dark:text-emerald-400';
@@ -28,6 +80,17 @@ function scoreColorPerfectRate(pct: number): string {
   return 'text-red-600 dark:text-red-400';
 }
 
+// ---------------------------------------------------------------------------
+// mergeReportDataIntoUsage
+//
+// Overlays imported session reports on top of the local usage store so that
+// sentences practiced by students (via Drive/manual import) appear in the
+// per-sentence stats alongside the teacher's own local data.
+//
+// Reports with `res` (per-sentence results, new format) are processed per
+// sentence. Reports without `res` (old format) fall back to assuming the
+// whole-session perfect flag applies to every sentence in the session.
+// ---------------------------------------------------------------------------
 function mergeReportDataIntoUsage(
   localStore: Record<number, SentenceUsageData>,
   reports: SessionReport[]
@@ -218,6 +281,10 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     }
   };
 
+  // ---------------------------------------------------------------------------
+  // Event handlers
+  // ---------------------------------------------------------------------------
+
   const handleClearData = () => {
     if (confirm('Alle gebruiksdata wissen? Dit kan niet ongedaan worden.')) {
       clearUsageData();
@@ -243,6 +310,9 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     // driveReports stay in memory – re-trigger enrichment by updating reports
   };
 
+  // Rename a class locally + set persistent alias + fire-and-forget Drive update.
+  // "Rename" means the class keeps its identity but the label changes.
+  // For merging two separate classes into one, use handleMergeKlas.
   const handleRenameKlas = (oldKlas: string) => {
     const newKlas = editingKlasValue.trim().toLowerCase();
     if (newKlas && newKlas !== oldKlas) {
@@ -258,6 +328,9 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     setEditingKlasValue('');
   };
 
+  // Merge sourceKlas into mergeTargetKlas (the currently selected dropdown value).
+  // Order: 1) rename locally, 2) set alias so future Drive fetches apply it,
+  //         3) await Drive Sheet update (blocks UI with spinner).
   const handleMergeKlas = async (sourceKlas: string) => {
     const target = mergeTargetKlas.trim().toLowerCase();
     if (!target || target === sourceKlas) return;
@@ -280,6 +353,8 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     }
   };
 
+  // Rename a student across all local reports + set alias + await Drive Sheet update.
+  // Also updates filterStudent so the drill-down stays open under the new name.
   const handleRenameStudent = async (oldName: string) => {
     const newName = editingStudentValue.trim();
     if (!newName || newName.toLowerCase() === oldName.toLowerCase()) {
@@ -323,6 +398,10 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     }
   };
 
+  // Fetch all report rows from the Google Sheet, decode each report code,
+  // fill in metadata from the Sheet row when not present in the code itself,
+  // and apply stored name/class aliases. Drive reports are not saved locally —
+  // they live in driveReports state only until the page is closed.
   const handleFetchFromDrive = async () => {
     setDriveStatus('fetching');
     setDriveError('');
@@ -404,7 +483,14 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     );
   }
 
-  // --- Sorting & Filtering ---
+  // ---------------------------------------------------------------------------
+  // Derived data — computed per render from enrichedData + allReports + filters.
+  // These are NOT memoized (no useMemo). The dataset is small enough that
+  // re-computing on every render is fast (~1ms). If this ever causes jank on
+  // slow Chromebooks, wrap the most expensive ones in useMemo.
+  // ---------------------------------------------------------------------------
+
+  // Sentence-level filter + sort (drives the per-sentence card grid at the bottom)
   const filtered = enrichedData.filter(d => {
     if (filterSource === 'custom' && !d.isCustom) return false;
     if (filterSource === 'builtin' && d.isCustom) return false;
@@ -431,7 +517,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     setSortDir(dir);
   };
 
-  // --- Summary stats ---
+  // Quick Snapshot KPIs — local usage only (enrichedData = this device's data)
   const totalAttempts = enrichedData.reduce((s, d) => s + d.usage.attempts, 0);
   const totalPerfect = enrichedData.reduce((s, d) => s + d.usage.perfectCount, 0);
   // Include hint counts from session reports (local usage data only tracks this device's interactions)
