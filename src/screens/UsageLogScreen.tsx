@@ -32,16 +32,32 @@ function mergeReportDataIntoUsage(
   reports: SessionReport[]
 ): Record<number, SentenceUsageData> {
   const merged: Record<number, SentenceUsageData> = JSON.parse(JSON.stringify(localStore));
+  const ensureEntry = (sid: number) => {
+    if (!merged[sid]) {
+      merged[sid] = { attempts: 0, perfectCount: 0, showAnswerCount: 0, roleErrors: {}, splitErrors: 0, flagged: false, note: '', lastAttempted: '' };
+    }
+  };
   for (const r of reports) {
-    const isPerfectSession = r.t > 0 && r.c === r.t;
-    for (const sid of r.sids) {
-      if (!merged[sid]) {
-        merged[sid] = { attempts: 0, perfectCount: 0, showAnswerCount: 0, roleErrors: {}, splitErrors: 0, flagged: false, note: '', lastAttempted: '' };
+    // Prefer per-sentence results when available (more accurate)
+    if (r.res && r.res.length > 0) {
+      for (const { sid, ok } of r.res) {
+        ensureEntry(sid);
+        merged[sid].attempts += 1;
+        if (ok) merged[sid].perfectCount += 1;
+        if (!merged[sid].lastAttempted || r.ts > merged[sid].lastAttempted) {
+          merged[sid].lastAttempted = r.ts;
+        }
       }
-      merged[sid].attempts += 1;
-      if (isPerfectSession) merged[sid].perfectCount += 1;
-      if (!merged[sid].lastAttempted || r.ts > merged[sid].lastAttempted) {
-        merged[sid].lastAttempted = r.ts;
+    } else {
+      // Fallback: old reports without per-sentence data
+      const isPerfectSession = r.t > 0 && r.c === r.t;
+      for (const sid of r.sids) {
+        ensureEntry(sid);
+        merged[sid].attempts += 1;
+        if (isPerfectSession) merged[sid].perfectCount += 1;
+        if (!merged[sid].lastAttempted || r.ts > merged[sid].lastAttempted) {
+          merged[sid].lastAttempted = r.ts;
+        }
       }
     }
   }
@@ -644,20 +660,28 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
         </div>
 
         {/* Imported reports summary — visible for both docent and eigenaar */}
-        {allReports.length > 0 && (
           <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between mb-3">
               <div>
                 <h3 className="font-bold text-slate-700 dark:text-white text-base mb-0.5">👥 Overzicht leerlingrapporten</h3>
                 <p className="text-xs text-slate-400 dark:text-slate-500">Geaggregeerde resultaten (Drive + handmatig)</p>
               </div>
-              <button
-                onClick={handleClearReports}
-                className="text-xs px-2 py-1 rounded bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 font-medium hover:bg-red-200 transition-colors"
-              >
-                Wis lokale rapporten
-              </button>
+              {allReports.length > 0 && (
+                <button
+                  onClick={handleClearReports}
+                  className="text-xs px-2 py-1 rounded bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 font-medium hover:bg-red-200 transition-colors"
+                >
+                  Wis lokale rapporten
+                </button>
+              )}
             </div>
+            {allReports.length === 0 ? (
+              <div className="text-center py-6">
+                <p className="text-slate-500 dark:text-slate-400 mb-1">Nog geen leerlingrapporten ontvangen.</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">Rapporten worden automatisch verzameld via Google Drive, of je kunt ze handmatig importeren via de rapportcode.</p>
+              </div>
+            ) : (
+            <>
 
             {/* Date/time + class/student filters */}
             <div className="space-y-2 mb-3">
@@ -1021,8 +1045,9 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                 <p className="text-[10px] text-slate-400 mt-1">Gebaseerd op het eerste cijfer van de klasnaam (bv. "1" uit "1ga").</p>
               </div>
             )}
+            </>
+            )}
           </div>
-        )}
 
         {/* Filters */}
         <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
