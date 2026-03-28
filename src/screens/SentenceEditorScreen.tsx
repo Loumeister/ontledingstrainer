@@ -11,8 +11,15 @@ import {
   getNextCustomId,
 } from '../data/customSentenceStore';
 import { loadAllSentences } from '../data/sentenceLoader';
-import type { Sentence } from '../types';
+import type { Sentence, TrainerAssignment } from '../types';
 import LabEditorTab from '../components/LabEditorTab';
+import {
+  getAssignmentById,
+  createAssignment as createTrainerAssignment,
+  bumpVersion,
+  computeContentHash,
+} from '../services/trainerAssignmentStore';
+import { getSubmissionsForAssignment } from '../services/trainerSubmissionStore';
 
 type ListFilter = 'all' | 'builtin' | 'custom';
 
@@ -56,6 +63,12 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [listFilter, setListFilter] = useState<ListFilter>('all');
   const [levelFilter, setLevelFilter] = useState<DifficultyLevel | null>(null);
+
+  // Assignment versioning
+  const [currentAssignment, setCurrentAssignment] = useState<TrainerAssignment | null>(
+    () => getAssignmentById('default'),
+  );
+  const refreshAssignment = () => setCurrentAssignment(getAssignmentById('default'));
 
   const refreshList = () => {
     setSentences(getCustomSentences());
@@ -412,6 +425,29 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     refreshList();
   };
 
+  const handlePublishAssignment = () => {
+    const customSentences = getCustomSentences();
+    if (customSentences.length === 0) return;
+    const sentenceIds = customSentences.map(s => s.id);
+    const existing = getAssignmentById('default');
+    if (!existing) {
+      createTrainerAssignment('Aangepaste zinnen', sentenceIds, 'default');
+      refreshAssignment();
+      setStatusMsg('Opdracht gepubliceerd als versie 1.');
+    } else {
+      const newHash = computeContentHash(sentenceIds);
+      if (newHash === existing.contentHash) {
+        setStatusMsg('Geen wijzigingen — opdracht is al up-to-date.');
+      } else {
+        bumpVersion('default', sentenceIds);
+        refreshAssignment();
+        const newVersion = (existing.version + 1);
+        setStatusMsg(`Nieuwe versie ${newVersion} gepubliceerd.`);
+      }
+    }
+    setTimeout(() => setStatusMsg(null), 3000);
+  };
+
   const handleExport = () => {
     const json = exportCustomSentences();
     const blob = new Blob([json], { type: 'application/json' });
@@ -473,6 +509,50 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
                 <button onClick={handleExport} className="px-4 py-2 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 font-medium rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">Exporteren</button>
               )}
             </div>
+
+            {/* Opdracht-versioning blok */}
+            {sentences.length > 0 && (
+              <div className="mb-4 p-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/40">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="text-sm text-slate-600 dark:text-slate-300">
+                    <span className="font-medium">Opdrachtstatus: </span>
+                    {currentAssignment ? (
+                      <>
+                        versie {currentAssignment.version}
+                        {' · '}
+                        {(() => {
+                          const count = getSubmissionsForAssignment('default', currentAssignment.version).length;
+                          return count > 0 ? `${count} inzending${count !== 1 ? 'en' : ''}` : 'nog geen inzendingen';
+                        })()}
+                        {' · '}
+                        <span className="text-slate-400">
+                          {new Date(currentAssignment.updatedAt).toLocaleDateString('nl-NL')}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-slate-400 italic">nog niet gepubliceerd</span>
+                    )}
+                  </div>
+                  <button
+                    onClick={handlePublishAssignment}
+                    className="px-3 py-1.5 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  >
+                    {currentAssignment ? 'Nieuwe versie publiceren' : 'Publiceer als opdracht'}
+                  </button>
+                </div>
+                {currentAssignment && (() => {
+                  const newHash = computeContentHash(sentences.map(s => s.id));
+                  if (newHash !== currentAssignment.contentHash) {
+                    return (
+                      <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                        De zinnen zijn gewijzigd ten opzichte van de gepubliceerde versie. Publiceer een nieuwe versie om de wijzigingen vast te leggen.
+                      </p>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+            )}
 
             {/* Filter tabs */}
             <div className="flex flex-wrap gap-2 mb-3">

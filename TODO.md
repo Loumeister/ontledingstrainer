@@ -6,6 +6,58 @@ Dit document bevat de toekomstplannen en ideeën voor Ontleedlab, gebaseerd op r
 
 ---
 
+## ✅ Voltooid (maart 2026) — Domeinarchitectuur & Versioning
+
+Deze items zijn volledig geïmplementeerd op branch `claude/architect-domain-versioning-40tFO`.
+
+### Domeinlaag (fundament)
+- **Nieuwe types** in `src/types.ts`: `Student`, `TrainerAssignment`, `TrainerSubmission`, `TrainerAttempt`, `TrainerActivityEvent` / `TrainerEventType`, `TeacherNote`
+- Naamgevingsconventie: `Trainer`-prefix (parallel aan `Lab`-prefix op de sentence-builder-lab branch, merge-conflict-vrij)
+
+### Nieuwe services
+- `studentStore.ts` — stabiele student-identiteit (`std-...` UUID), migratie vanuit `student_info_v1`
+- `trainerAssignmentStore.ts` — versiebare opdrachten (`id + version + contentHash`), migratie vanuit `custom-sentences`; `bumpVersion()` bij inhoudelijke wijziging
+- `trainerSubmissionStore.ts` — sessie-inzendingen + per-zin pogingen; max 500/2000 entries
+- `trainerActivityLog.ts` — append-only event-log, parallel aan bestaande `interactionLog`
+- `teacherNoteStore.ts` — docentnotities, logisch gescheiden van student-telemetrie
+
+### Nieuwe logica
+- `analyticsHelpers.ts` — pure functies: `computeTrainerStudentProgress`, `computeTrainerClassProgress`, `computeRoleErrorPatterns`, `computeAssignmentParticipation`, `buildTrainerSubmissionFromReport` (compat-adapter)
+
+### Integratie in bestaande flow
+- `useTrainer.ts` — minimale aanpassing: twee refs (`submissionIdRef`, `studentIdRef`); domain-aanroepen in `startSession`, `startSharedSession`, `nextSessionSentence` (wrapped in try/catch zodat domain-fouten de sessie niet blokkeren)
+- `SentenceEditorScreen.tsx` — "Publiceer als opdracht" knop: `createAssignment` of `bumpVersion`; toont versie, inzendingen, waarschuwing bij ongesynchroniseerde wijzigingen
+- `ScoreScreen.tsx` — link "Bekijk je voortgang →" naar `#/mijn-voortgang`
+- `App.tsx` — routes `#/mijn-voortgang` en `#/docent-dashboard`
+
+### Nieuwe schermen
+- `StudentDashboardScreen.tsx` (`#/mijn-voortgang`) — sessiecount, beste/gem. score, rolfouten-staafdiagram, recente sessies
+- `TeacherDashboardScreen.tsx` (`#/docent-dashboard`) — klasfilter, studententabel, rolfouten-heatmap, opdrachtstatus; PIN-beveiligd
+
+### Tests
+- 239/239 tests groen (was 93 voor deze branch)
+- Bugfix: `computeContentHash` trunceerde btoa-output waardoor `[1,2,3]` en `[1,2,4]` dezelfde hash kregen
+
+### Migratieprincipes (gelden tot nader order)
+- Alle legacy localStorage-sleutels blijven beschrijfbaar — geen breuk voor bestaande leerlingen
+- `interactionLog` en `trainerActivityLog` worden gelijktijdig geschreven
+- `SessionReport` / Google Drive sync blijft volledig werken
+- `custom-sentences` wordt niet verwijderd; `trainerAssignmentStore` leest er eenmalig vanuit
+
+---
+
+## Aanbevolen volgende stap (domein)
+
+> Voer dit uit nadat de sentence-builder-lab branch gemerged is.
+
+**Unificeer `Lab`- en `Trainer`-submissiemodellen** in één `activityStore` met een `domain: 'trainer' | 'lab'` discriminator. Dat stelt `analyticsHelpers` in staat om over beide oefentypen heen te aggregeren zonder twee aparte datastores te onderhouden. Aanpak:
+1. Maak `src/services/activityStore.ts` met een unified `ActivityRecord<T>` type
+2. Pas `trainerSubmissionStore` en `labSubmissionStore` aan als dunne wrappers
+3. Pas `analyticsHelpers` aan zodat het `domain`-filter als parameter accepteert
+4. Verwijder tijdelijke dubbeling in de dashboard-schermen
+
+---
+
 ## Prioriteit 0: Directe Verbeteringen (Uit code-review)
 
 Deze items komen voort uit een grondige review van de huidige codebase en zijn noodzakelijk om de basis solide te maken vóór verdere uitbreiding.

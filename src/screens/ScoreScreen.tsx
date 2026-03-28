@@ -594,6 +594,14 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
               {recommendation.buttonText}
             </button>
           </div>
+          <div className="mt-3 text-center">
+            <a
+              href="#/mijn-voortgang"
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Bekijk je voortgang →
+            </a>
+          </div>
         </section>
       </div>
     </div>

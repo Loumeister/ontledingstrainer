@@ -32,7 +32,7 @@ During migration:
 - `npm ci` - Install dependencies (use in CI / fresh clone)
 - `npm run dev` - Start dev server (port 5173)
 - `npm run build` - Production build (`tsc && vite build`)
-- `npm run test` - Run all tests (`vitest run`, 93 tests across 4 files)
+- `npm run test` - Run all tests (`vitest run`, 239 tests across 10 files)
 - `npm run preview` - Preview production build
 - `npm run deploy` - Deploy to GitHub Pages
 
@@ -47,11 +47,13 @@ src/
     useTrainer.ts (~825 lines)   → Core state management (23 useState, all business logic)
     useSentences.ts              → Async sentence loading with cache
   screens/
-    HomeScreen.tsx (~250 lines)  → Configuration & session start UI
-    TrainerScreen.tsx (~432 lines) → Active two-step parsing exercise
-    ScoreScreen.tsx (~372 lines) → Session results, badges, progress chart
-    SentenceEditorScreen.tsx     → PIN-protected teacher editor (PIN: 1234)
-    UsageLogScreen.tsx           → Teacher analytics (dual PIN: 1234/4321)
+    HomeScreen.tsx (~250 lines)       → Configuration & session start UI
+    TrainerScreen.tsx (~432 lines)    → Active two-step parsing exercise
+    ScoreScreen.tsx (~372 lines)      → Session results, badges, progress chart
+    SentenceEditorScreen.tsx          → PIN-protected teacher editor; assignment versioning (PIN: 1234)
+    UsageLogScreen.tsx                → Teacher analytics (dual PIN: 1234/4321)
+    StudentDashboardScreen.tsx        → Student progress view (#/mijn-voortgang)
+    TeacherDashboardScreen.tsx        → Teacher class/assignment dashboard (#/docent-dashboard, PIN)
   components/ (10 files, ~1675 lines total)
     WordChip.tsx                 → Draggable role tag component
     DropZone.tsx                 → SentenceChunk drop target with validation
@@ -71,13 +73,22 @@ src/
   logic/                         → Pure business logic (no side effects)
     validation.ts (~313 lines)   → Core validation engine (100% test coverage)
     adaptiveSelection.ts         → Adaptive sentence selection algorithm
+    analyticsHelpers.ts          → Pure aggregation: progress/class/role errors/participation
   services/                      → Persistence & external integrations
-    sessionHistory.ts            → Session persistence (localStorage)
-    sessionReport.ts             → Session report encode/decode
-    usageData.ts                 → Sentence usage tracking (localStorage)
-    interactionLog.ts            → User interaction event logging
-    rolemastery.ts               → Role mastery tracking
-    googleDriveSync.ts           → Google Drive report sync
+    sessionHistory.ts            → Session persistence (localStorage) [legacy]
+    sessionReport.ts             → Session report encode/decode [legacy, preserved]
+    usageData.ts                 → Sentence usage tracking (localStorage) [legacy]
+    interactionLog.ts            → User interaction event logging [legacy, coexists with trainerActivityLog]
+    rolemastery.ts               → Role mastery tracking [legacy]
+    googleDriveSync.ts           → Google Drive report sync [legacy, preserved]
+    nameAliases.ts               → Student/class name aliasing
+    authHash.ts                  → PIN authentication
+    feedbackOverrides.ts         → Teacher feedback customization
+    studentStore.ts              → Stable student identity (zinsontleding_students_v1)
+    trainerAssignmentStore.ts    → Versioned assignments: id+version+contentHash (zinsontleding_assignments_v1)
+    trainerSubmissionStore.ts    → Submissions + attempts (zinsontleding_submissions_v1, _attempts_v1)
+    trainerActivityLog.ts        → Append-only event log (zinsontleding_trainer_activity_v1)
+    teacherNoteStore.ts          → Teacher annotations, separate from telemetry
 ```
 
 ## Key Concepts
@@ -89,6 +100,10 @@ src/
 - **newChunk**: Flag on tokens to force split even when adjacent tokens share the same role
 - **PlacementMap**: Record mapping token IDs to role keys (for chunk labels and sub-labels)
 - **Rollenladder**: Planned scaffolded introduction of roles (see TODO.md §1)
+- **TrainerAssignment**: Versionable teacher-authored sentence set (id stable, version increments, contentHash for attribution)
+- **TrainerSubmission**: One student session linked to a stable studentId and optional assignmentId+version
+- **TrainerAttempt**: One sentence within a submission; stores splits and labels for teacher review
+- **Domain ID formats**: `std-`, `tsub-`, `tatt-`, `asgn-`, `tnote-` prefixes + ISO timestamp + 4-digit random
 
 ## Conventions
 
@@ -133,9 +148,15 @@ See README.md for detailed rules (especially the `newChunk` flag).
 | Module | Coverage | Notes |
 |--------|----------|-------|
 | `src/logic/validation.ts` | ✅ 100% | 47 tests, factory helpers available |
+| `src/logic/analyticsHelpers.ts` | ✅ Good | 22 tests, all pure functions |
 | `src/services/usageData.ts` | ✅ Good | 13 tests, mocked localStorage |
-| `src/services/interactionLog.ts` | ✅ Good | 17 tests |
-| `src/services/sessionReport.ts` | ✅ Good | 16 tests |
+| `src/services/interactionLog.ts` | ✅ Good | 17 tests (renamed from 23 → actual count) |
+| `src/services/sessionReport.ts` | ✅ Good | 35 tests |
+| `src/services/nameAliases.ts` | ✅ Good | 17 tests |
+| `src/services/studentStore.ts` | ✅ Good | 18 tests |
+| `src/services/trainerAssignmentStore.ts` | ✅ Good | 23 tests |
+| `src/services/trainerSubmissionStore.ts` | ✅ Good | 17 tests |
+| `src/logic/adaptiveSelection.ts` | ✅ Good | 15 tests |
 | `src/hooks/useTrainer.ts` | ❌ 0% | Complex state logic untested |
 | Screens & Components | ❌ 0% | No DOM/component tests yet |
 
