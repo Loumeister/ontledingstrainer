@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
 import { CONSTRUCTION_FRAMES } from '../data/constructionFrames';
 import { CHUNK_CARDS } from '../data/chunkCards';
+import { getCustomFrames } from '../services/labFrameStore';
+import { getCustomCards } from '../services/labChunkCardStore';
 import type {
   ConstructionFrame, ChunkCard, FrameSlotKey, Sentence, Token
 } from '../types';
@@ -39,14 +41,26 @@ export function useZinsbouwlab(): UseZinsbouwlabReturn {
   const [orderedSlots, setOrderedSlots] = useState<FrameSlotKey[]>([]);
   const [checkResult, setCheckResult] = useState<ConstructionCheckResult | null>(null);
 
-  const frames = CONSTRUCTION_FRAMES;
+  // Merge built-in + custom (custom frames/cards are loaded once at mount)
+  const allFrames = useMemo(
+    () => [...CONSTRUCTION_FRAMES, ...getCustomFrames()],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+  const allCards = useMemo(
+    () => [...CHUNK_CARDS, ...getCustomCards()],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  const frames = allFrames;
 
   const cardsForSlot = useMemo(() => (slot: FrameSlotKey): ChunkCard[] => {
     if (!activeFrame) return [];
-    return CHUNK_CARDS.filter(
+    return allCards.filter(
       c => c.role === slot && c.frameIds.some(fid => fid === activeFrame.id)
     );
-  }, [activeFrame]);
+  }, [activeFrame, allCards]);
 
   function placeCard(slot: FrameSlotKey, card: ChunkCard): void {
     setPlacedCards(prev => ({ ...prev, [slot]: card }));
