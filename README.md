@@ -2,17 +2,20 @@
 
 Een interactieve browser-app die leerlingen (12-15 jaar, onderbouw havo/vwo) leert om Nederlandse zinnen te ontleden. Gebouwd met **React 18**, **TypeScript**, **Vite** en **Tailwind CSS**. Volledig client-side, geen backend nodig.
 
-## 📊 Projectstatus (maart 2025)
+## 📊 Projectstatus (maart 2026)
 
 | Onderdeel | Status | Details |
 |-----------|--------|---------|
 | **Kernfunctionaliteit** | ✅ Compleet | Tweestaps-ontleding (verdelen + benoemen), 13 rollen |
 | **Zinnen-database** | ✅ 248 zinnen | 4 niveaus (Basis → Samengesteld) |
 | **Feedback** | ✅ Contextueel | FEEDBACK_MATRIX met rolspecifieke uitleg |
-| **Docentenmodus** | ✅ Werkend | Editor, URL-delen, importeren |
+| **Docentenmodus** | ✅ Werkend | Editor, URL-delen, importeren, opdracht-versioning |
 | **Gamification** | ✅ Basis | Confetti, streaks, badges |
 | **Dark mode / Dyslexie** | ✅ Compleet | Class-toggle, groot lettertype |
-| **Testdekking** | ⚠️ Deels | 93 tests, 100% op `validation.ts`; 0% op hooks/screens |
+| **Domeinlaag** | ✅ Fundament | Student, TrainerAssignment, Submission, Attempt, ActivityEvent |
+| **Studentdashboard** | ✅ Basis | `#/mijn-voortgang`: scores, rolfouten, sessieoverzicht |
+| **Docentdashboard** | ✅ Basis | `#/docent-dashboard`: klas/student overzicht, rolfouten, opdrachten |
+| **Testdekking** | ⚠️ Deels | 239 tests; domeinlaag goed gedekt; 0% op hooks/screens |
 | **Toegankelijkheid** | ⚠️ Basis | Dark mode + dyslexie; toetsenbord/ARIA ontbreekt |
 | **Touch-ondersteuning** | ⚠️ Beperkt | Drag-and-drop only; tap-to-place gepland |
 | **Rollenladder** | 📋 Gepland | Adaptieve rol-introductie (zie TODO.md §1) |
@@ -168,6 +171,72 @@ We onderscheiden twee typen voegwoorden:
 2.  **Nevenschikkend (en, maar, want...):**
     *   Het voegwoord staat *tussen* de zinnen.
     *   Het krijgt een eigen blokje met `role: 'vw_neven'`.
+
+---
+
+---
+
+## 🗂️ Domeinarchitectuur (maart 2026)
+
+De app heeft een domeinlaag gekregen die naast de bestaande localStorage-services werkt. Alle nieuwe services slaan data lokaal op in een formaat dat klaar is voor centrale sync.
+
+### Nieuwe types (`src/types.ts`)
+
+| Type | Sleutel | Beschrijving |
+|------|---------|--------------|
+| `Student` | `id: 'std-...'` | Stabiele student-identiteit; gegenereerd bij eerste gebruik |
+| `TrainerAssignment` | `id + version + contentHash` | Versiebare zinnenset (parallel aan `ZinsdeellabExercise`) |
+| `TrainerSubmission` | `id: 'tsub-...'` | Sessie-inzending gekoppeld aan `studentId` en optioneel `assignmentId` |
+| `TrainerAttempt` | `id: 'tatt-...'` | Per-zin poging binnen een submission, met splits en labels |
+| `TrainerActivityEvent` | `submissionId + type + timestamp` | Fijnkorrelig event-log parallel aan `interactionLog` |
+| `TeacherNote` | `id: 'tnote-...'` | Docentnotitie bij een zin, student of opdracht |
+
+**Versioning-principe** (parallel aan `ZinsdeellabExercise`):
+- `TrainerAssignment.id` is stabiel (nooit gewijzigd)
+- `version` incrementeert bij inhoudelijke wijziging van de zinnenset
+- `contentHash` is een deterministisch btoa-hash van de gesorteerde `sentenceIds`
+- `TrainerSubmission` verwijst altijd naar `assignmentId + assignmentVersion`, niet naar de huidige versie
+- Historische studentresultaten veranderen nooit als een opdracht later wordt bewerkt
+
+### Nieuwe services (`src/services/`)
+
+| Bestand | localStorage-sleutel | Doel |
+|---------|---------------------|------|
+| `studentStore.ts` | `zinsontleding_students_v1` | CRUD + migratie vanuit `student_info_v1` |
+| `trainerAssignmentStore.ts` | `zinsontleding_assignments_v1` | Versiebare opdrachten + migratie vanuit `custom-sentences` |
+| `trainerSubmissionStore.ts` | `zinsontleding_submissions_v1` + `_attempts_v1` | Submissions (max 500) + attempts (max 2000) |
+| `trainerActivityLog.ts` | `zinsontleding_trainer_activity_v1` | Append-only event-log (max 2000 events) |
+| `teacherNoteStore.ts` | `zinsontleding_teacher_notes_v1` | Docentnotities, logisch gescheiden van student-telemetrie |
+
+### Nieuwe logica (`src/logic/`)
+
+**`analyticsHelpers.ts`** — pure functies zonder side-effects:
+
+| Functie | Invoer | Uitvoer |
+|---------|--------|---------|
+| `computeTrainerStudentProgress` | `TrainerSubmission[], studentId` | `TrainerProgressSummary` |
+| `computeTrainerClassProgress` | `TrainerSubmission[], klas` | `TrainerClassSummary` |
+| `computeRoleErrorPatterns` | `TrainerSubmission[]` | `RoleErrorSummary[]` |
+| `computeAssignmentParticipation` | `assignmentId, version, submissions` | `ParticipationSummary` |
+| `buildTrainerSubmissionFromReport` | `SessionReport` | `Omit<TrainerSubmission, 'studentId'>` |
+
+### Nieuwe routes
+
+| Route | Scherm | Toegang |
+|-------|--------|---------|
+| `#/mijn-voortgang` | `StudentDashboardScreen` | Openbaar (voor ingelogde leerling) |
+| `#/docent-dashboard` | `TeacherDashboardScreen` | PIN-beveiligd (zelfde PIN als `#/login`) |
+
+### Migratiestatus
+
+Alle bestaande localStorage-sleutels blijven **leesbaar en beschrijfbaar** tijdens de migratie.
+
+| Oud (legacy) | Nieuw (domein) | Status |
+|---|---|---|
+| `student_info_v1` | `zinsontleding_students_v1` | Beide actief; `getOrCreateStudent()` migreert automatisch |
+| `custom-sentences` | `zinsontleding_assignments_v1` | Beide actief; `migrateFromCustomSentences()` eenmalig |
+| `zinsontleding_interactions_v1` | `zinsontleding_trainer_activity_v1` | Beide worden geschreven; verwijdering later |
+| `zinsontleding_reports_v1` / Google Drive | `zinsontleding_submissions_v1` | SessionReport-formaat behouden; compat-adapter beschikbaar |
 
 ---
 
