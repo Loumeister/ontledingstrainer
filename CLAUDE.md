@@ -11,13 +11,13 @@ Ontleedlab - An interactive browser-based app that teaches Dutch sentence parsin
 - Tailwind CSS 3.4 (styling)
 - Vitest 4.0 (testing)
 - canvas-confetti (gamification effects)
-- Currently fully client-side
-- localStorage is the current persistence layer
+- Currently browser-first and largely client-side
+- localStorage is the current primary client persistence layer
+- Google Apps Script sync already exists for reporting
 - New features may introduce sync-ready domain models, but must preserve current client-side behavior during migration
-- localStorage for persistence
 - GitHub Pages for deployment
 
-- ## Current Source of Truth
+## Current Source of Truth
 
 At the moment, several localStorage-backed services coexist.
 Treat them as current implementation reality, not ideal target architecture.
@@ -103,12 +103,15 @@ src/
 
 ## State Management
 
-All application state lives in `src/hooks/useTrainer.ts`. The hook returns a `TrainerState` object that is passed to screen components. State categories:
+Most current exercise state lives in `src/hooks/useTrainer.ts`. The hook returns a `TrainerState` object that is passed to screen components.
 
+State categories:
 1. **Config state**: difficulty level, predicate mode, focus filters, complexity filters
 2. **Session state**: queue, index, stats, mistake tracking
 3. **Trainer state**: current sentence, step, splits, labels, validation
 4. **UI state**: dark mode, large font, dyslexia mode, help modal, confirmation dialogs
+
+New domain, analytics, assignment, and sync logic should preferably be extracted into focused services and hooks rather than further expanding `useTrainer.ts`.
 
 **Known issues (see TODO.md §0f, §16):**
 - 23 separate useState calls without useCallback → handler recreation on every render
@@ -276,3 +279,13 @@ After implementation:
   - newly introduced design
   - temporary migration layer
   - open follow-up work
+ 
+  - ## Preferred Expansion Direction
+
+When the codebase grows, prefer this direction unless the current structure strongly suggests a better fit:
+
+- keep current exercise flows working during migration
+- treat `types.ts` as legacy/shared types, not the only future type location
+- prefer focused services for persistence, analytics, syncing, and domain transformations
+- prefer dedicated domain modules for assignments, submissions, activity, and teacher annotations
+- avoid adding major new concerns directly into `useTrainer.ts`
