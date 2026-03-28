@@ -121,6 +121,8 @@ export interface ChunkCard {
   forbids?: FrameSlotKey[];   // slots die niet aanwezig mogen zijn
   fixedPreposition?: string;  // voor VV-kaarten
   tags?: string[];            // thema-tags b.v. ["school", "sport"]
+  verbTense?: 'present' | 'past';    // voor PV-kaarten: werkwoordstijd
+  timeRef?: 'past' | 'present';      // voor BWB-kaarten: tijdsreferentie
 }
 
 /** Een constructieframe: definieert de slotstructuur van een Zinsbouwlab-oefening */

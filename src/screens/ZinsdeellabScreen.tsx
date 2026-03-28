@@ -43,8 +43,6 @@ export function ZinsdeellabScreen({
   const [phase, setPhase] = useState<ScreenPhase>(() => studentName.trim() ? 'menu' : 'welkom');
   const [localName, setLocalName] = useState(studentName);
   const [localKlas, setLocalKlas] = useState(studentKlas);
-  const [activeSlot, setActiveSlot] = useState<FrameSlotKey | null>(null);
-  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [submissionId] = useState(() => generateSubmissionId());
 
   // ── Welkom ─────────────────────────────────────────────────────────────────
@@ -65,8 +63,6 @@ export function ZinsdeellabScreen({
 
   function handleSelectFrame(frame: ConstructionFrame) {
     lab.setActiveFrame(frame);
-    setActiveSlot(null);
-    setSelectedCardId(null);
     setPhase('bouwen');
     logInteraction('lab_exercise_start');
     logLabEvent({
@@ -82,8 +78,6 @@ export function ZinsdeellabScreen({
       setPhase('bouwen');
     } else if (phase === 'bouwen') {
       lab.reset();
-      setActiveSlot(null);
-      setSelectedCardId(null);
       setPhase('frame-select');
     } else if (phase === 'frame-select') {
       setPhase('menu');
@@ -97,62 +91,25 @@ export function ZinsdeellabScreen({
   // ── Tap-to-place ───────────────────────────────────────────────────────────
 
   function handleCardTap(card: ChunkCard) {
-    // Deselecteer als dezelfde kaart opnieuw getikt
-    if (selectedCardId === card.id) {
-      setSelectedCardId(null);
-      return;
-    }
-    // Als een leeg slot actief is: direct plaatsen
-    if (activeSlot && !lab.placedCards[activeSlot]) {
-      const fullCard = lab.cardsForSlot(activeSlot).find(c => c.id === card.id);
-      if (fullCard) {
-        lab.placeCard(activeSlot, fullCard);
-        logLabEvent({
-          submissionId,
-          type: 'card_placed',
-          timestamp: new Date().toISOString(),
-          detail: `${activeSlot}:${card.id}`,
-        });
-        setSelectedCardId(null);
-        setActiveSlot(null);
-        return;
-      }
-    }
-    setSelectedCardId(card.id);
+    const slot = card.role as FrameSlotKey;
+    if (!lab.activeFrame?.slots.includes(slot)) return;
+    lab.placeCard(slot, card);
+    logLabEvent({
+      submissionId,
+      type: 'card_placed',
+      timestamp: new Date().toISOString(),
+      detail: `${slot}:${card.id}`,
+    });
   }
 
-  function handleSlotTap(slot: FrameSlotKey) {
-    // Slot bezet → verwijder kaart
-    if (lab.placedCards[slot]) {
-      lab.removeCard(slot);
-      logLabEvent({
-        submissionId,
-        type: 'card_removed',
-        timestamp: new Date().toISOString(),
-        detail: slot,
-      });
-      setActiveSlot(null);
-      setSelectedCardId(null);
-      return;
-    }
-    // Kaart al geselecteerd → probeer in dit slot te plaatsen
-    if (selectedCardId) {
-      const card = lab.cardsForSlot(slot).find(c => c.id === selectedCardId);
-      if (card) {
-        lab.placeCard(slot, card);
-        logLabEvent({
-          submissionId,
-          type: 'card_placed',
-          timestamp: new Date().toISOString(),
-          detail: `${slot}:${selectedCardId}`,
-        });
-        setSelectedCardId(null);
-        setActiveSlot(null);
-        return;
-      }
-    }
-    // Activeer slot voor volgende kaarttap
-    setActiveSlot(prev => (prev === slot ? null : slot));
+  function handleRemoveCard(slot: FrameSlotKey) {
+    lab.removeCard(slot);
+    logLabEvent({
+      submissionId,
+      type: 'card_removed',
+      timestamp: new Date().toISOString(),
+      detail: slot,
+    });
   }
 
   // ── Drag-and-drop ──────────────────────────────────────────────────────────
@@ -169,7 +126,9 @@ export function ZinsdeellabScreen({
   function handleDrop(e: React.DragEvent, targetSlot: FrameSlotKey) {
     e.preventDefault();
     const cardId = e.dataTransfer.getData('text/card-id');
-    const card = lab.cardsForSlot(targetSlot).find(c => c.id === cardId);
+    // Accept drop from any slot bank whose cards match this slot
+    const allCards = [...lab.cardsForSlot(targetSlot)];
+    const card = allCards.find(c => c.id === cardId);
     if (card) {
       lab.placeCard(targetSlot, card);
       logLabEvent({
@@ -234,12 +193,19 @@ export function ZinsdeellabScreen({
     ? lab.activeFrame.slots.every(slot => !!lab.placedCards[slot])
     : false;
 
-  const builtSentenceText = lab.activeFrame
-    ? lab.activeFrame.slots
-        .map(slot => lab.placedCards[slot]?.tokens.map(t => t.text).join(' '))
-        .filter(Boolean)
-        .join(' ')
-    : '';
+  // Sentence preview follows orderedSlots (tap order = word order)
+  const builtSentenceText = lab.orderedSlots
+    .map(slot => lab.placedCards[slot]?.tokens.map(t => t.text).join(' '))
+    .filter(Boolean)
+    .join(' ');
+
+  // Display order: placed chips in tap order, then remaining empty slots
+  const displaySlots = lab.activeFrame
+    ? [
+        ...lab.orderedSlots,
+        ...lab.activeFrame.slots.filter(s => !lab.orderedSlots.includes(s)),
+      ]
+    : [];
 
   const base = [
     'min-h-screen flex flex-col',
@@ -261,7 +227,7 @@ export function ZinsdeellabScreen({
         >
           ← Terug
         </button>
-        <h1 className="font-bold text-xl">Zinsdeellab</h1>
+        <h1 className="font-bold text-xl">Zinnenlab</h1>
         <div className="ml-auto flex items-center gap-3">
           {lab.activeFrame && (
             <span className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs hidden sm:block">
@@ -287,7 +253,7 @@ export function ZinsdeellabScreen({
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 md:p-8 space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Zinsdeellab</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Zinnenlab</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                   Kies een zinspatroon, plak de zinsdelen op de juiste plek en bouw een correcte zin.
                   Daarna ontleed je de zin die je zelf hebt gemaakt.
@@ -402,7 +368,7 @@ export function ZinsdeellabScreen({
               </p>
               {phase === 'bouwen' && (
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Tik op een kaart en tik daarna op een slot — of sleep de kaart naar het slot.
+                  Tik op een kaart om hem te plaatsen. De volgorde bepaalt de woordvolgorde van je zin.
                 </p>
               )}
             </div>
@@ -413,24 +379,16 @@ export function ZinsdeellabScreen({
                 Jouw zin
               </h2>
               <div className="flex flex-wrap gap-2">
-                {lab.activeFrame.slots.map(slot => (
+                {displaySlots.map(slot => (
                   <FrameSlot
                     key={slot}
                     slot={slot}
                     slotLabel={slotLabel(slot)}
                     colorClass={slotColor(slot)}
                     placedCard={lab.placedCards[slot] ?? null}
-                    isHighlighted={activeSlot === slot}
-                    onTapPlace={() => handleSlotTap(slot)}
-                    onRemove={() => {
-                      lab.removeCard(slot);
-                      logLabEvent({
-                        submissionId,
-                        type: 'card_removed',
-                        timestamp: new Date().toISOString(),
-                        detail: slot,
-                      });
-                    }}
+                    isHighlighted={false}
+                    onTapPlace={() => {}}
+                    onRemove={() => handleRemoveCard(slot)}
                     onDragOver={handleDragOver}
                     onDrop={e => handleDrop(e, slot)}
                     darkMode={darkMode}
@@ -458,7 +416,7 @@ export function ZinsdeellabScreen({
                       <ChunkBank
                         cards={cards}
                         placedCardIds={placedCardIds}
-                        selectedCardId={selectedCardId}
+                        selectedCardId={null}
                         onCardTap={handleCardTap}
                         onDragStart={handleDragStart}
                         darkMode={darkMode}
@@ -518,8 +476,6 @@ export function ZinsdeellabScreen({
                   <button
                     onClick={() => {
                       lab.reset();
-                      setActiveSlot(null);
-                      setSelectedCardId(null);
                       setPhase('bouwen');
                     }}
                     className="px-5 py-2.5 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-500 transition"

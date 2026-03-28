@@ -22,7 +22,7 @@ export default function App() {
   const [showEditor, setShowEditor] = useState(() => window.location.hash === '#/editor');
   const [showDocent, setShowDocent] = useState(() => window.location.hash === '#/docent');
   const [showUsageLog, setShowUsageLog] = useState(() => window.location.hash === '#/usage');
-  const [showZinsdeellab, setShowZinsdeellab] = useState(() => window.location.hash === '#/zinsdeellab');
+  const [showZinsdeellab, setShowZinsdeellab] = useState(() => window.location.hash === '#/zinnenlab');
   const [sharedSentences] = useState<Sentence[]>(initialSharedSentences);
 
   // Preload common sentence levels
@@ -37,7 +37,7 @@ export default function App() {
       setShowEditor(window.location.hash === '#/editor');
       setShowDocent(window.location.hash === '#/docent');
       setShowUsageLog(window.location.hash === '#/usage');
-      setShowZinsdeellab(window.location.hash === '#/zinsdeellab');
+      setShowZinsdeellab(window.location.hash === '#/zinnenlab');
     };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
@@ -78,7 +78,7 @@ export default function App() {
     return <EditorView darkMode={trainer.darkMode} />;
   }
 
-  // Zinsdeellab screen (hidden route — #/zinsdeellab)
+  // Zinsdeellab screen (hidden route — #/zinnenlab)
   if (showZinsdeellab) {
     return (
       <ZinsdeellabScreen
