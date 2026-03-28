@@ -414,6 +414,7 @@ export function useTrainer(): TrainerState {
       submissionIdRef.current = newSubId;
       const startedAt = new Date().toISOString();
       saveSubmission({
+        domain: 'trainer',
         id: newSubId,
         studentId: student.id,
         studentName: student.name || studentName,
@@ -456,6 +457,7 @@ export function useTrainer(): TrainerState {
       submissionIdRef.current = newSubId;
       const startedAt = new Date().toISOString();
       saveSubmission({
+        domain: 'trainer',
         id: newSubId,
         studentId: student.id,
         studentName: student.name || studentName,
@@ -527,6 +529,7 @@ export function useTrainer(): TrainerState {
           const startedAt = sessionStartTimeRef.current !== null
             ? new Date(sessionStartTimeRef.current).toISOString() : completedAt;
           saveSubmission({
+            domain: 'trainer',
             id: subId,
             studentId: studentIdRef.current ?? '',
             studentName: studentName,

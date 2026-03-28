@@ -4,14 +4,20 @@
  * Geen side-effects, geen localStorage-toegang. Alle functies ontvangen
  * data als parameters en geven berekende samenvattingen terug.
  *
- * Dekt zowel TrainerSubmission (ontleder) als een compat-adapter voor
- * de bestaande SessionReport (voor docentdashboards die al rapporten
- * hebben ingevoerd via UsageLogScreen).
+ * Twee niveaus:
+ * 1. Domein-specifiek (TrainerSubmission): `computeTrainerStudentProgress`,
+ *    `computeTrainerClassProgress`, `computeRoleErrorPatterns`,
+ *    `computeAssignmentParticipation` — voor trainer-dashboards.
  *
- * Uitbreidbaar naar LabSubmission zodra de lab-branch gemerged is.
+ * 2. Cross-domein (AnySubmission): `computeCrossDomainStudentActivity`,
+ *    `computeCrossDomainKlasSummary` — aggregeren over trainer + lab sessies.
+ *    Gebruik `activityStore.getAllSubmissions()` als input.
+ *
+ * Compat-adapter: `buildTrainerSubmissionFromReport` — converteert legacy
+ * SessionReport naar TrainerSubmission voor dashboardweergave.
  */
 
-import type { TrainerSubmission, TrainerAttempt } from '../types';
+import type { TrainerSubmission, TrainerAttempt, AnySubmission } from '../types';
 import type { SessionReport } from '../services/sessionReport';
 
 // ── Output types ──────────────────────────────────────────────────────────────
@@ -275,6 +281,136 @@ export function computeAttemptRoleErrors(
   return [];
 }
 
+// ── Cross-domain aggregation ──────────────────────────────────────────────────
+
+/**
+ * Samenvatting van studentactiviteit over beide domeinen (trainer + lab).
+ * Gebruikt als input voor een gecombineerd voortgangsdashboard.
+ */
+export interface CrossDomainStudentSummary {
+  /** Naam of studentId waarvoor de samenvatting is berekend. */
+  studentKey: string;
+  /** Totaal voltooide sessies (trainer + lab). */
+  totalSessions: number;
+  /** Voltooide trainer-sessies (ontledingsoefeningen). */
+  trainerSessions: number;
+  /** Voltooide lab-sessies (Zinsdeellab). */
+  labSessions: number;
+  /** Gemiddelde score van trainer-sessies (0–100), NaN als geen trainer-sessies. */
+  trainerAvgScore: number;
+  /** ISO-timestamp van de meest recente sessie over beide domeinen. */
+  latestTs: string;
+}
+
+/**
+ * Bereken gecombineerde activiteitssamenvatting voor één student over beide domeinen.
+ *
+ * @param submissions - AnySubmission[]-lijst (van activityStore.getAllSubmissions()).
+ * @param studentKey  - Naam of Student.id om op te filteren.
+ * @returns CrossDomainStudentSummary over alle domeinen.
+ */
+export function computeCrossDomainStudentActivity(
+  submissions: AnySubmission[],
+  studentKey: string,
+): CrossDomainStudentSummary {
+  const norm = studentKey.trim().toLowerCase();
+
+  const mine = submissions.filter(s => {
+    if (s.domain === 'trainer') {
+      return (
+        s.studentId === studentKey ||
+        s.studentName.trim().toLowerCase() === norm
+      );
+    }
+    return s.studentName.trim().toLowerCase() === norm;
+  }).filter(s => s.completedAt);
+
+  const trainerSubs = mine.filter(s => s.domain === 'trainer');
+  const labSubs = mine.filter(s => s.domain === 'lab');
+
+  const trainerScores = trainerSubs.map(s =>
+    s.domain === 'trainer' && s.scoreTotal > 0
+      ? (s.scoreCorrect / s.scoreTotal) * 100
+      : 0,
+  );
+
+  const allTs = mine
+    .map(s => s.completedAt ?? s.startedAt)
+    .sort((a, b) => b.localeCompare(a));
+
+  return {
+    studentKey,
+    totalSessions: mine.length,
+    trainerSessions: trainerSubs.length,
+    labSessions: labSubs.length,
+    trainerAvgScore:
+      trainerScores.length > 0
+        ? trainerScores.reduce((a, s) => a + s, 0) / trainerScores.length
+        : NaN,
+    latestTs: allTs[0] ?? '',
+  };
+}
+
+/**
+ * Samenvatting per klas over beide domeinen.
+ */
+export interface CrossDomainKlasSummary {
+  klas: string;
+  /** Unieke studentnamen actief in de klas over beide domeinen. */
+  uniqueStudents: number;
+  /** Totaal voltooide sessies in de klas. */
+  totalSessions: number;
+  /** Voltooide trainer-sessies in de klas. */
+  trainerSessions: number;
+  /** Voltooide lab-sessies in de klas. */
+  labSessions: number;
+  /** Gemiddelde trainer-score voor de klas (0–100), NaN als geen trainer-sessies. */
+  trainerAvgScore: number;
+}
+
+/**
+ * Bereken activiteitssamenvatting per klas over beide domeinen.
+ *
+ * @param submissions - AnySubmission[]-lijst (van activityStore.getAllSubmissions()).
+ * @param klas        - Klasnaam (case-insensitief), bijv. '2B'.
+ * @returns CrossDomainKlasSummary voor de klas.
+ */
+export function computeCrossDomainKlasSummary(
+  submissions: AnySubmission[],
+  klas: string,
+): CrossDomainKlasSummary {
+  const normKlas = klas.trim().toLowerCase();
+  const klasSubs = submissions.filter(
+    s => s.studentKlas.trim().toLowerCase() === normKlas && s.completedAt,
+  );
+
+  const studentKeys = new Set(
+    klasSubs.map(s =>
+      s.domain === 'trainer' ? s.studentId : s.studentName.trim().toLowerCase(),
+    ),
+  );
+
+  const trainerSubs = klasSubs.filter(s => s.domain === 'trainer');
+  const labSubs = klasSubs.filter(s => s.domain === 'lab');
+  const trainerScores = trainerSubs.map(s =>
+    s.domain === 'trainer' && s.scoreTotal > 0
+      ? (s.scoreCorrect / s.scoreTotal) * 100
+      : 0,
+  );
+
+  return {
+    klas: normKlas,
+    uniqueStudents: studentKeys.size,
+    totalSessions: klasSubs.length,
+    trainerSessions: trainerSubs.length,
+    labSessions: labSubs.length,
+    trainerAvgScore:
+      trainerScores.length > 0
+        ? trainerScores.reduce((a, s) => a + s, 0) / trainerScores.length
+        : NaN,
+  };
+}
+
 // ── Compatibility adapter: SessionReport → TrainerSubmission ──────────────────
 
 /**
@@ -296,6 +432,7 @@ export function buildTrainerSubmissionFromReport(
   report: SessionReport,
 ): Omit<TrainerSubmission, 'studentId'> {
   return {
+    domain: 'trainer',
     id: `legacy-${report.ts.replace(/[:.]/g, '-')}`,
     studentName: report.name,
     studentKlas: report.klas ?? '',

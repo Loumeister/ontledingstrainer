@@ -58,15 +58,18 @@ export function generateAttemptId(): string {
 /**
  * Laadt alle opgeslagen TrainerSubmissions uit localStorage.
  *
- * Geeft een lege array terug als de sleutel ontbreekt of de opgeslagen JSON
- * niet geldig is (defensief: localStorage kan corrupt raken of ontbreken).
+ * Normaliseert ontbrekende `domain`-velden: records die zijn opgeslagen vóór
+ * de introductie van de `domain`-discriminator krijgen `domain: 'trainer'`
+ * toegewezen. Zo zijn alle teruggegeven records geldig als `TrainerSubmission`.
  *
- * @returns Alle submissions, gesorteerd op volgorde van opslaan (oudste eerst).
+ * @returns Alle submissions (genormaliseerd), oudste eerst.
  */
 export function getSubmissions(): TrainerSubmission[] {
   try {
     const raw = localStorage.getItem(SUBMISSION_KEY);
-    return raw ? (JSON.parse(raw) as TrainerSubmission[]) : [];
+    const parsed = raw ? (JSON.parse(raw) as TrainerSubmission[]) : [];
+    // Migratie: voeg domain toe aan records zonder dat veld (opgeslagen vóór unificatie)
+    return parsed.map(s => (s.domain === 'trainer' ? s : { ...s, domain: 'trainer' as const }));
   } catch {
     return [];
   }
@@ -93,12 +96,14 @@ function saveSubmissions(submissions: TrainerSubmission[]): void {
  * @param submission - De volledige (of bijgewerkte) TrainerSubmission om op te slaan.
  */
 export function saveSubmission(submission: TrainerSubmission): void {
+  // Zorg dat domain altijd aanwezig is in opgeslagen data
+  const normalized: TrainerSubmission = { ...submission, domain: 'trainer' };
   const submissions = getSubmissions();
-  const idx = submissions.findIndex(s => s.id === submission.id);
+  const idx = submissions.findIndex(s => s.id === normalized.id);
   if (idx >= 0) {
-    submissions[idx] = submission;
+    submissions[idx] = normalized;
   } else {
-    submissions.push(submission);
+    submissions.push(normalized);
     if (submissions.length > MAX_SUBMISSIONS) {
       submissions.splice(0, submissions.length - MAX_SUBMISSIONS);
     }
