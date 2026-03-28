@@ -898,10 +898,13 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
 export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBack }) => {
   const [authenticated] = useState(() => sessionStorage.getItem(PIN_SESSION_KEY) === 'true');
 
-  if (!authenticated) {
-    window.location.hash = '#/login';
-    return null;
-  }
+  useEffect(() => {
+    if (!authenticated) {
+      window.location.hash = '#/login';
+    }
+  }, [authenticated]);
+
+  if (!authenticated) return null;
 
   return <SentenceEditorContent onBack={onBack} />;
 };
