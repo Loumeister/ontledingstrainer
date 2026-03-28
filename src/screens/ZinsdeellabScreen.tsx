@@ -8,7 +8,7 @@ import { logLabEvent } from '../services/labActivityLog';
 import { saveSubmission, generateSubmissionId } from '../services/labSubmissionStore';
 import type { ConstructionFrame, FrameSlotKey, Sentence, ChunkCard } from '../types';
 
-type ScreenPhase = 'menu' | 'frame-select' | 'bouwen' | 'validatie';
+type ScreenPhase = 'welkom' | 'menu' | 'frame-select' | 'bouwen' | 'validatie';
 
 interface ZinsdeellabScreenProps {
   darkMode: boolean;
@@ -40,10 +40,26 @@ export function ZinsdeellabScreen({
   onClose,
 }: ZinsdeellabScreenProps) {
   const lab = useZinsbouwlab();
-  const [phase, setPhase] = useState<ScreenPhase>('menu');
+  const [phase, setPhase] = useState<ScreenPhase>('welkom');
+  const [localName, setLocalName] = useState(studentName);
+  const [localKlas, setLocalKlas] = useState(studentKlas);
   const [activeSlot, setActiveSlot] = useState<FrameSlotKey | null>(null);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [submissionId] = useState(() => generateSubmissionId());
+
+  // ── Welkom ─────────────────────────────────────────────────────────────────
+
+  function handleWelkomStart() {
+    try {
+      const current = JSON.parse(localStorage.getItem('student_info_v1') ?? '{}');
+      localStorage.setItem('student_info_v1', JSON.stringify({
+        ...current,
+        name: localName.trim(),
+        klas: localKlas.trim(),
+      }));
+    } catch { /* ignore */ }
+    setPhase('menu');
+  }
 
   // ── Navigatie ──────────────────────────────────────────────────────────────
 
@@ -71,6 +87,8 @@ export function ZinsdeellabScreen({
       setPhase('frame-select');
     } else if (phase === 'frame-select') {
       setPhase('menu');
+    } else if (phase === 'menu') {
+      setPhase('welkom');
     } else {
       onClose();
     }
@@ -186,8 +204,8 @@ export function ZinsdeellabScreen({
       id: submissionId,
       exerciseId: lab.activeFrame.id,
       exerciseVersion: 1,
-      studentName,
-      studentKlas,
+      studentName: localName,
+      studentKlas: localKlas,
       startedAt: new Date().toISOString(),
       constructionValid: true,
       builtSentence: renderedSentence,
@@ -252,6 +270,51 @@ export function ZinsdeellabScreen({
       </header>
 
       <main className="flex-1 overflow-auto p-4 md:p-6 max-w-3xl mx-auto w-full space-y-6">
+
+        {/* ── WELKOM ── */}
+        {phase === 'welkom' && (
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 md:p-8 space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Zinsdeellab</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                  Kies een zinspatroon, plak de zinsdelen op de juiste plek en bouw een correcte zin.
+                  Daarna ontleed je de zin die je zelf hebt gemaakt.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <label className="block space-y-1">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Naam *</span>
+                  <input
+                    value={localName}
+                    onChange={e => setLocalName(e.target.value)}
+                    placeholder="Jouw naam"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    autoFocus
+                  />
+                </label>
+                <label className="block space-y-1">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Klas</span>
+                  <input
+                    value={localKlas}
+                    onChange={e => setLocalKlas(e.target.value)}
+                    placeholder="b.v. 2A"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                </label>
+              </div>
+
+              <button
+                onClick={handleWelkomStart}
+                disabled={!localName.trim()}
+                className="w-full py-3 rounded-lg bg-blue-600 text-white font-bold text-base hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-blue-500 transition"
+              >
+                Aan de slag →
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ── MENU ── */}
         {phase === 'menu' && (
