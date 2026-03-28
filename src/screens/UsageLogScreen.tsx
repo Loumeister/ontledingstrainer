@@ -213,6 +213,12 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   const [expandedSols, setExpandedSols] = useState<Set<string>>(new Set());
 
   useEffect(() => {
+    if (!authenticated) {
+      window.location.hash = '#/login';
+    }
+  }, [authenticated]);
+
+  useEffect(() => {
     if (!authenticated) return;
     const customSentences = getCustomSentences();
     loadAllSentences().then(builtIn => {
@@ -438,10 +444,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
     return true;
   });
 
-  if (!authenticated) {
-    window.location.hash = '#/login';
-    return null;
-  }
+  if (!authenticated) return null;
 
   // ---------------------------------------------------------------------------
   // Derived data — computed per render from enrichedData + allReports + filters.
