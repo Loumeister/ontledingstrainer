@@ -6,6 +6,7 @@ import { TrainerScreen } from './screens/TrainerScreen';
 import { SentenceEditorScreen } from './screens/SentenceEditorScreen';
 import { EditorView } from './components/EditorView';
 import { UsageLogScreen } from './screens/UsageLogScreen';
+import { ZinsdeellabScreen } from './screens/ZinsdeellabScreen';
 import LoginScreen from './components/LoginScreen';
 import { preloadCommonLevels } from './data/sentenceLoader';
 import { decodeShared } from './data/customSentenceStore';
@@ -21,6 +22,7 @@ export default function App() {
   const [showEditor, setShowEditor] = useState(() => window.location.hash === '#/editor');
   const [showDocent, setShowDocent] = useState(() => window.location.hash === '#/docent');
   const [showUsageLog, setShowUsageLog] = useState(() => window.location.hash === '#/usage');
+  const [showZinsdeellab, setShowZinsdeellab] = useState(() => window.location.hash === '#/zinsdeellab');
   const [sharedSentences] = useState<Sentence[]>(initialSharedSentences);
 
   // Preload common sentence levels
@@ -35,6 +37,7 @@ export default function App() {
       setShowEditor(window.location.hash === '#/editor');
       setShowDocent(window.location.hash === '#/docent');
       setShowUsageLog(window.location.hash === '#/usage');
+      setShowZinsdeellab(window.location.hash === '#/zinsdeellab');
     };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
@@ -73,6 +76,28 @@ export default function App() {
   // Docent screen (teacher analytics area)
   if (showDocent) {
     return <EditorView darkMode={trainer.darkMode} />;
+  }
+
+  // Zinsdeellab screen (hidden route — #/zinsdeellab)
+  if (showZinsdeellab) {
+    return (
+      <ZinsdeellabScreen
+        darkMode={trainer.darkMode}
+        largeFont={trainer.largeFont}
+        dyslexiaMode={trainer.dyslexiaMode}
+        studentName={trainer.studentName}
+        studentKlas={trainer.studentKlas}
+        onBuiltSentence={(sentence) => {
+          setShowZinsdeellab(false);
+          window.location.hash = '';
+          trainer.startSharedSession([sentence]);
+        }}
+        onClose={() => {
+          setShowZinsdeellab(false);
+          window.location.hash = '';
+        }}
+      />
+    );
   }
 
   // Home Screen: no active sentence and no finished session

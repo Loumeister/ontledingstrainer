@@ -12,12 +12,14 @@ import {
 } from '../data/customSentenceStore';
 import { loadAllSentences } from '../data/sentenceLoader';
 import type { Sentence } from '../types';
+import LabEditorTab from '../components/LabEditorTab';
 
 type ListFilter = 'all' | 'builtin' | 'custom';
 
 const PIN_SESSION_KEY = EDITOR_SESSION_KEY;
 
 type EditorPhase = 'list' | 'input' | 'edit' | 'meta' | 'preview';
+type EditorTab = 'zinnen' | 'zinsdeellab';
 
 interface SentenceEditorScreenProps {
   onBack: () => void;
@@ -30,6 +32,9 @@ interface SentenceEditorContentProps {
 }
 
 export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ onBack, onSentenceChange, embedded }) => {
+  // Tab state
+  const [activeEditorTab, setActiveEditorTab] = useState<EditorTab>('zinnen');
+
   // Editor state
   const [phase, setPhase] = useState<EditorPhase>('list');
   const [sentenceText, setSentenceText] = useState('');
@@ -429,13 +434,34 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
       <div className={pageClass}>
         <div className="max-w-4xl mx-auto space-y-4">
           <div className="bg-white dark:bg-slate-800 p-4 md:p-6 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
               <div>
                 <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Zinnen-editor</h1>
                 <p className="text-sm text-slate-500 dark:text-slate-400">{builtInCount} ingebouwde + {customCount} eigen zinnen</p>
               </div>
               {onBack && <button onClick={onBack} className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors">Terug</button>}
             </div>
+
+            {/* Top-level tab bar */}
+            <div className="flex rounded-lg border border-slate-200 dark:border-slate-600 overflow-hidden mb-6 w-fit">
+              {([['zinnen', 'Zinsontleding'], ['zinsdeellab', 'Zinsdeellab']] as const).map(([tab, label]) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveEditorTab(tab)}
+                  className={`px-4 py-2 text-sm font-medium transition-colors ${activeEditorTab === tab ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* Zinsdeellab tab */}
+            {activeEditorTab === 'zinsdeellab' && (
+              <LabEditorTab />
+            )}
+
+            {/* Zinnen tab content below */}
+            {activeEditorTab === 'zinnen' && (<>
 
             {statusMsg && (
               <div className="p-3 mb-4 rounded-lg bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-200 text-sm font-medium border border-green-200 dark:border-green-800">{statusMsg}</div>
@@ -519,6 +545,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
                 })}
               </div>
             )}
+          </>)}
           </div>
         </div>
       </div>

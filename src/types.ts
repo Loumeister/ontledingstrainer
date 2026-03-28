@@ -90,3 +90,117 @@ export interface SentenceUsageData {
   note: string;                        // Teacher note
   lastAttempted: string;               // ISO date string
 }
+
+// ── Zinsbouwlab / Zinsdeellab domain ────────────────────────────────────────
+
+/** Slot-sleutels in een constructieframe (subset van RoleKey, uitgebreid met 'nwd') */
+export type FrameSlotKey =
+  | 'ow' | 'pv' | 'wg' | 'ng' | 'lv' | 'mv' | 'vv' | 'bwb' | 'nwd';
+
+/**
+ * Één woordkaart in de Zinsbouwlab woordbank.
+ * Bevat interne tokens zodat omzetting naar Sentence exact is zonder tekst-parsing.
+ */
+export interface ChunkCard {
+  id: string;
+  role: FrameSlotKey;
+  familyId: string;           // compatibiliteitsgroep, b.v. "transitief_sg"
+  frameIds: string[];         // in welke frames deze kaart gebruikt mag worden
+
+  /** Interne tokens — elke kaart = één chunk, meerdere tokens mogelijk */
+  tokens: Array<{
+    text: string;
+    role: RoleKey;
+    subRole?: RoleKey;
+  }>;
+
+  number?: 'sg' | 'pl';
+  person?: 1 | 2 | 3;
+  predicateType?: 'WG' | 'NG';
+  requires?: FrameSlotKey[];  // slots die ook aanwezig moeten zijn
+  forbids?: FrameSlotKey[];   // slots die niet aanwezig mogen zijn
+  fixedPreposition?: string;  // voor VV-kaarten
+  tags?: string[];            // thema-tags b.v. ["school", "sport"]
+}
+
+/** Een constructieframe: definieert de slotstructuur van een Zinsbouwlab-oefening */
+export interface ConstructionFrame {
+  id: string;
+  label: string;
+  level: DifficultyLevel;
+  predicateType: 'WG' | 'NG';
+  slots: FrameSlotKey[];
+  families: string[];         // toegestane familyIds voor ChunkCards
+  wordOrders: string[];       // geldige volgordes b.v. ["ow-pv-lv", "bwb-pv-ow-lv"]
+  prompt: string;             // opdrachttekst voor leerling
+}
+
+/** Eén constructiepoging door een leerling */
+export interface ConstructionAttempt {
+  frameId: string;
+  selectedChunks: Partial<Record<FrameSlotKey, string>>; // slot → chunkCardId
+  renderedSentence: string;
+  isValid: boolean;
+  feedback: string[];
+}
+
+// ── Zinsdeellab domain (foundation voor toekomstige MVP) ────────────────────
+
+/** Soort Zinsdeellab-oefening — nu alleen 'remix', later uitbreidbaar */
+export type LabExerciseType = 'remix';
+
+/**
+ * Een Zinsdeellab-oefening (definitie, versiebaar).
+ * Historische LabSubmissions refereren aan exerciseId + exerciseVersion,
+ * zodat studentresultaten altijd attributeerbaar zijn aan de exacte versie.
+ */
+export interface ZinsdeellabExercise {
+  id: string;                 // stabiele slug, b.v. "ex-transitief-sg-001"
+  version: number;            // incrementeert bij inhoudelijke wijziging
+  contentHash: string;        // hash van geserialiseerde inhoud (voor attributie)
+  createdAt: string;          // ISO timestamp
+  updatedAt: string;          // ISO timestamp
+  exerciseType: LabExerciseType;
+  title: string;
+  level: DifficultyLevel;
+  frameId: string;            // verwijst naar ConstructionFrame.id
+}
+
+/**
+ * Studentpoging op een specifieke versie van een oefening.
+ * Eén submission = één voltooid of afgebroken lab-traject.
+ */
+export interface LabSubmission {
+  id: string;                 // stabiele ID, b.v. ISO-timestamp + random suffix
+  exerciseId: string;
+  exerciseVersion: number;    // versie actief bij start van deze poging
+  studentName: string;
+  studentKlas: string;
+  startedAt: string;          // ISO
+  completedAt?: string;       // ISO; ontbreekt als afgebroken
+  constructionValid: boolean;
+  builtSentence: string;      // gebouwde zin als leesbare tekst
+  parsingScore?: number;      // 0–100 als ontleed-fase gedaan
+  usedHint: boolean;
+}
+
+/** Fijnkorrelig event binnen een lab-traject (per submission gegroepeerd) */
+export interface LabActivityEvent {
+  submissionId: string;
+  type: LabEventType;
+  timestamp: string;          // ISO
+  detail?: string;
+}
+
+/** Event-types voor Zinsdeellab activiteitslog */
+export type LabEventType =
+  | 'exercise_start'
+  | 'card_placed'
+  | 'card_removed'
+  | 'construction_submitted'
+  | 'construction_valid'
+  | 'construction_invalid'
+  | 'hint_used'
+  | 'parse_started'
+  | 'parse_completed'
+  | 'exercise_abandoned';

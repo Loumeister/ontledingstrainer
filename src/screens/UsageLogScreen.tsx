@@ -59,6 +59,7 @@ import type { DriveRow } from '../services/googleDriveSync';
 import { applyAliases, setKlasAlias, setStudentAlias } from '../services/nameAliases';
 import type { SentenceUsageData, Sentence } from '../types';
 import FeedbackEditorTab from '../components/FeedbackEditorTab';
+import LabActivitySection from '../components/LabActivitySection';
 
 // ---------------------------------------------------------------------------
 // Score colour helpers
@@ -1724,6 +1725,9 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
                 </pre>
               )}
             </div>
+
+            {/* Zinsdeellab activiteit */}
+            <LabActivitySection />
 
             {/* Feedback Editor */}
             <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
