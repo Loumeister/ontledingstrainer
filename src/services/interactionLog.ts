@@ -21,7 +21,11 @@ export type InteractionType =
   | 'abort'
   | 'error_split'
   | 'error_role'
-  | 'error_bijzin_functie';
+  | 'error_bijzin_functie'
+  | 'lab_exercise_start'
+  | 'lab_construction_submit'
+  | 'lab_parse_complete'
+  | 'lab_exercise_complete';
 
 export interface InteractionEntry {
   timestamp: string;
