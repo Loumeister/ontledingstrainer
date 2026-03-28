@@ -332,8 +332,8 @@ export interface TeacherNote {
  * Discriminated union van alle submission-types.
  * Gebruik `domain` als discriminator in switch/if-statements:
  *
- *   if (sub.domain === 'trainer') { /* TrainerSubmission */ }
- *   if (sub.domain === 'lab')     { /* LabSubmission     */ }
+ *   if (sub.domain === 'trainer') { // TrainerSubmission
+ *   if (sub.domain === 'lab')     { // LabSubmission
  *
  * Verbruikt door activityStore en analyticsHelpers voor cross-domain aggregatie.
  */
