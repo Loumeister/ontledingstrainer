@@ -19,10 +19,15 @@ import { computeTrainerStudentProgress } from '../logic/analyticsHelpers';
 import { ROLES } from '../constants';
 
 interface StudentDashboardScreenProps {
+  /** Volledige naam van de student, zoals ingevoerd bij het aanmelden. */
   studentName: string;
+  /** Initiaal van de student (bijv. "J."), gebruikt voor weergave. */
   studentInitiaal: string;
+  /** Klasnaam van de student (bijv. "2B"), gebruikt als zoeksleutel in studentStore. */
   studentKlas: string;
+  /** Callback die wordt aangeroepen als de gebruiker op "Terug" klikt. */
   onBack: () => void;
+  /** Als `true`, wordt de dark-mode CSS-class op de pagina gezet. */
   darkMode?: boolean;
 }
 
@@ -30,6 +35,16 @@ const LEVEL_LABELS: Record<number, string> = {
   0: 'Instap', 1: 'Basis', 2: 'Middel', 3: 'Hoog', 4: 'Expert',
 };
 
+/**
+ * Scherm voor de persoonlijke voortgang van een leerling.
+ *
+ * Laadt de studentidentiteit via `studentStore.getOrCreateStudent()` op basis
+ * van naam en klas, haalt de bijbehorende submissions op, en berekent een
+ * samenvatting via `computeTrainerStudentProgress()`.
+ *
+ * Heeft geen schrijf-side-effects: laadt enkel data uit localStorage en toont
+ * berekende statistieken. Submissies worden aangemaakt door `useTrainer.ts`.
+ */
 export const StudentDashboardScreen: React.FC<StudentDashboardScreenProps> = ({
   studentName,
   studentInitiaal,

@@ -19,6 +19,15 @@ import type { TrainerActivityEvent } from '../types';
 const ACTIVITY_KEY = 'zinsontleding_trainer_activity_v1';
 const MAX_EVENTS = 2000;
 
+/**
+ * Laadt events uit het activiteitslog.
+ *
+ * Als `submissionId` wordt meegegeven, worden alleen events voor die sessie
+ * teruggegeven. Zonder argument worden alle events teruggegeven.
+ *
+ * @param submissionId - (Optioneel) filter op een specifieke submission.
+ * @returns Matching events, oudste eerst. Lege array bij ontbrekende of corrupte data.
+ */
 export function getTrainerEvents(submissionId?: string): TrainerActivityEvent[] {
   try {
     const raw = localStorage.getItem(ACTIVITY_KEY);
@@ -47,6 +56,13 @@ export function logTrainerEvent(event: TrainerActivityEvent): void {
   saveTrainerEvents(events);
 }
 
+/**
+ * Verwijdert alle events uit het activiteitslog.
+ *
+ * Gebruik alleen voor testopzet of handmatig resetten via een beheerpagina.
+ * Wordt **niet** automatisch aangeroepen in productie-flows; events worden
+ * alleen bijgesneden via de MAX_EVENTS-cap in `logTrainerEvent`.
+ */
 export function clearTrainerEvents(): void {
   try {
     localStorage.removeItem(ACTIVITY_KEY);

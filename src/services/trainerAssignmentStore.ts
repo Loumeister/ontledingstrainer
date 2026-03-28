@@ -53,6 +53,11 @@ export function computeContentHash(sentenceIds: number[]): string {
 
 // ── Persistence helpers ───────────────────────────────────────────────────────
 
+/**
+ * Laadt alle opgeslagen TrainerAssignments uit localStorage.
+ *
+ * @returns Alle opdrachten, gesorteerd op volgorde van aanmaken. Lege array bij ontbrekende data.
+ */
 export function getAssignments(): TrainerAssignment[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -72,6 +77,12 @@ function saveAssignments(assignments: TrainerAssignment[]): void {
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
+/**
+ * Zoek een TrainerAssignment op stabiel id.
+ *
+ * @param id - Het `TrainerAssignment.id` van de gezochte opdracht.
+ * @returns De opdracht, of `null` als niet gevonden.
+ */
 export function getAssignmentById(id: string): TrainerAssignment | null {
   return getAssignments().find(a => a.id === id) ?? null;
 }
@@ -136,6 +147,16 @@ export function bumpVersion(
   return updated;
 }
 
+/**
+ * Verwijdert een TrainerAssignment permanent uit localStorage.
+ *
+ * Let op: bestaande TrainerSubmissions die naar deze opdracht verwijzen blijven
+ * intact — ze zijn historisch en mogen niet worden gewijzigd. Verwijder een
+ * opdracht alleen als je zeker weet dat er geen lopende resultaten meer aan
+ * zijn gekoppeld, of als je de submissions apart wilt behouden.
+ *
+ * @param id - Het `TrainerAssignment.id` van de te verwijderen opdracht.
+ */
 export function deleteAssignment(id: string): void {
   saveAssignments(getAssignments().filter(a => a.id !== id));
 }

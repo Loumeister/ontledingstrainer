@@ -31,7 +31,9 @@ import { ROLES } from '../constants';
 import type { TrainerSubmission } from '../types';
 
 interface TeacherDashboardScreenProps {
+  /** Callback die wordt aangeroepen als de gebruiker op "Terug" klikt. */
   onBack: () => void;
+  /** Als `true`, wordt de dark-mode CSS-class op de pagina gezet. */
   darkMode?: boolean;
 }
 
@@ -47,6 +49,16 @@ function scoreColor(pct: number): string {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
+/**
+ * Docentdashboard: overzicht van klassen, studenten en rolfouten.
+ *
+ * Toont een PIN-gate als de docent nog niet is ingelogd via `#/login`.
+ * Na authenticatie wordt het interne `TeacherDashboardContent`-component getoond.
+ *
+ * Supplement aan de bestaande `UsageLogScreen` (`#/usage`): vervangt dat scherm
+ * niet, maar biedt een snellere class-/studentweergave op basis van het nieuwe
+ * domeinmodel. Beide schermen kunnen parallel worden gebruikt.
+ */
 export const TeacherDashboardScreen: React.FC<TeacherDashboardScreenProps> = ({
   onBack,
   darkMode,
@@ -69,6 +81,19 @@ export const TeacherDashboardScreen: React.FC<TeacherDashboardScreenProps> = ({
   return <TeacherDashboardContent onBack={onBack} darkMode={darkMode} />;
 };
 
+/**
+ * Inhoudelijk deel van het docentdashboard.
+ *
+ * Opgesplitst van `TeacherDashboardScreen` zodat de PIN-check en de data-logica
+ * van elkaar gescheiden zijn. Wordt alleen gerenderd na succesvolle authenticatie.
+ *
+ * Interne state:
+ * - `selectedKlas` — filtert de studententabel en rolfoutenkaart op één klas
+ * - `selectedStudentId` — schakelt naar de detailweergave van één student
+ *
+ * Alle data wordt éénmalig geladen bij mount via `useMemo`. Er zijn geen
+ * write-side-effects: dit scherm schrijft geen data naar localStorage.
+ */
 const TeacherDashboardContent: React.FC<{ onBack: () => void; darkMode?: boolean }> = ({ onBack, darkMode }) => {
   const [selectedKlas, setSelectedKlas] = useState<string | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);

@@ -16,39 +16,66 @@ import type { SessionReport } from '../services/sessionReport';
 
 // ── Output types ──────────────────────────────────────────────────────────────
 
+/** Voortgangssamenvatting voor één student, berekend uit diens submissions. */
 export interface TrainerProgressSummary {
   studentId: string;
+  /** Aantal voltooide sessies. */
   sessionCount: number;
-  avgScore: number;        // 0–100
+  /** Gemiddelde score over alle sessies (0–100). */
+  avgScore: number;
+  /** Hoogste behaalde score (0–100). */
   bestScore: number;
+  /** Score van de meest recente sessie (0–100). */
   latestScore: number;
-  latestTs: string;        // ISO timestamp van meest recente sessie
+  /** ISO-timestamp van de meest recente voltooide sessie. */
+  latestTs: string;
+  /** Top-5 rollen met de meeste fouten, gesorteerd aflopend. */
   topErrors: Array<{ role: string; count: number }>;
+  /** Tijdlijn van scores; één punt per sessie, gesorteerd op datum. */
   scoreHistory: Array<{ ts: string; score: number }>;
 }
 
+/** Klassamenvatting: aggregatie over alle studenten en sessies in een klas. */
 export interface TrainerClassSummary {
   klas: string;
+  /** Aantal unieke studenten met ≥1 voltooide sessie. */
   studentCount: number;
+  /** Totaal aantal voltooide sessies in de klas. */
   sessionCount: number;
-  avgScore: number;        // gemiddeld over alle sessies in de klas
-  participationRate: number; // 0–1: unieke studenten met ≥1 sessie / totaal known
+  /** Gemiddelde score over alle sessies in de klas (0–100). */
+  avgScore: number;
+  /**
+   * Participatiefractie (0–1).
+   * Als `knownStudentIds` is meegegeven: unieke actieve studenten / totale klasgrootte.
+   * Anders: altijd 1.0 (alle bekende studenten zijn actief).
+   */
+  participationRate: number;
+  /** Top-5 rolfouten in de klas, gesorteerd aflopend. */
   topErrors: Array<{ role: string; count: number }>;
 }
 
+/** Samenvatting van fouten per grammaticale rol over een set submissions. */
 export interface RoleErrorSummary {
+  /** Rolsleutel, bijv. 'pv', 'ow', 'bwb'. */
   role: string;
+  /** Totaal aantal keer dat deze rol fout was over alle submissions. */
   totalErrors: number;
+  /** Aantal unieke studenten die minstens één fout maakten op deze rol. */
   affectedStudents: number;
 }
 
+/** Deelnamesamenvatting voor een specifieke versie van een opdracht. */
 export interface ParticipationSummary {
   assignmentId: string;
   version: number;
+  /** Totaal aantal submissions (inclusief onvoltooide). */
   submissionCount: number;
+  /** Aantal unieke studenten die aan de opdracht begonnen zijn. */
   uniqueStudents: number;
+  /** Gemiddelde score van voltooide submissions (0–100). */
   avgScore: number;
-  completionRate: number; // fracties met completedAt
+  /** Fractie submissions met `completedAt` (0–1). */
+  completionRate: number;
 }
 
 // ── Student progress ──────────────────────────────────────────────────────────
@@ -185,6 +212,14 @@ export function computeRoleErrorPatterns(
 
 // ── Assignment participation ──────────────────────────────────────────────────
 
+/**
+ * Bereken deelnamesamenvatting voor één versie van een opdracht.
+ *
+ * @param assignmentId - Het stabiele `TrainerAssignment.id`.
+ * @param version      - De specifieke versie waarvoor deelname wordt berekend.
+ * @param submissions  - Alle beschikbare submissions (wordt intern gefilterd).
+ * @returns Samenvatting inclusief aantallen, gemiddelde score en voltooiingsfractie.
+ */
 export function computeAssignmentParticipation(
   assignmentId: string,
   version: number,
@@ -214,37 +249,48 @@ export function computeAssignmentParticipation(
 
 /**
  * Aggregeer rolfouten uit TrainerAttempts (gedetailleerder dan submission-level).
+ *
+ * **STUB — nog niet geïmplementeerd.** Geeft altijd een lege array terug.
+ *
+ * Waarom een stub?
+ * TrainerAttempt slaat in `userLabels` de *door de student opgegeven* rollen op,
+ * maar weet niet welke fout zijn. De validatielaag (`src/logic/validation.ts`)
+ * bepaalt correctheid, maar wordt hier niet aangeroepen omdat analyticsHelpers
+ * bewust geen side-effects heeft en geen domeinlogica importeert.
+ *
+ * Toekomstige implementatie: vergelijk `userLabels` met de bijbehorende
+ * Sentence-token-rollen, of sla de gecorrigeerde rolfouten al op in TrainerAttempt
+ * (zoals de bestaande `mistakeStats` op TrainerSubmission-niveau doen).
+ * Gebruik `computeRoleErrorPatterns(submissions)` als huidige workaround.
+ *
+ * @param attempts - Lijst van TrainerAttempts (momenteel genegeerd).
+ * @returns Altijd een lege array totdat de implementatie is voltooid.
  */
 export function computeAttemptRoleErrors(
   attempts: TrainerAttempt[],
 ): RoleErrorSummary[] {
-  const errorMap: Record<string, { total: number; students: Set<string> }> = {};
-
-  for (const a of attempts) {
-    for (const [, role] of Object.entries(a.userLabels)) {
-      // userLabels bevat de door de student opgegeven rollen — fouten worden
-      // elders bepaald (in validatielaag). Hier tellen we alleen per-poging
-      // totalen van showAnswerUsed als proxy.
-      void role; // label-niveau analyse is toekomstige uitbreiding
-    }
-    void a; // huidige scope: submission-level mistakeStats zijn voldoende
-  }
-
-  return Object.entries(errorMap)
-    .map(([role, { total, students }]) => ({
-      role,
-      totalErrors: total,
-      affectedStudents: students.size,
-    }))
-    .sort((a, b) => b.totalErrors - a.totalErrors);
+  // Huidige scope: submission-level mistakeStats zijn voldoende voor dashboards.
+  // Attempt-niveau foutanalyse vereist toegang tot de Sentence-data; deferred.
+  void attempts;
+  return [];
 }
 
 // ── Compatibility adapter: SessionReport → TrainerSubmission ──────────────────
 
 /**
- * Converteer een SessionReport (bestaand formaat) naar een partial TrainerSubmission.
- * studentId is onbekend vanuit een SessionReport (bevat alleen naam).
- * Gebruikt voor het weergeven van historische rapporten in het nieuwe dashboard.
+ * Compatibiliteitsadapter: converteer een bestaand SessionReport naar een
+ * gedeeltelijke TrainerSubmission voor weergave in het nieuwe dashboard.
+ *
+ * `studentId` is opzettelijk weggelaten: SessionReport bevat alleen
+ * `name` en `klas`, niet het stabiele `Student.id`. Aanroepende code kan
+ * `studentId` ophalen via `studentStore.getOrCreateStudent()` als nodig.
+ *
+ * Het gegenereerde `id` begint met `legacy-` om eenvoudig te onderscheiden
+ * van echte domein-submissions (prefix `tsub-`).
+ *
+ * @param report - Een SessionReport zoals opgeslagen in `zinsontleding_reports_v1`
+ *                 of gesynchroniseerd via Google Drive.
+ * @returns Een partial TrainerSubmission zonder `studentId`, klaar voor dashboardweergave.
  */
 export function buildTrainerSubmissionFromReport(
   report: SessionReport,

@@ -30,6 +30,11 @@ function nowIso(): string {
 
 // ── Persistence helpers ───────────────────────────────────────────────────────
 
+/**
+ * Laadt alle opgeslagen TeacherNotes uit localStorage.
+ *
+ * @returns Alle notities, gesorteerd op volgorde van aanmaken. Lege array bij ontbrekende data.
+ */
 export function getNotes(): TeacherNote[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -49,6 +54,18 @@ function saveNotes(notes: TeacherNote[]): void {
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
+/**
+ * Geeft alle notities terug voor een specifiek doelwit.
+ *
+ * Mogelijke doelwit-combinaties:
+ * - `('sentence', '42')` — aantekening bij zin met id 42
+ * - `('student', 'std-...')` — aantekening bij een student
+ * - `('assignment', 'asgn-...')` — aantekening bij een opdracht
+ *
+ * @param targetType - Type doelwit: 'sentence', 'student', of 'assignment'.
+ * @param targetId   - ID van het doelwit (als string, ook voor numerieke zin-IDs).
+ * @returns Matching notities, oudste eerst.
+ */
 export function getNotesForTarget(
   targetType: TeacherNote['targetType'],
   targetId: string,
@@ -58,6 +75,16 @@ export function getNotesForTarget(
   );
 }
 
+/**
+ * Voegt een nieuwe notitie toe aan het gegeven doelwit.
+ *
+ * Witruimte rondom de notitietekst wordt bijgesneden voor opslag.
+ *
+ * @param targetType - Type doelwit: 'sentence', 'student', of 'assignment'.
+ * @param targetId   - ID van het doelwit.
+ * @param note       - De tekst van de notitie.
+ * @returns Het nieuw aangemaakte TeacherNote-record inclusief gegenereerd id.
+ */
 export function addNote(
   targetType: TeacherNote['targetType'],
   targetId: string,
@@ -78,6 +105,13 @@ export function addNote(
   return newNote;
 }
 
+/**
+ * Werkt de tekst van een bestaande notitie bij en stelt `updatedAt` in.
+ *
+ * @param id   - Het `TeacherNote.id` van de te bewerken notitie.
+ * @param note - De nieuwe notitietekst (witruimte wordt bijgesneden).
+ * @returns De bijgewerkte notitie, of `null` als het id niet bestaat.
+ */
 export function updateNote(id: string, note: string): TeacherNote | null {
   const notes = getNotes();
   const idx = notes.findIndex(n => n.id === id);
@@ -87,6 +121,11 @@ export function updateNote(id: string, note: string): TeacherNote | null {
   return notes[idx];
 }
 
+/**
+ * Verwijdert een notitie permanent.
+ *
+ * @param id - Het `TeacherNote.id` van de te verwijderen notitie.
+ */
 export function deleteNote(id: string): void {
   saveNotes(getNotes().filter(n => n.id !== id));
 }

@@ -36,6 +36,11 @@ function nowIso(): string {
 
 // ── Persistence helpers ───────────────────────────────────────────────────────
 
+/**
+ * Laadt alle opgeslagen Student-records uit localStorage.
+ *
+ * @returns Alle studenten, gesorteerd op volgorde van aanmaken. Lege array bij ontbrekende data.
+ */
 export function getStudents(): Student[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -55,6 +60,15 @@ function saveStudents(students: Student[]): void {
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
+/**
+ * Zoek een Student op stabiel id.
+ *
+ * Gebruik dit wanneer je een studentId al kent (bijv. uit een opgeslagen
+ * TrainerSubmission) en het volledige record nodig hebt voor weergave.
+ *
+ * @param id - Het `Student.id` in het formaat `std-{ISO}-{4rand}`.
+ * @returns Het Student-record, of `null` als niet gevonden.
+ */
 export function getStudentById(id: string): Student | null {
   return getStudents().find(s => s.id === id) ?? null;
 }

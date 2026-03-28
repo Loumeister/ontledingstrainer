@@ -24,12 +24,29 @@ const MAX_ATTEMPTS = 2000;
 
 // ── ID generators ─────────────────────────────────────────────────────────────
 
+/**
+ * Genereert een uniek submission-ID in het formaat `tsub-{ISO-datum-zonder-tekens}-{4-cijfer-getal}`.
+ *
+ * Het ID wordt aangemaakt vóórdat de submission wordt opgeslagen, zodat de aanroeper
+ * het ID al kent (bijv. om het mee te sturen naar een activiteitslog) zonder
+ * eerst te hoeven opslaan.
+ *
+ * @returns Een stabiel, globaal uniek string-ID voor een TrainerSubmission.
+ */
 export function generateSubmissionId(): string {
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
   const rand = Math.floor(Math.random() * 9000) + 1000;
   return `tsub-${ts}-${rand}`;
 }
 
+/**
+ * Genereert een uniek attempt-ID in het formaat `tatt-{ISO-datum-zonder-tekens}-{4-cijfer-getal}`.
+ *
+ * Zelfde patroon als `generateSubmissionId()`, maar met prefix `tatt` zodat
+ * attempts en submissions altijd te onderscheiden zijn op ID-prefix.
+ *
+ * @returns Een stabiel, globaal uniek string-ID voor een TrainerAttempt.
+ */
 export function generateAttemptId(): string {
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
   const rand = Math.floor(Math.random() * 9000) + 1000;
@@ -38,6 +55,14 @@ export function generateAttemptId(): string {
 
 // ── Submission persistence ────────────────────────────────────────────────────
 
+/**
+ * Laadt alle opgeslagen TrainerSubmissions uit localStorage.
+ *
+ * Geeft een lege array terug als de sleutel ontbreekt of de opgeslagen JSON
+ * niet geldig is (defensief: localStorage kan corrupt raken of ontbreken).
+ *
+ * @returns Alle submissions, gesorteerd op volgorde van opslaan (oudste eerst).
+ */
 export function getSubmissions(): TrainerSubmission[] {
   try {
     const raw = localStorage.getItem(SUBMISSION_KEY);
@@ -55,7 +80,18 @@ function saveSubmissions(submissions: TrainerSubmission[]): void {
   }
 }
 
-/** Upsert een submission op basis van id. Trim tot MAX_SUBMISSIONS (oudste eerst). */
+/**
+ * Slaat een TrainerSubmission op of werkt een bestaande bij (upsert op `id`).
+ *
+ * Als een submission met hetzelfde id al bestaat, wordt die overschreven.
+ * Zo kunnen sessies progressief worden bijgewerkt: eerst `startedAt` opslaan,
+ * later de voltooide scores en `completedAt` toevoegen.
+ *
+ * Bij meer dan MAX_SUBMISSIONS (500) entries worden de oudste bijgesneden
+ * om de localStorage-grootte beheersbaar te houden.
+ *
+ * @param submission - De volledige (of bijgewerkte) TrainerSubmission om op te slaan.
+ */
 export function saveSubmission(submission: TrainerSubmission): void {
   const submissions = getSubmissions();
   const idx = submissions.findIndex(s => s.id === submission.id);
@@ -70,10 +106,27 @@ export function saveSubmission(submission: TrainerSubmission): void {
   saveSubmissions(submissions);
 }
 
+/**
+ * Geeft alle submissions terug die zijn gekoppeld aan een specifieke student.
+ *
+ * @param studentId - Het stabiele `Student.id` (niet de naam) van de student.
+ * @returns Submissions voor deze student, oudste eerst.
+ */
 export function getSubmissionsForStudent(studentId: string): TrainerSubmission[] {
   return getSubmissions().filter(s => s.studentId === studentId);
 }
 
+/**
+ * Geeft alle submissions terug die zijn gekoppeld aan een specifieke opdracht.
+ *
+ * Als `version` wordt meegegeven, worden alleen submissions voor die exacte
+ * versie teruggegeven. Zonder `version` worden submissions voor ál de versies
+ * van die opdracht teruggegeven — handig om deelname over versies heen te bekijken.
+ *
+ * @param assignmentId - Het stabiele `TrainerAssignment.id`.
+ * @param version      - (Optioneel) filter op een specifieke versie.
+ * @returns Matching submissions, oudste eerst.
+ */
 export function getSubmissionsForAssignment(
   assignmentId: string,
   version?: number,
@@ -85,6 +138,15 @@ export function getSubmissionsForAssignment(
   );
 }
 
+/**
+ * Triggert een browser-download van alle submissions als JSON-bestand.
+ *
+ * Bedoeld voor docenten die ruwe data willen exporteren voor eigen analyse.
+ * Bestandsnaam: `trainer_submissions_YYYY-MM-DD.json`.
+ *
+ * Heeft geen retourwaarde; side-effect is het aanmaken van een download via
+ * een tijdelijk `<a>`-element.
+ */
 export function exportSubmissionsAsJson(): void {
   const submissions = getSubmissions();
   const blob = new Blob([JSON.stringify(submissions, null, 2)], { type: 'application/json' });
@@ -98,6 +160,13 @@ export function exportSubmissionsAsJson(): void {
 
 // ── Attempt persistence ───────────────────────────────────────────────────────
 
+/**
+ * Laadt alle opgeslagen TrainerAttempts uit localStorage.
+ *
+ * Geeft een lege array terug als de sleutel ontbreekt of de JSON niet geldig is.
+ *
+ * @returns Alle attempts, gesorteerd op volgorde van opslaan (oudste eerst).
+ */
 export function getAttempts(): TrainerAttempt[] {
   try {
     const raw = localStorage.getItem(ATTEMPT_KEY);
@@ -115,7 +184,17 @@ function saveAttempts(attempts: TrainerAttempt[]): void {
   }
 }
 
-/** Upsert een attempt op basis van id. Trim tot MAX_ATTEMPTS (oudste eerst). */
+/**
+ * Slaat een TrainerAttempt op of werkt een bestaande bij (upsert op `id`).
+ *
+ * Een attempt vertegenwoordigt één zin binnen een sessie. Bij meer dan
+ * MAX_ATTEMPTS (2000) worden de oudste bijgesneden.
+ *
+ * Attempts worden doorgaans pas aan het einde van een sessie opgeslagen
+ * (in `nextSessionSentence()` in useTrainer), niet tussendoor.
+ *
+ * @param attempt - De volledige TrainerAttempt om op te slaan.
+ */
 export function saveAttempt(attempt: TrainerAttempt): void {
   const attempts = getAttempts();
   const idx = attempts.findIndex(a => a.id === attempt.id);
@@ -130,6 +209,12 @@ export function saveAttempt(attempt: TrainerAttempt): void {
   saveAttempts(attempts);
 }
 
+/**
+ * Geeft alle attempts terug die horen bij een specifieke submission.
+ *
+ * @param submissionId - Het `TrainerSubmission.id` van de bovenliggende sessie.
+ * @returns Attempts voor deze submission, oudste eerst.
+ */
 export function getAttemptsForSubmission(submissionId: string): TrainerAttempt[] {
   return getAttempts().filter(a => a.submissionId === submissionId);
 }
