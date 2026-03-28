@@ -85,6 +85,13 @@ export default function App() {
         darkMode={trainer.darkMode}
         largeFont={trainer.largeFont}
         dyslexiaMode={trainer.dyslexiaMode}
+        studentName={trainer.studentName}
+        studentKlas={trainer.studentKlas}
+        onBuiltSentence={(sentence) => {
+          setShowZinsdeellab(false);
+          window.location.hash = '';
+          trainer.startSharedSession([sentence]);
+        }}
         onClose={() => {
           setShowZinsdeellab(false);
           window.location.hash = '';
