@@ -202,6 +202,7 @@ export function ZinsdeellabScreen({
 
     saveSubmission({
       id: submissionId,
+      domain: 'lab',
       exerciseId: lab.activeFrame.id,
       exerciseVersion: 1,
       studentName: localName,
