@@ -424,13 +424,22 @@ Het huidige `useTrainer.ts` (825 regels, 23 `useState`-aanroepen) is het hart va
 3.  **Fase C — useReducer overweging:** Als Fase B niet voldoende stabiliteit biedt, migreer naar `useReducer` met expliciete actions. Dit maakt state-transities testbaar en voorkomt inconsistente state.
 
 ### 17. Testdekking Uitbreiden
-Huidige dekking: `validation.ts` 100%, `usageData.ts/interactionLog.ts/sessionReport.ts` goed. Maar: **0% testdekking op useTrainer.ts, alle screens en alle components**.
 
-**Aanpak per LLM-taak:**
-*   **Taak 1:** Unit tests voor `getFilteredSentences()` — isoleerbare pure functie.
-*   **Taak 2:** Unit tests voor `handleCheck()` — complexe logica met meerdere state-updates.
-*   **Taak 3:** Unit tests voor session flow (start → split → label → check → score → next).
-*   **Taak 4:** Snapshot tests voor `constants.ts` data-integriteit (alle rollen, feedback matrix completeness).
+**Status (maart 2026): 374 tests groen, 16 testbestanden.**
+
+Nieuwe dekking op branch `claude/develop-hooks-screens-tests-rxvu0`:
+- `src/hooks/useTrainer.test.ts` ✅ — 31 tests: `loadStudentInfo`, `setStudentInfo`-transformaties, `filteredSentences` (predicateMode, level, focusBijzin, focusLV/MV/VV, bijst/vv-filters, randgevallen)
+- `src/screens/ScoreScreen.test.ts` ✅ — 30 tests: `SCORE_THRESHOLDS`, `scorePercentage`, `effectiveThresholds` (gemengde sessies), `recommendation`, `encouragement tier`, `masteredRoles`
+- `src/screens/StudentDashboardScreen.test.ts` ✅ — 15 tests: `LEVEL_LABELS`, `sessionPct`, `getCompletedSubsSorted`
+- `src/screens/TeacherDashboardScreen.test.ts` ✅ — 21 tests: `scoreColor`, `extractKlassen`, `filterByKlas`, `getStudentSubsSorted`
+
+**Aanpak:** pure functies gespiegeld als testhelpers (zelfde patroon als `useZinsbouwlab.test.ts`); geen DOM of React Testing Library nodig.
+
+**Nog openstaand:**
+*   **Taak 1 (deels gedaan):** Unit tests voor `getFilteredSentences()` ✅ — gedekt via `useTrainer.test.ts`
+*   **Taak 2:** Unit tests voor `handleCheck()` — complexe logica met meerdere state-updates (vereist renderless hook-testing of extractie als pure functie)
+*   **Taak 3:** Unit tests voor session flow (start → split → label → check → score → next)
+*   **Taak 4:** Snapshot tests voor `constants.ts` data-integriteit (alle rollen, feedback matrix completeness)
 *   Streef naar **60% dekking** als realistisch doel voor een eenmansteam.
 
 ### 18. Zinnen-validatiescript
