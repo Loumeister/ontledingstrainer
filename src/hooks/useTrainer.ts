@@ -13,6 +13,9 @@ import {
 } from '../logic/adaptiveSelection';
 import { buildReport, encodeReport } from '../services/sessionReport';
 import { postReport, getScriptUrl } from '../services/googleDriveSync';
+import { getOrCreateStudent } from '../services/studentStore';
+import { saveSubmission, generateSubmissionId, saveAttempt, generateAttemptId } from '../services/trainerSubmissionStore';
+import { logTrainerEvent } from '../services/trainerActivityLog';
 import {
   buildUserChunks,
   countRealChunks,
@@ -242,6 +245,9 @@ export function useTrainer(): TrainerState {
   const [autoSendStatus, setAutoSendStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [autoSendError, setAutoSendError] = useState('');
   const sessionStartTimeRef = useRef<number | null>(null);
+  // Domain refs: geen re-render nodig, enkel voor attributie
+  const submissionIdRef = useRef<string | null>(null);
+  const studentIdRef = useRef<string | null>(null);
 
   // Current Sentence State
   const [currentSentence, setCurrentSentence] = useState<Sentence | null>(null);
@@ -400,6 +406,32 @@ export function useTrainer(): TrainerState {
     sessionStartTimeRef.current = Date.now();
     setMode('session');
     logInteraction('session_start', undefined, `count=${count}`);
+    // Domain: koppel sessie aan stabiele student-identiteit en TrainerSubmission
+    try {
+      const student = getOrCreateStudent(studentName, studentInitiaal, studentKlas);
+      studentIdRef.current = student.id;
+      const newSubId = generateSubmissionId();
+      submissionIdRef.current = newSubId;
+      const startedAt = new Date().toISOString();
+      saveSubmission({
+        id: newSubId,
+        studentId: student.id,
+        studentName: student.name || studentName,
+        studentKlas: student.klas || studentKlas,
+        assignmentId: null,
+        assignmentVersion: null,
+        startedAt,
+        scoreCorrect: 0,
+        scoreTotal: 0,
+        levelPlayed: selectedLevel,
+        showAnswerCount: 0,
+        durationSeconds: null,
+        mistakeStats: {},
+      });
+      logTrainerEvent({ submissionId: newSubId, studentId: student.id, type: 'session_start', timestamp: startedAt, detail: `count=${count}` });
+    } catch {
+      // Domain failure mag de sessie niet blokkeren
+    }
     loadSentence(selected[0]);
   };
 
@@ -416,6 +448,32 @@ export function useTrainer(): TrainerState {
     sessionStartTimeRef.current = Date.now();
     setMode('session');
     logInteraction('session_start', undefined, `shared,count=${shuffled.length}`);
+    // Domain: koppel gedeelde sessie aan stabiele student-identiteit en TrainerSubmission
+    try {
+      const student = getOrCreateStudent(studentName, studentInitiaal, studentKlas);
+      studentIdRef.current = student.id;
+      const newSubId = generateSubmissionId();
+      submissionIdRef.current = newSubId;
+      const startedAt = new Date().toISOString();
+      saveSubmission({
+        id: newSubId,
+        studentId: student.id,
+        studentName: student.name || studentName,
+        studentKlas: student.klas || studentKlas,
+        assignmentId: null,
+        assignmentVersion: null,
+        startedAt,
+        scoreCorrect: 0,
+        scoreTotal: 0,
+        levelPlayed: null,
+        showAnswerCount: 0,
+        durationSeconds: null,
+        mistakeStats: {},
+      });
+      logTrainerEvent({ submissionId: newSubId, studentId: student.id, type: 'session_start', timestamp: startedAt, detail: `shared,count=${shuffled.length}` });
+    } catch {
+      // Domain failure mag de sessie niet blokkeren
+    }
     loadSentence(shuffled[0]);
   };
 
@@ -457,6 +515,52 @@ export function useTrainer(): TrainerState {
       setIsSessionFinished(true);
       setCurrentSentence(null);
       setSelectedRole(null);
+
+      // Domain: finaliseer TrainerSubmission en sla per-zin pogingen op
+      try {
+        const subId = submissionIdRef.current;
+        if (subId) {
+          const completedAt = new Date().toISOString();
+          const finalDur = sessionStartTimeRef.current !== null
+            ? Math.round((Date.now() - sessionStartTimeRef.current) / 1000) : null;
+          const finalHint = sessionSentenceResults.filter(r => r.showAnswerUsed).length;
+          const startedAt = sessionStartTimeRef.current !== null
+            ? new Date(sessionStartTimeRef.current).toISOString() : completedAt;
+          saveSubmission({
+            id: subId,
+            studentId: studentIdRef.current ?? '',
+            studentName: studentName,
+            studentKlas: studentKlas,
+            assignmentId: null,
+            assignmentVersion: null,
+            startedAt,
+            completedAt,
+            scoreCorrect: finalCorrect,
+            scoreTotal: finalTotal,
+            levelPlayed: selectedLevel,
+            showAnswerCount: finalHint,
+            durationSeconds: finalDur,
+            mistakeStats: { ...mistakeStats },
+          });
+          for (const r of sessionSentenceResults) {
+            saveAttempt({
+              id: generateAttemptId(),
+              submissionId: subId,
+              sentenceId: r.sentence.id,
+              startedAt: completedAt, // geen exacte per-zin starttijd beschikbaar
+              completedAt,
+              scoreCorrect: r.score,
+              scoreTotal: r.total,
+              showAnswerUsed: r.showAnswerUsed,
+              splitIndices: r.splitIndices,
+              userLabels: r.userLabels as Record<string, string>,
+            });
+          }
+          logTrainerEvent({ submissionId: subId, studentId: studentIdRef.current ?? '', type: 'session_finish', timestamp: completedAt });
+        }
+      } catch {
+        // Domain failure mag de score-weergave niet blokkeren
+      }
 
       // Auto-send report to Google Drive if student info and Drive are configured
       const info = loadStudentInfo();
