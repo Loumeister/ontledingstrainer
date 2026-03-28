@@ -11,9 +11,21 @@ Ontleedlab - An interactive browser-based app that teaches Dutch sentence parsin
 - Tailwind CSS 3.4 (styling)
 - Vitest 4.0 (testing)
 - canvas-confetti (gamification effects)
-- No backend - fully client-side
+- Currently fully client-side
+- localStorage is the current persistence layer
+- New features may introduce sync-ready domain models, but must preserve current client-side behavior during migration
 - localStorage for persistence
 - GitHub Pages for deployment
+
+- ## Current Source of Truth
+
+At the moment, several localStorage-backed services coexist.
+Treat them as current implementation reality, not ideal target architecture.
+
+During migration:
+- preserve current behavior
+- reduce duplication where possible
+- move toward clearer ownership of data by domain
 
 ## Commands
 
@@ -29,7 +41,7 @@ Ontleedlab - An interactive browser-based app that teaches Dutch sentence parsin
 ```
 src/
   App.tsx (~143 lines)           → Thin router shell (hash-based routing)
-  types.ts (~74 lines)           → All TypeScript interfaces
+  types.ts → shared legacy application interfaces; new domain-specific types may be split into dedicated files when complexity grows
   constants.ts (~291 lines)      → Roles, FEEDBACK_MATRIX, hints, score tips
   hooks/
     useTrainer.ts (~825 lines)   → Core state management (23 useState, all business logic)
@@ -130,3 +142,137 @@ See README.md for detailed rules (especially the `newChunk` flag).
 - `SPEC.md` - Full specification for all 4 modules with TypeScript interfaces
 - `HANDLEIDING.md` - User guide in Dutch (students + teachers)
 - `README.md` - Technical documentation with project status dashboard
+
+- ## Project Priorities
+
+This project must remain:
+1. didactically clear for students aged 12-15
+2. fast and stable on school devices
+3. easy to review in small increments
+4. backwards compatible where reasonably possible
+5. understandable for a one-person project
+
+## Architectural Decision Rules
+
+When making changes, prefer the following order of solutions:
+1. extend an existing pure logic module if the change is domain logic without UI concerns
+2. add a small focused service if the change concerns persistence, analytics, syncing, or data transformation
+3. add a new hook only when stateful UI orchestration is needed
+4. avoid making `useTrainer.ts` even more central unless the change is clearly trainer-specific and small
+
+Do not introduce a global state library unless explicitly requested.
+
+## Logging and Analytics Rules
+
+The app currently has multiple data layers (`usageData`, `interactionLog`, `sessionHistory`, `sessionReport`, Google Drive sync). Treat these as legacy-compatible layers during migration.
+
+For all future logging work, maintain a clear distinction between:
+- raw activity events
+- attempt-level summaries
+- submission/session-level summaries
+- dashboard aggregates
+- teacher annotations
+
+Do not mix teacher annotations with student telemetry in the same data model unless preserving a temporary compatibility layer.
+
+## Assignment and Editing Rules
+
+Assignments must become versionable.
+
+Rules:
+- an editable assignment is the logical parent object
+- a published assignment version is immutable
+- student results must always refer to a specific assignment version
+- historical student results must never change when an assignment is later edited
+- if content changes materially, create a new version instead of overwriting history
+
+If the existing codebase only supports local custom sentences, preserve current behavior while introducing a migration path toward versioned assignments.
+
+## Storage Rules
+
+Current localStorage-based persistence may remain as:
+- cache
+- fallback
+- temporary compatibility layer
+
+Do not treat localStorage as the long-term single source of truth for:
+- assignments
+- submissions
+- student analytics
+- teacher analytics
+
+When adding new storage flows, design them so they can later be synced to a central store without changing the domain model.
+
+## Data Modeling Rules
+
+Prefer explicit domain types over anonymous object shapes.
+
+Introduce stable IDs for any new central entities, such as:
+- studentId
+- assignmentId
+- assignmentVersionId
+- submissionId
+- attemptId
+- eventId
+
+Do not key long-term analytics only by display name.
+
+## Migration Rules
+
+When replacing or extending existing functionality:
+- do not remove legacy structures immediately if existing screens still depend on them
+- add compatibility adapters where useful
+- document temporary duplication explicitly
+- prefer incremental migration over a big rewrite
+- keep existing student and teacher flows working unless the task explicitly allows breakage
+
+## Refactor Limits
+
+Avoid broad refactors unless they are directly necessary for the requested task.
+
+In particular:
+- do not rewrite `useTrainer.ts` wholesale unless explicitly requested
+- do not move many unrelated files just to make the tree look cleaner
+- do not rename stable concepts without strong reason
+- do not replace current persistence flows without a migration path
+
+## Testing Priorities
+
+For new work, prioritize tests for:
+1. pure domain logic
+2. storage/services
+3. transformation and aggregation functions
+4. compatibility adapters
+
+Only add component tests when they provide clear value for changed behavior.
+
+## Definition of Done
+
+A task is only complete if:
+- the design fits existing project conventions
+- the implementation is modular and reviewable
+- legacy behavior still works, or breakage is clearly documented
+- new types and services are documented
+- tests are added where the logic is non-trivial
+- the final report includes:
+  - files added
+  - files changed
+  - architectural decisions
+  - temporary compromises
+  - next recommended step
+
+## Output Expectations for Claude Code
+
+Before large changes:
+- first inspect the current codebase
+- summarize findings briefly
+- state the proposed implementation plan
+- then implement in small steps
+
+After implementation:
+- provide a concise change report
+- explicitly separate:
+  - confirmed from existing code
+  - newly introduced design
+  - temporary migration layer
+  - open follow-up work
