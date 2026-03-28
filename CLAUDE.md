@@ -157,8 +157,11 @@ See README.md for detailed rules (especially the `newChunk` flag).
 | `src/services/trainerAssignmentStore.ts` | ✅ Good | 23 tests |
 | `src/services/trainerSubmissionStore.ts` | ✅ Good | 17 tests |
 | `src/logic/adaptiveSelection.ts` | ✅ Good | 15 tests |
-| `src/hooks/useTrainer.ts` | ❌ 0% | Complex state logic untested |
-| Screens & Components | ❌ 0% | No DOM/component tests yet |
+| `src/hooks/useTrainer.ts` | ✅ Partial | 31 tests: filteredSentences, loadStudentInfo, setStudentInfo transforms |
+| `src/screens/ScoreScreen.tsx` | ✅ Partial | 30 tests: SCORE_THRESHOLDS, effectiveThresholds, scorePercentage, recommendation, badges |
+| `src/screens/StudentDashboardScreen.tsx` | ✅ Partial | 15 tests: LEVEL_LABELS, sessionPct, completedSubs sorting |
+| `src/screens/TeacherDashboardScreen.tsx` | ✅ Partial | 21 tests: scoreColor, extractKlassen, filterByKlas, studentSubs sorting |
+| Other Screens & Components | ❌ 0% | No DOM/component tests yet |
 
 ## Planning Documents
 
