@@ -40,7 +40,7 @@ export function ZinsdeellabScreen({
   onClose,
 }: ZinsdeellabScreenProps) {
   const lab = useZinsbouwlab();
-  const [phase, setPhase] = useState<ScreenPhase>('welkom');
+  const [phase, setPhase] = useState<ScreenPhase>(() => studentName.trim() ? 'menu' : 'welkom');
   const [localName, setLocalName] = useState(studentName);
   const [localKlas, setLocalKlas] = useState(studentKlas);
   const [activeSlot, setActiveSlot] = useState<FrameSlotKey | null>(null);
@@ -262,11 +262,22 @@ export function ZinsdeellabScreen({
           ← Terug
         </button>
         <h1 className="font-bold text-xl">Zinsdeellab</h1>
-        {lab.activeFrame && (
-          <span className="ml-auto text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs hidden sm:block">
-            {lab.activeFrame.label}
-          </span>
-        )}
+        <div className="ml-auto flex items-center gap-3">
+          {lab.activeFrame && (
+            <span className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs hidden sm:block">
+              {lab.activeFrame.label}
+            </span>
+          )}
+          {localName && (
+            <button
+              onClick={() => setPhase('welkom')}
+              className="text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+              title="Naam wijzigen"
+            >
+              {localName} ✎
+            </button>
+          )}
+        </div>
       </header>
 
       <main className="flex-1 overflow-auto p-4 md:p-6 max-w-3xl mx-auto w-full space-y-6">
