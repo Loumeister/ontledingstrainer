@@ -4,7 +4,7 @@ import { ChunkCard } from '../types';
 interface ChunkBankProps {
   cards: ChunkCard[];
   placedCardIds: Set<string>;
-  selectedCardId: string | null;
+  selectedCardId?: string | null; // deprecated, ignored
   onCardTap: (card: ChunkCard) => void;
   onDragStart: (e: React.DragEvent, card: ChunkCard) => void;
   darkMode: boolean;
@@ -13,7 +13,6 @@ interface ChunkBankProps {
 export const ChunkBank: React.FC<ChunkBankProps> = ({
   cards,
   placedCardIds,
-  selectedCardId,
   onCardTap,
   onDragStart,
   darkMode: _darkMode,
@@ -34,7 +33,6 @@ export const ChunkBank: React.FC<ChunkBankProps> = ({
     >
       {cards.map((card) => {
         const isPlaced = placedCardIds.has(card.id);
-        const isSelected = selectedCardId === card.id;
         const cardText = card.tokens.map((t) => t.text).join(' ');
 
         const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -54,14 +52,7 @@ export const ChunkBank: React.FC<ChunkBankProps> = ({
               draggable={!isPlaced}
               role="button"
               tabIndex={isPlaced ? -1 : 0}
-              aria-label={
-                isPlaced
-                  ? `${cardText} (al geplaatst)`
-                  : isSelected
-                  ? `${cardText} — geselecteerd`
-                  : cardText
-              }
-              aria-pressed={isSelected}
+              aria-label={isPlaced ? `${cardText} (al geplaatst)` : cardText}
               aria-disabled={isPlaced}
               onClick={() => {
                 if (!isPlaced) onCardTap(card);
@@ -76,8 +67,6 @@ export const ChunkBank: React.FC<ChunkBankProps> = ({
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500
                 ${isPlaced
                   ? 'opacity-40 cursor-default border-slate-200 bg-slate-100 text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 pointer-events-none'
-                  : isSelected
-                  ? 'cursor-pointer ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-slate-900 animate-pulse border-blue-400 bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200 dark:border-blue-600 shadow-md'
                   : 'cursor-pointer border-slate-300 bg-white text-slate-700 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 hover:border-slate-400 hover:bg-slate-50 dark:hover:border-slate-500 dark:hover:bg-slate-600 shadow-sm hover:shadow-md hover:-translate-y-0.5'
                 }
               `}

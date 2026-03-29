@@ -90,9 +90,20 @@ export function validateConstruction(
   if (missingSlots.length === 0 && frame.wordOrders.length > 0) {
     const chosenOrder = orderedSlots.join('-');
     if (!frame.wordOrders.includes(chosenOrder)) {
-      feedback.push('Deze woordvolgorde is niet gebruikelijk. Probeer een andere volgorde.');
+      const patterns = frame.wordOrders
+        .map(o => o.toUpperCase().replace(/-/g, ' → '))
+        .join(' of ');
+      feedback.push(`Verkeerde woordvolgorde. Verwijder een kaart en voeg hem opnieuw toe in de goede volgorde. Geldige volgorde${frame.wordOrders.length > 1 ? 's' : ''}: ${patterns}.`);
       orderError = true;
     }
+  }
+
+  // G. Tijdcongruentie: verleden-BWB vereist verleden-tijdsvorm PV
+  const bwbCard = selectedChunks['bwb'];
+  if (bwbCard?.timeRef === 'past' && pvCard && pvCard.verbTense === 'present') {
+    feedback.push(
+      `"${bwbCard.tokens.map(t => t.text).join(' ')}" verwijst naar het verleden — kies een verleden-tijdsvorm voor de persoonsvorm (bijv. "zag", "kocht", "pakte").`
+    );
   }
 
   return {

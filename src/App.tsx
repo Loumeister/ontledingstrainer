@@ -24,7 +24,7 @@ export default function App() {
   const [showEditor, setShowEditor] = useState(() => window.location.hash === '#/editor');
   const [showDocent, setShowDocent] = useState(() => window.location.hash === '#/docent');
   const [showUsageLog, setShowUsageLog] = useState(() => window.location.hash === '#/usage');
-  const [showZinsdeellab, setShowZinsdeellab] = useState(() => window.location.hash === '#/zinsdeellab');
+  const [showZinsdeellab, setShowZinsdeellab] = useState(() => window.location.hash === '#/zinnenlab');
   const [showStudentDashboard, setShowStudentDashboard] = useState(() => window.location.hash === '#/mijn-voortgang');
   const [showTeacherDashboard, setShowTeacherDashboard] = useState(() => window.location.hash === '#/docent-dashboard');
   const [sharedSentences] = useState<Sentence[]>(initialSharedSentences);
@@ -41,7 +41,7 @@ export default function App() {
       setShowEditor(window.location.hash === '#/editor');
       setShowDocent(window.location.hash === '#/docent');
       setShowUsageLog(window.location.hash === '#/usage');
-      setShowZinsdeellab(window.location.hash === '#/zinsdeellab');
+      setShowZinsdeellab(window.location.hash === '#/zinnenlab');
       setShowStudentDashboard(window.location.hash === '#/mijn-voortgang');
       setShowTeacherDashboard(window.location.hash === '#/docent-dashboard');
     };
@@ -113,7 +113,9 @@ export default function App() {
     return <EditorView darkMode={trainer.darkMode} />;
   }
 
-  // Zinsdeellab screen (hidden route — #/zinsdeellab)
+  // Zinsdeellab screen (hidden route — #/zinnenlab)
+  // availableSentences wordt doorgegeven zodat de corpusGrouper automatisch
+  // Zinnenlab-frames en -kaarten genereert vanuit het bestaande corpus.
   if (showZinsdeellab) {
     return (
       <ZinsdeellabScreen
@@ -122,6 +124,7 @@ export default function App() {
         dyslexiaMode={trainer.dyslexiaMode}
         studentName={trainer.studentName}
         studentKlas={trainer.studentKlas}
+        sentences={trainer.availableSentences}
         onBuiltSentence={(sentence) => {
           setShowZinsdeellab(false);
           window.location.hash = '';
