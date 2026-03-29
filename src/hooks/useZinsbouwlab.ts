@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
 import { CONSTRUCTION_FRAMES } from '../data/constructionFrames';
 import { CHUNK_CARDS } from '../data/chunkCards';
+import { SENTENCE_POOLS } from '../data/labSentencePools';
+import { poolToFrame, poolToCards } from '../logic/poolToFrame';
 import { getCustomFrames } from '../services/labFrameStore';
 import { getCustomCards } from '../services/labChunkCardStore';
 import type {
@@ -41,16 +43,20 @@ export function useZinsbouwlab(): UseZinsbouwlabReturn {
   const [orderedSlots, setOrderedSlots] = useState<FrameSlotKey[]>([]);
   const [checkResult, setCheckResult] = useState<ConstructionCheckResult | null>(null);
 
-  // Merge built-in + custom (custom frames/cards are loaded once at mount)
+  // Pool-derived frames and cards (generated once from SENTENCE_POOLS)
+  const poolFrames = useMemo(() => SENTENCE_POOLS.map(poolToFrame), []);
+  const poolCards = useMemo(() => SENTENCE_POOLS.flatMap(poolToCards), []);
+
+  // Merge built-in + pool + custom (loaded once at mount)
   const allFrames = useMemo(
-    () => [...CONSTRUCTION_FRAMES, ...getCustomFrames()],
+    () => [...CONSTRUCTION_FRAMES, ...poolFrames, ...getCustomFrames()],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [poolFrames]
   );
   const allCards = useMemo(
-    () => [...CHUNK_CARDS, ...getCustomCards()],
+    () => [...CHUNK_CARDS, ...poolCards, ...getCustomCards()],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [poolCards]
   );
 
   const frames = allFrames;
