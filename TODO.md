@@ -6,6 +6,126 @@ Dit document bevat de toekomstplannen en ideeën voor Ontleedlab, gebaseerd op r
 
 ---
 
+## ✅ Voltooid (sprint 1–2, maart 2026) — Domeinarchitectuur & Versioning
+
+Deze items zijn volledig geïmplementeerd op branch `claude/architect-domain-versioning-40tFO`.
+
+### Domeinlaag (fundament)
+- **Nieuwe types** in `src/types.ts`: `Student`, `TrainerAssignment`, `TrainerSubmission`, `TrainerAttempt`, `TrainerActivityEvent` / `TrainerEventType`, `TeacherNote`
+- Naamgevingsconventie: `Trainer`-prefix (parallel aan `Lab`-prefix op de sentence-builder-lab branch, merge-conflict-vrij)
+
+### Nieuwe services
+- `studentStore.ts` — stabiele student-identiteit (`std-...` UUID), migratie vanuit `student_info_v1`
+- `trainerAssignmentStore.ts` — versiebare opdrachten (`id + version + contentHash`), migratie vanuit `custom-sentences`; `bumpVersion()` bij inhoudelijke wijziging
+- `trainerSubmissionStore.ts` — sessie-inzendingen + per-zin pogingen; max 500/2000 entries
+- `trainerActivityLog.ts` — append-only event-log, parallel aan bestaande `interactionLog`
+- `teacherNoteStore.ts` — docentnotities, logisch gescheiden van student-telemetrie
+
+### Nieuwe logica
+- `analyticsHelpers.ts` — pure functies: `computeTrainerStudentProgress`, `computeTrainerClassProgress`, `computeRoleErrorPatterns`, `computeAssignmentParticipation`, `buildTrainerSubmissionFromReport` (compat-adapter)
+
+### Integratie in bestaande flow
+- `useTrainer.ts` — minimale aanpassing: twee refs (`submissionIdRef`, `studentIdRef`); domain-aanroepen in `startSession`, `startSharedSession`, `nextSessionSentence` (wrapped in try/catch zodat domain-fouten de sessie niet blokkeren)
+- `SentenceEditorScreen.tsx` — "Publiceer als opdracht" knop: `createAssignment` of `bumpVersion`; toont versie, inzendingen, waarschuwing bij ongesynchroniseerde wijzigingen
+- `ScoreScreen.tsx` — link "Bekijk je voortgang →" naar `#/mijn-voortgang`
+- `App.tsx` — routes `#/mijn-voortgang` en `#/docent-dashboard`
+
+### Nieuwe schermen
+- `StudentDashboardScreen.tsx` (`#/mijn-voortgang`) — sessiecount, beste/gem. score, rolfouten-staafdiagram, recente sessies
+- `TeacherDashboardScreen.tsx` (`#/docent-dashboard`) — klasfilter, studententabel, rolfouten-heatmap, opdrachtstatus; PIN-beveiligd
+
+### Tests
+- 239/239 tests groen (was 93 voor deze branch)
+- Bugfix: `computeContentHash` trunceerde btoa-output waardoor `[1,2,3]` en `[1,2,4]` dezelfde hash kregen
+
+### Migratieprincipes (gelden tot nader order)
+- Alle legacy localStorage-sleutels blijven beschrijfbaar — geen breuk voor bestaande leerlingen
+- `interactionLog` en `trainerActivityLog` worden gelijktijdig geschreven
+- `SessionReport` / Google Drive sync blijft volledig werken
+- `custom-sentences` wordt niet verwijderd; `trainerAssignmentStore` leest er eenmalig vanuit
+
+---
+
+## ✅ Voltooid (sprint 3–6, maart–april 2026) — Zinsbouwlab, Login, Zinsdatabase
+
+### §0e Zinnen-database uitgebreid ✅
+- **Niveau 0 (Instap)** toegevoegd: `sentences-level-0.json` — 25 eenvoudige WG-zinnen, thema's sport/school/dagelijks leven, voor leerlingen die nog geen basis hebben
+- **Niveau 1 t/m 3 uitgebreid** met NG-zinnen (koppelwerkwoorden); ~15 nieuwe zinnen verdeeld over de niveaus
+- **Google Sheet sync uitgebreid**: per-zin resultaat, hintteller en sessieduur worden meegestuurd
+
+### §19 Module-router ✅ (gedeeltelijk)
+- `App.tsx` heeft hash-routing voor alle schermen: `#/`, `#/zinsdeellab`, `#/mijn-voortgang`, `#/docent-dashboard`, `#/editor`, `#/usage`, `#/docent`, `#/login`
+- Geen externe router-library nodig gebleken — de huidige aanpak volstaat
+
+### Uniforme login ✅
+- `LoginScreen.tsx` (`#/login`) als gecentraliseerde toegangspoort voor alle beveiligde routes
+- Rol-dropdown (docent / eigenaar) — gescheiden PIN-validatie per rol
+- SHA-256 gehashte wachtwoorden via env vars (geen hardcoded PINs meer)
+
+### Feedback-editor ✅
+- `FeedbackEditorTab.tsx` in het eigenaar-admin-paneel
+- Docenten kunnen feedback-overschrijvingen beheren via de UI zonder code te wijzigen
+
+### UsageLogScreen verbeteringen ✅
+- Klassenmerging (aliassen per klas)
+- Leerlingrapporten inclusief per-zin resultaten en oplossingen
+- Verbeterde filtering en aggregatie
+
+### App hernoemd naar "Ontleedlab" ✅
+- Titel, navigatie en documentatie bijgewerkt; interne naamgeving consistent gemaakt
+
+### activityStore — Lab/Trainer unificatie ✅
+Implementatie van de eerder aanbevolen volgende stap:
+- `src/services/activityStore.ts` — read-only façade die `TrainerSubmission` en `LabSubmission` combineert via `domain: 'trainer' | 'lab'` discriminator
+- `trainerSubmissionStore` en `labSubmissionStore` normaliseren ontbrekende `domain`-velden voor backwards-compat
+- `analyticsHelpers` kan filteren op domein zonder aparte codepaden
+
+### Zinsdeellab (Zinsbouwlab) ✅ — Nieuw module
+Een volledig nieuwe oefenmodule naast de ontledingstrainer, bereikbaar via `#/zinsdeellab`.
+
+**Doel:** leerlingen bouwen zinnen uit betekenisbouwstenen (zinsdelen) in een frame-gebaseerde interface, i.p.v. bestaande zinnen te ontleden.
+
+**Data:**
+- `src/data/constructionFrames.ts` — sjablonen met vaste slotposities (OW, PV, WG/NG, LV, MV, VV, BWB, NWD)
+- `src/data/chunkCards.ts` — concrete zinsdeel-kaartjes met tokens en metadata
+
+**Logica:**
+- `src/logic/constructionValidation.ts` — valideert een ingevuld frame: slotbezetting, volgorde, rolconsistentie (17 tests)
+
+**Services:**
+- `labFrameStore.ts` — custom frames (localStorage)
+- `labChunkCardStore.ts` — custom kaarten (localStorage)
+- `labExerciseStore.ts` — oefeningen gekoppeld aan frames
+- `labSubmissionStore.ts` — leerling-inzendingen (`zinsdeellab_submissions_v1`)
+- `labActivityLog.ts` — append-only event-log voor lab-activiteit
+
+**Hook:**
+- `useZinsbouwlab.ts` — state machine: frame kiezen → kaarten plaatsen → volgorde aanpassen → valideren → zin bouwen → reset (21 tests)
+
+**Scherm:**
+- `ZinsdeellabScreen.tsx` — volledige state machine met welkomfase (eenmalige naam-invoer), frame-keuze, bouwinterface, resultaat; naam-knop in header
+
+**Components:**
+- `ChunkBank.tsx` — kaarten-palet per slot
+- `FrameSlot.tsx` — droptarget voor één slotpositie
+- `LabActivitySection.tsx` — activiteits-overzicht voor de docent
+- `LabEditorTab.tsx` — docenten-editor tab met twee sub-tabs
+- `LabFrameEditor.tsx` — CRUD voor frames
+- `LabCardEditor.tsx` — CRUD voor kaarten
+
+**Leerling-onboarding:**
+- Welkomscherm slaat naam op in localStorage; bij terugkeer direct door naar het lab
+- Naam-knop in header maakt hernomen mogelijk
+
+**Docenten-editor:**
+- Tab in het bestaande editor-scherm (`#/editor`)
+- Frames en kaarten aanmaken, bewerken, verwijderen
+- `LabActivitySection` toont inzendingen per leerling
+
+**Tests:** 38 nieuwe tests (21 useZinsbouwlab + 17 constructionValidation); totaal 239+ tests groen
+
+---
+
 ## Prioriteit 0: Directe Verbeteringen (Uit code-review)
 
 Deze items komen voort uit een grondige review van de huidige codebase en zijn noodzakelijk om de basis solide te maken vóór verdere uitbreiding.
@@ -56,16 +176,12 @@ Een alternatieve interactiemodus naast drag-and-drop:
 *   Feedbackberichten: `role="alert"` of `aria-live="polite"` zodat schermlezers ze aankondigen.
 *   Stappen-indicator: `aria-current="step"` op de actieve stap.
 
-### 0e. Zinnen-database Uitbreiden (Niveau 1)
-*Probleem: Niveau 1 bevat slechts 26 zinnen. Bij sessies van 10 zinnen raakt een leerling na 3 sessies door het materiaal. Herhaling zonder variatie leidt tot schijnbeheersing.*
+### 0e. Zinnen-database Uitbreiden ✅ (Grotendeels gedaan)
+*Niveau 0 (25 zinnen) toegevoegd; niveau 1-3 uitgebreid met NG-zinnen. Niveau 1 heeft nu ~40+ zinnen.*
 
-**Implementatie:**
-*   Voeg **20+ nieuwe Basis-zinnen** toe aan `data/sentences-level-1.json`.
-*   Varieer in:
-    *   Zinsvolgorde (SVO, inversie, vraagzinnen)
-    *   Gezegdetype (WG en NG gemengd)
-    *   Thema's die aansluiten bij de leefwereld van 12-15-jarigen (sport, social media, school, muziek)
-*   Gebruik de sentence-data instruction file als leidraad voor formaat.
+**Nog openstaand:**
+*   Niveau 2 en 3 kunnen verder uitgebreid worden met meer gevarieerde NG-zinnen en inversie-zinnen.
+*   Vraagzinnen en inversie zijn nog ondervertegenwoordigd in niveau 1-2.
 
 ### 0f. Prestatieoptimalisatie useTrainer
 *Probleem: useTrainer.ts bevat 23 losse `useState`-aanroepen zonder `useCallback` of `useMemo`. Elke render maakt 30+ handler-functies opnieuw aan, wat op tragere apparaten (schoolchromebooks) tot merkbare vertraging leidt bij drag-operaties.*
@@ -308,13 +424,22 @@ Het huidige `useTrainer.ts` (825 regels, 23 `useState`-aanroepen) is het hart va
 3.  **Fase C — useReducer overweging:** Als Fase B niet voldoende stabiliteit biedt, migreer naar `useReducer` met expliciete actions. Dit maakt state-transities testbaar en voorkomt inconsistente state.
 
 ### 17. Testdekking Uitbreiden
-Huidige dekking: `validation.ts` 100%, `usageData.ts/interactionLog.ts/sessionReport.ts` goed. Maar: **0% testdekking op useTrainer.ts, alle screens en alle components**.
 
-**Aanpak per LLM-taak:**
-*   **Taak 1:** Unit tests voor `getFilteredSentences()` — isoleerbare pure functie.
-*   **Taak 2:** Unit tests voor `handleCheck()` — complexe logica met meerdere state-updates.
-*   **Taak 3:** Unit tests voor session flow (start → split → label → check → score → next).
-*   **Taak 4:** Snapshot tests voor `constants.ts` data-integriteit (alle rollen, feedback matrix completeness).
+**Status (maart 2026): 374 tests groen, 16 testbestanden.**
+
+Nieuwe dekking op branch `claude/develop-hooks-screens-tests-rxvu0`:
+- `src/hooks/useTrainer.test.ts` ✅ — 31 tests: `loadStudentInfo`, `setStudentInfo`-transformaties, `filteredSentences` (predicateMode, level, focusBijzin, focusLV/MV/VV, bijst/vv-filters, randgevallen)
+- `src/screens/ScoreScreen.test.ts` ✅ — 30 tests: `SCORE_THRESHOLDS`, `scorePercentage`, `effectiveThresholds` (gemengde sessies), `recommendation`, `encouragement tier`, `masteredRoles`
+- `src/screens/StudentDashboardScreen.test.ts` ✅ — 15 tests: `LEVEL_LABELS`, `sessionPct`, `getCompletedSubsSorted`
+- `src/screens/TeacherDashboardScreen.test.ts` ✅ — 21 tests: `scoreColor`, `extractKlassen`, `filterByKlas`, `getStudentSubsSorted`
+
+**Aanpak:** pure functies gespiegeld als testhelpers (zelfde patroon als `useZinsbouwlab.test.ts`); geen DOM of React Testing Library nodig.
+
+**Nog openstaand:**
+*   **Taak 1 (deels gedaan):** Unit tests voor `getFilteredSentences()` ✅ — gedekt via `useTrainer.test.ts`
+*   **Taak 2:** Unit tests voor `handleCheck()` — complexe logica met meerdere state-updates (vereist renderless hook-testing of extractie als pure functie)
+*   **Taak 3:** Unit tests voor session flow (start → split → label → check → score → next)
+*   **Taak 4:** Snapshot tests voor `constants.ts` data-integriteit (alle rollen, feedback matrix completeness)
 *   Streef naar **60% dekking** als realistisch doel voor een eenmansteam.
 
 ### 18. Zinnen-validatiescript
@@ -327,13 +452,10 @@ Een automatisch script dat alle `sentences-level-*.json` bestanden valideert op:
 
 **Implementatie:** Vitest test file `sentenceData.test.ts` die alle JSON-bestanden importeert en valideert.
 
-### 19. Module-router (Voorbereiding op Prioriteit 4)
-Een eenvoudige hash-based module-router om te kiezen tussen:
-*   `#/` → Zinsontleding (huidige app)
-*   `#/werkwoordspelling` → Werkwoordspelling (nieuwe module)
-*   `#/foutentekst` → Foutentekst (nieuwe module)
+### 19. Module-router ✅ (Geïmplementeerd)
+Hash-routing in `App.tsx` dekt al: `#/`, `#/zinsdeellab`, `#/mijn-voortgang`, `#/docent-dashboard`, `#/editor`, `#/usage`, `#/docent`, `#/login`.
 
-**Implementatie:** Uitbreiding van bestaand hash-routing in `App.tsx`. Geen externe router-library nodig.
+**Nog openstaand:** Een publiek zichtbare module-keuze-UI op het startscherm ontbreekt nog. Leerlingen bereiken `#/zinsdeellab` nu alleen via directe URL of vanuit de docenten-omgeving.
 
 ### 20. Samengestelde Zinnen (Complexe Zinnen)
 De datastructuur evolueert van `Sentence -> Tokens[]` naar `Sentence -> Clause[] -> Tokens[]`.
@@ -404,15 +526,40 @@ interface ComplexSentence extends Sentence {
 
 ---
 
-## Implementatievolgorde (Aanbevolen voor 1-persoonsteam + LLM)
+## Aanbevolen volgende stap
+
+**Module-navigatie zichtbaar maken voor leerlingen**
+
+De Zinsdeellab-module is volledig gebouwd maar bereikbaar alleen via directe URL. Een logische volgende stap is een keuze-UI op het startscherm:
+- Twee grote knoppen: "Ontleden" (huidige trainer) en "Zinnen bouwen" (Zinsdeellab)
+- Eventueel als tabs bovenaan `HomeScreen.tsx` of als aparte landingspagina op `#/`
+
+Dit is een kleine UI-wijziging zonder architectuurgevolgen.
+
+---
+
+## Implementatievolgorde (Bijgewerkt — huidige stand)
+
+| Status | Items | Toelichting |
+|--------|-------|-------------|
+| ✅ Gedaan | 0e (Zinnen), 19 (Router), Login, Feedback-editor, UsageLog, Zinsdeellab, activityStore | Zie voltooide secties boven |
+| **Nu aanpakken** | 0a (Quick Start), 0b (Tap-to-Place), Module-navigatie zichtbaar | Laagste effort, hoogste zichtbare impact voor leerlingen |
+| **Daarna** | 0c (Keyboard), 0d (Aria), 18 (Validatiescript) | Toegankelijkheid en kwaliteitsborging |
+| **Didactisch** | 1 (Rollenladder), 4 (Tooltips), 2 (Beslisboom), 5 (Metacognitie) | Vergt didactisch ontwerp; LLM-geschikt voor implementatie |
+| **Verdieping** | 3 (Foutenanalyse), 6 (Contrastparen), 8 (Oefenplan), 21 (Spaced repetition) | Zinvol na Rollenladder |
+| **Technisch** | 0f (Performance), 16 (State refactor), 17 (Tests uitbreiden) | Ideaal voor LLM-agent |
+| **Lange termijn** | 13 (Werkwoordspelling), 14 (Foutentekst), 22–23 (Backend) | Nieuwe modules / infra |
+
+### Eerdere sprint-planning (voor referentie)
 
 | Sprint | Items | Geschatte effort | LLM-geschikt? |
 |--------|-------|-----------------|----------------|
-| **Sprint 1** | 0a (Quick Start), 0c (Keyboard), 0d (Aria) | 1 dag | ✅ Ja, zelfstandige taken |
-| **Sprint 2** | 0b (Tap-to-Place), 0e (Meer zinnen), 18 (Validatiescript) | 1-2 dagen | ✅ Ja |
-| **Sprint 3** | 1 (Rollenladder), 4 (Tooltips verbeteren) | 2-3 dagen | ⚠️ Deels, didactisch ontwerp is mensenwerk |
-| **Sprint 4** | 2 (Beslisboom), 5 (Metacognitieve prompt) | 1-2 dagen | ✅ Ja |
-| **Sprint 5** | 3 (Foutenanalyse), 6 (Contrastparen), 8 (Oefenplan) | 2-3 dagen | ✅ Ja |
-| **Sprint 6** | 0f (Performance), 16 (State refactor), 17 (Tests) | 2-3 dagen | ✅ Ja, ideaal voor LLM |
-| **Sprint 7** | 12 (Onboarding), 11 (Responsive), 7 (Badges) | 1-2 dagen | ✅ Ja |
-| **Sprint 8+** | 13-15 (Nieuwe modules), 19-23 (Architectuur) | Doorlopend | ⚠️ Deels |
+| **Sprint 1** ✅ | Domeinarchitectuur, versioning | Gedaan | — |
+| **Sprint 2** ✅ | Zinsdeellab (foundation + state machine + editor) | Gedaan | — |
+| **Sprint 3** ✅ | activityStore, uniforme login, feedback-editor | Gedaan | — |
+| **Sprint 4** (nu) | 0a (Quick Start), 0b (Tap-to-Place), module-nav | 1 dag | ✅ Ja |
+| **Sprint 5** | 0c (Keyboard), 0d (Aria), 18 (Validatiescript) | 1-2 dagen | ✅ Ja |
+| **Sprint 6** | 1 (Rollenladder), 4 (Tooltips verbeteren) | 2-3 dagen | ⚠️ Deels |
+| **Sprint 7** | 2 (Beslisboom), 5 (Metacognitieve prompt), 3 (Foutenanalyse) | 2-3 dagen | ✅ Ja |
+| **Sprint 8** | 0f (Performance), 16 (State refactor), 17 (Tests) | 2-3 dagen | ✅ Ideaal voor LLM |
+| **Sprint 9+** | 13-15 (Nieuwe modules), 21-23 (Architectuur) | Doorlopend | ⚠️ Deels |

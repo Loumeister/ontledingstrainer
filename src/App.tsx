@@ -10,6 +10,8 @@ import { ZinsdeellabScreen } from './screens/ZinsdeellabScreen';
 import LoginScreen from './components/LoginScreen';
 import { preloadCommonLevels } from './data/sentenceLoader';
 import { decodeShared } from './data/customSentenceStore';
+import { StudentDashboardScreen } from './screens/StudentDashboardScreen';
+import { TeacherDashboardScreen } from './screens/TeacherDashboardScreen';
 import type { Sentence } from './types';
 
 // Decode teacher-shared sentences from ?zinnen= URL param
@@ -23,6 +25,8 @@ export default function App() {
   const [showDocent, setShowDocent] = useState(() => window.location.hash === '#/docent');
   const [showUsageLog, setShowUsageLog] = useState(() => window.location.hash === '#/usage');
   const [showZinsdeellab, setShowZinsdeellab] = useState(() => window.location.hash === '#/zinnenlab');
+  const [showStudentDashboard, setShowStudentDashboard] = useState(() => window.location.hash === '#/mijn-voortgang');
+  const [showTeacherDashboard, setShowTeacherDashboard] = useState(() => window.location.hash === '#/docent-dashboard');
   const [sharedSentences] = useState<Sentence[]>(initialSharedSentences);
 
   // Preload common sentence levels
@@ -38,6 +42,8 @@ export default function App() {
       setShowDocent(window.location.hash === '#/docent');
       setShowUsageLog(window.location.hash === '#/usage');
       setShowZinsdeellab(window.location.hash === '#/zinnenlab');
+      setShowStudentDashboard(window.location.hash === '#/mijn-voortgang');
+      setShowTeacherDashboard(window.location.hash === '#/docent-dashboard');
     };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
@@ -55,6 +61,35 @@ export default function App() {
         onBack={() => {
           window.location.hash = '';
           setShowUsageLog(false);
+        }}
+      />
+    );
+  }
+
+  // Student dashboard (#/mijn-voortgang)
+  if (showStudentDashboard) {
+    return (
+      <StudentDashboardScreen
+        studentName={trainer.studentName}
+        studentInitiaal={trainer.studentInitiaal}
+        studentKlas={trainer.studentKlas}
+        darkMode={trainer.darkMode}
+        onBack={() => {
+          window.location.hash = '';
+          setShowStudentDashboard(false);
+        }}
+      />
+    );
+  }
+
+  // Teacher dashboard (#/docent-dashboard)
+  if (showTeacherDashboard) {
+    return (
+      <TeacherDashboardScreen
+        darkMode={trainer.darkMode}
+        onBack={() => {
+          window.location.hash = '';
+          setShowTeacherDashboard(false);
         }}
       />
     );

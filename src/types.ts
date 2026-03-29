@@ -99,7 +99,7 @@ export interface SentenceUsageData {
   roleErrors: Record<string, number>;  // roleName -> count of wrong role assignments
   splitErrors: number;                 // Cumulative incorrect-split chunks across attempts
   flagged: boolean;                    // Teacher-flagged as suspect (possible label error)
-  note: string;                        // Teacher note
+  note: string;                        // Teacher note (legacy — new notes go to teacherNoteStore)
   lastAttempted: string;               // ISO date string
 }
 
@@ -181,10 +181,15 @@ export interface ZinsdeellabExercise {
 }
 
 /**
- * Studentpoging op een specifieke versie van een oefening.
+ * Studentpoging op een specifieke versie van een Zinsdeellab-oefening.
  * Eén submission = één voltooid of afgebroken lab-traject.
+ *
+ * domain: 'lab' — discriminator voor AnySubmission union (activityStore).
+ * Bestaande opgeslagen records zonder domain-veld worden bij uitlezen
+ * als 'lab' behandeld door labSubmissionStore.getSubmissions().
  */
 export interface LabSubmission {
+  domain: 'lab';              // discriminator voor cross-domain aggregatie
   id: string;                 // stabiele ID, b.v. ISO-timestamp + random suffix
   exerciseId: string;
   exerciseVersion: number;    // versie actief bij start van deze poging
@@ -218,3 +223,132 @@ export type LabEventType =
   | 'parse_started'
   | 'parse_completed'
   | 'exercise_abandoned';
+
+// ── Trainer domain (versioned assignments + submissions) ─────────────────────
+
+/**
+ * Stabiele student-identiteit.
+ * Gegenereerd bij eerste gebruik via studentStore.getOrCreateStudent().
+ * Bestaande flows bewaard: student_info_v1 blijft tijdelijk geldig.
+ * LabSubmission gebruikt nog studentName strings — migratie deferred.
+ */
+export interface Student {
+  id: string;        // 'std-{ISO-nocolon}-{4random}'
+  name: string;
+  initiaal: string;
+  klas: string;
+  createdAt: string; // ISO-8601
+}
+
+/**
+ * Een versiebare verzameling aangepaste zinnen (docentopdracht voor ontleding).
+ * Parallel aan ZinsdeellabExercise — zelfde versioning-patroon:
+ *   id (stabiel) + version (incrementeel) + contentHash (btoa).
+ * Historische TrainerSubmissions refereren aan assignmentId + assignmentVersion,
+ * zodat studentresultaten correct blijven als de opdracht later wordt bewerkt.
+ */
+export interface TrainerAssignment {
+  id: string;            // stabiele slug of 'asgn-{ISO-nocolon}-{4random}'
+  title: string;
+  version: number;       // incrementeert bij inhoudelijke wijziging van sentenceIds
+  contentHash: string;   // btoa-hash voor attributie
+  createdAt: string;     // ISO-8601
+  updatedAt: string;     // ISO-8601
+  sentenceIds: number[]; // snapshot van zin-IDs bij deze versie
+}
+
+/**
+ * Studentpoging op een ontledingssessie.
+ * assignmentId/assignmentVersion zijn null bij vrije oefening.
+ *
+ * domain: 'trainer' — discriminator voor AnySubmission union (activityStore).
+ * Bestaande opgeslagen records zonder domain-veld worden bij uitlezen
+ * als 'trainer' behandeld door trainerSubmissionStore.getSubmissions().
+ */
+export interface TrainerSubmission {
+  domain: 'trainer';            // discriminator voor cross-domain aggregatie
+  id: string;                   // 'tsub-{ISO-nocolon}-{4random}'
+  studentId: string;            // Student.id
+  studentName: string;          // gedenormaliseerd voor weergave
+  studentKlas: string;          // gedenormaliseerd voor weergave
+  assignmentId: string | null;
+  assignmentVersion: number | null;
+  startedAt: string;            // ISO-8601
+  completedAt?: string;         // ISO-8601; ontbreekt als afgebroken
+  scoreCorrect: number;
+  scoreTotal: number;
+  levelPlayed: number | null;
+  showAnswerCount: number;
+  durationSeconds: number | null;
+  mistakeStats: Record<string, number>; // roleKey → foutentelling
+}
+
+/**
+ * Per-zin poging binnen een TrainerSubmission.
+ * Bewaart splitposities en labels zodat docenten de studentoplossing kunnen zien.
+ */
+export interface TrainerAttempt {
+  id: string;           // 'tatt-{ISO-nocolon}-{4random}'
+  submissionId: string;
+  sentenceId: number;
+  startedAt: string;    // ISO-8601
+  completedAt?: string; // ISO-8601
+  scoreCorrect: number;
+  scoreTotal: number;
+  showAnswerUsed: boolean;
+  splitIndices: number[];
+  userLabels: Record<string, string>; // PlacementMap (tokenId → roleKey)
+}
+
+/**
+ * Event-types voor Trainer activiteitslog.
+ * Superset van bestaande InteractionType in interactionLog.ts.
+ */
+export type TrainerEventType =
+  | 'session_start' | 'session_finish' | 'abort'
+  | 'sentence_start' | 'check' | 'hint' | 'show_answer' | 'retry'
+  | 'split_toggle' | 'step_forward' | 'step_back'
+  | 'label_drop' | 'label_remove' | 'sub_label_drop' | 'sub_label_remove'
+  | 'bijzin_functie_drop' | 'bijzin_functie_remove'
+  | 'bijvbep_link' | 'bijvbep_unlink' | 'word_bijvbep_link'
+  | 'error_split' | 'error_role' | 'error_bijzin_functie';
+
+/**
+ * Fijnkorrelig event binnen een trainer-traject (per submission gegroepeerd).
+ * Complement van interactionLog.ts; beide bestaan tijdelijk naast elkaar.
+ */
+export interface TrainerActivityEvent {
+  submissionId: string;
+  studentId?: string;       // Student.id indien beschikbaar
+  type: TrainerEventType;
+  timestamp: string;        // ISO-8601
+  sentenceId?: number;
+  detail?: string;
+}
+
+/**
+ * Docentnotitie bij een zin, student of opdracht.
+ * Logisch gescheiden van student-telemetrie (TrainerSubmission, TrainerAttempt).
+ * Vervangt op termijn SentenceUsageData.note en .flagged.
+ */
+export interface TeacherNote {
+  id: string;           // 'tnote-{ISO-nocolon}-{4random}'
+  targetType: 'sentence' | 'student' | 'assignment';
+  targetId: string;     // sentenceId (als string), Student.id of TrainerAssignment.id
+  note: string;
+  createdAt: string;    // ISO-8601
+  updatedAt: string;    // ISO-8601
+}
+
+// ── Cross-domain union ────────────────────────────────────────────────────────
+
+/**
+ * Discriminated union van alle submission-types.
+ * Gebruik `domain` als discriminator in switch/if-statements:
+ *
+ *   if (sub.domain === 'trainer') { // TrainerSubmission
+ *   if (sub.domain === 'lab')     { // LabSubmission
+ *
+ * Verbruikt door activityStore en analyticsHelpers voor cross-domain aggregatie.
+ */
+export type AnySubmission = TrainerSubmission | LabSubmission;
