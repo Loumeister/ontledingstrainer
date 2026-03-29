@@ -34,13 +34,15 @@ src/
   hooks/
     useTrainer.ts (~825 lines)   → Core state management (23 useState, all business logic)
     useSentences.ts              → Async sentence loading with cache
+    useZinsbouwlab.ts            → Zinnenlab state (frame selection, card placement, validation)
   screens/
     HomeScreen.tsx (~250 lines)  → Configuration & session start UI
     TrainerScreen.tsx (~432 lines) → Active two-step parsing exercise
     ScoreScreen.tsx (~372 lines) → Session results, badges, progress chart
     SentenceEditorScreen.tsx     → PIN-protected teacher editor (PIN: 1234)
     UsageLogScreen.tsx           → Teacher analytics (dual PIN: 1234/4321)
-  components/ (10 files, ~1675 lines total)
+    ZinsdeellabScreen.tsx        → Zinnenlab student screen (#/zinnenlab)
+  components/ (10+ files, ~1675 lines total)
     WordChip.tsx                 → Draggable role tag component
     DropZone.tsx                 → SentenceChunk drop target with validation
     HelpModal.tsx                → Instructions overlay
@@ -51,14 +53,27 @@ src/
     ZinsdeelHelpModal.tsx        → Role-specific help with definitions
     EditorView.tsx               → Teacher analytics dashboard
     FeedbackPanel.tsx            → Structured feedback display
+    FrameSlot.tsx                → Zinnenlab bouwbalk slot (one per FrameSlotKey)
+    ChunkBank.tsx                → Zinnenlab card bank (shows available ChunkCards)
+    LabEditorTab.tsx             → Zinnenlab editor tab in SentenceEditorScreen
   data/
     sentences-level-{1-4}.json   → Sentence data files
     sentences-review.json        → Review sentences
     sentenceLoader.ts            → Dynamic import with caching + preload
     customSentenceStore.ts       → localStorage custom sentence management
+    constructionFrames.ts        → Built-in Zinnenlab frames (manually curated)
+    chunkCards.ts                → Built-in Zinnenlab chunk cards (manually curated)
+    labSentencePools.ts          → DEPRECATED — vervangen door corpusGrouper
   logic/                         → Pure business logic (no side effects)
     validation.ts (~313 lines)   → Core validation engine (100% test coverage)
     adaptiveSelection.ts         → Adaptive sentence selection algorithm
+    constructionValidation.ts    → Zinnenlab validation (frame, congruence, word order, tense)
+    v2WordOrders.ts              → Dutch V2 word order generator (all valid orderings)
+    corpusGrouper.ts             → Corpus → Zinnenlab frames+cards (corpus approach)
+    pvTenseHeuristic.ts          → Dutch PV tense detection (present/past)
+    owNumberHeuristic.ts         → Dutch OW number detection (sg/pl)
+    bwbTimeRefHeuristic.ts       → Dutch BWB temporal reference detection
+    poolToFrame.ts               → (used by labSentencePools, still available)
   services/                      → Persistence & external integrations
     sessionHistory.ts            → Session persistence (localStorage)
     sessionReport.ts             → Session report encode/decode
@@ -66,6 +81,10 @@ src/
     interactionLog.ts            → User interaction event logging
     rolemastery.ts               → Role mastery tracking
     googleDriveSync.ts           → Google Drive report sync
+    labActivityLog.ts            → Zinnenlab activity event log (localStorage)
+    labSubmissionStore.ts        → Zinnenlab submission store (localStorage)
+    labFrameStore.ts             → Custom Zinnenlab frames (localStorage)
+    labChunkCardStore.ts         → Custom Zinnenlab chunk cards (localStorage)
 ```
 
 ## Key Concepts
@@ -77,6 +96,40 @@ src/
 - **newChunk**: Flag on tokens to force split even when adjacent tokens share the same role
 - **PlacementMap**: Record mapping token IDs to role keys (for chunk labels and sub-labels)
 - **Rollenladder**: Planned scaffolded introduction of roles (see TODO.md §1)
+
+### Zinnenlab (#/zinnenlab)
+
+A separate learning activity where students build sentences by combining chunk cards. Route is hidden (no HomeScreen link) — accessed via direct URL.
+
+**Corpus approach** (current, since 2026-03-29):
+- `corpusGrouper.ts` groups existing trainer sentences by their **slot signature** (ordered unique list of FrameSlotKey roles, e.g. `ow-pv-lv-bwb`)
+- Groups with ≥ 3 sentences become a ConstructionFrame + ChunkCard[] automatically
+- Heuristics auto-detect `number` (sg/pl) on OW cards, `verbTense` (present/past) on PV cards, and `timeRef` (past/present) on BWB cards
+- Teachers can override heuristics via `Sentence.owNumber` / `Sentence.pvTense` in SentenceEditorScreen meta phase
+
+**V2 word order**:
+- `v2WordOrders(slots)` generates all valid Dutch declarative word orders: PV is always position 2, each other slot takes turn at position 1
+- E.g. `['ow','pv','lv','bwb']` → `['ow-pv-lv-bwb', 'lv-pv-ow-bwb', 'bwb-pv-ow-lv']`
+
+**Validation** (`constructionValidation.ts`):
+- A: Missing slots check
+- B: Family compatibility check (cards must belong to the active frame's family)
+- C: Congruence: OW.number ↔ PV.number
+- D: Predicate type: WG vs NG
+- E: Valency constraints (card.requires, card.forbids)
+- F: Word order: must match one of frame.wordOrders
+- G: Tense: BWB.timeRef='past' + PV.verbTense='present' → error (e.g. "gisteren leest")
+
+**Data flow**:
+```
+availableSentences (useTrainer)
+  → ZinsdeellabScreen (prop: sentences)
+    → useZinsbouwlab(sentences)
+      → corpusToLabData(sentences) → { frames, cards }
+      → merged with CONSTRUCTION_FRAMES + CHUNK_CARDS + custom frames/cards
+```
+
+**Storage ID space**: 20000+ reserved for lab-built sentences (1-499: built-in, 10000+: custom)
 
 ## Conventions
 
@@ -110,6 +163,10 @@ Sentences live in `src/data/sentences-level-{1-4}.json`. Each sentence needs:
 - `predicateType`: `'WG'` or `'NG'`
 - `level`: 1 (Basis), 2 (Middel), 3 (Hoog), 4 (Samengesteld)
 - `tokens[]`: words with `id` (format: `s{id}w{index}`), `text`, `role`, optional `subRole`/`newChunk`/`alternativeRole`/`bijzinFunctie`/`bijvBepTarget`
+
+Optional Zinnenlab annotations (override heuristics if needed):
+- `owNumber?: 'sg' | 'pl'` — OW number for congruence check
+- `pvTense?: 'present' | 'past'` — PV tense for tense consistency check
 
 See README.md for detailed rules (especially the `newChunk` flag).
 

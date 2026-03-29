@@ -79,6 +79,8 @@ export default function App() {
   }
 
   // Zinsdeellab screen (hidden route — #/zinnenlab)
+  // availableSentences wordt doorgegeven zodat de corpusGrouper automatisch
+  // Zinnenlab-frames en -kaarten genereert vanuit het bestaande corpus.
   if (showZinsdeellab) {
     return (
       <ZinsdeellabScreen
@@ -87,6 +89,7 @@ export default function App() {
         dyslexiaMode={trainer.dyslexiaMode}
         studentName={trainer.studentName}
         studentKlas={trainer.studentKlas}
+        sentences={trainer.availableSentences}
         onBuiltSentence={(sentence) => {
           setShowZinsdeellab(false);
           window.location.hash = '';

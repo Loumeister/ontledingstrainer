@@ -1,3 +1,22 @@
+/**
+ * @deprecated labSentencePools.ts — VEROUDERD, wordt niet meer gebruikt.
+ *
+ * Deze aanpak (handmatig gecureerde SentencePool-objecten) is vervangen door de
+ * corpus-aanpak in src/logic/corpusGrouper.ts. De corpusGrouper genereert
+ * automatisch frames en kaarten uit het bestaande zinsontleed-corpus
+ * (sentences-level-*.json), inclusief heuristische ev/mv- en tt/vt-annotaties.
+ *
+ * Voordelen van de corpus-aanpak t.o.v. handmatig curiëren:
+ * - Schaalbaar: nieuwe zinnen in het corpus verschijnen automatisch in het Zinnenlab
+ * - Consistentie: zelfde zinnen als in de trainer-oefeningen
+ * - Onderhoudsarm: geen dubbele datadefinitie nodig
+ * - Override mogelijk via Sentence.owNumber / Sentence.pvTense (ingesteld door docent)
+ *
+ * Dit bestand MAG worden verwijderd zodra zeker is dat geen enkel bestand hier
+ * nog naar importeert. Controleer dit met: grep -r "labSentencePools" src/
+ *
+ * Stand per 2026-03-29: geen actieve importeurs meer.
+ */
 import type { FrameSlotKey, RoleKey, DifficultyLevel } from '../types';
 
 /**

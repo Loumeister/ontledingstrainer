@@ -21,6 +21,18 @@ export interface Sentence {
   tokens: Token[];
   predicateType: PredicateType;
   level: DifficultyLevel; // New field for filtering
+
+  /**
+   * Zinnenlab-annotaties — optioneel, alleen ingevuld als de docent dit heeft
+   * opgegeven of als de corpusgrouper het automatisch heeft gedetecteerd.
+   *
+   * owNumber: getal van het onderwerp (enkelvoud/meervoud) — nodig voor de
+   *   congruentiecheck OW↔PV in het Zinnenlab.
+   * pvTense: werkwoordstijd van de persoonsvorm (tt/vt) — nodig om te controleren
+   *   dat "gisteren" (vt-referentie) niet met een tt-persoonsvorm gecombineerd wordt.
+   */
+  owNumber?: 'sg' | 'pl';
+  pvTense?: 'present' | 'past';
 }
 
 export interface RoleDefinition {

@@ -16,6 +16,13 @@ interface ZinsdeellabScreenProps {
   dyslexiaMode: boolean;
   studentName: string;
   studentKlas: string;
+  /**
+   * Alle beschikbare zinnen uit het corpus (gefilterd of niet).
+   * Worden doorgegeven aan useZinsbouwlab zodat de corpusGrouper automatisch
+   * Zinnenlab-frames en -kaarten kan genereren.
+   * Geef [] door als de zinnen nog niet geladen zijn.
+   */
+  sentences: Sentence[];
   onBuiltSentence: (sentence: Sentence) => void;
   onClose: () => void;
 }
@@ -36,10 +43,12 @@ export function ZinsdeellabScreen({
   dyslexiaMode,
   studentName,
   studentKlas,
+  sentences,
   onBuiltSentence,
   onClose,
 }: ZinsdeellabScreenProps) {
-  const lab = useZinsbouwlab();
+  // Geef sentences door zodat de corpusGrouper automatisch frames en kaarten genereert
+  const lab = useZinsbouwlab(sentences);
   const [phase, setPhase] = useState<ScreenPhase>(() => studentName.trim() ? 'menu' : 'welkom');
   const [localName, setLocalName] = useState(studentName);
   const [localKlas, setLocalKlas] = useState(studentKlas);

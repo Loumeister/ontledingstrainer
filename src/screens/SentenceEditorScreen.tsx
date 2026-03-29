@@ -50,6 +50,15 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
   const [editingId, setEditingId] = useState<number | null>(null);
   const [customLabel, setCustomLabel] = useState('');
 
+  /**
+   * Zinnenlab-annotaties (optioneel).
+   * owNumber: getal van het OW (enkelvoud/meervoud) — voor congruentiecheck Zinnenlab
+   * pvTense: werkwoordstijd PV (tt/vt) — voor tijdcheck Zinnenlab
+   * null = "auto" (corpusGrouper bepaalt via heuristiek)
+   */
+  const [owNumber, setOwNumber] = useState<'sg' | 'pl' | null>(null);
+  const [pvTense, setPvTense] = useState<'present' | 'past' | null>(null);
+
   // List state
   const [sentences, setSentences] = useState<Sentence[]>(getCustomSentences());
   const [builtInSentences, setBuiltInSentences] = useState<Sentence[]>([]);
@@ -117,6 +126,9 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     setLevel(1);
     setEditingId(null);
     setCustomLabel('');
+    // Zinnenlab-annotaties resetten naar "auto" (null)
+    setOwNumber(null);
+    setPvTense(null);
   };
 
   const startNewSentence = () => {
@@ -302,13 +314,19 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
 
     const labelText = customLabel || `Zin ${id}: ${sentenceText.substring(0, 30)}${sentenceText.length > 30 ? '...' : ''}`;
 
-    return {
+    // Zinnenlab-annotaties: alleen meegeven als de docent ze expliciet heeft ingesteld.
+    // null-waarden worden weggelaten zodat de corpusGrouper-heuristiek ze kan invullen.
+    const sentence: Sentence = {
       id,
       label: labelText,
       predicateType,
       level,
       tokens,
     };
+    if (owNumber !== null) sentence.owNumber = owNumber;
+    if (pvTense !== null) sentence.pvTense = pvTense;
+
+    return sentence;
   };
 
   // Validation
@@ -365,6 +383,9 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     setPredicateType(s.predicateType);
     setLevel(s.level);
     setCustomLabel(s.label);
+    // Zinnenlab-annotaties laden als aanwezig (anders null = auto)
+    setOwNumber(s.owNumber ?? null);
+    setPvTense(s.pvTense ?? null);
 
     // Reconstruct splits and labels from tokens
     const newSplits = new Set<number>();
@@ -748,6 +769,56 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
               ))}
             </div>
           </div>
+
+          {/* ── Zinnenlab-annotaties (optioneel) ──────────────────────────────
+              Deze velden worden gebruikt door het Zinnenlab (route #/zinnenlab)
+              om congruentie (OW↔PV) en tijdconsistentie (PV↔BWB) te controleren.
+              "Automatisch" = de corpusGrouper heuristiek bepaalt de waarde.
+              Stel alleen in als de heuristiek waarschijnlijk fout zit. */}
+          <details className="rounded-lg border border-slate-200 dark:border-slate-600">
+            <summary className="px-4 py-3 cursor-pointer text-sm font-medium text-slate-600 dark:text-slate-300 select-none hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
+              Zinnenlab-annotaties (optioneel) ↓
+            </summary>
+            <div className="px-4 pb-4 pt-2 space-y-4">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Laat op "Automatisch" staan tenzij de heuristiek een fout maakt.
+              </p>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
+                  Onderwerp getal (OW)
+                </label>
+                <div className="flex gap-2">
+                  {([null, 'sg', 'pl'] as const).map(v => (
+                    <button
+                      key={String(v)}
+                      onClick={() => setOwNumber(v)}
+                      className={`flex-1 py-2 text-sm font-medium rounded-lg border-2 transition-all ${owNumber === v ? 'bg-blue-600 text-white border-blue-600' : 'border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                    >
+                      {v === null ? 'Automatisch' : v === 'sg' ? 'Enkelvoud' : 'Meervoud'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
+                  Persoonsvorm tijd (PV)
+                </label>
+                <div className="flex gap-2">
+                  {([null, 'present', 'past'] as const).map(v => (
+                    <button
+                      key={String(v)}
+                      onClick={() => setPvTense(v)}
+                      className={`flex-1 py-2 text-sm font-medium rounded-lg border-2 transition-all ${pvTense === v ? 'bg-blue-600 text-white border-blue-600' : 'border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                    >
+                      {v === null ? 'Automatisch' : v === 'present' ? 'Tegenw. tijd' : 'Verleden tijd'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </details>
 
           <div className="flex gap-3">
             <button onClick={() => setPhase('edit')} className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">← Terug</button>
