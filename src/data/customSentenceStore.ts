@@ -31,6 +31,30 @@ export function exportCustomSentences(): string {
   return JSON.stringify(getCustomSentences(), null, 2);
 }
 
+/**
+ * Exporteert alle zinnen van een bepaald niveau als volledige vervanging voor
+ * `sentences-level-N.json`. Custom zinnen met hetzelfde ID als een ingebouwde
+ * zin overschrijven de ingebouwde versie (custom wint). De output is gesorteerd
+ * op ID en kan direct als vervanging worden gebruikt in src/data/.
+ *
+ * @param level - Het niveau (0–4) om te exporteren
+ * @param builtInSentences - De ingebouwde zinnen voor dat niveau (van sentenceLoader)
+ * @param customSentences - Alle custom zinnen (ongefilterd; functie filtert zelf op level)
+ */
+export function exportMergedLevel(
+  level: number,
+  builtInSentences: Sentence[],
+  customSentences: Sentence[]
+): string {
+  const customForLevel = customSentences.filter(s => s.level === level);
+  const customIds = new Set(customForLevel.map(s => s.id));
+  const builtInForLevel = builtInSentences.filter(
+    s => s.level === level && !customIds.has(s.id)
+  );
+  const merged = [...builtInForLevel, ...customForLevel].sort((a, b) => a.id - b.id);
+  return JSON.stringify(merged, null, 2);
+}
+
 export function importCustomSentences(json: string): Sentence[] {
   const parsed = JSON.parse(json);
   if (!Array.isArray(parsed)) throw new Error('Ongeldig formaat');

@@ -8,6 +8,7 @@ import {
   saveCustomSentence,
   deleteCustomSentence,
   exportCustomSentences,
+  exportMergedLevel,
   getNextCustomId,
 } from '../data/customSentenceStore';
 import { loadAllSentences } from '../data/sentenceLoader';
@@ -93,20 +94,6 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     });
     return list;
   })();
-
-  const handleDuplicateSentence = (s: Sentence) => {
-    const newId = getNextCustomId();
-    const copy: Sentence = {
-      ...s,
-      id: newId,
-      label: `${s.label} (kopie)`,
-      tokens: s.tokens.map((t, i) => ({ ...t, id: `c${newId}t${i + 1}` })),
-    };
-    saveCustomSentence(copy);
-    refreshList();
-    setStatusMsg('Zin gekopieerd naar eigen zinnen!');
-    setTimeout(() => setStatusMsg(null), 2500);
-  };
 
   const baseClass = embedded ? '' : 'min-h-screen bg-slate-50 dark:bg-slate-900';
   const pageClass = `${baseClass} p-2 md:p-4`;
@@ -427,6 +414,63 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     setPhase('edit');
   };
 
+  /**
+   * Opent een ingebouwde zin in de meta-fase voor annotatie (owNumber/pvTense).
+   * Behoudt het originele ID zodat de opgeslagen versie de ingebouwde zin
+   * overschrijft in het corpus (via de deduplicatie-fix in useTrainer).
+   * De splits/labels worden gereconstrueerd maar de docent gaat direct naar meta
+   * — er is geen reden om de splits opnieuw te tekenen.
+   */
+  const handleAnnotateBuiltIn = (s: Sentence) => {
+    setEditingId(s.id);
+    setSentenceText(s.tokens.map(t => t.text).join(' '));
+    setWords(s.tokens.map(t => t.text));
+    setPredicateType(s.predicateType);
+    setLevel(s.level);
+    setCustomLabel(s.label);
+    setOwNumber(s.owNumber ?? null);
+    setPvTense(s.pvTense ?? null);
+
+    // Reconstrueer splits/labels zodat buildSentence() exact dezelfde tokens
+    // teruggeeft als de originele ingebouwde zin (plus de nieuwe annotaties).
+    const newSplits = new Set<number>();
+    const newChunkLabels: Record<string, RoleKey> = {};
+    const newSubLabels: Record<string, RoleKey> = {};
+    const newBijzinFunctieLabels: Record<string, RoleKey> = {};
+    const newBijvBepLinks: Record<string, number> = {};
+    let chunkIdx = 0;
+    newChunkLabels[0] = s.tokens[0].role;
+    if (s.tokens[0].bijzinFunctie) newBijzinFunctieLabels[0] = s.tokens[0].bijzinFunctie;
+    if (s.tokens[0].bijvBepTarget) {
+      const match = s.tokens[0].bijvBepTarget.match(/t(\d+)$/);
+      if (match) newBijvBepLinks[0] = parseInt(match[1], 10) - 1;
+    }
+    s.tokens.forEach((t, i) => {
+      if (t.subRole) newSubLabels[`w${i}`] = t.subRole;
+      if (i > 0) {
+        const prevToken = s.tokens[i - 1];
+        if (prevToken.role !== t.role || t.newChunk) {
+          newSplits.add(i - 1);
+          chunkIdx++;
+          newChunkLabels[chunkIdx] = t.role;
+          if (t.bijzinFunctie) newBijzinFunctieLabels[chunkIdx] = t.bijzinFunctie;
+          if (t.bijvBepTarget) {
+            const match = t.bijvBepTarget.match(/t(\d+)$/);
+            if (match) newBijvBepLinks[chunkIdx] = parseInt(match[1], 10) - 1;
+          }
+        }
+      }
+    });
+    setSplitIndices(newSplits);
+    setChunkLabels(newChunkLabels);
+    setSubLabels(newSubLabels);
+    setBijzinFunctieLabels(newBijzinFunctieLabels);
+    setBijvBepLinks(newBijvBepLinks);
+
+    // Ga direct naar meta — splits/labels hoeven niet opnieuw ingesteld te worden
+    setPhase('meta');
+  };
+
   const handleDeleteSentence = (id: number) => {
     if (!confirm('Weet je zeker dat je deze zin wilt verwijderen?')) return;
     deleteCustomSentence(id);
@@ -440,6 +484,22 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     const a = document.createElement('a');
     a.href = url;
     a.download = 'docent-zinnen.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  /**
+   * Exporteert het volledige corpus voor één niveau als kant-en-klaar
+   * vervangingsbestand voor sentences-level-N.json.
+   * Ingebouwde zinnen + custom overrides samengevoegd, gesorteerd op ID.
+   */
+  const handleExportLevel = (lvl: DifficultyLevel) => {
+    const json = exportMergedLevel(lvl, builtInSentences, sentences);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sentences-level-${lvl}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -488,12 +548,28 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
               <div className="p-3 mb-4 rounded-lg bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-200 text-sm font-medium border border-green-200 dark:border-green-800">{statusMsg}</div>
             )}
 
-            <div className="flex gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-2">
               <button onClick={startNewSentence} className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors">Nieuwe zin</button>
               {sentences.length > 0 && (
-                <button onClick={handleExport} className="px-4 py-2 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 font-medium rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">Exporteren</button>
+                <button onClick={handleExport} className="px-4 py-2 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 font-medium rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">Exporteer eigen zinnen</button>
               )}
             </div>
+
+            {/* Export volledig corpus per niveau — vervanging voor sentences-level-N.json */}
+            {builtInSentences.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <span className="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">Exporteer corpus niveau:</span>
+                {([0, 1, 2, 3, 4] as DifficultyLevel[]).map(lvl => (
+                  <button
+                    key={lvl}
+                    onClick={() => handleExportLevel(lvl)}
+                    className="px-3 py-1 text-xs font-medium rounded border border-teal-300 dark:border-teal-700 text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-colors"
+                  >
+                    {lvl === 0 ? 'Instap' : `Niveau ${lvl}`}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Filter tabs */}
             <div className="flex flex-wrap gap-2 mb-3">
@@ -553,7 +629,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
                       </div>
                       <div className="flex gap-2 ml-3">
                         {isBuiltIn ? (
-                          <button onClick={() => handleDuplicateSentence(s)} className="px-3 py-1 text-xs font-medium rounded border border-purple-300 dark:border-purple-700 text-purple-600 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">Kopieer</button>
+                          <button onClick={() => handleAnnotateBuiltIn(s)} className="px-3 py-1 text-xs font-medium rounded border border-purple-300 dark:border-purple-700 text-purple-600 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">Kopieer & bewerk</button>
                         ) : (
                           <>
                             <button onClick={() => handleEditSentence(s)} className="px-3 py-1 text-xs font-medium rounded border border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">Bewerk</button>

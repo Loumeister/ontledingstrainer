@@ -290,7 +290,12 @@ export function useTrainer(): TrainerState {
     const custom = selectedLevel !== null
       ? customSentences.filter(s => s.level === selectedLevel)
       : customSentences;
-    return [...builtInSentences, ...custom];
+    // Custom zinnen overschrijven ingebouwde zinnen bij hetzelfde ID.
+    // Dit treedt op wanneer een docent een ingebouwde zin via "Kopieer & bewerk"
+    // annoteert (owNumber/pvTense) en opslaat met het originele ID.
+    const customIds = new Set(custom.map(s => s.id));
+    const deduplicatedBuiltIn = builtInSentences.filter(s => !customIds.has(s.id));
+    return [...deduplicatedBuiltIn, ...custom];
   }, [builtInSentences, customSentences, selectedLevel]);
 
   // --- Effects ---
