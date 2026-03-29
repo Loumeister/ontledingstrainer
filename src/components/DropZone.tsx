@@ -176,7 +176,7 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
       <div
         draggable={!!assignedRole}
         className={`
-          h-9 border-b border-dashed border-slate-200 dark:border-slate-600 flex items-center justify-center text-xs rounded-t-lg relative z-10 cursor-pointer transition-opacity focus-visible:ring-2 focus-visible:ring-blue-500
+          h-7 border-b border-dashed border-slate-200 dark:border-slate-600 flex items-center justify-center text-xs rounded-t-lg relative z-10 cursor-pointer transition-opacity focus-visible:ring-2 focus-visible:ring-blue-500
           ${assignedRole ? assignedRole.colorClass + ' font-bold hover:opacity-80' : 'text-slate-400 dark:text-slate-500 italic'}
         `}
         onDragStart={(e) => {
@@ -286,7 +286,7 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
 
       {/* Words Container */}
       <div className={`
-        p-2 sm:p-3 flex flex-wrap gap-y-2 sm:gap-y-4 gap-x-0 justify-center items-end min-h-[50px] sm:min-h-[60px]
+        p-1.5 sm:p-2 flex flex-wrap gap-y-1 sm:gap-y-2 gap-x-0 justify-center items-end min-h-[44px] sm:min-h-[50px]
         ${isLargeFont ? 'text-xl leading-relaxed' : 'text-base sm:text-lg leading-tight'}
       `}>
         {tokens.map((token, i) => {

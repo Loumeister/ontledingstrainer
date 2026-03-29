@@ -290,7 +290,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                 );
               })()}
 
-              <div className="flex flex-wrap gap-y-6 gap-x-2 justify-center items-start pt-2 px-1 flex-1 content-start">
+              <div className="flex flex-wrap gap-y-3 gap-x-2 justify-center items-start pt-2 px-1 flex-1 content-start">
                 {userChunks.map((chunk, idx) => {
                   const startTokenId = chunk.tokens[0].id;
                   const assignedRoleKey = chunkLabels[startTokenId];
