@@ -1,565 +1,445 @@
 # TODO & Roadmap
 
-Dit document bevat de toekomstplannen en ideeën voor Ontleedlab, gebaseerd op recent didactisch onderzoek (o.a. Chamalaun 2023, Steenbakkers, SLO-leerlijnen, 'Spelling en didactiek' 2024) en een uitgebreide code-review (maart 2025).
+Dit document ordent de backlog van Ontleedlab volgens de huidige productscope en de shared-core-first volgorde.
 
-> **Context:** Dit is een eenpersoonsproject met LLM/agent-ondersteuning. Alle voorstellen zijn haalbaar in die context: kleine, onafhankelijke taken die goed door AI-agents uitgevoerd kunnen worden.
+Ontleedlab blijft in deze roadmap:
+- het **parsinggerichte lokale product**
+- de plek voor lokale parsing-UI, evaluatie, interactie en didactische verfijning
+- een product dat later gedeelde content of gedeelde didactische kaders kan consumeren
+- **niet** de vanzelfsprekende repo waarin de volledige toekomstige grammatica- en spellingketen runtime-technisch wordt ingebouwd
 
----
+> **Context:** een eenpersoonsproject met LLM/agent-ondersteuning. Taken moeten klein, toetsbaar en uitvoerbaar blijven.
 
-## ✅ Voltooid (sprint 1–2, maart 2026) — Domeinarchitectuur & Versioning
-
-Deze items zijn volledig geïmplementeerd op branch `claude/architect-domain-versioning-40tFO`.
-
-### Domeinlaag (fundament)
-- **Nieuwe types** in `src/types.ts`: `Student`, `TrainerAssignment`, `TrainerSubmission`, `TrainerAttempt`, `TrainerActivityEvent` / `TrainerEventType`, `TeacherNote`
-- Naamgevingsconventie: `Trainer`-prefix (parallel aan `Lab`-prefix op de sentence-builder-lab branch, merge-conflict-vrij)
-
-### Nieuwe services
-- `studentStore.ts` — stabiele student-identiteit (`std-...` UUID), migratie vanuit `student_info_v1`
-- `trainerAssignmentStore.ts` — versiebare opdrachten (`id + version + contentHash`), migratie vanuit `custom-sentences`; `bumpVersion()` bij inhoudelijke wijziging
-- `trainerSubmissionStore.ts` — sessie-inzendingen + per-zin pogingen; max 500/2000 entries
-- `trainerActivityLog.ts` — append-only event-log, parallel aan bestaande `interactionLog`
-- `teacherNoteStore.ts` — docentnotities, logisch gescheiden van student-telemetrie
-
-### Nieuwe logica
-- `analyticsHelpers.ts` — pure functies: `computeTrainerStudentProgress`, `computeTrainerClassProgress`, `computeRoleErrorPatterns`, `computeAssignmentParticipation`, `buildTrainerSubmissionFromReport` (compat-adapter)
-
-### Integratie in bestaande flow
-- `useTrainer.ts` — minimale aanpassing: twee refs (`submissionIdRef`, `studentIdRef`); domain-aanroepen in `startSession`, `startSharedSession`, `nextSessionSentence` (wrapped in try/catch zodat domain-fouten de sessie niet blokkeren)
-- `SentenceEditorScreen.tsx` — "Publiceer als opdracht" knop: `createAssignment` of `bumpVersion`; toont versie, inzendingen, waarschuwing bij ongesynchroniseerde wijzigingen
-- `ScoreScreen.tsx` — link "Bekijk je voortgang →" naar `#/mijn-voortgang`
-- `App.tsx` — routes `#/mijn-voortgang` en `#/docent-dashboard`
-
-### Nieuwe schermen
-- `StudentDashboardScreen.tsx` (`#/mijn-voortgang`) — sessiecount, beste/gem. score, rolfouten-staafdiagram, recente sessies
-- `TeacherDashboardScreen.tsx` (`#/docent-dashboard`) — klasfilter, studententabel, rolfouten-heatmap, opdrachtstatus; PIN-beveiligd
-
-### Tests
-- 239/239 tests groen (was 93 voor deze branch)
-- Bugfix: `computeContentHash` trunceerde btoa-output waardoor `[1,2,3]` en `[1,2,4]` dezelfde hash kregen
-
-### Migratieprincipes (gelden tot nader order)
-- Alle legacy localStorage-sleutels blijven beschrijfbaar — geen breuk voor bestaande leerlingen
-- `interactionLog` en `trainerActivityLog` worden gelijktijdig geschreven
-- `SessionReport` / Google Drive sync blijft volledig werken
-- `custom-sentences` wordt niet verwijderd; `trainerAssignmentStore` leest er eenmalig vanuit
+> **Coherentie-opmerking:** `SPEC.md` is leidend voor de lokale architectuurframing. Deze roadmap volgt dus het onderscheid tussen lokale productscope, gedeelde platformrichting en oudere repo-gecentreerde aannames.
 
 ---
 
-## ✅ Voltooid (sprint 3–6, maart–april 2026) — Zinsbouwlab, Login, Zinsdatabase
+## ✅ Reeds gerealiseerd: lokale productbasis
 
-### §0e Zinnen-database uitgebreid ✅
-- **Niveau 0 (Instap)** toegevoegd: `sentences-level-0.json` — 25 eenvoudige WG-zinnen, thema's sport/school/dagelijks leven, voor leerlingen die nog geen basis hebben
-- **Niveau 1 t/m 3 uitgebreid** met NG-zinnen (koppelwerkwoorden); ~15 nieuwe zinnen verdeeld over de niveaus
-- **Google Sheet sync uitgebreid**: per-zin resultaat, hintteller en sessieduur worden meegestuurd
+Deze onderdelen blijven zichtbaar in de roadmap omdat ze de huidige productrealiteit bepalen.
 
-### §19 Module-router ✅ (gedeeltelijk)
-- `App.tsx` heeft hash-routing voor alle schermen: `#/`, `#/zinsdeellab`, `#/mijn-voortgang`, `#/docent-dashboard`, `#/editor`, `#/usage`, `#/docent`, `#/login`
-- Geen externe router-library nodig gebleken — de huidige aanpak volstaat
+### Lokale basis: domeinarchitectuur, dashboards en versioning
+- Nieuwe domeintypes in `src/types.ts`: `Student`, `TrainerAssignment`, `TrainerSubmission`, `TrainerAttempt`, `TrainerActivityEvent` / `TrainerEventType`, `TeacherNote`
+- Nieuwe services zoals `studentStore.ts`, `trainerAssignmentStore.ts`, `trainerSubmissionStore.ts`, `trainerActivityLog.ts`, `teacherNoteStore.ts`
+- `analyticsHelpers.ts` met progressie-, participatie- en foutpatroonfuncties
+- Integratie in bestaande flow via `useTrainer.ts`, `SentenceEditorScreen.tsx`, `ScoreScreen.tsx`, `App.tsx`
+- Nieuwe schermen voor leerling- en docentvoortgang
+- Migratieprincipes rond localStorage, interaction log en compatibiliteit zijn al ingevoerd
 
-### Uniforme login ✅
-- `LoginScreen.tsx` (`#/login`) als gecentraliseerde toegangspoort voor alle beveiligde routes
-- Rol-dropdown (docent / eigenaar) — gescheiden PIN-validatie per rol
-- SHA-256 gehashte wachtwoorden via env vars (geen hardcoded PINs meer)
+### Lokale parsing- en zinnenbasis
+- `sentences-level-0.json` toegevoegd met 25 instapzinnen
+- Niveau 1 t/m 3 uitgebreid met NG-zinnen
+- Google Sheet sync uitgebreid met per-zin resultaten, hintteller en sessieduur
 
-### Feedback-editor ✅
-- `FeedbackEditorTab.tsx` in het eigenaar-admin-paneel
-- Docenten kunnen feedback-overschrijvingen beheren via de UI zonder code te wijzigen
+### Lokale infrastructuur en beheer
+- Gecentraliseerde login via `#/login`
+- Feedback-editor in het eigenaar-admin-paneel
+- Verbeteringen in `UsageLogScreen`
+- App hernoemd naar **Ontleedlab**
+- `activityStore` als lokale façade voor `trainer` en `lab`
 
-### UsageLogScreen verbeteringen ✅
-- Klassenmerging (aliassen per klas)
-- Leerlingrapporten inclusief per-zin resultaten en oplossingen
-- Verbeterde filtering en aggregatie
+### Reeds gebouwde lokale aanpalende module: Zinsdeellab
+Zinsdeellab blijft een legitieme lokale productrealiteit binnen deze repo. Het is **geen** architecturale reden om toekomstige werkwoordspelling, foutentekst of andere brugtaken automatisch ook lokaal in deze repo onder te brengen.
 
-### App hernoemd naar "Ontleedlab" ✅
-- Titel, navigatie en documentatie bijgewerkt; interne naamgeving consistent gemaakt
-
-### activityStore — Lab/Trainer unificatie ✅
-Implementatie van de eerder aanbevolen volgende stap:
-- `src/services/activityStore.ts` — read-only façade die `TrainerSubmission` en `LabSubmission` combineert via `domain: 'trainer' | 'lab'` discriminator
-- `trainerSubmissionStore` en `labSubmissionStore` normaliseren ontbrekende `domain`-velden voor backwards-compat
-- `analyticsHelpers` kan filteren op domein zonder aparte codepaden
-
-### Zinsdeellab (Zinsbouwlab) ✅ — Nieuw module
-Een volledig nieuwe oefenmodule naast de ontledingstrainer, bereikbaar via `#/zinsdeellab`.
-
-**Doel:** leerlingen bouwen zinnen uit betekenisbouwstenen (zinsdelen) in een frame-gebaseerde interface, i.p.v. bestaande zinnen te ontleden.
-
-**Data:**
-- `src/data/constructionFrames.ts` — sjablonen met vaste slotposities (OW, PV, WG/NG, LV, MV, VV, BWB, NWD)
-- `src/data/chunkCards.ts` — concrete zinsdeel-kaartjes met tokens en metadata
-
-**Logica:**
-- `src/logic/constructionValidation.ts` — valideert een ingevuld frame: slotbezetting, volgorde, rolconsistentie (17 tests)
-
-**Services:**
-- `labFrameStore.ts` — custom frames (localStorage)
-- `labChunkCardStore.ts` — custom kaarten (localStorage)
-- `labExerciseStore.ts` — oefeningen gekoppeld aan frames
-- `labSubmissionStore.ts` — leerling-inzendingen (`zinsdeellab_submissions_v1`)
-- `labActivityLog.ts` — append-only event-log voor lab-activiteit
-
-**Hook:**
-- `useZinsbouwlab.ts` — state machine: frame kiezen → kaarten plaatsen → volgorde aanpassen → valideren → zin bouwen → reset (21 tests)
-
-**Scherm:**
-- `ZinsdeellabScreen.tsx` — volledige state machine met welkomfase (eenmalige naam-invoer), frame-keuze, bouwinterface, resultaat; naam-knop in header
-
-**Components:**
-- `ChunkBank.tsx` — kaarten-palet per slot
-- `FrameSlot.tsx` — droptarget voor één slotpositie
-- `LabActivitySection.tsx` — activiteits-overzicht voor de docent
-- `LabEditorTab.tsx` — docenten-editor tab met twee sub-tabs
-- `LabFrameEditor.tsx` — CRUD voor frames
-- `LabCardEditor.tsx` — CRUD voor kaarten
-
-**Leerling-onboarding:**
-- Welkomscherm slaat naam op in localStorage; bij terugkeer direct door naar het lab
-- Naam-knop in header maakt hernomen mogelijk
-
-**Docenten-editor:**
-- Tab in het bestaande editor-scherm (`#/editor`)
-- Frames en kaarten aanmaken, bewerken, verwijderen
-- `LabActivitySection` toont inzendingen per leerling
-
-**Tests:** 38 nieuwe tests (21 useZinsbouwlab + 17 constructionValidation); totaal 239+ tests groen
+Gebouwd en aanwezig:
+- `constructionFrames.ts`, `chunkCards.ts`
+- `constructionValidation.ts`
+- `labFrameStore.ts`, `labChunkCardStore.ts`, `labExerciseStore.ts`, `labSubmissionStore.ts`, `labActivityLog.ts`
+- `useZinsbouwlab.ts`
+- `ZinsdeellabScreen.tsx`
+- editor- en activiteitcomponenten voor het lab
 
 ---
 
-## Prioriteit 0: Directe Verbeteringen (Uit code-review)
+## Nu: lokale productverbeteringen
 
-Deze items komen voort uit een grondige review van de huidige codebase en zijn noodzakelijk om de basis solide te maken vóór verdere uitbreiding.
+Deze items zijn direct uitvoerbaar binnen de huidige Ontleedlab-productscope en moeten vooraan in de roadmap blijven.
+
+## A. Interactie, toegankelijkheid en instap
 
 ### 0a. "Snel Starten"-knop (Quick Start)
-*Probleem: Het startscherm toont 20+ interactieve elementen. Leerlingen van 12-15 willen direct beginnen.*
-
-De HomeScreen krijgt een prominente **"▶ Snel Starten"**-knop die met verstandige defaults (Niveau Basis, alle gezegdetypes, 5 zinnen) direct een sessie start. Geen configuratie nodig.
+*Probleem: het startscherm toont veel opties; leerlingen willen direct beginnen.*
 
 **Implementatie:**
-*   Eén grote groene knop bovenaan HomeScreen, boven alle instellingen.
-*   Defaults: `selectedLevel: 1`, `predicateMode: 'all'`, `customSessionCount: 5`, geen focusfilters.
-*   Slaat `localStorage`-voorkeur op: als leerling eerder een niveau koos, gebruik dat.
-*   De rest van het startscherm wordt een uitklapbaar paneel **"⚙ Geavanceerde instellingen"**.
+- één prominente knop bovenaan HomeScreen
+- defaults: `selectedLevel: 1`, `predicateMode: 'all'`, `customSessionCount: 5`
+- gebruik eerdere lokale voorkeuren waar beschikbaar
+- verplaats overige instellingen naar een uitklapbaar paneel
 
-### 0b. Tik-om-te-plaatsen (Tap-to-Place) als alternatief voor drag-and-drop
-*Probleem: Drag-and-drop werkt slecht op tablets en touchscreens — precies de apparaten die in het voortgezet onderwijs worden gebruikt (Chromebooks, iPads).*
-
-Een alternatieve interactiemodus naast drag-and-drop:
-1.  Leerling **tikt** op een rolkaartje (WordChip) → kaartje wordt "geselecteerd" (glow-effect).
-2.  Leerling **tikt** op het doelblok (DropZone) → label wordt geplaatst.
-3.  Nogmaals tikken op een geplaatst label → label wordt verwijderd.
+### 0b. Tik-om-te-plaatsen (Tap-to-Place)
+*Probleem: drag-and-drop werkt zwak op tablets en touchscreens.*
 
 **Implementatie:**
-*   Voeg `selectedRole: RoleKey | null` toe aan TrainerState.
-*   WordChip krijgt `onClick` naast `onDragStart`: zet `selectedRole`.
-*   DropZone krijgt `onClick`: als er een `selectedRole` actief is, plaats het label.
-*   Visuele indicator: geselecteerd kaartje toont een pulserende rand (`animate-pulse ring-2`).
-*   Bestaande drag-and-drop blijft volledig werken.
+- voeg `selectedRole: RoleKey | null` toe aan TrainerState
+- `WordChip` krijgt `onClick` naast `onDragStart`
+- `DropZone` accepteert plaatsing via klik
+- visuele selectie-indicator op het actieve kaartje
+- drag-and-drop blijft volledig bestaan
 
-### 0c. Toetsenbordnavigatie (Keyboard Accessibility)
-*Probleem: Kerninteracties (knippen, labels plaatsen) zijn niet bereikbaar met het toetsenbord. Vereist voor WCAG 2.1 Level A.*
-
-**Implementatie:**
-*   Schaartjes (split-toggles): voeg `tabIndex={0}`, `role="button"`, `onKeyDown` (Enter/Space) toe.
-*   WordChips: maak focusbaar met `tabIndex={0}`, activeer met Enter.
-*   DropZones: maak focusbaar, accepteer geactiveerde rol met Enter.
-*   Zichtbare focus-ring: `focus-visible:ring-2 focus-visible:ring-blue-500` op alle interactieve elementen.
-*   Skip-to-content link bovenaan de pagina.
-
-### 0d. Aria-labels en Semantische Structuur
-*Probleem: Iconknoppen (aA, Dy, 🌙, ?) hebben geen aria-labels; schermlezers kunnen ze niet benoemen.*
+### 0c. Toetsenbordnavigatie
+*Probleem: kerninteracties zijn niet volledig toetsbaar met het toetsenbord.*
 
 **Implementatie:**
-*   Alle iconknoppen: `aria-label="Groot lettertype"`, `aria-label="Dyslexie-modus"`, etc.
-*   ScoreRing: `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax`.
-*   Modals: `role="dialog"`, `aria-modal="true"`, focus-trap bij openen.
-*   Feedbackberichten: `role="alert"` of `aria-live="polite"` zodat schermlezers ze aankondigen.
-*   Stappen-indicator: `aria-current="step"` op de actieve stap.
+- split-toggles focusbaar maken en Enter/Space ondersteunen
+- WordChips focusbaar maken en activeerbaar met Enter
+- DropZones focusbaar maken en roltoewijzing via Enter ondersteunen
+- zichtbare focus-ring op alle interactieve elementen
+- skip-to-content link toevoegen
 
-### 0e. Zinnen-database Uitbreiden ✅ (Grotendeels gedaan)
-*Niveau 0 (25 zinnen) toegevoegd; niveau 1-3 uitgebreid met NG-zinnen. Niveau 1 heeft nu ~40+ zinnen.*
+### 0d. Aria-labels en semantische structuur
+*Probleem: iconknoppen en dynamische feedback zijn niet overal schermlezer-vriendelijk.*
+
+**Implementatie:**
+- aria-labels op iconknoppen
+- `ScoreRing` als progressbar annoteren
+- modals correct als dialog annoteren
+- feedbackberichten via `role="alert"` of `aria-live`
+- stappenindicator voorzien van `aria-current`
+
+### 11. Responsief ontwerp voor tablets
+*Probleem: huidige layout is niet optimaal op Chromebooks en iPads.*
+
+**Implementatie:**
+- HomeScreen naar 1/2/3 kolommen per viewport
+- toolbar onder de zin op smallere schermen
+- touch targets minimaal 44x44 px
+
+### 12. Rondleiding voor eerste gebruik
+*Probleem: geen begeleiding voor nieuwe leerlingen.*
+
+**Implementatie:**
+- driedelige overlay bij eerste bezoek
+- focus op snel starten, knippen en labels plaatsen
+- altijd overslaan mogelijk
+- lichtgewicht eigen overlay, geen extra tour-library
+
+### 19. Module-navigatie zichtbaar maken
+**Status:** router is aanwezig, maar de modulekeuze is nog niet goed zichtbaar voor leerlingen.
+
+**Implementatie:**
+- zichtbare keuze-UI op `#/`
+- knoppen of tabs voor `Ontleden` en `Zinnen bouwen`
+- geen nieuwe architectuur nodig; alleen heldere lokale navigatie
+
+## B. Parsingdidactische versterking
+
+### 1. Rollenladder
+*Bron: scaffolding, cognitieve belastingtheorie, veel kennis van weinig.*
+
+**Doel:** rollen stapsgewijs introduceren en cognitieve belasting verlagen.
+
+**Lokale uitwerking:**
+- trede 1: PV
+- trede 2: PV + OW
+- trede 3: PV + OW + LV/MV/BWB
+- trede 4: + VV, WG/NG
+- trede 5: volledig
+- 80%-beheersingscriterium over 10 zinnen
+- suggestie tot lagere trede bij herhaald lage scores
+
+**Implementatie:**
+- `rollenladderTrede` in useTrainer
+- toolbar filteren op trede
+- validatie buiten actieve trede als rest of niet-fout behandelen
+- voortgang visueel tonen
+
+### 2. Interactieve beslisboom / Ontleedhulp
+*Bron: algoritmische werkwijze als controlemechanisme.*
+
+**Doel:** denkstappen expliciet en herstelbaar maken.
+
+**Implementatie:**
+- uitklapbaar paneel met stappen voor PV, OW, gezegde, overige zinsdelen en bijzinnen
+- stappen lokaal afvinkbaar
+- optioneel koppelen aan reeds geplaatste labels
+
+### 3. Kwalitatieve foutenanalyse
+*Bron: kwalitatieve foutenanalyse en gerichte interventie.*
+
+**Doel:** onderscheid maken tussen analysefouten, toepassingsfouten en ingesleten foutpatronen.
+
+**Implementatie:**
+- `errorType` of soortgelijke classificatie toevoegen aan resultaatdata
+- detectielogica na validatie
+- foutverdeling in ScoreScreen
+- gerichte interventies per fouttype
+
+### 4. Theorie-tooltips / ZinsdeelInfo verbeteren
+**Status:** deels aanwezig via `ZinsdeelHelpModal.tsx`.
+
+**Verbetering:**
+- inline tooltip naast rolkaartjes
+- minimale voorbeeldzin per rol
+- verwanttip bij naburige verwarringen
+- verwijzing naar passende Rollenladder-trede
+
+### 5. Metacognitieve denkstap-prompt
+*Bron: metacognitie en zelfregulatie.*
+
+**Doel:** leerling vooraf herinneren aan de ontleedmethode.
+
+**Implementatie:**
+- prompt vóór controleren
+- aanpasbaar aan actieve rollen
+- fading scaffolding na successen
+- configureerbaar voor docent
+
+### 6. Contrastieve oefenparen
+*Bron: contrastieve analyse.*
+
+**Doel:** verwisselbare rollen scherper onderscheiden via contrastrijke voorbeelden.
+
+**Implementatie:**
+- lokale set contrastparen
+- trigger na bekende verwisselfouten
+- uitklapbaar feedbackpaneel met vergelijking en uitleg
+
+### 21. Spaced repetition voor zwakke rollen
+*Bron: vergeetcurve, adaptief leren.*
+
+**Doel:** zwakke rollen vaker terug laten komen zonder volledige nieuwe modulelogica.
+
+**Implementatie:**
+- confidence-score per rol
+- zinnen selecteren op zwakke rollen
+- sterke rollen minder vaak tonen
+- gewogen random selectie volstaat
+
+## C. Lokale content- en productkwaliteit
+
+### 0e. Zinnen-database verder uitbreiden
+**Status:** deels gedaan.
 
 **Nog openstaand:**
-*   Niveau 2 en 3 kunnen verder uitgebreid worden met meer gevarieerde NG-zinnen en inversie-zinnen.
-*   Vraagzinnen en inversie zijn nog ondervertegenwoordigd in niveau 1-2.
+- niveau 2 en 3 verder uitbreiden met gevarieerde NG-zinnen
+- meer inversie en vraagzinnen in niveau 1-2
+- parsingdidactisch sterke contrasten doelgerichter spreiden
 
-### 0f. Prestatieoptimalisatie useTrainer
-*Probleem: useTrainer.ts bevat 23 losse `useState`-aanroepen zonder `useCallback` of `useMemo`. Elke render maakt 30+ handler-functies opnieuw aan, wat op tragere apparaten (schoolchromebooks) tot merkbare vertraging leidt bij drag-operaties.*
-
-**Implementatie (stapsgewijs, elke stap is een zelfstandige PR):**
-1.  **Stap 1:** Wrap alle event handlers in `useCallback` met correcte dependency arrays.
-2.  **Stap 2:** Memoize `getFilteredSentences()` (40 regels, bij elke render opnieuw berekend) met `useMemo`.
-3.  **Stap 3:** Groepeer gerelateerde state in objecten:
-    *   `splitState: { splitIndices, chunkLabels, subLabels }` (6 → 2 useState)
-    *   `sessionState: { queue, index, stats, results }` (4 → 1 useState)
-    *   `uiState: { darkMode, largeFont, dyslexiaMode, showHelp }` (4 → 1 useState)
-4.  **Stap 4:** Voeg `React.memo()` toe aan `WordChip`, `DropZone`, `SentenceResultCard` (pure components die nu onnodig re-renderen).
-
----
-
-## Prioriteit 1: Didactische Versterking (Korte termijn)
-
-Deze functies zijn het meest urgent op basis van wetenschappelijke inzichten en verhogen de leerkwaliteit direct.
-
-### 1. Gefaseerde Modus — "Rollenladder"
-*Bron: Steenbakkers, cognitieve belastingtheorie, scaffolding-principe*
-
-De huidige app biedt alle 13 zinsdelen tegelijk aan. De theorie benadrukt dat leerlingen beter presteren wanneer ze eerst één concept volledig beheersen voordat het volgende wordt geïntroduceerd.
-
-**Nieuw concept — de "Rollenladder":**
-In plaats van 4 vaste fasen (PV → PV+OW → kern → alles) implementeren we een adaptieve ladder die zich aanpast aan het prestatieniveau:
-
-*   **Trede 1 - PV herkennen:** Leerling hoeft alleen de persoonsvorm te identificeren. Zinsdeelproef wordt overgeslagen; alleen benoemen. Validatie accepteert "rest" als niet-PV.
-*   **Trede 2 - PV + OW:** Twee rollen actief. De toolbar toont alleen PV en OW; andere rollen zijn verborgen.
-*   **Trede 3 - Kern:** PV, OW, LV, MV, BWB. De vijf basisrollen.
-*   **Trede 4 - Uitgebreid:** + VV, WG/NG. Werkwoordelijk en naamwoordelijk gezegde.
-*   **Trede 5 - Volledig:** Alle 13 rollen (huidige werking).
-*   Per trede een **80%-beheersingscriterium** over 10 opeenvolgende zinnen.
-*   Automatische detectie: als leerling 3x op rij <60% scoort, suggereer één trede lager.
-
-**Implementatie:**
-*   Nieuwe state: `rollenladderTrede: number` in useTrainer.
-*   Filter `ROLES` array op basis van trede → toon alleen relevante rollen in toolbar.
-*   Validatie in `validation.ts`: tokens met een rol buiten de huidige trede worden genegeerd (of als "rest" gevalideerd).
-*   Visuele ladder-indicator in de UI die voortgang toont.
-*   Naast de Rollenladder blijft de huidige "vrije modus" beschikbaar voor gevorderde leerlingen en docenten.
-
-### 2. Interactieve Beslisboom / Stappenplan — "Ontleedhulp"
-*Bron: algoritmische werkwijze als controlemechanisme*
-
-Een visueel, permanent beschikbaar hulpmiddel (uitklapbaar paneel, niet een modal) dat de leerling stap voor stap door de ontleding begeleidt.
-
-**Vernieuwing t.o.v. oorspronkelijk plan:**
-De beslisboom is niet statisch maar **interactief**: de leerling klikt de stap aan die hij uitvoert, en de boom markeert die stap als "gedaan". Dit traint metacognitie — bewust nadenken over je eigen denkproces.
-
-**Stappen:**
-1.  🔍 Zoek de persoonsvorm → *Tijdsproef: verander de zin van tijd. Welk woord verandert mee?*
-2.  👤 Zoek het onderwerp → *Wie of wat + PV?*
-3.  📝 Bepaal het gezegde → *Is het een koppelwerkwoord (zijn/worden/blijven)? → NG. Anders → WG.*
-4.  🎯 Bepaal overige zinsdelen:
-    *   LV: *Wie of wat + gezegde + OW?*
-    *   MV: *Aan/voor wie + gezegde + OW + LV?*
-    *   BWB: *Waar/wanneer/hoe/waarom?*
-5.  🔗 Bijzinnen → *Staat er een onderschikkend voegwoord (dat, omdat, als, toen...)?*
-
-**Implementatie:**
-*   Nieuw component: `components/DecisionTree.tsx` — uitklapbaar paneel rechts of onderaan.
-*   State per stap: `checked: boolean` (lokaal in component, reset per zin).
-*   Optioneel: koppel aan huidige zinsdeel-selectie (als leerling PV heeft geplaatst → stap 1 auto-afvinken).
-
-### 3. Kwalitatieve Foutenanalyse — Automatische Classificatie
-*Bron: 'Spelling en didactiek' (2024), kwalitatieve foutenanalyse*
-
-De huidige `mistakeStats` telt alleen *welk zinsdeel* fout is. De theorie onderscheidt drie fouttypen die elk een andere interventie vragen:
-
-| Fouttype | Definitie | Voorbeeld | Automatische detectie |
-|----------|-----------|-----------|----------------------|
-| **Analysefout** | Grammaticale status verkeerd bepaald | PV niet herkend | Chunk bevat PV-tokens maar geen PV-label toegekend |
-| **Toepassingsfout** | Regel bekend, verkeerd uitgevoerd | OW en LV verwisseld | Correct gesplitst, maar labels verwisseld (FEEDBACK_MATRIX swap) |
-| **Inprentfout** | Verkeerd patroon ingeslepen | Steeds BWB i.p.v. VV | Dezelfde foutcombinatie >3x in sessiehistorie |
-
-**Vernieuwing:** Voeg `errorType: 'analyse' | 'toepassing' | 'inprenting'` toe aan `SentenceUsageData` en classificeer automatisch:
-*   **Analyse:** Splits incorrect OF de rol van de PV/OW niet herkend.
-*   **Toepassing:** Splits correct, maar een verwisselingsfout (LV↔MV, BWB↔VV).
-*   **Inprenting:** Dezelfde specifieke fout (bijv. BWB→VV) komt >3x voor over sessies heen.
-
-**Implementatie:**
-*   Uitbreid `SentenceResult` in `types.ts` met `errorClassifications: ErrorClassification[]`.
-*   Detectielogica in `validation.ts` als post-processing stap na `validateAnswer()`.
-*   ScoreScreen toont foutverdeling als een eenvoudig staafdiagram ("3 analysefouten, 1 toepassingsfout").
-*   Koppel interventie-suggestie: "Je maakt vaak analysefouten bij de PV. Tip: gebruik de tijdsproef (verander de zin van tijd)."
-
-### 4. Theorie-tooltips (Taalbeschouwing) — "ZinsdeelInfo"
-*Bron: taalbeschouwelijke insteek, vaktermen als denkinstrument*
-
-**Status: Deels geïmplementeerd** via `ZinsdeelHelpModal.tsx`. Verbetering:
-
-*   Huidige modal toont per rol een definitie, vraagmethode en veelgemaakte fouten.
-*   **Vernieuwing:** Maak dit een **inline tooltip** (hover/klik op het ?-icoontje naast elke WordChip in de toolbar), niet een aparte modal.
-*   Voeg toe:
-    *   **Minimale voorbeeldzin** per rol (bv. "*De hond* is het onderwerp in: De hond blaft.")
-    *   **Verwanttip** (bv. "LV lijkt op OW. Verschil: het OW staat voor de PV, het LV staat erachter.")
-    *   **Link naar Rollenladder:** "Wil je dit oefenen? Start een sessie op trede 3."
-
-### 5. Metacognitieve Denkstap-prompt ("Heb je de proef gedaan?")
-*Bron: metacognitieve strategieën, zelfregulatie bij grammaticaonderwijs (Chamalaun 2023)*
-
-**Nieuw voorstel.** Voordat de leerling op "Controleren" klikt, toont de app een korte metacognitieve check:
-
-> "🤔 Heb je de tijdsproef gebruikt voor de PV? Heb je 'wie of wat + gezegde' gevraagd voor het OW?"
-
-Dit is een **eenmalige, wegklikbare prompt** (niet blokkerend) die de leerling herinnert aan de ontleedmethode. De prompt past zich aan de actieve rollen aan:
-*   Bij trede 1-2: alleen PV-gerelateerde check.
-*   Bij trede 3+: PV + OW + LV-checks.
-*   Na 10 succesvolle zinnen wordt de prompt minder frequent (fading scaffolding).
-
-**Implementatie:**
-*   Nieuw component: `components/MetacognitivePrompt.tsx`.
-*   Trigger: `handleCheck()` toont prompt als `metacognitivePromptEnabled && !hasSeenPromptThisSession`.
-*   Frequentie afbouwend: `promptFrequency` gebaseerd op streak-lengte in `localStorage`.
-*   Configureerbaar: docent kan dit uitzetten via HomeScreen-instellingen.
-
-### 6. Contrastieve Oefenparen ("Vergelijk twee zinnen")
-*Bron: contrastieve analyse, focus-on-form didactiek*
-
-**Nieuw voorstel.** Na een fout toont de app twee zinnen naast elkaar: één die het verwarrende concept illustreert, en één die het contrast toont.
-
-Voorbeeld bij LV/MV-verwisseling:
-> **Zin A:** "Jan geeft *Maria* een boek." → MV (aan wie?)
-> **Zin B:** "Jan leest *het boek*." → LV (wie of wat + GZ + OW?)
-> "Zie je het verschil? Bij een MV kun je 'aan wie' of 'voor wie' vragen."
-
-**Implementatie:**
-*   Voeg `contrastPairs: Record<string, { zinA: string, zinB: string, uitleg: string }>` toe aan `constants.ts`.
-*   Trigger: na een fout in `validateAnswer()`, als de foutcombinatie een bekende verwarringspaar is.
-*   UI: een uitklapbaar paneel onder de feedback ("📖 Vergelijk twee zinnen").
-*   Eerste versie: 5-8 veelvoorkomende verwarringsparen (PV↔WG, LV↔MV, LV↔OW, BWB↔VV, OW↔LV).
-
----
-
-## Prioriteit 2: Gamification & Motivatie (Korte termijn)
-
-### 7. Confetti & Visuele Beloning ✅ (Deels geïmplementeerd)
-*   **Confetti-effect** bij foutloze zin of sessie. → ✅ Aanwezig via `canvas-confetti`.
-*   **Streak-systeem:** Dagen achter elkaar geoefend. → ✅ Basis aanwezig in ScoreScreen.
-*   **Badges:** "PV Meester" (10x PV goed), "Ontleedkampioen" (sessie 100%), etc. → ✅ Basis aanwezig.
+### 8. "Kijk terug"-functie / oefenplan
+**Status:** deels aanwezig via `SentenceResultCard`.
 
 **Verbetering:**
-*   Voeg **"mini-confetti"** toe per individuele correcte zin (niet alleen bij sessie-einde).
-*   Bewaar badges permanent in `localStorage` en toon ze op het startscherm als motivatie.
-*   Voeg badge-progress indicators toe ("Nog 3 zinnen tot PV Meester!").
+- knop voor mini-sessie op basis van gemaakte fouten
+- koppeling naar Rollenladder bij te hoge moeilijkheid
+- optionele export als docentrapport
 
-### 8. "Kijk terug"-functie (Reflectie) — Uitgebreid met Foutenrapport
-*Bron: revisiefase, spellingbewustzijn*
-
-**Status: Deels geïmplementeerd** via SentenceResultCard op ScoreScreen.
-
-**Vernieuwing:** Voeg een **"Oefenplan"**-knop toe aan ScoreScreen:
-*   Genereert automatisch een mini-sessie van 5 zinnen die specifiek de rollen bevatten waar de leerling fouten maakte.
-*   Linkt terug naar de Rollenladder als het foutpatroon wijst op een te hoge trede.
-*   Optioneel: exporteer het foutenrapport als tekst (voor de docent) of deel het via rapportcode.
-
----
-
-## Prioriteit 3: UX & Toegankelijkheid (Korte termijn)
-
-### 9. Dyslexie-modus ✅ (Geïmplementeerd)
-Een schakelaar voor een dyslexie-vriendelijk font met extra spatiëring. → ✅ Aanwezig als "Dy"-knop.
+### 9. Dyslexie-modus verbeteren
+**Status:** aanwezig.
 
 **Verbetering:**
-*   Voeg `letter-spacing: 0.05em` en `line-height: 1.8` toe in dyslexie-modus.
-*   Test met de doelgroep of OpenDyslexic werkelijk helpt of dat een schreefloos font met extra spatiëring beter leest.
+- extra spatiëring en regelhoogte
+- toetsen met doelgroep welk lettertype echt helpt
 
-### 10. Dark Mode ✅ (Geïmplementeerd)
-Dark mode is volledig geïmplementeerd via class-toggle. → ✅ Compleet.
+### 10. Dark mode verfijnen
+**Status:** aanwezig.
 
 **Verbetering:**
-*   Voeg `prefers-reduced-motion` media query toe: schakel confetti en animaties uit voor leerlingen met bewegingsgevoeligheid.
-*   Controleer WCAG AA-contrast voor alle dark mode kleurcombinaties (met name lichtgrijze tekst op donkergrijze achtergrond).
-
-### 11. Responsief Ontwerp voor Tablets
-*Probleem: Nederlandse scholen gebruiken massaal Chromebooks en iPads. De huidige 3-kolom layout op het startscherm veroorzaakt horizontal scrolling op tablet-portrait.*
-
-**Implementatie:**
-*   HomeScreen: 1 kolom op mobiel, 2 op tablet, 3 op desktop.
-*   TrainerScreen: toolbar onder de zin op smalle schermen (i.p.v. ernaast).
-*   Touch targets minimaal 44x44px (WCAG 2.5.5).
-
-### 12. Rondleiding voor Eerste Gebruik ("Onboarding Tour")
-*Probleem: Er is geen begeleiding voor nieuwe leerlingen. Ze landen op een scherm met 20+ opties.*
-
-**Implementatie:**
-*   Bij eerste bezoek (check `localStorage` flag `hasSeenTour`): toon een 3-staps overlay:
-    1.  "Welkom! Klik op '▶ Snel Starten' om direct te beginnen."
-    2.  "Knip de zin in stukjes door op de schaartjes ✂️ te klikken."
-    3.  "Sleep de gekleurde kaartjes naar het juiste zinsdeel."
-*   Simpele tooltip-pijlen die naar het relevante UI-element wijzen.
-*   "Sla over"-knop altijd beschikbaar.
-*   Implementeerbaar als lichtgewicht overlay-component (geen externe tour-library nodig).
-
----
-
-## Prioriteit 4: Nieuwe Modules (Middellange termijn)
-
-### 13. Werkwoordspelling-module
-*Bron: integrale benadering grammatica-spelling, Chamalaun (2023)*
-
-Een aparte module die voortbouwt op de grammaticakennis uit Ontleedlab. De zinsontleding is de **voorwaarde** voor correcte werkwoordspelling.
-
-**Submodules (modulair, niet lineair):**
-*   **PV in tegenwoordige tijd:** stam + t-regel, met analogie-hulp ("denk aan lopen")
-*   **Homofoon-training:** wordt/word, vind/vindt met visuele waarschuwingen
-*   **Verleden tijd:** zwakke werkwoorden met 't kofschip
-*   **Voltooid deelwoord:** ge- + stam + d/t
-*   **Alles samen:** integrale oefening
-
-**Didactische principes:**
-*   Expliciete Directe Instructie (EDI): worked examples bij nieuwe concepten
-*   Homofoondominantie tegengaan: extra herhaling van de minder-frequente vorm
-*   Adaptieve herhaling: foutieve items komen terug
-*   100%-beheersingscriterium per submodule
-
-Zie `SPEC.md` voor volledige technische specificatie.
-
-### 14. Foutentekst-modus (Transfer naar schrijven)
-*Bron: transfer naar schrijfvaardigheid, revisiefase*
-
-Een module waarin leerlingen een tekst krijgen met grammaticafouten en deze moeten markeren/corrigeren. Dit traint het spellingbewustzijn in de context van schrijven, niet als geïsoleerde invuloefening.
-
-### 15. Peer-review Modus
-*Bron: peer-response als werkvorm*
-
-Leerlingen controleren elkaars ontledingen. Doordat ze zich niet hoeven te concentreren op de inhoud (die staat er al), kunnen ze al hun cognitieve capaciteit inzetten voor de grammaticale analyse.
-
----
-
-## Prioriteit 5: Architectuur & Codekwaliteit
-
-### 16. State Management Vereenvoudigen
-Het huidige `useTrainer.ts` (825 regels, 23 `useState`-aanroepen) is het hart van de applicatie maar wordt onbeheersbaar.
-
-**Gefaseerde aanpak:**
-1.  **Fase A — useCallback/useMemo:** Wrap alle 30+ handlers in `useCallback`. Memoize `getFilteredSentences`. (~2 uur met LLM-agent)
-2.  **Fase B — State groeperen:** Combineer gerelateerde state in objecten (split/label/bijzin → 1 state, session → 1 state, ui → 1 state). (~3 uur)
-3.  **Fase C — useReducer overweging:** Als Fase B niet voldoende stabiliteit biedt, migreer naar `useReducer` met expliciete actions. Dit maakt state-transities testbaar en voorkomt inconsistente state.
-
-### 17. Testdekking Uitbreiden
-
-**Status (maart 2026): 374 tests groen, 16 testbestanden.**
-
-Nieuwe dekking op branch `claude/develop-hooks-screens-tests-rxvu0`:
-- `src/hooks/useTrainer.test.ts` ✅ — 31 tests: `loadStudentInfo`, `setStudentInfo`-transformaties, `filteredSentences` (predicateMode, level, focusBijzin, focusLV/MV/VV, bijst/vv-filters, randgevallen)
-- `src/screens/ScoreScreen.test.ts` ✅ — 30 tests: `SCORE_THRESHOLDS`, `scorePercentage`, `effectiveThresholds` (gemengde sessies), `recommendation`, `encouragement tier`, `masteredRoles`
-- `src/screens/StudentDashboardScreen.test.ts` ✅ — 15 tests: `LEVEL_LABELS`, `sessionPct`, `getCompletedSubsSorted`
-- `src/screens/TeacherDashboardScreen.test.ts` ✅ — 21 tests: `scoreColor`, `extractKlassen`, `filterByKlas`, `getStudentSubsSorted`
-
-**Aanpak:** pure functies gespiegeld als testhelpers (zelfde patroon als `useZinsbouwlab.test.ts`); geen DOM of React Testing Library nodig.
-
-**Nog openstaand:**
-*   **Taak 1 (deels gedaan):** Unit tests voor `getFilteredSentences()` ✅ — gedekt via `useTrainer.test.ts`
-*   **Taak 2:** Unit tests voor `handleCheck()` — complexe logica met meerdere state-updates (vereist renderless hook-testing of extractie als pure functie)
-*   **Taak 3:** Unit tests voor session flow (start → split → label → check → score → next)
-*   **Taak 4:** Snapshot tests voor `constants.ts` data-integriteit (alle rollen, feedback matrix completeness)
-*   Streef naar **60% dekking** als realistisch doel voor een eenmansteam.
-
-### 18. Zinnen-validatiescript
-Een automatisch script dat alle `sentences-level-*.json` bestanden valideert op:
-*   Unieke ID's (geen duplicaten over bestanden heen)
-*   Geldige role keys
-*   Correct token ID-formaat (`s{id}w{index}`)
-*   `newChunk`-consistentie (niet op eerste token van een zin)
-*   Minimaal 1 PV-token per zin
-
-**Implementatie:** Vitest test file `sentenceData.test.ts` die alle JSON-bestanden importeert en valideert.
-
-### 19. Module-router ✅ (Geïmplementeerd)
-Hash-routing in `App.tsx` dekt al: `#/`, `#/zinsdeellab`, `#/mijn-voortgang`, `#/docent-dashboard`, `#/editor`, `#/usage`, `#/docent`, `#/login`.
-
-**Nog openstaand:** Een publiek zichtbare module-keuze-UI op het startscherm ontbreekt nog. Leerlingen bereiken `#/zinsdeellab` nu alleen via directe URL of vanuit de docenten-omgeving.
-
-### 20. Samengestelde Zinnen (Complexe Zinnen)
-De datastructuur evolueert van `Sentence -> Tokens[]` naar `Sentence -> Clause[] -> Tokens[]`.
-
-```typescript
-interface Clause {
-  id: string;
-  type: 'hoofdzin' | 'bijzin';
-  tokens: Token[];
-}
-
-interface ComplexSentence extends Sentence {
-  clauses: Clause[];
-  conjunctions: Token[];
-}
-```
-
-**UI Wijzigingen:**
-1.  **Stap 0 (Nieuw)**: Zin splitsen in deelzinnen.
-2.  **Stap 1 & 2**: Zinsdeelproef en benoemen per clause.
-
-### 21. Spaced Repetition voor Zwakke Rollen
-*Bron: Ebbinghaus vergeetcurve, adaptief leren*
-
-**Nieuw voorstel.** In plaats van willekeurige zinsselectie: een eenvoudig spaced-repetition algoritme dat zinnen prioriteert op basis van de rollen waar de leerling moeite mee heeft.
-
-**Implementatie:**
-*   Per rol een `confidence` score bijhouden in `usageData` (0.0–1.0), gebaseerd op recente prestaties.
-*   Bij sessie-start: sorteer beschikbare zinnen op de aanwezigheid van rollen met lage confidence.
-*   Zinnen met rollen waar de leerling >80% op scoort worden minder vaak aangeboden.
-*   Zinnen met rollen <50% worden vaker aangeboden.
-*   Geen extern algoritme nodig — een gewogen random selectie op basis van de confidence-scores volstaat.
-
----
-
-## Prioriteit 6: Lange Termijn
-
-### 22. Backend & Integratie
-*   Koppeling met ELO's (Magister/SOM) via LTI.
-*   Centrale database voor voortgangsanalyse door docenten.
-*   Datamonitoring: docent ziet direct struikelblokken per leerling.
+- `prefers-reduced-motion`
+- contrastcontrole op WCAG AA-niveau
 
 ### 23. Leerling-profiel Dashboard
-*Nieuw voorstel.* Een visueel dashboard (bereikbaar via ScoreScreen) dat de voortgang over tijd toont:
-*   Radardiagram met beheersing per rol (13 assen).
-*   Trendlijn van sessie-scores.
-*   Aanbeveling: "Je bent klaar voor trede 4!" of "Oefen nog 5 zinnen met LV."
-*   Data uit bestaande `sessionHistory` en `usageData` in `localStorage`.
+**Status:** inhoudelijk passend als lokale productverbetering.
+
+**Implementatie:**
+- radardiagram of alternatief overzicht van rolbeheersing
+- trendlijn van sessiescores
+- aanbeveling op basis van voortgang
+- hergebruik van bestaande lokale voortgangsdata
+
+## D. Lokale codekwaliteit en stabiliteit
+
+### 0f. Prestatieoptimalisatie useTrainer
+**Implementatie:**
+1. handlers wrappen in `useCallback`
+2. filtering memoizen met `useMemo`
+3. state logisch groeperen
+4. pure componenten memoizen
+
+### 16. State management vereenvoudigen
+**Gefaseerde aanpak:**
+- Fase A: callbacks en memoization
+- Fase B: state groeperen
+- Fase C: zo nodig `useReducer`
+
+### 17. Testdekking uitbreiden
+**Status:** 374 tests groen, 16 testbestanden.
+
+**Nog openstaand:**
+- `handleCheck()` beter afdekken
+- sessieflow testen
+- snapshot- of integriteitschecks voor `constants.ts`
+- realistisch streven: circa 60% dekking
+
+### 18. Zinnen-validatiescript
+**Doel:** lokale kwaliteitsborging van sentence-data.
+
+**Controlepunten:**
+- unieke ID’s
+- geldige role keys
+- token-ID-formaat
+- `newChunk`-consistentie
+- minimaal één PV-token per zin
+
+### 20. Samengestelde zinnen
+**Opmerking:** dit is nog geen kleine onderhoudstaak, maar wel een legitieme lokale parsinguitbreiding zolang de scope parsinggericht blijft.
+
+**Vervolgvragen vóór implementatie:**
+- blijft token-per-woord annotatie leidend?
+- hoe verhoudt clause-structuur zich tot huidige evaluatielogica?
+- welke parsingstappen worden lokaal toegevoegd zonder bestaande zinnen te breken?
 
 ---
 
-## Wetenschappelijke Referenties
+## Eerst: shared-core zichtbaarheid en alignment
+
+Deze fase komt vóór diepere cross-product uitbreiding, maar hoeft lokale productverbeteringen niet stil te zetten.
+
+### E. Shared-core zichtbaar maken in de repo
+**Doel:** de gedeelde canon fysiek beschikbaar maken als eerste leeslaag voor wrappers en agents.
+
+**Taken:**
+- `shared/grammar-core/` als subtree of vergelijkbare lokale sync toevoegen
+- zorgen dat de paden uit `AGENTS.md` ook echt lokaal leesbaar worden
+- sync-afspraken vastleggen voor updates van die subtree
+
+### F. Lokale wrappers en contracten synchroon houden
+**Doel:** gedeelde canon eerst laten lezen, zonder lokale Ontleedlab-logica kwijt te raken.
+
+**Taken:**
+- controleren of lokale skills nog kloppen met `AGENTS.md`
+- lokale contractbestanden synchroon houden met de werkelijke repo
+- voorkomen dat oudere repo-gecentreerde aannames terugsluipen in wrappers of contracten
+
+### G. Lokale documentcoherentie bewaken
+**Doel:** lokale docs moeten niet uiteenlopen in productscope of architectuurtaal.
+
+**Taken:**
+- na subtree-sync controleren of lokale docs nog coherent verwijzen naar shared canon
+- verouderde repo-gecentreerde formuleringen gericht herstellen
+- parsingrijke details lokaal houden en niet alsnog veralgemeniseren
+
+**Opmerking:** dit alignmentwerk verandert niet automatisch runtimegedrag. Het maakt vooral toekomstige Claude/Codex-uitvoering veiliger.
+
+---
+
+## Daarna: kleine shared-content adapters
+
+Pas oppakken nadat shared-core zichtbaar is en de wrapperlaag betrouwbaar werkt.
+
+### H. Expliciete adapters voor herbruikbare zinnen of metadata
+**Doel:** kleine, expliciete vertaallagen maken tussen gedeelde content en lokale Ontleedlab-structuren.
+
+**Voorwaarden:**
+- pas na shared subtree-sync
+- pas na contract- en wrappercoherentie
+- geen stilzwijgende gelijkstelling van lokale JSON-shapes aan gedeelde schema’s
+
+**Mogelijke taken:**
+- bepalen welke zinnen of focusclusters veilig gedeeld kunnen worden
+- expliciete mapping documenteren van shared metadata naar lokale Ontleedlab-velden
+- valideren dat lokale parsingeenduidigheid overeind blijft
+
+### I. Kleine import/export- of syncproeven
+**Doel:** voorzichtig testen of gedeelde contentlagen bruikbaar zijn zonder lokale productlogica te breken.
+
+**Randvoorwaarden:**
+- klein van schaal
+- expliciet adaptermatig
+- geen verborgen schemafusie
+
+---
+
+## Later: bridge tasks en bredere platformfeatures
+
+Deze richtingen blijven inhoudelijk relevant, maar zijn pas aan de beurt ná lokale productverbeteringen en shared-core alignment.
+
+### J. Werkwoordspelling
+**Nieuwe positionering:**
+- geen automatische lokale module-uitbouw
+- wel een sterke gedeelde platformrichting in dezelfde leerlijn
+- mogelijk later apart product, brugdomein of expliciete lokale verkenning
+
+**Inhoudelijk waardevol blijft:**
+- PV in tegenwoordige tijd
+- homofoon-training
+- verleden tijd
+- voltooid deelwoord
+- integrale oefening
+- expliciete koppeling tussen parsingvoorkennis en spellingbeslissing
+
+### K. Foutentekst / transfer
+**Nieuwe positionering:**
+- geen automatische lokale volgende module
+- wel sterke transfergerichte vervolgrichting
+- mogelijk later gedeelde platformmodus of lokaal experiment
+
+### L. Peer-review
+**Nieuwe positionering:**
+- geen vanzelfsprekende lokale runtime-route
+- mogelijk latere brugtaak of platformfunctie
+- vraagt waarschijnlijk om synchronisatie of backendlogica
+
+### M. Backend & integratie
+**Nieuwe positionering:**
+- niet vóór shared-core zichtbaarheid en kleine adapters
+- pas later relevant voor LTI, centrale analyse of gedeelde sessies
+
+**Voorbeelden:**
+- ELO-koppelingen
+- centrale voortgangsanalyse
+- gezamenlijke of gedeelde sessies
+
+---
+
+## Wetenschappelijke referenties
 
 | Bron | Relevant inzicht | Gebruikt in |
-|------|-----------------|-------------|
-| Chamalaun (2023) | Grammaticakennis essentieel voor homofone werkwoordsvormen | §1, §5, §13 |
-| Chamalaun et al. (2022) | Expliciete link grammatica-spelling = minder fouten | §13 |
-| 'Spelling en didactiek' (2024) | Kwalitatieve foutenanalyse, vaktermen als denkinstrument | §3, §4 |
-| Steenbakkers - Diploma werkwoordspelling | "Veel kennis van weinig", computersturing, niveaus | §1, §13 |
-| De Staat van het Onderwijs 2025 | 20% scholen onvoldoende, didactisch handelen tekortschiet | Motivatie project |
-| SLO referentieniveaus | 2F = einde onderbouw vo, volledige werkwoordspelling | SPEC.md |
-| Cognitieve belastingtheorie | Werkgeheugen overbelast bij schrijven → automatisering nodig | §0a, §1, §5 |
-| Methode Blink | Spiekbriefje als hulpmiddel, functioneel inzetten van kennis | §2 |
-| Ebbinghaus (1885) | Vergeetcurve, spaced repetition | §21 |
-| Sweller (2011) | Cognitive Load Theory, split-attention effect | §0b, §1 |
-| Flavell (1979) | Metacognitie en zelfregulatie bij leren | §5 |
-| Nassaji & Fotos (2011) | Focus-on-form, contrastieve analyse in taaldidactiek | §6 |
+|------|------------------|-------------|
+| Chamalaun (2023) | Grammaticakennis essentieel voor homofone werkwoordsvormen | parsingdidactiek, werkwoordspelling, metacognitie |
+| Chamalaun et al. (2022) | Expliciete link grammatica-spelling verlaagt fouten | platformrichting werkwoordspelling |
+| 'Spelling en didactiek' (2024) | Kwalitatieve foutenanalyse, vaktermen als denkinstrument | foutenanalyse, tooltips |
+| Steenbakkers | "Veel kennis van weinig", niveaus en computersturing | Rollenladder, parsingdidactiek |
+| Cognitieve belastingtheorie / Sweller | dosering en split-attention | Quick Start, Rollenladder, touch/UX |
+| Flavell (1979) | metacognitie en zelfregulatie | denkstap-prompts |
+| Nassaji & Fotos (2011) | contrastieve analyse, focus-on-form | contrastparen |
+| Ebbinghaus (1885) | spaced repetition | zwakke rollen vaker terug |
+| SLO referentieniveaus | parsing als basis voor verdere taalvaardigheid | productscope en transfer |
 
 ---
 
-## Aanbevolen volgende stap
+## Aanbevolen eerstvolgende stap
 
+### Direct lokaal productwerk
 **Module-navigatie zichtbaar maken voor leerlingen**
+- zichtbare keuze tussen `Ontleden` en `Zinnen bouwen`
+- kleine UI-wijziging zonder architectuurgevolgen
+- direct merkbare verbetering voor leerlingen
 
-De Zinsdeellab-module is volledig gebouwd maar bereikbaar alleen via directe URL. Een logische volgende stap is een keuze-UI op het startscherm:
-- Twee grote knoppen: "Ontleden" (huidige trainer) en "Zinnen bouwen" (Zinsdeellab)
-- Eventueel als tabs bovenaan `HomeScreen.tsx` of als aparte landingspagina op `#/`
-
-Dit is een kleine UI-wijziging zonder architectuurgevolgen.
+### Eerst vóór diepere platformuitbouw
+**shared/grammar-core fysiek toevoegen en zichtbaar maken**
+- nodig om de nieuwe wrapperhiërarchie ook echt operationeel te maken
+- voorkomt dat latere alignment- of adaptertaken op niet-bestaande paden leunen
 
 ---
 
-## Implementatievolgorde (Bijgewerkt — huidige stand)
+## Geordende implementatievolgorde
 
-| Status | Items | Toelichting |
-|--------|-------|-------------|
-| ✅ Gedaan | 0e (Zinnen), 19 (Router), Login, Feedback-editor, UsageLog, Zinsdeellab, activityStore | Zie voltooide secties boven |
-| **Nu aanpakken** | 0a (Quick Start), 0b (Tap-to-Place), Module-navigatie zichtbaar | Laagste effort, hoogste zichtbare impact voor leerlingen |
-| **Daarna** | 0c (Keyboard), 0d (Aria), 18 (Validatiescript) | Toegankelijkheid en kwaliteitsborging |
-| **Didactisch** | 1 (Rollenladder), 4 (Tooltips), 2 (Beslisboom), 5 (Metacognitie) | Vergt didactisch ontwerp; LLM-geschikt voor implementatie |
-| **Verdieping** | 3 (Foutenanalyse), 6 (Contrastparen), 8 (Oefenplan), 21 (Spaced repetition) | Zinvol na Rollenladder |
-| **Technisch** | 0f (Performance), 16 (State refactor), 17 (Tests uitbreiden) | Ideaal voor LLM-agent |
-| **Lange termijn** | 13 (Werkwoordspelling), 14 (Foutentekst), 22–23 (Backend) | Nieuwe modules / infra |
+| Fase | Type werk | Items |
+|------|-----------|-------|
+| **Nu lokaal** | snelle productimpact | 0a Quick Start, 0b Tap-to-Place, 19 zichtbare module-navigatie |
+| **Nu lokaal** | toegankelijkheid | 0c Keyboard, 0d Aria, 11 Responsief, 12 Onboarding |
+| **Nu lokaal** | parsingdidactiek | 1 Rollenladder, 4 Tooltips, 2 Beslisboom, 5 Metacognitie |
+| **Nu lokaal** | verdieping | 3 Foutenanalyse, 6 Contrastparen, 8 Oefenplan, 21 Spaced repetition |
+| **Nu lokaal** | codekwaliteit | 0f Performance, 16 State, 17 Tests, 18 Validatiescript |
+| **Eerst alignment** | shared-core zichtbaarheid | shared subtree toevoegen, wrappers en contractsync controleren |
+| **Daarna adapters** | kleine shared-content stappen | expliciete zinnen-/metadata-adapters, kleine syncproeven |
+| **Later** | bridge tasks / platformrichtingen | werkwoordspelling, foutentekst, peer-review, backend/integratie |
 
-### Eerdere sprint-planning (voor referentie)
+---
 
-| Sprint | Items | Geschatte effort | LLM-geschikt? |
-|--------|-------|-----------------|----------------|
-| **Sprint 1** ✅ | Domeinarchitectuur, versioning | Gedaan | — |
-| **Sprint 2** ✅ | Zinsdeellab (foundation + state machine + editor) | Gedaan | — |
-| **Sprint 3** ✅ | activityStore, uniforme login, feedback-editor | Gedaan | — |
-| **Sprint 4** (nu) | 0a (Quick Start), 0b (Tap-to-Place), module-nav | 1 dag | ✅ Ja |
-| **Sprint 5** | 0c (Keyboard), 0d (Aria), 18 (Validatiescript) | 1-2 dagen | ✅ Ja |
-| **Sprint 6** | 1 (Rollenladder), 4 (Tooltips verbeteren) | 2-3 dagen | ⚠️ Deels |
-| **Sprint 7** | 2 (Beslisboom), 5 (Metacognitieve prompt), 3 (Foutenanalyse) | 2-3 dagen | ✅ Ja |
-| **Sprint 8** | 0f (Performance), 16 (State refactor), 17 (Tests) | 2-3 dagen | ✅ Ideaal voor LLM |
-| **Sprint 9+** | 13-15 (Nieuwe modules), 21-23 (Architectuur) | Doorlopend | ⚠️ Deels |
+## Legacy-framing die niet meer leidend is
+
+De volgende oude roadmap-aanname is niet meer leidend:
+- werkwoordspelling, foutentekst en peer-review als vanzelfsprekende lokale modulevolgorde in deze repo
+
+De inhoudelijke waarde van die richtingen blijft bestaan, maar hun **architectonische plaats** is nu later, voorwaardelijk en shared-core-afhankelijk.
