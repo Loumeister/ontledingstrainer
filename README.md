@@ -26,6 +26,16 @@ Zie `TODO.md` voor de volledige roadmap en `SPEC.md` voor de technische specific
 Actuele aantallen per niveau: **N1 60, N2 101, N3 42, N4 45** (totaal 248).
 ID-reeksen: **N1 1–60, N2 61–161, N3 300–341, N4 400–444**.
 
+## 🔗 Shared-core lokale integratie (voorbereiding)
+
+Beoogde lokale locatie voor gedeelde canon:
+- `shared/grammar-core/` = beoogde lokale map voor gedeelde didactische/governance-canon
+
+Belangrijk voor de huidige status:
+- de map `shared/grammar-core/` is in deze repo op dit moment nog **niet fysiek aanwezig**
+- deze stap is alleen documentaire voorbereiding; er is nog geen runtime-integratie met shared core
+- runtime, parsinglogica, evaluatie, routes, feedbackflow en UI-flow van Ontleedlab blijven ongewijzigd
+
 Voor actuele zinnencontrole en docentplanning:
 - `data/sentence-parse-audit.md` (parse- en annotatie-audit)
 - `TEACHERS_SENTENCE_OVERVIEW.md` (subskills → numeriek gesorteerde zin-ID's)

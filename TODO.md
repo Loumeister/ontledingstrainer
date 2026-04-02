@@ -297,6 +297,11 @@ Deze fase komt vóór diepere cross-product uitbreiding, maar hoeft lokale produ
 ### E. Shared-core zichtbaar maken in de repo
 **Doel:** de gedeelde canon fysiek beschikbaar maken als eerste leeslaag voor wrappers en agents.
 
+**Status (april 2026):**
+- documentair voorbereid: `shared/grammar-core/` staat expliciet als beoogde lokale locatie in de repo-docs
+- actueel: de subtree/map is nog niet fysiek aanwezig in deze checkout
+- nog open: daadwerkelijke subtree/sync (dus nog geen actieve shared-core integratie)
+
 **Taken:**
 - `shared/grammar-core/` als subtree of vergelijkbare lokale sync toevoegen
 - zorgen dat de paden uit `AGENTS.md` ook echt lokaal leesbaar worden
