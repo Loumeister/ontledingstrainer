@@ -299,12 +299,12 @@ Deze fase komt vóór diepere cross-product uitbreiding, maar hoeft lokale produ
 
 **Status (april 2026):**
 - documentair voorbereid: `shared/grammar-core/` staat expliciet als beoogde lokale locatie in de repo-docs
-- actueel: de subtree/map is nog niet fysiek aanwezig in deze checkout
-- nog open: daadwerkelijke subtree/sync (dus nog geen actieve shared-core integratie)
+- actueel: de subtree/map is in deze repo nog niet fysiek aanwezig
+- deze stap is voorbereiding: er is nog geen actieve shared-core integratie in runtime of productflow
 
 **Taken:**
-- `shared/grammar-core/` als subtree of vergelijkbare lokale sync toevoegen
-- zorgen dat de paden uit `AGENTS.md` ook echt lokaal leesbaar worden
+- `shared/grammar-core/` als subtree of vergelijkbare lokale sync toevoegen (latere stap)
+- zorgen dat de paden uit `AGENTS.md` pas als actieve leeslaag gelden zodra ze lokaal bestaan
 - sync-afspraken vastleggen voor updates van die subtree
 
 ### F. Lokale wrappers en contracten synchroon houden
@@ -421,9 +421,9 @@ Deze richtingen blijven inhoudelijk relevant, maar zijn pas aan de beurt ná lok
 - direct merkbare verbetering voor leerlingen
 
 ### Eerst vóór diepere platformuitbouw
-**shared/grammar-core fysiek toevoegen en zichtbaar maken**
-- nodig om de nieuwe wrapperhiërarchie ook echt operationeel te maken
-- voorkomt dat latere alignment- of adaptertaken op niet-bestaande paden leunen
+**shared/grammar-core-hiërarchie actief bewaken**
+- eerst: `shared/grammar-core/` fysiek toevoegen op de afgesproken locatie
+- daarna: de wrapperhiërarchie operationeel maken zonder lokale parsingcontracten af te vlakken
 
 ---
 
@@ -436,7 +436,7 @@ Deze richtingen blijven inhoudelijk relevant, maar zijn pas aan de beurt ná lok
 | **Nu lokaal** | parsingdidactiek | 1 Rollenladder, 4 Tooltips, 2 Beslisboom, 5 Metacognitie |
 | **Nu lokaal** | verdieping | 3 Foutenanalyse, 6 Contrastparen, 8 Oefenplan, 21 Spaced repetition |
 | **Nu lokaal** | codekwaliteit | 0f Performance, 16 State, 17 Tests, 18 Validatiescript |
-| **Eerst alignment** | shared-core zichtbaarheid | shared subtree toevoegen, wrappers en contractsync controleren |
+| **Eerst alignment** | shared-core zichtbaarheid | shared subtree toevoegen, daarna wrappers en contractsync controleren |
 | **Daarna adapters** | kleine shared-content stappen | expliciete zinnen-/metadata-adapters, kleine syncproeven |
 | **Later** | bridge tasks / platformrichtingen | werkwoordspelling, foutentekst, peer-review, backend/integratie |
 
