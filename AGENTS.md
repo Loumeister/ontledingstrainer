@@ -14,16 +14,18 @@ Shared canon uit `grammar-core` **kadert** het werk, maar overschrijft de lokale
 ## Precedentievolgorde
 Werk altijd in deze volgorde:
 
-1. **Lees eerst shared canon in `shared/grammar-core/`** voor gedeelde didactische en governancekaders.
-2. **Lees daarna de lokale Ontleedlab-contractlaag** voor productspecifieke realiteit.
+1. **Lees shared canon in `shared/grammar-core/` zodra die map lokaal aanwezig is** voor gedeelde didactische en governancekaders.
+2. **Lees de lokale Ontleedlab-contractlaag** voor productspecifieke realiteit (nu al verplicht, en leidend zolang shared-core lokaal nog ontbreekt).
 3. **Lees pas daarna de taakprompt** en voer het werk uit binnen die grenzen.
 
 Als deze drie lagen botsen, geldt:
 - shared canon is leidend voor **gedeelde didactische principes en governance**
 - lokale contracten zijn leidend voor **productspecifieke inhoud, evaluatielogica, annotatiegedrag, adaptermappings, parsinguitkomsten en UI-gebonden didactiek**
-- de taakprompt mag alleen sturen **binnen** die twee bovenliggende lagen
+- de taakprompt mag het werk **focussen of begrenzen**, maar mag die twee bovenliggende lagen niet overrulen
 
 ## 1. Eerst lezen: shared canon in `shared/grammar-core/`
+Dit blok is **actief zodra `shared/grammar-core/` lokaal aanwezig is**.
+
 Lees bij parsing- en governancewerk in elk geval:
 - `shared/grammar-core/.claude/agents/parsing-didactic-architect.md`
 - `shared/grammar-core/.codex/skills/parsing-content-governance/SKILL.md`
@@ -65,13 +67,17 @@ Voor andere taken gebruik je daarnaast de passende lokale skill, bijvoorbeeld:
 - `whimsy-injector`
 
 ## 3. Pas daarna: taakprompt
-Laat de taakprompt pas sturen nadat shared canon en lokale contractlaag zijn gelezen.
+Laat de taakprompt pas sturen nadat de beschikbare hogere lagen zijn gelezen: shared canon (als lokaal aanwezig) en anders de lokale contractlaag.
 
 De taakprompt mag dus niet stilzwijgend:
 - lokale parseuitkomsten herdefiniëren
 - lokale annotatieconventies vervangen
 - lokale UI-didactiek afvlakken
 - runtimegedrag wijzigen zonder expliciete opdracht
+
+De taakprompt mag wel:
+- de opdracht afbakenen in scope, volgorde of oplevervorm
+- keuzes maken binnen de grenzen van shared canon en lokale contracten
 
 ## Wat shared canon hier wel en niet doet
 Shared canon doet hier wél:
