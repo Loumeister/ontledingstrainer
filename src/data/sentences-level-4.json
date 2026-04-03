@@ -131,7 +131,7 @@
   },
   {
     "id": 402,
-    "label": "Zin 402: In de war (Nevenschikking)",
+    "label": "Zin 402: In de war",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -198,7 +198,7 @@
   },
   {
     "id": 403,
-    "label": "Zin 403: Max piloot (Nevenschikking)",
+    "label": "Zin 403: Max piloot",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -421,7 +421,7 @@
   },
   {
     "id": 406,
-    "label": "Zin 406: Sleutel kwijt (Nevenschikking)",
+    "label": "Zin 406: Sleutel kwijt",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -587,7 +587,7 @@
   },
   {
     "id": 408,
-    "label": "Zin 408: Groen drankje (Nevenschikking)",
+    "label": "Zin 408: Groen drankje",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -647,7 +647,7 @@
   },
   {
     "id": 409,
-    "label": "Zin 409: Hamburgers of kip (Nevenschikking)",
+    "label": "Zin 409: Hamburgers of kip",
     "predicateType": "WG",
     "level": 4,
     "tokens": [

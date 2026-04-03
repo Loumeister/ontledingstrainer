@@ -1462,7 +1462,7 @@
   },
   {
     "id": 323,
-    "label": "Zin 323: Broer kookt (Nevenschikking)",
+    "label": "Zin 323: Broer kookt",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1532,7 +1532,7 @@
   },
   {
     "id": 324,
-    "label": "Zin 324: Kat op het dak (Nevenschikking)",
+    "label": "Zin 324: Kat op het dak",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
@@ -1616,7 +1616,7 @@
   },
   {
     "id": 325,
-    "label": "Zin 325: Huiswerk maken (Nevenschikking)",
+    "label": "Zin 325: Huiswerk maken",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1679,7 +1679,7 @@
   },
   {
     "id": 326,
-    "label": "Zin 326: Rekenen of tekenen (Nevenschikking)",
+    "label": "Zin 326: Rekenen of tekenen",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2040,7 +2040,7 @@
   },
   {
     "id": 332,
-    "label": "Zin 332: Bus vertrekt en wij wachten (Nevenschikking)",
+    "label": "Zin 332: Bus vertrekt en wij wachten",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2083,7 +2083,7 @@
   },
   {
     "id": 333,
-    "label": "Zin 333: Nora leest maar Sam schrijft (Nevenschikking)",
+    "label": "Zin 333: Nora leest maar Sam schrijft",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2126,7 +2126,7 @@
   },
   {
     "id": 334,
-    "label": "Zin 334: Ik bak dus jij proeft (Nevenschikking)",
+    "label": "Zin 334: Ik bak dus jij proeft",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2169,7 +2169,7 @@
   },
   {
     "id": 335,
-    "label": "Zin 335: Wij ruimen op of zij vegen (Nevenschikking)",
+    "label": "Zin 335: Wij ruimen op of zij vegen",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2217,7 +2217,7 @@
   },
   {
     "id": 336,
-    "label": "Zin 336: Lara rent want Tim fietst (Nevenschikking)",
+    "label": "Zin 336: Lara rent want Tim fietst",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2415,7 +2415,7 @@
   },
   {
     "id": 340,
-    "label": "Zin 340: Noor leest en Sam noteert (Nevenschikking)",
+    "label": "Zin 340: Noor leest en Sam noteert",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2468,7 +2468,7 @@
   },
   {
     "id": 341,
-    "label": "Zin 341: De bel gaat maar de klas blijft stil (Nevenschikking)",
+    "label": "Zin 341: De bel gaat maar de klas blijft stil",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
