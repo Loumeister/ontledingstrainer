@@ -1270,7 +1270,7 @@
   },
   {
     "id": 319,
-    "label": "Zin 319: Team trekt zich terug (WG)",
+    "label": "Zin 319: Team trekt zich terug",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1308,7 +1308,7 @@
   },
   {
     "id": 320,
-    "label": "Zin 320: Herinneren (WG)",
+    "label": "Zin 320: Herinneren",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1462,7 +1462,7 @@
   },
   {
     "id": 323,
-    "label": "Zin 323: Broer kookt (Nevenschikking)",
+    "label": "Zin 323: Broer kookt",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1532,7 +1532,7 @@
   },
   {
     "id": 324,
-    "label": "Zin 324: Kat op het dak (Nevenschikking)",
+    "label": "Zin 324: Kat op het dak",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
@@ -1616,7 +1616,7 @@
   },
   {
     "id": 325,
-    "label": "Zin 325: Huiswerk maken (Nevenschikking)",
+    "label": "Zin 325: Huiswerk maken",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1679,7 +1679,7 @@
   },
   {
     "id": 326,
-    "label": "Zin 326: Rekenen of tekenen (Nevenschikking)",
+    "label": "Zin 326: Rekenen of tekenen",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1752,7 +1752,7 @@
   },
   {
     "id": 327,
-    "label": "Zin 327: Verhaal over piraten (OW op afstand)",
+    "label": "Zin 327: Verhaal over piraten",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1825,7 +1825,7 @@
   },
   {
     "id": 328,
-    "label": "Zin 328: Cadeau van opa (OW op afstand)",
+    "label": "Zin 328: Cadeau van opa",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
@@ -1899,7 +1899,7 @@
   },
   {
     "id": 329,
-    "label": "Zin 329: Ik weet dat... (bijzin als LV)",
+    "label": "Zin 329: Ik weet dat...",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1939,7 +1939,7 @@
   },
   {
     "id": 330,
-    "label": "Zin 330: Binnen blijven (bijzin als BWB)",
+    "label": "Zin 330: Binnen blijven",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1984,7 +1984,7 @@
   },
   {
     "id": 331,
-    "label": "Zin 331: Jan bleek (juiste volgorde, NG, samengesteld WWD + bijv_bep in NWD)",
+    "label": "Zin 331: Jan bleek",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
@@ -2040,7 +2040,7 @@
   },
   {
     "id": 332,
-    "label": "Zin 332: Bus vertrekt en wij wachten (Nevenschikking)",
+    "label": "Zin 332: Bus vertrekt en wij wachten",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2083,7 +2083,7 @@
   },
   {
     "id": 333,
-    "label": "Zin 333: Nora leest maar Sam schrijft (Nevenschikking)",
+    "label": "Zin 333: Nora leest maar Sam schrijft",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2126,7 +2126,7 @@
   },
   {
     "id": 334,
-    "label": "Zin 334: Ik bak dus jij proeft (Nevenschikking)",
+    "label": "Zin 334: Ik bak dus jij proeft",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2169,7 +2169,7 @@
   },
   {
     "id": 335,
-    "label": "Zin 335: Wij ruimen op of zij vegen (Nevenschikking)",
+    "label": "Zin 335: Wij ruimen op of zij vegen",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2217,7 +2217,7 @@
   },
   {
     "id": 336,
-    "label": "Zin 336: Lara rent want Tim fietst (Nevenschikking)",
+    "label": "Zin 336: Lara rent want Tim fietst",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2280,7 +2280,7 @@
   },
   {
     "id": 337,
-    "label": "Zin 337: Arts zegt dat... (bijzin als LV)",
+    "label": "Zin 337: Arts zegt dat...",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2330,7 +2330,7 @@
   },
   {
     "id": 338,
-    "label": "Zin 338: Team juichte toen... (bijzin als BWB)",
+    "label": "Zin 338: Team juichte toen...",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2375,7 +2375,7 @@
   },
   {
     "id": 339,
-    "label": "Zin 339: Dat jullie winnen verrast mij (bijzin als OW)",
+    "label": "Zin 339: Dat jullie winnen verrast mij",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2415,7 +2415,7 @@
   },
   {
     "id": 340,
-    "label": "Zin 340: Noor leest en Sam noteert (Nevenschikking)",
+    "label": "Zin 340: Noor leest en Sam noteert",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2468,7 +2468,7 @@
   },
   {
     "id": 341,
-    "label": "Zin 341: De bel gaat maar de klas blijft stil (Nevenschikking)",
+    "label": "Zin 341: De bel gaat maar de klas blijft stil",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2522,7 +2522,7 @@
   },
   {
     "id": 450,
-    "label": "Zin 450: Tot onze grote verbazing werd onze collega miljonair (inversie, NG + twee BWB)",
+    "label": "Zin 450: Tot onze grote verbazing werd onze collega miljonair",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
@@ -2594,7 +2594,7 @@
   },
   {
     "id": 454,
-    "label": "Zin 454: Taco is nooit een erg productieve werknemer geweest (samengestelde tijd, NG complex)",
+    "label": "Zin 454: Taco is nooit een erg productieve werknemer geweest",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
@@ -2650,7 +2650,7 @@
   },
   {
     "id": 456,
-    "label": "Zin 456: Die snelle telefoon is veel te duur geworden (samengestelde tijd, NG met intensiveerder)",
+    "label": "Zin 456: Die snelle telefoon is veel te duur geworden",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
