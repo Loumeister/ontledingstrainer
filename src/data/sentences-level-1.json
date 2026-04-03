@@ -1994,7 +1994,7 @@
   },
   {
     "id": 45,
-    "label": "Zin 45: Spannende film (juiste volgorde, NG)",
+    "label": "Zin 45: Spannende film (juiste volgorde)",
     "predicateType": "NG",
     "level": 1,
     "tokens": [
@@ -2072,7 +2072,7 @@
   },
   {
     "id": 47,
-    "label": "Zin 47: Onze hond (juiste volgorde, NG)",
+    "label": "Zin 47: Onze hond (juiste volgorde)",
     "predicateType": "NG",
     "level": 1,
     "tokens": [
@@ -2154,7 +2154,7 @@
   },
   {
     "id": 49,
-    "label": "Zin 49: Koekjes bakken (basisvolgorde + BWB)",
+    "label": "Zin 49: Koekjes bakken (basisvolgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2203,7 +2203,7 @@
   },
   {
     "id": 50,
-    "label": "Zin 50: Moe baby (basisvolgorde + BWB, NG)",
+    "label": "Zin 50: Moe baby (basisvolgorde)",
     "predicateType": "NG",
     "level": 1,
     "tokens": [
@@ -2291,7 +2291,7 @@
   },
   {
     "id": 52,
-    "label": "Zin 52: Bal op training (basisvolgorde + BWB)",
+    "label": "Zin 52: Bal op training (basisvolgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2357,7 +2357,7 @@
   },
   {
     "id": 54,
-    "label": "Zin 54: Sommen oefenen (basisvolgorde + BWB)",
+    "label": "Zin 54: Sommen oefenen (basisvolgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2425,7 +2425,7 @@
   },
   {
     "id": 56,
-    "label": "Zin 56: Presentatie voorbereiden (basisvolgorde + BWB)",
+    "label": "Zin 56: Presentatie voorbereiden (basisvolgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2493,7 +2493,7 @@
   },
   {
     "id": 58,
-    "label": "Zin 58: Tennisracket zoeken (basisvolgorde + BWB)",
+    "label": "Zin 58: Tennisracket zoeken (basisvolgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2596,7 +2596,7 @@
   },
   {
     "id": 445,
-    "label": "Zin 445: Jonas lijkt een jofele vent (basisvolgorde, NG met naamwoord)",
+    "label": "Zin 445: Jonas lijkt een jofele vent (basisvolgorde)",
     "predicateType": "NG",
     "level": 1,
     "tokens": [
@@ -2634,7 +2634,7 @@
   },
   {
     "id": 446,
-    "label": "Zin 446: Cindy is programmeur in Bangladesh (basisvolgorde, NG + BWB)",
+    "label": "Zin 446: Cindy is programmeur in Bangladesh (basisvolgorde)",
     "predicateType": "NG",
     "level": 1,
     "tokens": [
@@ -2669,7 +2669,7 @@
   },
   {
     "id": 447,
-    "label": "Zin 447: Praktische opdrachten zijn voor deze klas heel moeilijk (NG + BWB)",
+    "label": "Zin 447: Praktische opdrachten zijn voor deze klas heel moeilijk",
     "predicateType": "NG",
     "level": 1,
     "tokens": [
@@ -2725,7 +2725,7 @@
   },
   {
     "id": 448,
-    "label": "Zin 448: Breien is voor deze mannen een eitje (basisvolgorde, NG met naamwoord + BWB)",
+    "label": "Zin 448: Breien is voor deze mannen een eitje (basisvolgorde)",
     "predicateType": "NG",
     "level": 1,
     "tokens": [

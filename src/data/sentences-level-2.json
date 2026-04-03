@@ -4101,7 +4101,7 @@
   },
   {
     "id": 131,
-    "label": "Zin 131: Verheugen (WG)",
+    "label": "Zin 131: Verheugen",
     "predicateType": "WG",
     "level": 2,
     "tokens": [
@@ -4139,7 +4139,7 @@
   },
   {
     "id": 132,
-    "label": "Zin 132: Scheren (LV)",
+    "label": "Zin 132: Scheren",
     "predicateType": "WG",
     "level": 2,
     "tokens": [
@@ -5330,7 +5330,7 @@
   },
   {
     "id": 449,
-    "label": "Zin 449: Roosmarijn is alsnog manager geworden (samengestelde tijd, NG met nwd+wwd)",
+    "label": "Zin 449: Roosmarijn is alsnog manager geworden (samengestelde tijd)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [
@@ -5366,7 +5366,7 @@
   },
   {
     "id": 451,
-    "label": "Zin 451: Met die kleuren is het bos prachtig dit seizoen (inversie, NG + twee BWB)",
+    "label": "Zin 451: Met die kleuren is het bos prachtig dit seizoen (inversie)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [
@@ -5426,7 +5426,7 @@
   },
   {
     "id": 452,
-    "label": "Zin 452: Vincent is nooit een betrouwbare jongen geweest (samengestelde tijd, NG met naamwoord)",
+    "label": "Zin 452: Vincent is nooit een betrouwbare jongen geweest (samengestelde tijd)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [
@@ -5475,7 +5475,7 @@
   },
   {
     "id": 453,
-    "label": "Zin 453: Achteraf bleek deze snoeischaar de beste (inversie, NG genominaliseerd bijvoeglijk naamwoord)",
+    "label": "Zin 453: Achteraf bleek deze snoeischaar de beste (inversie)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [
@@ -5518,7 +5518,7 @@
   },
   {
     "id": 455,
-    "label": "Zin 455: Erna is lang ziek geweest (samengestelde tijd, NG + BWB)",
+    "label": "Zin 455: Erna is lang ziek geweest (samengestelde tijd)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [
@@ -5554,7 +5554,7 @@
   },
   {
     "id": 457,
-    "label": "Zin 457: Mijn vader is nu ook fan van Antoon geworden (samengestelde tijd, NG met complement)",
+    "label": "Zin 457: Mijn vader is nu ook fan van Antoon geworden (samengestelde tijd)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [
@@ -5612,7 +5612,7 @@
   },
   {
     "id": 458,
-    "label": "Zin 458: Gisteren is Francisca heel de dag vrolijk gebleven (inversie, samengestelde tijd, NG)",
+    "label": "Zin 458: Gisteren is Francisca heel de dag vrolijk gebleven (inversie, samengestelde tijd)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [
@@ -5665,7 +5665,7 @@
   },
   {
     "id": 459,
-    "label": "Zin 459: Met twee linkerhanden word je nooit een goede bouwvakker (inversie, samengestelde tijd, NG)",
+    "label": "Zin 459: Met twee linkerhanden word je nooit een goede bouwvakker (inversie, samengestelde tijd)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [

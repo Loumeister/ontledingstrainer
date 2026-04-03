@@ -808,7 +808,7 @@
   },
   {
     "id": 412,
-    "label": "Zin 412: Kat op het dak (OW op afstand + bijzin)",
+    "label": "Zin 412: Kat op het dak",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -893,7 +893,7 @@
   },
   {
     "id": 413,
-    "label": "Zin 413: Leerlingen brugklas (OW op afstand + bijzin)",
+    "label": "Zin 413: Leerlingen brugklas",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -976,7 +976,7 @@
   },
   {
     "id": 414,
-    "label": "Zin 414: Wachten op de bus (VV vs BWB)",
+    "label": "Zin 414: Wachten op de bus",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -1024,7 +1024,7 @@
   },
   {
     "id": 415,
-    "label": "Zin 415: Zorgen voor opa (VV vs BWB)",
+    "label": "Zin 415: Zorgen voor opa",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -1080,7 +1080,7 @@
   },
   {
     "id": 416,
-    "label": "Zin 416: Rekenen op hulp (VV vs BWB)",
+    "label": "Zin 416: Rekenen op hulp",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -1128,7 +1128,7 @@
   },
   {
     "id": 417,
-    "label": "Zin 417: Toets nagekeken (PV vs WG)",
+    "label": "Zin 417: Toets nagekeken",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -1171,7 +1171,7 @@
   },
   {
     "id": 418,
-    "label": "Zin 418: Naar het strand gefietst (PV vs WG)",
+    "label": "Zin 418: Naar het strand gefietst",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -1215,7 +1215,7 @@
   },
   {
     "id": 419,
-    "label": "Zin 419: Ziek geworden (PV vs WG, NG)",
+    "label": "Zin 419: Ziek geworden",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -1417,7 +1417,7 @@
   },
   {
     "id": 423,
-    "label": "Zin 423: Letten op de hond (VV vs BWB)",
+    "label": "Zin 423: Letten op de hond",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -1473,7 +1473,7 @@
   },
   {
     "id": 424,
-    "label": "Zin 424: Bleek te zijn (NG werkwoordelijk deel)",
+    "label": "Zin 424: Bleek te zijn",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -1530,7 +1530,7 @@
   },
   {
     "id": 425,
-    "label": "Zin 425: Is geworden (NG werkwoordelijk deel)",
+    "label": "Zin 425: Is geworden",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -1575,7 +1575,7 @@
   },
   {
     "id": 426,
-    "label": "Zin 426: Lijkt te worden (NG werkwoordelijk deel)",
+    "label": "Zin 426: Lijkt te worden",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -2082,7 +2082,7 @@
   },
   {
     "id": 435,
-    "label": "Zin 435: VV vs BWB paar 1A (VV)",
+    "label": "Zin 435: VV vs BWB paar 1A",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -2120,7 +2120,7 @@
   },
   {
     "id": 436,
-    "label": "Zin 436: VV vs BWB paar 1B (BWB)",
+    "label": "Zin 436: VV vs BWB paar 1B",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -2158,7 +2158,7 @@
   },
   {
     "id": 437,
-    "label": "Zin 437: VV vs BWB paar 2A (VV)",
+    "label": "Zin 437: VV vs BWB paar 2A",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -2196,7 +2196,7 @@
   },
   {
     "id": 438,
-    "label": "Zin 438: VV vs BWB paar 2B (BWB)",
+    "label": "Zin 438: VV vs BWB paar 2B",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -2364,7 +2364,7 @@
   },
   {
     "id": 441,
-    "label": "Zin 441: VV vs BWB paar 3A (VV)",
+    "label": "Zin 441: VV vs BWB paar 3A",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -2402,7 +2402,7 @@
   },
   {
     "id": 442,
-    "label": "Zin 442: VV vs BWB paar 3B (BWB)",
+    "label": "Zin 442: VV vs BWB paar 3B",
     "predicateType": "WG",
     "level": 4,
     "tokens": [

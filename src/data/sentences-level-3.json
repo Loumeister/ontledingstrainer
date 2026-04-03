@@ -1270,7 +1270,7 @@
   },
   {
     "id": 319,
-    "label": "Zin 319: Team trekt zich terug (WG)",
+    "label": "Zin 319: Team trekt zich terug",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1308,7 +1308,7 @@
   },
   {
     "id": 320,
-    "label": "Zin 320: Herinneren (WG)",
+    "label": "Zin 320: Herinneren",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1752,7 +1752,7 @@
   },
   {
     "id": 327,
-    "label": "Zin 327: Verhaal over piraten (OW op afstand)",
+    "label": "Zin 327: Verhaal over piraten",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1825,7 +1825,7 @@
   },
   {
     "id": 328,
-    "label": "Zin 328: Cadeau van opa (OW op afstand)",
+    "label": "Zin 328: Cadeau van opa",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
@@ -1899,7 +1899,7 @@
   },
   {
     "id": 329,
-    "label": "Zin 329: Ik weet dat... (bijzin als LV)",
+    "label": "Zin 329: Ik weet dat...",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1939,7 +1939,7 @@
   },
   {
     "id": 330,
-    "label": "Zin 330: Binnen blijven (bijzin als BWB)",
+    "label": "Zin 330: Binnen blijven",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1984,7 +1984,7 @@
   },
   {
     "id": 331,
-    "label": "Zin 331: Jan bleek (juiste volgorde, NG, samengesteld WWD + bijv_bep in NWD)",
+    "label": "Zin 331: Jan bleek (juiste volgorde)",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
@@ -2280,7 +2280,7 @@
   },
   {
     "id": 337,
-    "label": "Zin 337: Arts zegt dat... (bijzin als LV)",
+    "label": "Zin 337: Arts zegt dat...",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2330,7 +2330,7 @@
   },
   {
     "id": 338,
-    "label": "Zin 338: Team juichte toen... (bijzin als BWB)",
+    "label": "Zin 338: Team juichte toen...",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2375,7 +2375,7 @@
   },
   {
     "id": 339,
-    "label": "Zin 339: Dat jullie winnen verrast mij (bijzin als OW)",
+    "label": "Zin 339: Dat jullie winnen verrast mij",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2522,7 +2522,7 @@
   },
   {
     "id": 450,
-    "label": "Zin 450: Tot onze grote verbazing werd onze collega miljonair (inversie, NG + twee BWB)",
+    "label": "Zin 450: Tot onze grote verbazing werd onze collega miljonair (inversie)",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
@@ -2594,7 +2594,7 @@
   },
   {
     "id": 454,
-    "label": "Zin 454: Taco is nooit een erg productieve werknemer geweest (samengestelde tijd, NG complex)",
+    "label": "Zin 454: Taco is nooit een erg productieve werknemer geweest (samengestelde tijd)",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
@@ -2650,7 +2650,7 @@
   },
   {
     "id": 456,
-    "label": "Zin 456: Die snelle telefoon is veel te duur geworden (samengestelde tijd, NG met intensiveerder)",
+    "label": "Zin 456: Die snelle telefoon is veel te duur geworden (samengestelde tijd)",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
