@@ -1265,7 +1265,7 @@
   },
   {
     "id": 420,
-    "label": "Zin 420: Bijvoeglijke bijzin (dat)",
+    "label": "Zin 420: Bijvoeglijke bijzin",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -1311,7 +1311,7 @@
   },
   {
     "id": 421,
-    "label": "Zin 421: Bijvoeglijke bijzin (waar)",
+    "label": "Zin 421: Bijvoeglijke bijzin",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -1362,7 +1362,7 @@
   },
   {
     "id": 422,
-    "label": "Zin 422: Bijvoeglijke bijzin (die)",
+    "label": "Zin 422: Bijvoeglijke bijzin",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
