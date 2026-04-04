@@ -178,6 +178,7 @@ export function compareSentence(
   let splitErrors = 0;
   let labelErrors = 0;
   let correct = 0;
+  let boundaryPoints = 0;
 
   for (let i = 0; i < sentence.tokens.length; i++) {
     const token = sentence.tokens[i];
@@ -200,8 +201,9 @@ export function compareSentence(
       errorType = 'benoeming';
     }
 
-    // Count errors only at chunk boundary positions
+    // Count errors only at chunk boundary positions (union of expected + student)
     if (expectedStart || studentStart) {
+      boundaryPoints++;
       if (!splitMatch) splitErrors++;
       if (!labelMatch) labelErrors++;
       if (splitMatch && labelMatch) correct++;
@@ -235,7 +237,7 @@ export function compareSentence(
       splitErrors,
       labelErrors,
       correct,
-      total: expectedChunks.length,
+      total: boundaryPoints,
     },
   };
 }

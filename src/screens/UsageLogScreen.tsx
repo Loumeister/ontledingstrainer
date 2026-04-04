@@ -226,10 +226,12 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
         </div>
 
         {/* Tab bar */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-1 flex gap-1 overflow-x-auto">
+        <div role="tablist" className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-1 flex gap-1 overflow-x-auto">
           {visibleTabs.map(tab => (
             <button
               key={tab.id}
+              role="tab"
+              aria-selected={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                 activeTab === tab.id

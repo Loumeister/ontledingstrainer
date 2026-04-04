@@ -38,6 +38,7 @@ function LevelGroup({ title, color, bg, count, avgPerfect, useGrouping, children
   return (
     <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
       <button onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
         className={`w-full flex items-center justify-between px-4 py-2.5 text-left ${bg} border-b border-slate-200 dark:border-slate-700 hover:brightness-95 transition-all`}>
         <span className={`font-bold text-sm ${color}`}>{title}</span>
         <div className="flex items-center gap-3">

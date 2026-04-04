@@ -10,7 +10,7 @@ export const ErrorLegend: React.FC = () => (
   <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-slate-500 dark:text-slate-400 mt-2 mb-1">
     <span className="flex items-center gap-1">
       <span className="inline-block w-3 h-3 rounded bg-emerald-100 dark:bg-emerald-900/40 border border-emerald-300 dark:border-emerald-700" aria-hidden="true" />
-      <span>Correct</span>
+      <span>Goed</span>
     </span>
     <span className="flex items-center gap-1">
       <span className="inline-block w-3 h-3 rounded bg-orange-100 dark:bg-orange-900/40 border border-orange-300 dark:border-orange-700" aria-hidden="true" />
