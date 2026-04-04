@@ -1,0 +1,143 @@
+name: documentation-sync-on-main
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  sync-docs:
+    if: ${{ !contains(github.event.head_commit.message, 'docs(auto-sync):') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Prepare commit context
+        run: |
+          mkdir -p .ai-sync docs/auto-sync
+          git log -1 --pretty=format:'%s%n%n%b' > .ai-sync/commit_message.txt
+          git diff --name-only HEAD^ HEAD > .ai-sync/changed_files.txt || true
+          git diff --unified=1 --no-color HEAD^ HEAD | tail -c 20000 > .ai-sync/last_diff.patch || true
+
+      - name: Generate Claude summary
+        if: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          python <<'PY'
+          import json, os, pathlib, urllib.request
+          root = pathlib.Path('.')
+          system = (root / '.claude/agents/documentation-sync-guardian.md').read_text(encoding='utf-8')
+          commit_message = (root / '.ai-sync/commit_message.txt').read_text(encoding='utf-8')
+          changed_files = (root / '.ai-sync/changed_files.txt').read_text(encoding='utf-8')
+          diff_excerpt = (root / '.ai-sync/last_diff.patch').read_text(encoding='utf-8')
+          user = f"""Repository: {os.environ['GITHUB_REPOSITORY']}
+Commit SHA: {os.environ['GITHUB_SHA']}
+
+Commit message:
+{commit_message}
+
+Changed files:
+{changed_files}
+
+Diff excerpt:
+{diff_excerpt}
+
+Write markdown only for docs/auto-sync/claude-latest-main-summary.md.
+Keep it factual and limited to visible commit context.
+"""
+          payload = {
+              'model': 'claude-sonnet-4-20250514',
+              'max_tokens': 1400,
+              'system': system,
+              'messages': [{'role': 'user', 'content': user}]
+          }
+          req = urllib.request.Request(
+              'https://api.anthropic.com/v1/messages',
+              data=json.dumps(payload).encode('utf-8'),
+              headers={
+                  'x-api-key': os.environ['ANTHROPIC_API_KEY'],
+                  'anthropic-version': '2023-06-01',
+                  'content-type': 'application/json'
+              },
+              method='POST'
+          )
+          with urllib.request.urlopen(req) as resp:
+              data = json.loads(resp.read().decode('utf-8'))
+          text_parts = [part.get('text', '') for part in data.get('content', []) if part.get('type') == 'text']
+          output = '\n'.join(p for p in text_parts if p).strip()
+          out = root / 'docs/auto-sync/claude-latest-main-summary.md'
+          out.write_text(output + '\n', encoding='utf-8')
+          PY
+
+      - name: Generate Codex summary
+        if: ${{ secrets.OPENAI_API_KEY != '' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          python <<'PY'
+          import json, os, pathlib, urllib.request
+          root = pathlib.Path('.')
+          system = (root / '.codex/skills/documentation-sync-guardian/SKILL.md').read_text(encoding='utf-8')
+          commit_message = (root / '.ai-sync/commit_message.txt').read_text(encoding='utf-8')
+          changed_files = (root / '.ai-sync/changed_files.txt').read_text(encoding='utf-8')
+          diff_excerpt = (root / '.ai-sync/last_diff.patch').read_text(encoding='utf-8')
+          user = f"""Repository: {os.environ['GITHUB_REPOSITORY']}
+Commit SHA: {os.environ['GITHUB_SHA']}
+
+Commit message:
+{commit_message}
+
+Changed files:
+{changed_files}
+
+Diff excerpt:
+{diff_excerpt}
+
+Write markdown only for docs/auto-sync/codex-latest-main-summary.md.
+Keep it factual and limited to visible commit context.
+"""
+          payload = {
+              'model': 'gpt-5',
+              'messages': [
+                  {'role': 'system', 'content': system},
+                  {'role': 'user', 'content': user}
+              ]
+          }
+          req = urllib.request.Request(
+              'https://api.openai.com/v1/chat/completions',
+              data=json.dumps(payload).encode('utf-8'),
+              headers={
+                  'Authorization': f"Bearer {os.environ['OPENAI_API_KEY']}",
+                  'content-type': 'application/json'
+              },
+              method='POST'
+          )
+          with urllib.request.urlopen(req) as resp:
+              data = json.loads(resp.read().decode('utf-8'))
+          output = data['choices'][0]['message']['content'].strip()
+          out = root / 'docs/auto-sync/codex-latest-main-summary.md'
+          out.write_text(output + '\n', encoding='utf-8')
+          PY
+
+      - name: Commit generated docs
+        run: |
+          if git diff --quiet -- docs/auto-sync; then
+            echo 'No generated doc changes.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/auto-sync
+          git commit -m "docs(auto-sync): update generated summaries for ${GITHUB_SHA::7}"
+          git push
