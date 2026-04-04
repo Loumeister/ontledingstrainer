@@ -254,6 +254,7 @@ export interface UserStats {
   showAnswers: number;
   splitErrors: number;
   roleErrors: number;
+  retries: number;
   lastActive: string;
 }
 
@@ -279,6 +280,7 @@ export function computePerUserStats(log: InteractionEntry[]): UserStats[] {
         showAnswers: 0,
         splitErrors: 0,
         roleErrors: 0,
+        retries: 0,
         lastActive: '',
       };
       map.set(name, stats);
@@ -296,6 +298,7 @@ export function computePerUserStats(log: InteractionEntry[]): UserStats[] {
       case 'show_answer': stats.showAnswers++; break;
       case 'error_split': stats.splitErrors++; break;
       case 'error_role': stats.roleErrors++; break;
+      case 'retry': stats.retries++; break;
     }
   }
 
