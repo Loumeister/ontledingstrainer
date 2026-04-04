@@ -5330,7 +5330,7 @@
   },
   {
     "id": 449,
-    "label": "Zin 449: Roosmarijn is alsnog manager geworden",
+    "label": "Zin 449: Roosmarijn is alsnog manager geworden (samengestelde tijd)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [
@@ -5366,7 +5366,7 @@
   },
   {
     "id": 451,
-    "label": "Zin 451: Met die kleuren is het bos prachtig dit seizoen",
+    "label": "Zin 451: Met die kleuren is het bos prachtig dit seizoen (inversie)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [
@@ -5426,7 +5426,7 @@
   },
   {
     "id": 452,
-    "label": "Zin 452: Vincent is nooit een betrouwbare jongen geweest",
+    "label": "Zin 452: Vincent is nooit een betrouwbare jongen geweest (samengestelde tijd)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [
@@ -5475,7 +5475,7 @@
   },
   {
     "id": 453,
-    "label": "Zin 453: Achteraf bleek deze snoeischaar de beste",
+    "label": "Zin 453: Achteraf bleek deze snoeischaar de beste (inversie)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [
@@ -5518,7 +5518,7 @@
   },
   {
     "id": 455,
-    "label": "Zin 455: Erna is lang ziek geweest",
+    "label": "Zin 455: Erna is lang ziek geweest (samengestelde tijd)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [
@@ -5554,7 +5554,7 @@
   },
   {
     "id": 457,
-    "label": "Zin 457: Mijn vader is nu ook fan van Antoon geworden",
+    "label": "Zin 457: Mijn vader is nu ook fan van Antoon geworden (samengestelde tijd)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [
@@ -5612,7 +5612,7 @@
   },
   {
     "id": 458,
-    "label": "Zin 458: Gisteren is Francisca heel de dag vrolijk gebleven",
+    "label": "Zin 458: Gisteren is Francisca heel de dag vrolijk gebleven (inversie, samengestelde tijd)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [
@@ -5665,7 +5665,7 @@
   },
   {
     "id": 459,
-    "label": "Zin 459: Met twee linkerhanden word je nooit een goede bouwvakker",
+    "label": "Zin 459: Met twee linkerhanden word je nooit een goede bouwvakker (inversie, samengestelde tijd)",
     "predicateType": "NG",
     "level": 2,
     "tokens": [

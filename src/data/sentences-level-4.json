@@ -131,7 +131,7 @@
   },
   {
     "id": 402,
-    "label": "Zin 402: In de war",
+    "label": "Zin 402: In de war (Nevenschikking)",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -198,7 +198,7 @@
   },
   {
     "id": 403,
-    "label": "Zin 403: Max piloot",
+    "label": "Zin 403: Max piloot (Nevenschikking)",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -421,7 +421,7 @@
   },
   {
     "id": 406,
-    "label": "Zin 406: Sleutel kwijt",
+    "label": "Zin 406: Sleutel kwijt (Nevenschikking)",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -587,7 +587,7 @@
   },
   {
     "id": 408,
-    "label": "Zin 408: Groen drankje",
+    "label": "Zin 408: Groen drankje (Nevenschikking)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -647,7 +647,7 @@
   },
   {
     "id": 409,
-    "label": "Zin 409: Hamburgers of kip",
+    "label": "Zin 409: Hamburgers of kip (Nevenschikking)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -808,7 +808,7 @@
   },
   {
     "id": 412,
-    "label": "Zin 412: Kat op het dak",
+    "label": "Zin 412: Kat op het dak (OW op afstand + bijzin)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -893,7 +893,7 @@
   },
   {
     "id": 413,
-    "label": "Zin 413: Leerlingen brugklas",
+    "label": "Zin 413: Leerlingen brugklas (OW op afstand + bijzin)",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -1265,7 +1265,7 @@
   },
   {
     "id": 420,
-    "label": "Zin 420: Bijvoeglijke bijzin",
+    "label": "Zin 420: Bijvoeglijke bijzin (dat)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -1311,7 +1311,7 @@
   },
   {
     "id": 421,
-    "label": "Zin 421: Bijvoeglijke bijzin",
+    "label": "Zin 421: Bijvoeglijke bijzin (waar)",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -1362,7 +1362,7 @@
   },
   {
     "id": 422,
-    "label": "Zin 422: Bijvoeglijke bijzin",
+    "label": "Zin 422: Bijvoeglijke bijzin (die)",
     "predicateType": "NG",
     "level": 4,
     "tokens": [

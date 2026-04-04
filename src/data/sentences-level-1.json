@@ -1879,7 +1879,7 @@
   },
   {
     "id": 43,
-    "label": "Zin 43: Kleine kinderen",
+    "label": "Zin 43: Kleine kinderen (juiste volgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -1937,7 +1937,7 @@
   },
   {
     "id": 44,
-    "label": "Zin 44: Spannend boek",
+    "label": "Zin 44: Spannend boek (juiste volgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -1994,7 +1994,7 @@
   },
   {
     "id": 45,
-    "label": "Zin 45: Spannende film",
+    "label": "Zin 45: Spannende film (juiste volgorde)",
     "predicateType": "NG",
     "level": 1,
     "tokens": [
@@ -2033,7 +2033,7 @@
   },
   {
     "id": 46,
-    "label": "Zin 46: Pizza bij oma",
+    "label": "Zin 46: Pizza bij oma (juiste volgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2072,7 +2072,7 @@
   },
   {
     "id": 47,
-    "label": "Zin 47: Onze hond",
+    "label": "Zin 47: Onze hond (juiste volgorde)",
     "predicateType": "NG",
     "level": 1,
     "tokens": [
@@ -2109,7 +2109,7 @@
   },
   {
     "id": 48,
-    "label": "Zin 48: Moeilijke opgave",
+    "label": "Zin 48: Moeilijke opgave (juiste volgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2154,7 +2154,7 @@
   },
   {
     "id": 49,
-    "label": "Zin 49: Koekjes bakken",
+    "label": "Zin 49: Koekjes bakken (basisvolgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2203,7 +2203,7 @@
   },
   {
     "id": 50,
-    "label": "Zin 50: Moe baby",
+    "label": "Zin 50: Moe baby (basisvolgorde)",
     "predicateType": "NG",
     "level": 1,
     "tokens": [
@@ -2254,7 +2254,7 @@
   },
   {
     "id": 51,
-    "label": "Zin 51: Huiswerk nakijken",
+    "label": "Zin 51: Huiswerk nakijken (basisvolgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2291,7 +2291,7 @@
   },
   {
     "id": 52,
-    "label": "Zin 52: Bal op training",
+    "label": "Zin 52: Bal op training (basisvolgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2329,7 +2329,7 @@
   },
   {
     "id": 53,
-    "label": "Zin 53: Lunch klaarzetten",
+    "label": "Zin 53: Lunch klaarzetten (basisvolgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2357,7 +2357,7 @@
   },
   {
     "id": 54,
-    "label": "Zin 54: Sommen oefenen",
+    "label": "Zin 54: Sommen oefenen (basisvolgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2390,7 +2390,7 @@
   },
   {
     "id": 55,
-    "label": "Zin 55: Fiets repareren",
+    "label": "Zin 55: Fiets repareren (basisvolgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2425,7 +2425,7 @@
   },
   {
     "id": 56,
-    "label": "Zin 56: Presentatie voorbereiden",
+    "label": "Zin 56: Presentatie voorbereiden (basisvolgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2493,7 +2493,7 @@
   },
   {
     "id": 58,
-    "label": "Zin 58: Tennisracket zoeken",
+    "label": "Zin 58: Tennisracket zoeken (basisvolgorde)",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
