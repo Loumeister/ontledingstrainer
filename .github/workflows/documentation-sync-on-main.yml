@@ -23,7 +23,7 @@ jobs:
           mkdir -p .ai-sync docs/auto-sync
           git log -1 --pretty=format:'%s%n%n%b' > .ai-sync/commit_message.txt
           git diff --name-only HEAD^ HEAD > .ai-sync/changed_files.txt || true
-          git diff --unified=1 --no-color HEAD^ HEAD | tail -c 20000 > .ai-sync/last_diff.patch || true
+          git diff --unified=1 --no-color HEAD^ HEAD | head -c 20000 > .ai-sync/last_diff.patch || true
 
       - name: Generate Claude summary
         if: ${{ secrets.ANTHROPIC_API_KEY != '' }}
@@ -109,6 +109,7 @@ Keep it factual and limited to visible commit context.
 """
           payload = {
               'model': 'gpt-5',
+              'max_tokens': 1400,
               'messages': [
                   {'role': 'system', 'content': system},
                   {'role': 'user', 'content': user}
@@ -132,7 +133,7 @@ Keep it factual and limited to visible commit context.
 
       - name: Commit generated docs
         run: |
-          if git diff --quiet -- docs/auto-sync; then
+          if [ -z "$(git status --porcelain -- docs/auto-sync)" ]; then
             echo 'No generated doc changes.'
             exit 0
           fi
