@@ -160,7 +160,8 @@ availableSentences (useTrainer)
 
 ## Conventions
 
-- All UI text is in Dutch
+- All UI text is in Dutch — never use English in user-facing labels, buttons, or tooltips
+- Use 'één' (with accents) when it means 'one' as a numeral (e.g. "in één keer goed", not "in een keer goed")
 - Tailwind classes include dark mode variants (`dark:bg-...`, `dark:text-...`)
 - Component files use PascalCase (e.g., `DropZone.tsx`)
 - Hook files use camelCase with `use` prefix (e.g., `useTrainer.ts`)
@@ -327,6 +328,8 @@ For new work, prioritize tests for:
 2. storage/services
 3. transformation and aggregation functions
 4. compatibility adapters
+
+Every new `src/logic/*.ts` module must ship with a corresponding `.test.ts` file covering key scenarios.
 
 Only add component tests when they provide clear value for changed behavior.
 
