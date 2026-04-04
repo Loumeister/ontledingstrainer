@@ -5,7 +5,8 @@
  * and detailed answer comparisons.
  */
 import React, { useState, useMemo } from 'react';
-import { SessionReport, computeStudentStats } from '../../services/sessionReport';
+import type { SessionReport } from '../../services/sessionReport';
+import { computeStudentStats } from '../../services/sessionReport';
 import type { UserStats } from '../../services/interactionLog';
 import type { Sentence } from '../../types';
 import type { EnrichedUsage, SortDir } from './types';
