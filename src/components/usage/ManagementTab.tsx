@@ -71,6 +71,7 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({ allReports, onRepo
   const handleMergeKlas = async (sourceKlas: string) => {
     const target = mergeTargetKlas.trim().toLowerCase();
     if (!target || target === sourceKlas) return;
+    if (!confirm(`Klas "${sourceKlas}" samenvoegen met "${target}"? Alle rapporten van ${sourceKlas} worden overgezet naar ${target}. Dit kan ongedaan worden via het actieoverzicht hieronder.`)) return;
     setMergeStatus('merging');
     setMergeError('');
     try {

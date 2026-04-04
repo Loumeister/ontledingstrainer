@@ -152,7 +152,7 @@ export const LearnersTab: React.FC<LearnersTabProps> = ({
   const studentReports = useMemo(() => {
     if (!filterStudent) return [];
     return allReports
-      .filter(r => r.name.toLowerCase() === filterStudent.toLowerCase())
+      .filter(r => (r.name || '').toLowerCase() === filterStudent.toLowerCase())
       .sort((a, b) => b.ts.localeCompare(a.ts)); // most recent first
   }, [allReports, filterStudent]);
 
@@ -285,7 +285,7 @@ export const LearnersTab: React.FC<LearnersTabProps> = ({
               {sortedStudentStats.map(st => {
                 const isSelected = filterStudent.toLowerCase() === st.name.toLowerCase();
                 const trend = computeTrend(
-                  allReports.filter(r => r.name.toLowerCase() === st.name.toLowerCase()),
+                  allReports.filter(r => (r.name || '').toLowerCase() === st.name.toLowerCase()),
                 );
                 const uStats = findUserStats(perUserStats, st.name);
                 return (
@@ -325,8 +325,8 @@ export const LearnersTab: React.FC<LearnersTabProps> = ({
                         <span className="text-slate-400 dark:text-slate-500">-</span>
                       )}
                     </td>
-                    <td className="py-2 px-2 text-slate-600 dark:text-slate-400">
-                      {uStats?.retries ?? 0}x
+                    <td className="py-2 px-2 text-slate-600 dark:text-slate-400" title="Herhaalpogingen (alleen van dit apparaat)">
+                      {uStats ? `${uStats.retries}x` : <span className="text-slate-300 dark:text-slate-600">-</span>}
                     </td>
                   </tr>
                 );
@@ -340,6 +340,17 @@ export const LearnersTab: React.FC<LearnersTabProps> = ({
         <p className="text-sm text-slate-500 dark:text-slate-400 italic">
           Geen leerlinggegevens gevonden voor klas {filterKlas}.
         </p>
+      )}
+
+      {!filterKlas && (
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
+          <p className="text-slate-500 dark:text-slate-400 text-sm mb-1">Selecteer een klas om de leerlingresultaten te bekijken.</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">
+            {uniqueKlassen.length > 0
+              ? `${uniqueKlassen.length} ${uniqueKlassen.length === 1 ? 'klas' : 'klassen'} beschikbaar.`
+              : 'Nog geen klassen gevonden in de rapporten.'}
+          </p>
+        </div>
       )}
 
       {/* Student detail panel */}
@@ -381,19 +392,48 @@ export const LearnersTab: React.FC<LearnersTabProps> = ({
               value={`${totalHints}x`}
             />
             <SummaryCard
-              label="Probeert opnieuw na fout?"
+              label="Doorzettingsvermogen"
               value=""
-              extra={
-                (matchedUserStats?.retries ?? 0) > 0 ? (
-                  <span className="text-xs font-medium px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">
-                    Ja
+              extra={(() => {
+                const retries = matchedUserStats?.retries ?? 0;
+                const checks = matchedUserStats?.checks ?? 0;
+                const showAnswers = matchedUserStats?.showAnswers ?? 0;
+                // No data from interaction log
+                if (checks === 0 && retries === 0 && showAnswers === 0) {
+                  return (
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
+                      Geen data
+                    </span>
+                  );
+                }
+                // Determine behavior pattern
+                const retryRatio = checks > 0 ? retries / checks : 0;
+                const giveUpRatio = (checks + retries) > 0 ? showAnswers / (checks + retries) : 0;
+                if (retryRatio >= 0.3) {
+                  return (
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">
+                      Probeert vaak opnieuw
+                    </span>
+                  );
+                } else if (giveUpRatio >= 0.4) {
+                  return (
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
+                      Bekijkt snel antwoord
+                    </span>
+                  );
+                } else if (retries > 0) {
+                  return (
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                      Probeert soms opnieuw
+                    </span>
+                  );
+                }
+                return (
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
+                    Weinig herhaalpogingen
                   </span>
-                ) : (
-                  <span className="text-xs font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
-                    Nee
-                  </span>
-                )
-              }
+                );
+              })()}
             />
           </div>
 

@@ -99,8 +99,8 @@ export const SentenceComparison: React.FC<SentenceComparisonProps> = ({
 }) => {
   const { expectedChunks, studentChunks, tokenComparisons, firstDivergenceIndex, summary } = comparison;
 
-  // Build student chunks with error coloring
-  const coloredStudentChunks: Array<ChunkInfo & { errorClass: string }> = studentChunks.map(chunk => {
+  // Build student chunks with error coloring and expected role info
+  const coloredStudentChunks: Array<ChunkInfo & { errorClass: string; expectedRole: string | null }> = studentChunks.map(chunk => {
     // Check all tokens in this chunk for errors
     const chunkTokens = tokenComparisons.filter(
       tc => tc.tokenIndex >= chunk.startIndex &&
@@ -108,12 +108,15 @@ export const SentenceComparison: React.FC<SentenceComparisonProps> = ({
     );
     const startToken = chunkTokens.find(tc => tc.studentChunkStart);
     let errorClass = 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200';
+    let expectedRole: string | null = null;
 
     if (startToken) {
       if (startToken.errorType === 'groepering' || startToken.errorType === 'both') {
         errorClass = 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200';
+        expectedRole = startToken.expectedRole;
       } else if (startToken.errorType === 'benoeming') {
         errorClass = 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200';
+        expectedRole = startToken.expectedRole;
       }
     } else {
       // Non-start token inherited — check if chunk has any wrong tokens
@@ -123,7 +126,7 @@ export const SentenceComparison: React.FC<SentenceComparisonProps> = ({
       }
     }
 
-    return { ...chunk, errorClass };
+    return { ...chunk, errorClass, expectedRole };
   });
 
   return (
@@ -172,6 +175,11 @@ export const SentenceComparison: React.FC<SentenceComparisonProps> = ({
                   {chunk.role && (
                     <span className="text-[9px] opacity-70 font-medium ml-0.5">
                       [{getRoleShortLabel(chunk.role)}]
+                    </span>
+                  )}
+                  {chunk.expectedRole && chunk.role && chunk.expectedRole !== chunk.role && (
+                    <span className="text-[8px] opacity-60 ml-0.5" title={`Verwacht: ${getRoleShortLabel(chunk.expectedRole)}`}>
+                      (was {getRoleShortLabel(chunk.expectedRole)})
                     </span>
                   )}
                 </span>

@@ -191,11 +191,14 @@ export const OwnerTab: React.FC<OwnerTabProps> = ({
           </div>
         </details>
 
-        {allReports.length > 0 && (
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
-            Totaal: {allReports.length} rapport{allReports.length !== 1 ? 'en' : ''} van {computeAggregateStats(allReports).uniqueStudents} leerling{computeAggregateStats(allReports).uniqueStudents !== 1 ? 'en' : ''}
-          </p>
-        )}
+        {allReports.length > 0 && (() => {
+          const stats = computeAggregateStats(allReports);
+          return (
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
+              Totaal: {allReports.length} rapport{allReports.length !== 1 ? 'en' : ''} van {stats.uniqueStudents} leerling{stats.uniqueStudents !== 1 ? 'en' : ''}
+            </p>
+          );
+        })()}
       </div>
 
       {/* Drive Settings */}

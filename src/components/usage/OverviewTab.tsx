@@ -154,12 +154,14 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
           <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">In een keer goed</div>
         </div>
-        <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-center" title="Leerlingen die hetzelfde zinsdeel in meerdere sessies fout hebben">
+        <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-center" title="Leerlingen die hetzelfde zinsdeel in 2 of meer sessies fout hebben">
           <div className="text-3xl mb-1">🔁</div>
           <div className={`text-2xl font-bold ${recurringErrorStudents.length > 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
             {recurringErrorStudents.length}
           </div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Terugkerende fouten</div>
+          <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            {recurringErrorStudents.length === 1 ? 'Leerling' : 'Leerlingen'} met terugkerende fouten
+          </div>
         </div>
       </div>
 
@@ -178,11 +180,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
               <span className="font-bold text-amber-600 dark:text-amber-400">{totalShowAnswer}</span>
               <br/><span className="text-[11px] text-slate-400">Antwoord bekeken</span>
             </div>
-            <div title="Hoe vaak leerlingen het na een fout opnieuw hebben geprobeerd">
+            <div title="Hoe vaak leerlingen het na een fout opnieuw hebben geprobeerd (uit interactielog van dit apparaat)">
               <span className="font-bold text-blue-600 dark:text-blue-400">{totalRetries}</span>
               <br/><span className="text-[11px] text-slate-400">Opnieuw geprobeerd</span>
             </div>
-            <div>
+            <div title="Gemiddeld aantal controles voordat een zin correct is">
               <span className="font-bold text-slate-600 dark:text-slate-400">{avgChecksPerSentence.toFixed(1)}</span>
               <br/><span className="text-[11px] text-slate-400">Gem. controles per zin</span>
             </div>
