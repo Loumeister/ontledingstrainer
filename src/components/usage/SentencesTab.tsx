@@ -195,7 +195,7 @@ export const SentencesTab: React.FC<SentencesTabProps> = ({ enrichedData }) => {
                           </div>
                           <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-2">
                             <div className={`font-bold ${rateInfo.colorClass}`}>{d.usage.attempts > 0 ? `${d.perfectRate.toFixed(0)}%` : '—'}</div>
-                            <div className="text-slate-400">in een keer goed</div>
+                            <div className="text-slate-400">in één keer goed</div>
                           </div>
                           <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-2">
                             <div className={`font-bold ${d.usage.showAnswerCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'}`}>{d.usage.showAnswerCount}x</div>

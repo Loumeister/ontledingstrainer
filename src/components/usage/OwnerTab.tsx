@@ -293,11 +293,11 @@ export const OwnerTab: React.FC<OwnerTabProps> = ({
 
         {/* Clickthrough stats */}
         <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 mb-4">
-          <h3 className="font-bold text-slate-700 dark:text-white text-sm mb-3">Clickthrough &amp; Error Statistieken</h3>
+          <h3 className="font-bold text-slate-700 dark:text-white text-sm mb-3">Doorklik- en foutstatistieken</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center text-sm">
             <div><span className="font-bold text-blue-600 dark:text-blue-400">{ctStats.totalSessions}</span><br/><span className="text-xs text-slate-500">Sessies</span></div>
             <div><span className="font-bold text-indigo-600 dark:text-indigo-400">{ctStats.totalSentencesStarted}</span><br/><span className="text-xs text-slate-500">Zinnen gestart</span></div>
-            <div><span className="font-bold text-emerald-600 dark:text-emerald-400">{ctStats.totalChecks}</span><br/><span className="text-xs text-slate-500">Checks</span></div>
+            <div><span className="font-bold text-emerald-600 dark:text-emerald-400">{ctStats.totalChecks}</span><br/><span className="text-xs text-slate-500">Controles</span></div>
             <div><span className="font-bold text-amber-600 dark:text-amber-400">{ctStats.totalHints}</span><br/><span className="text-xs text-slate-500">Hints</span></div>
             <div><span className="font-bold text-orange-600 dark:text-orange-400">{ctStats.totalShowAnswers}</span><br/><span className="text-xs text-slate-500">Antwoord bekeken</span></div>
             <div><span className="font-bold text-red-600 dark:text-red-400">{ctStats.totalSplitErrors}</span><br/><span className="text-xs text-slate-500">Splitfouten</span></div>
@@ -320,7 +320,7 @@ export const OwnerTab: React.FC<OwnerTabProps> = ({
               {showInteractionLog ? 'Interactielog verbergen' : 'Interactielog tonen'}
             </button>
             <div className="flex gap-2">
-              <button onClick={() => exportInteractionLogAsJson()} className="text-xs px-2 py-1 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 font-medium hover:bg-emerald-200 transition-colors">Export log</button>
+              <button onClick={() => exportInteractionLogAsJson()} className="text-xs px-2 py-1 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 font-medium hover:bg-emerald-200 transition-colors">Exporteer log</button>
               <button onClick={() => { if (confirm('Interactielog wissen?')) clearInteractionLog(); }} className="text-xs px-2 py-1 rounded bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 font-medium hover:bg-red-200 transition-colors">Wis log</button>
             </div>
           </div>

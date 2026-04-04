@@ -7,7 +7,7 @@
  */
 
 import { renameKlas, renameStudent } from './sessionReport';
-import { clearKlasAlias, clearStudentAlias } from './nameAliases';
+import { setKlasAlias, clearKlasAlias, setStudentAlias, clearStudentAlias } from './nameAliases';
 import { getScriptUrl, renameKlasOnDrive, renameStudentOnDrive } from './googleDriveSync';
 
 // ---------------------------------------------------------------------------
@@ -95,23 +95,30 @@ export function undoMergeAction(id: string): MergeAction | null {
   const action = history.find(a => a.id === id);
   if (!action || action.undone) return null;
 
-  // Reverse the rename
+  // Reverse the rename locally, then attempt Drive sync.
+  // Set a reverse alias (newValue → oldValue) so future Drive fetches
+  // map correctly even if the Drive rename fails.
   switch (action.type) {
     case 'rename_klas':
     case 'merge_klas':
-      // Rename back: newValue → oldValue
       renameKlas(action.newValue, action.oldValue);
+      // Reverse alias: future Drive rows with newValue → oldValue
+      setKlasAlias(action.newValue, action.oldValue);
       clearKlasAlias(action.oldValue);
-      // Best-effort Drive update
       if (getScriptUrl()) {
-        renameKlasOnDrive(action.newValue, action.oldValue).catch(() => {});
+        renameKlasOnDrive(action.newValue, action.oldValue)
+          .then(() => clearKlasAlias(action.newValue))
+          .catch(() => { /* alias stays in place as safety net */ });
       }
       break;
     case 'rename_student':
       renameStudent(action.newValue, action.oldValue);
+      setStudentAlias(action.newValue, action.oldValue);
       clearStudentAlias(action.oldValue);
       if (getScriptUrl()) {
-        renameStudentOnDrive(action.newValue, action.oldValue).catch(() => {});
+        renameStudentOnDrive(action.newValue, action.oldValue)
+          .then(() => clearStudentAlias(action.newValue))
+          .catch(() => { /* alias stays in place as safety net */ });
       }
       break;
   }
