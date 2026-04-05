@@ -1,0 +1,82 @@
+name: documentation-sync-on-main
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync-docs:
+    if: ${{ !contains(github.event.head_commit.message, 'docs(auto-sync):') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Prepare context
+        run: |
+          mkdir -p .ai-sync docs/auto-sync
+          git log -1 --pretty=format:'%s%n%n%b' > .ai-sync/commit_message.txt
+          git diff --name-only HEAD^ HEAD > .ai-sync/changed_files.txt || true
+          git diff --unified=1 --no-color HEAD^ HEAD | tail -c 20000 > .ai-sync/last_diff.patch || true
+
+      - name: Claude summary
+        if: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          python <<'PY'
+          import json, os, pathlib, urllib.request
+          root = pathlib.Path('.')
+          system = (root / '.claude/agents/documentation-sync-guardian.md').read_text()
+          msg = (root / '.ai-sync/commit_message.txt').read_text()
+          files = (root / '.ai-sync/changed_files.txt').read_text()
+          diff = (root / '.ai-sync/last_diff.patch').read_text()
+          user = f"Repository: {os.environ['GITHUB_REPOSITORY']}\nCommit SHA: {os.environ['GITHUB_SHA']}\n\nCommit message:\n{msg}\n\nChanged files:\n{files}\n\nDiff excerpt:\n{diff}\n\nWrite markdown only for docs/auto-sync/claude-latest-main-summary.md."
+          payload = {'model':'claude-sonnet-4-20250514','max_tokens':1200,'system':system,'messages':[{'role':'user','content':user}]}
+          req = urllib.request.Request('https://api.anthropic.com/v1/messages', data=json.dumps(payload).encode(), headers={'x-api-key': os.environ['ANTHROPIC_API_KEY'], 'anthropic-version':'2023-06-01', 'content-type':'application/json'}, method='POST')
+          with urllib.request.urlopen(req) as resp:
+              data = json.loads(resp.read().decode())
+          parts = [p.get('text','') for p in data.get('content',[]) if p.get('type') == 'text']
+          (root / 'docs/auto-sync/claude-latest-main-summary.md').write_text('\n'.join(parts).strip() + '\n')
+          PY
+
+      - name: Codex summary
+        if: ${{ secrets.OPENAI_API_KEY != '' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          python <<'PY'
+          import json, os, pathlib, urllib.request
+          root = pathlib.Path('.')
+          system = (root / '.codex/skills/documentation-sync-guardian/SKILL.md').read_text()
+          msg = (root / '.ai-sync/commit_message.txt').read_text()
+          files = (root / '.ai-sync/changed_files.txt').read_text()
+          diff = (root / '.ai-sync/last_diff.patch').read_text()
+          user = f"Repository: {os.environ['GITHUB_REPOSITORY']}\nCommit SHA: {os.environ['GITHUB_SHA']}\n\nCommit message:\n{msg}\n\nChanged files:\n{files}\n\nDiff excerpt:\n{diff}\n\nWrite markdown only for docs/auto-sync/codex-latest-main-summary.md."
+          payload = {'model':'gpt-5','messages':[{'role':'system','content':system},{'role':'user','content':user}]}
+          req = urllib.request.Request('https://api.openai.com/v1/chat/completions', data=json.dumps(payload).encode(), headers={'Authorization': f"Bearer {os.environ['OPENAI_API_KEY']}", 'content-type':'application/json'}, method='POST')
+          with urllib.request.urlopen(req) as resp:
+              data = json.loads(resp.read().decode())
+          out = data['choices'][0]['message']['content'].strip()
+          (root / 'docs/auto-sync/codex-latest-main-summary.md').write_text(out + '\n')
+          PY
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: bot/docs-auto-sync
+          delete-branch: true
+          commit-message: docs(auto-sync): update generated summaries for ${{ github.sha }}
+          title: docs(auto-sync): update generated summaries for ${{ github.sha }}
+          body: |
+            Automated documentation sync after a push to main.
+            This PR updates generated files in docs/auto-sync only.
