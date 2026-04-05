@@ -6,7 +6,6 @@ Safe local documentation sync wrapper.
 ## Read first
 - `docs/local-scope-contract.md`
 - `docs/documentation-sync-contract.md`
-- `AGENTS.md`
 - `shared/grammar-core/.codex/skills/documentation-sync-guardian/SKILL.md` when that path is physically present
 
 ## Use when

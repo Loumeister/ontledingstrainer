@@ -6,7 +6,6 @@ description: Safe local documentation sync wrapper.
 Read first:
 - docs/local-scope-contract.md
 - docs/documentation-sync-contract.md
-- AGENTS.md
 - shared/grammar-core/.claude/agents/documentation-sync-guardian.md when that path is physically present
 
 Use when:

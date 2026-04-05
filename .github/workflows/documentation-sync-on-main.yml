@@ -32,7 +32,7 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: |
           python <<'PY'
-          import json, os, pathlib, urllib.request
+          import json, os, pathlib, sys, urllib.request, urllib.error
           root = pathlib.Path('.')
           system = (root / '.claude/agents/documentation-sync-guardian.md').read_text()
           msg = (root / '.ai-sync/commit_message.txt').read_text()
@@ -41,10 +41,18 @@ jobs:
           user = f"Repository: {os.environ['GITHUB_REPOSITORY']}\nCommit SHA: {os.environ['GITHUB_SHA']}\n\nCommit message:\n{msg}\n\nChanged files:\n{files}\n\nDiff excerpt:\n{diff}\n\nWrite markdown only for docs/auto-sync/claude-latest-main-summary.md."
           payload = {'model':'claude-sonnet-4-20250514','max_tokens':1200,'system':system,'messages':[{'role':'user','content':user}]}
           req = urllib.request.Request('https://api.anthropic.com/v1/messages', data=json.dumps(payload).encode(), headers={'x-api-key': os.environ['ANTHROPIC_API_KEY'], 'anthropic-version':'2023-06-01', 'content-type':'application/json'}, method='POST')
-          with urllib.request.urlopen(req) as resp:
-              data = json.loads(resp.read().decode())
+          try:
+              with urllib.request.urlopen(req) as resp:
+                  data = json.loads(resp.read().decode())
+          except urllib.error.HTTPError as e:
+              print(f"Anthropic API error {e.code}: {e.read().decode()}", file=sys.stderr)
+              sys.exit(1)
           parts = [p.get('text','') for p in data.get('content',[]) if p.get('type') == 'text']
-          (root / 'docs/auto-sync/claude-latest-main-summary.md').write_text('\n'.join(parts).strip() + '\n')
+          text = '\n'.join(parts).strip()
+          if not text:
+              print("Anthropic API returned empty content", file=sys.stderr)
+              sys.exit(1)
+          (root / 'docs/auto-sync/claude-latest-main-summary.md').write_text(text + '\n')
           PY
 
       - name: Codex summary
@@ -55,18 +63,26 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: |
           python <<'PY'
-          import json, os, pathlib, urllib.request
+          import json, os, pathlib, sys, urllib.request, urllib.error
           root = pathlib.Path('.')
           system = (root / '.codex/skills/documentation-sync-guardian/SKILL.md').read_text()
           msg = (root / '.ai-sync/commit_message.txt').read_text()
           files = (root / '.ai-sync/changed_files.txt').read_text()
           diff = (root / '.ai-sync/last_diff.patch').read_text()
           user = f"Repository: {os.environ['GITHUB_REPOSITORY']}\nCommit SHA: {os.environ['GITHUB_SHA']}\n\nCommit message:\n{msg}\n\nChanged files:\n{files}\n\nDiff excerpt:\n{diff}\n\nWrite markdown only for docs/auto-sync/codex-latest-main-summary.md."
-          payload = {'model':'gpt-5','messages':[{'role':'system','content':system},{'role':'user','content':user}]}
+          payload = {'model':'gpt-4o','max_tokens':1200,'messages':[{'role':'system','content':system},{'role':'user','content':user}]}
           req = urllib.request.Request('https://api.openai.com/v1/chat/completions', data=json.dumps(payload).encode(), headers={'Authorization': f"Bearer {os.environ['OPENAI_API_KEY']}", 'content-type':'application/json'}, method='POST')
-          with urllib.request.urlopen(req) as resp:
-              data = json.loads(resp.read().decode())
-          out = data['choices'][0]['message']['content'].strip()
+          try:
+              with urllib.request.urlopen(req) as resp:
+                  data = json.loads(resp.read().decode())
+          except urllib.error.HTTPError as e:
+              print(f"OpenAI API error {e.code}: {e.read().decode()}", file=sys.stderr)
+              sys.exit(1)
+          choices = data.get('choices', [])
+          if not choices:
+              print("OpenAI API returned no choices", file=sys.stderr)
+              sys.exit(1)
+          out = choices[0]['message']['content'].strip()
           (root / 'docs/auto-sync/codex-latest-main-summary.md').write_text(out + '\n')
           PY
 
