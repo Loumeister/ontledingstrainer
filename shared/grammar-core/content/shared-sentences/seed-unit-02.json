@@ -1,0 +1,26 @@
+[
+  {
+    "id": "shared-u2-001",
+    "text": "Wat gebeurt er nu in de aula?",
+    "context": "Schooldag",
+    "difficulty": "contrast",
+    "usableIn": ["ontledingstrainer", "werkwoordlab"],
+    "tags": ["pv-vs-vd", "gebeurt-gebeurd", "persoonsvorm"]
+  },
+  {
+    "id": "shared-u2-002",
+    "text": "Er is veel gebeurd in de aula.",
+    "context": "Schooldag",
+    "difficulty": "contrast",
+    "usableIn": ["ontledingstrainer", "werkwoordlab"],
+    "tags": ["pv-vs-vd", "gebeurt-gebeurd", "voltooid-deelwoord"]
+  },
+  {
+    "id": "shared-u2-003",
+    "text": "De toets is onverwacht uitgesteld.",
+    "context": "Schoolplanning",
+    "difficulty": "basis",
+    "usableIn": ["ontledingstrainer", "werkwoordlab"],
+    "tags": ["scheidbaar-werkwoord", "voltooid-deelwoord", "d-t"]
+  }
+]

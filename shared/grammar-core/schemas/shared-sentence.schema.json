@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SharedSentence",
+  "type": "object",
+  "required": ["id", "text", "difficulty", "usableIn", "tags"],
+  "properties": {
+    "id": { "type": "string" },
+    "text": { "type": "string" },
+    "context": { "type": ["string", "null"] },
+    "difficulty": {
+      "type": "string",
+      "enum": ["basis", "contrast", "transfer"]
+    },
+    "usableIn": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["ontledingstrainer", "werkwoordlab"]
+      },
+      "minItems": 1
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}

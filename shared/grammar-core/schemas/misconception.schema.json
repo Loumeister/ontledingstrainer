@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Misconception",
+  "type": "object",
+  "required": ["code", "title", "learnerDescription", "teacherDescription", "remediation"],
+  "properties": {
+    "code": { "type": "string" },
+    "title": { "type": "string" },
+    "learnerDescription": { "type": "string" },
+    "teacherDescription": { "type": "string" },
+    "remediation": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false
+}

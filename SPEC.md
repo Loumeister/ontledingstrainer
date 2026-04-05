@@ -31,6 +31,8 @@ Die bredere richting hoort conceptueel bij:
 - gedeelde zinnen- en schemalagen
 - expliciete samenwerking tussen productrepo’s en eventuele brugtaken
 
+*Gedeelde bron van waarheid: `shared/grammar-core/docs/grammar-platform-principles.md`.*
+
 ### Niet de bedoeling van dit document
 Dit document beschrijft Ontleedlab **niet** als de ene repo waarin de volledige toekomstige grammatica- en spellingomgeving vanzelf zal worden ondergebracht.
 
@@ -56,6 +58,8 @@ De leidende didactische principes zijn:
 
 5. **Transfer blijft inhoudelijk belangrijk**  
    Werkwoordspelling, foutentekst en revisie blijven relevante vervolgrichtingen, maar worden hier niet meer als vanzelfsprekende lokale module-uitbouw gepresenteerd.
+
+*Gedeelde parsingdidactische principes: `shared/grammar-core/docs/parsing-didactics-kaders.md`.*
 
 ---
 
@@ -202,6 +206,8 @@ Werkwoordspelling is in deze specificatie:
 - mogelijk later een apart product- of brugdomein
 - eventueel een **lokale verkenning**, maar niet de standaardaanname voor deze repo
 
+*Aangrenzende spellingdidactiek (contextueel, niet bindend voor Ontleedlab): `shared/grammar-core/docs/werkwoordspellingsdidactiek-kaders.md`.*
+
 ### Wat Ontleedlab hier wél levert
 Ontleedlab levert hiervoor vooral:
 - parsingvoorkennis
@@ -270,6 +276,8 @@ De gedeelde laag hoort conceptueel te definiëren:
 - gedeelde schema’s
 - gedeelde zinnen- en contentlagen
 - gedeelde taxonomie en diagnoseprincipes
+
+*Gedeelde bronnen: `shared/grammar-core/docs/grammar-platform-principles.md` (platformgrenzen) en `shared/grammar-core/docs/taxonomy-governance.md` (taxonomie).*
 
 ### Productrepo’s
 Productrepo’s, waaronder Ontleedlab, definiëren lokaal:
