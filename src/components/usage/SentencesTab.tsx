@@ -14,6 +14,7 @@ import type { EnrichedUsage } from './types';
 import { describeRate } from './colorHelpers';
 import { compareSentence, getSentenceSols } from '../../logic/sentenceAnalysis';
 import { SentenceComparison } from './SentenceComparison';
+import { detectWordOrder, wordOrderBadgeClass, wordOrderTooltip } from '../../logic/wordOrderLabel';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -244,6 +245,7 @@ export const SentencesTab: React.FC<SentencesTabProps> = ({ enrichedData, allRep
                     const isExpanded = expandedIds.has(d.sentenceId);
                     const sentence = sentenceMap.get(d.sentenceId);
                     const structuralTags = sentence?.structuralTags ?? [];
+                    const wordOrder = sentence ? detectWordOrder(sentence.tokens) : null;
 
                     let tip = '';
                     if (d.perfectRate < 25 && d.usage.attempts >= 3) {
@@ -271,9 +273,17 @@ export const SentencesTab: React.FC<SentencesTabProps> = ({ enrichedData, allRep
                                 {d.isCustom && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 font-medium">Eigen zin</span>}
                                 {d.usage.flagged && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300 font-medium">Gemarkeerd</span>}
                               </div>
-                              {/* Structural tags — teacher metadata, never shown to students */}
-                              {structuralTags.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mt-1.5">
+                              {/* Word order + structural tags — teacher metadata */}
+                              {(wordOrder || structuralTags.length > 0) && (
+                                <div className="flex flex-wrap gap-1 mt-1.5 items-center">
+                                  {wordOrder && (
+                                    <span
+                                      title={wordOrderTooltip(wordOrder.code)}
+                                      className={`text-[10px] px-1.5 py-0.5 rounded border font-mono font-bold ${wordOrderBadgeClass(wordOrder.code)}`}
+                                    >
+                                      {wordOrder.code}
+                                    </span>
+                                  )}
                                   {structuralTags.map(tag => (
                                     <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800">
                                       {tag}
