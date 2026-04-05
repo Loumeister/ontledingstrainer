@@ -4,6 +4,7 @@ import {
   buildStudentChunks,
   compareSentence,
   computeRecurringErrorStudents,
+  getSentenceSols,
 } from './sentenceAnalysis';
 import type { Token, Sentence } from '../types';
 
@@ -276,5 +277,89 @@ describe('computeRecurringErrorStudents', () => {
     expect(result).toHaveLength(2);
     const names = result.map(r => r.studentName).sort();
     expect(names).toEqual(['jan', 'piet']);
+  });
+});
+
+// ──────────────────────────────────────────────
+// getSentenceSols
+// ──────────────────────────────────────────────
+describe('getSentenceSols', () => {
+  const sol1 = { sid: 10, sp: [1], lb: { s10w0: 'ow' } };
+  const sol2 = { sid: 10, sp: [2], lb: { s10w0: 'pv' } };
+  const sol3 = { sid: 99, sp: [], lb: {} };
+
+  it('returns [] for empty reports array', () => {
+    expect(getSentenceSols(10, [])).toEqual([]);
+  });
+
+  it('returns [] when no report has a sols field', () => {
+    const reports = [{ name: 'Jan', ts: '2025-01-01T10:00:00Z' }];
+    expect(getSentenceSols(10, reports)).toEqual([]);
+  });
+
+  it('returns [] when sols exist but none match the target sentence id', () => {
+    const reports = [{ name: 'Jan', ts: '2025-01-01T10:00:00Z', sols: [sol3] }];
+    expect(getSentenceSols(10, reports)).toEqual([]);
+  });
+
+  it('returns entry with matching sol', () => {
+    const reports = [{ name: 'Jan', ts: '2025-01-01T10:00:00Z', sols: [sol1] }];
+    const result = getSentenceSols(10, reports);
+    expect(result).toHaveLength(1);
+    expect(result[0].sol).toEqual({ sp: [1], lb: { s10w0: 'ow' } });
+    expect(result[0].timestamp).toBe('2025-01-01T10:00:00Z');
+  });
+
+  it('formats studentName as name + initiaal when initiaal is present', () => {
+    const reports = [{ name: 'Jan', initiaal: 'D', ts: '2025-01-01T10:00:00Z', sols: [sol1] }];
+    const result = getSentenceSols(10, reports);
+    expect(result[0].studentName).toBe('Jan D.');
+  });
+
+  it('formats studentName as just name when initiaal is absent', () => {
+    const reports = [{ name: 'Maria', ts: '2025-01-01T10:00:00Z', sols: [sol1] }];
+    const result = getSentenceSols(10, reports);
+    expect(result[0].studentName).toBe('Maria');
+  });
+
+  it('includes klas when present', () => {
+    const reports = [{ name: 'Jan', klas: '2A', ts: '2025-01-01T10:00:00Z', sols: [sol1] }];
+    const result = getSentenceSols(10, reports);
+    expect(result[0].klas).toBe('2A');
+  });
+
+  it('klas is undefined when absent', () => {
+    const reports = [{ name: 'Jan', ts: '2025-01-01T10:00:00Z', sols: [sol1] }];
+    const result = getSentenceSols(10, reports);
+    expect(result[0].klas).toBeUndefined();
+  });
+
+  it('returns only the matching report when multiple reports exist', () => {
+    const reports = [
+      { name: 'Jan', ts: '2025-01-01T10:00:00Z', sols: [sol3] },       // no match
+      { name: 'Piet', ts: '2025-01-02T10:00:00Z', sols: [sol1] },      // match
+    ];
+    const result = getSentenceSols(10, reports);
+    expect(result).toHaveLength(1);
+    expect(result[0].studentName).toBe('Piet');
+  });
+
+  it('returns all matching reports when multiple have sols for target', () => {
+    const reports = [
+      { name: 'Jan', ts: '2025-01-01T10:00:00Z', sols: [sol1] },
+      { name: 'Piet', ts: '2025-01-02T10:00:00Z', sols: [sol2] },
+    ];
+    const result = getSentenceSols(10, reports);
+    expect(result).toHaveLength(2);
+  });
+
+  it('sorts results most-recent-first by timestamp', () => {
+    const reports = [
+      { name: 'Jan', ts: '2025-01-01T10:00:00Z', sols: [sol1] },
+      { name: 'Piet', ts: '2025-01-03T10:00:00Z', sols: [sol2] },
+      { name: 'Maria', ts: '2025-01-02T10:00:00Z', sols: [sol1] },
+    ];
+    const result = getSentenceSols(10, reports);
+    expect(result.map(r => r.studentName)).toEqual(['Piet', 'Maria', 'Jan']);
   });
 });

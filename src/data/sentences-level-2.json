@@ -5362,6 +5362,9 @@
         "role": "ng",
         "subRole": "wwd"
       }
+    ],
+    "structuralTags": [
+      "samengestelde tijd"
     ]
   },
   {
@@ -5422,6 +5425,9 @@
         "text": "seizoen.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "inversie"
     ]
   },
   {
@@ -5471,6 +5477,9 @@
         "role": "ng",
         "subRole": "wwd"
       }
+    ],
+    "structuralTags": [
+      "samengestelde tijd"
     ]
   },
   {
@@ -5514,6 +5523,9 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "inversie"
     ]
   },
   {
@@ -5550,6 +5562,9 @@
         "role": "ng",
         "subRole": "wwd"
       }
+    ],
+    "structuralTags": [
+      "samengestelde tijd"
     ]
   },
   {
@@ -5608,6 +5623,9 @@
         "role": "ng",
         "subRole": "wwd"
       }
+    ],
+    "structuralTags": [
+      "samengestelde tijd"
     ]
   },
   {
@@ -5661,6 +5679,10 @@
         "role": "ng",
         "subRole": "wwd"
       }
+    ],
+    "structuralTags": [
+      "inversie",
+      "samengestelde tijd"
     ]
   },
   {
@@ -5722,6 +5744,10 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "inversie",
+      "samengestelde tijd"
     ]
   }
 ]

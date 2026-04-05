@@ -1933,6 +1933,9 @@
         "text": "park.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "juiste volgorde"
     ]
   },
   {
@@ -1990,6 +1993,9 @@
         "text": "bank.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "juiste volgorde"
     ]
   },
   {
@@ -2029,6 +2035,9 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "juiste volgorde"
     ]
   },
   {
@@ -2068,6 +2077,9 @@
         "text": "oma.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "juiste volgorde"
     ]
   },
   {
@@ -2105,6 +2117,9 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "juiste volgorde"
     ]
   },
   {
@@ -2150,6 +2165,9 @@
         "text": "samen.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "juiste volgorde"
     ]
   },
   {
@@ -2199,6 +2217,9 @@
         "text": "koekjes.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
@@ -2250,6 +2271,9 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
@@ -2287,6 +2311,9 @@
         "text": "huiswerk.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
@@ -2325,6 +2352,9 @@
         "text": "snel.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
@@ -2353,6 +2383,9 @@
         "text": "lunch.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
@@ -2386,6 +2419,9 @@
         "text": "vanavond.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
@@ -2421,6 +2457,9 @@
         "text": "fiets.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
@@ -2461,6 +2500,9 @@
         "text": "morgen.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
@@ -2524,6 +2566,9 @@
         "text": "boven.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {

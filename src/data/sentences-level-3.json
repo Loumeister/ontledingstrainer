@@ -1528,6 +1528,9 @@
         "text": "af.",
         "role": "wg"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -1612,6 +1615,9 @@
         "text": "tuin.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -1675,6 +1681,9 @@
         "text": "meteen.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -1748,6 +1757,9 @@
         "text": "schetsboek.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -1821,6 +1833,9 @@
         "text": "ons.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "ow op afstand"
     ]
   },
   {
@@ -1895,6 +1910,9 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "ow op afstand"
     ]
   },
   {
@@ -2079,6 +2097,9 @@
         "text": "geduldig.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -2122,6 +2143,9 @@
         "text": "verslag.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -2165,6 +2189,9 @@
         "text": "straks.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -2213,6 +2240,9 @@
         "text": "vloer.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -2276,6 +2306,9 @@
         "text": "op.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -2464,6 +2497,9 @@
         "text": "kernwoorden.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -2518,6 +2554,9 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -2590,6 +2629,9 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "inversie"
     ]
   },
   {
@@ -2646,6 +2688,9 @@
         "role": "ng",
         "subRole": "wwd"
       }
+    ],
+    "structuralTags": [
+      "samengestelde tijd"
     ]
   },
   {
@@ -2705,6 +2750,9 @@
         "role": "ng",
         "subRole": "wwd"
       }
+    ],
+    "structuralTags": [
+      "samengestelde tijd"
     ]
   }
 ]

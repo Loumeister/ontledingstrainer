@@ -3,6 +3,7 @@ import { EDITOR_SESSION_KEY } from '../components/LoginScreen';
 import { Token, RoleKey, PredicateType, DifficultyLevel, RoleDefinition } from '../types';
 import { ROLES } from '../constants';
 import { DraggableRole } from '../components/WordChip';
+import { detectWordOrder, detectWordOrderFromRoles, wordOrderBadgeClass, wordOrderTooltip } from '../logic/wordOrderLabel';
 import {
   getCustomSentences,
   saveCustomSentence,
@@ -706,6 +707,25 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
                         <p className="text-xs text-slate-400 dark:text-slate-500">
                           Niveau {s.level} | {s.predicateType} | {s.tokens.length} woorden
                         </p>
+                        {(() => {
+                          const wo = detectWordOrder(s.tokens);
+                          const badgeCls = wordOrderBadgeClass(wo.code);
+                          return (
+                            <div className="flex flex-wrap gap-1 mt-1 items-center">
+                              <span
+                                title={wordOrderTooltip(wo.code)}
+                                className={`text-[10px] px-1.5 py-0.5 rounded border font-mono font-bold ${badgeCls}`}
+                              >
+                                {wo.code}
+                              </span>
+                              {s.structuralTags?.map(tag => (
+                                <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          );
+                        })()}
                       </div>
                       <div className="flex gap-2 ml-3">
                         {isBuiltIn ? (
@@ -873,9 +893,32 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
           <div className="fixed bottom-0 left-0 w-full bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-[500] p-3">
             <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
               <button onClick={() => { resetEditor(); setPhase('list'); }} className="px-3 py-2 text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-lg font-medium text-sm transition-colors">Annuleer</button>
-              <div className="text-xs text-slate-400 dark:text-slate-500">
-                {chunks.length} zinsdeel{chunks.length !== 1 ? 'en' : ''} | {Object.keys(chunkLabels).length} benoemd
-              </div>
+
+              {/* Live woordvolgorde labelmaker */}
+              {(() => {
+                const orderedRoles = chunks.map((_, i) => chunkLabels[i] as RoleKey | undefined);
+                const wo = detectWordOrderFromRoles(orderedRoles);
+                const badgeCls = wordOrderBadgeClass(wo.code);
+                return (
+                  <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+                    <span>{chunks.length} zinsdeel{chunks.length !== 1 ? 'en' : ''}</span>
+                    <span>·</span>
+                    <span className="font-medium text-slate-500 dark:text-slate-400">Woordvolgorde:</span>
+                    <span
+                      title={wordOrderTooltip(wo.code)}
+                      className={`px-2 py-0.5 rounded border font-mono font-bold text-[11px] ${badgeCls}`}
+                    >
+                      {wo.code}
+                    </span>
+                    {wo.components.length > 0 && (
+                      <span className="text-slate-400 dark:text-slate-500">
+                        ({wo.components.join(' – ')})
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
+
               <button
                 onClick={() => setPhase('meta')}
                 disabled={Object.keys(chunkLabels).length < chunks.length}

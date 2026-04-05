@@ -365,11 +365,6 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
         <footer className={`${shouldPinFooter ? 'md:sticky md:bottom-0 md:z-[500]' : 'relative z-[90]'} left-0 w-full bg-white/95 dark:bg-slate-800/95 backdrop-blur border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-2 md:p-3`}>
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
 
-            {/* Left: Sentence Label */}
-            <div className="font-medium text-slate-800 dark:text-white text-sm md:text-base truncate w-full md:w-auto md:max-w-[50%] text-center md:text-left">
-              {currentSentence.label}
-            </div>
-
             {/* Center: Session Progress */}
             {mode === 'session' && (
               <div className="flex flex-col items-center w-full md:w-auto">

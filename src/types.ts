@@ -33,6 +33,16 @@ export interface Sentence {
    */
   owNumber?: 'sg' | 'pl';
   pvTense?: 'present' | 'past';
+
+  /**
+   * Structurele categorielabels — uitsluitend zichtbaar voor docenten.
+   * Worden nooit aan leerlingen getoond. Gebruik ze om snel te zien welk
+   * soort constructie een zin bevat bij het samenstellen van oefensets.
+   *
+   * Voorbeelden: "basisvolgorde", "inversie", "samengestelde tijd",
+   *   "nevenschikking", "ow op afstand", "bijvoeglijke bijzin (dat)"
+   */
+  structuralTags?: string[];
 }
 
 export interface RoleDefinition {

@@ -194,6 +194,9 @@
         "text": "oplossing.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -281,6 +284,9 @@
         "role": "ng",
         "subRole": "wwd"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -508,6 +514,9 @@
         "text": "vertrekken.",
         "role": "bijzin"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -643,6 +652,9 @@
         "text": "het.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -696,6 +708,9 @@
         "text": "kip?",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -889,6 +904,10 @@
         "text": "muis.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "ow op afstand",
+      "bijzin"
     ]
   },
   {
@@ -972,6 +991,10 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "ow op afstand",
+      "bijzin"
     ]
   },
   {
@@ -1307,6 +1330,9 @@
         "text": "prachtig.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "bijvoeglijke bijzin (dat)"
     ]
   },
   {
@@ -1358,6 +1384,9 @@
         "text": "woonde.",
         "role": "bijzin"
       }
+    ],
+    "structuralTags": [
+      "bijvoeglijke bijzin (waar)"
     ]
   },
   {
@@ -1413,6 +1442,9 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "bijvoeglijke bijzin (die)"
     ]
   },
   {

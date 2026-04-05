@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# AI agent runtime caches (never commit)
+.ai-sync/
+
 # Editor directories and files
 .vscode
 .idea
