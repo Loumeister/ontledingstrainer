@@ -1462,7 +1462,7 @@
   },
   {
     "id": 323,
-    "label": "Zin 323: Broer kookt (Nevenschikking)",
+    "label": "Zin 323: Broer kookt",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1528,11 +1528,14 @@
         "text": "af.",
         "role": "wg"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
     "id": 324,
-    "label": "Zin 324: Kat op het dak (Nevenschikking)",
+    "label": "Zin 324: Kat op het dak",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
@@ -1612,11 +1615,14 @@
         "text": "tuin.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
     "id": 325,
-    "label": "Zin 325: Huiswerk maken (Nevenschikking)",
+    "label": "Zin 325: Huiswerk maken",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1675,11 +1681,14 @@
         "text": "meteen.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
     "id": 326,
-    "label": "Zin 326: Rekenen of tekenen (Nevenschikking)",
+    "label": "Zin 326: Rekenen of tekenen",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1748,11 +1757,14 @@
         "text": "schetsboek.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
     "id": 327,
-    "label": "Zin 327: Verhaal over piraten (OW op afstand)",
+    "label": "Zin 327: Verhaal over piraten",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -1821,11 +1833,14 @@
         "text": "ons.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "ow op afstand"
     ]
   },
   {
     "id": 328,
-    "label": "Zin 328: Cadeau van opa (OW op afstand)",
+    "label": "Zin 328: Cadeau van opa",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
@@ -1895,6 +1910,9 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "ow op afstand"
     ]
   },
   {
@@ -2040,7 +2058,7 @@
   },
   {
     "id": 332,
-    "label": "Zin 332: Bus vertrekt en wij wachten (Nevenschikking)",
+    "label": "Zin 332: Bus vertrekt en wij wachten",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2079,11 +2097,14 @@
         "text": "geduldig.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
     "id": 333,
-    "label": "Zin 333: Nora leest maar Sam schrijft (Nevenschikking)",
+    "label": "Zin 333: Nora leest maar Sam schrijft",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2122,11 +2143,14 @@
         "text": "verslag.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
     "id": 334,
-    "label": "Zin 334: Ik bak dus jij proeft (Nevenschikking)",
+    "label": "Zin 334: Ik bak dus jij proeft",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2165,11 +2189,14 @@
         "text": "straks.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
     "id": 335,
-    "label": "Zin 335: Wij ruimen op of zij vegen (Nevenschikking)",
+    "label": "Zin 335: Wij ruimen op of zij vegen",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2213,11 +2240,14 @@
         "text": "vloer.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
     "id": 336,
-    "label": "Zin 336: Lara rent want Tim fietst (Nevenschikking)",
+    "label": "Zin 336: Lara rent want Tim fietst",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2276,6 +2306,9 @@
         "text": "op.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -2415,7 +2448,7 @@
   },
   {
     "id": 340,
-    "label": "Zin 340: Noor leest en Sam noteert (Nevenschikking)",
+    "label": "Zin 340: Noor leest en Sam noteert",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2464,11 +2497,14 @@
         "text": "kernwoorden.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
     "id": 341,
-    "label": "Zin 341: De bel gaat maar de klas blijft stil (Nevenschikking)",
+    "label": "Zin 341: De bel gaat maar de klas blijft stil",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
@@ -2518,11 +2554,14 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
     "id": 450,
-    "label": "Zin 450: Tot onze grote verbazing werd onze collega miljonair (inversie)",
+    "label": "Zin 450: Tot onze grote verbazing werd onze collega miljonair",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
@@ -2590,11 +2629,14 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "inversie"
     ]
   },
   {
     "id": 454,
-    "label": "Zin 454: Taco is nooit een erg productieve werknemer geweest (samengestelde tijd)",
+    "label": "Zin 454: Taco is nooit een erg productieve werknemer geweest",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
@@ -2646,11 +2688,14 @@
         "role": "ng",
         "subRole": "wwd"
       }
+    ],
+    "structuralTags": [
+      "samengestelde tijd"
     ]
   },
   {
     "id": 456,
-    "label": "Zin 456: Die snelle telefoon is veel te duur geworden (samengestelde tijd)",
+    "label": "Zin 456: Die snelle telefoon is veel te duur geworden",
     "predicateType": "NG",
     "level": 3,
     "tokens": [
@@ -2705,6 +2750,9 @@
         "role": "ng",
         "subRole": "wwd"
       }
+    ],
+    "structuralTags": [
+      "samengestelde tijd"
     ]
   }
 ]

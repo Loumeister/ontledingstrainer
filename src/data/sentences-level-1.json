@@ -1879,7 +1879,7 @@
   },
   {
     "id": 43,
-    "label": "Zin 43: Kleine kinderen (juiste volgorde)",
+    "label": "Zin 43: Kleine kinderen",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -1933,11 +1933,14 @@
         "text": "park.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "juiste volgorde"
     ]
   },
   {
     "id": 44,
-    "label": "Zin 44: Spannend boek (juiste volgorde)",
+    "label": "Zin 44: Spannend boek",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -1990,11 +1993,14 @@
         "text": "bank.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "juiste volgorde"
     ]
   },
   {
     "id": 45,
-    "label": "Zin 45: Spannende film (juiste volgorde)",
+    "label": "Zin 45: Spannende film",
     "predicateType": "NG",
     "level": 1,
     "tokens": [
@@ -2029,11 +2035,14 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "juiste volgorde"
     ]
   },
   {
     "id": 46,
-    "label": "Zin 46: Pizza bij oma (juiste volgorde)",
+    "label": "Zin 46: Pizza bij oma",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2068,11 +2077,14 @@
         "text": "oma.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "juiste volgorde"
     ]
   },
   {
     "id": 47,
-    "label": "Zin 47: Onze hond (juiste volgorde)",
+    "label": "Zin 47: Onze hond",
     "predicateType": "NG",
     "level": 1,
     "tokens": [
@@ -2105,11 +2117,14 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "juiste volgorde"
     ]
   },
   {
     "id": 48,
-    "label": "Zin 48: Moeilijke opgave (juiste volgorde)",
+    "label": "Zin 48: Moeilijke opgave",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2150,11 +2165,14 @@
         "text": "samen.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "juiste volgorde"
     ]
   },
   {
     "id": 49,
-    "label": "Zin 49: Koekjes bakken (basisvolgorde)",
+    "label": "Zin 49: Koekjes bakken",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2199,11 +2217,14 @@
         "text": "koekjes.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
     "id": 50,
-    "label": "Zin 50: Moe baby (basisvolgorde)",
+    "label": "Zin 50: Moe baby",
     "predicateType": "NG",
     "level": 1,
     "tokens": [
@@ -2250,11 +2271,14 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
     "id": 51,
-    "label": "Zin 51: Huiswerk nakijken (basisvolgorde)",
+    "label": "Zin 51: Huiswerk nakijken",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2287,11 +2311,14 @@
         "text": "huiswerk.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
     "id": 52,
-    "label": "Zin 52: Bal op training (basisvolgorde)",
+    "label": "Zin 52: Bal op training",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2325,11 +2352,14 @@
         "text": "snel.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
     "id": 53,
-    "label": "Zin 53: Lunch klaarzetten (basisvolgorde)",
+    "label": "Zin 53: Lunch klaarzetten",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2353,11 +2383,14 @@
         "text": "lunch.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
     "id": 54,
-    "label": "Zin 54: Sommen oefenen (basisvolgorde)",
+    "label": "Zin 54: Sommen oefenen",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2386,11 +2419,14 @@
         "text": "vanavond.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
     "id": 55,
-    "label": "Zin 55: Fiets repareren (basisvolgorde)",
+    "label": "Zin 55: Fiets repareren",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2421,11 +2457,14 @@
         "text": "fiets.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
     "id": 56,
-    "label": "Zin 56: Presentatie voorbereiden (basisvolgorde)",
+    "label": "Zin 56: Presentatie voorbereiden",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2461,6 +2500,9 @@
         "text": "morgen.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {
@@ -2493,7 +2535,7 @@
   },
   {
     "id": 58,
-    "label": "Zin 58: Tennisracket zoeken (basisvolgorde)",
+    "label": "Zin 58: Tennisracket zoeken",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
@@ -2524,6 +2566,9 @@
         "text": "boven.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "basisvolgorde"
     ]
   },
   {

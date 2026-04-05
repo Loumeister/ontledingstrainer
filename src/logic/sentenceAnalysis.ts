@@ -246,6 +246,51 @@ export function compareSentence(
 // Aggregate: students with recurring errors across sessions
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// getSentenceSols — extract all student solutions for a specific sentence
+// ---------------------------------------------------------------------------
+
+export interface SentenceSolWithMeta {
+  /** Display name of the student (name + initiaal if present) */
+  studentName: string;
+  klas?: string;
+  /** ISO-8601 timestamp of the session */
+  timestamp: string;
+  /** Raw solution: split indices and chunk labels submitted by the student */
+  sol: { sp: number[]; lb: Record<string, string> };
+}
+
+/**
+ * Extract every student solution for a given sentence from a set of reports.
+ * Returns entries sorted most-recent-first. Reports without `sols` are skipped.
+ *
+ * Only use this for teacher-facing analytics — never render in student flow.
+ */
+export function getSentenceSols(
+  sentenceId: number,
+  reports: Array<{
+    name: string;
+    initiaal?: string;
+    klas?: string;
+    ts: string;
+    sols?: Array<{ sid: number; sp: number[]; lb: Record<string, string> }>;
+  }>,
+): SentenceSolWithMeta[] {
+  const result: SentenceSolWithMeta[] = [];
+  for (const report of reports) {
+    if (!report.sols) continue;
+    const matchingSol = report.sols.find(s => s.sid === sentenceId);
+    if (!matchingSol) continue;
+    result.push({
+      studentName: report.name + (report.initiaal ? ` ${report.initiaal}.` : ''),
+      klas: report.klas,
+      timestamp: report.ts,
+      sol: { sp: matchingSol.sp, lb: matchingSol.lb },
+    });
+  }
+  return result.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+}
+
 export interface RecurringErrorInfo {
   studentName: string;
   recurringRoles: string[];

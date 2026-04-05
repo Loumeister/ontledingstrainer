@@ -706,6 +706,15 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
                         <p className="text-xs text-slate-400 dark:text-slate-500">
                           Niveau {s.level} | {s.predicateType} | {s.tokens.length} woorden
                         </p>
+                        {s.structuralTags && s.structuralTags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {s.structuralTags.map(tag => (
+                              <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <div className="flex gap-2 ml-3">
                         {isBuiltIn ? (

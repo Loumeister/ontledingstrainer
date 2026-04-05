@@ -275,7 +275,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
         )}
 
         {activeTab === 'zinnen' && (
-          <SentencesTab enrichedData={enrichedData} />
+          <SentencesTab enrichedData={enrichedData} allReports={allReports} sentenceMap={sentenceMap} />
         )}
 
         {activeTab === 'beheer' && (

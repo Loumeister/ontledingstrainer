@@ -2,10 +2,18 @@
  * SentencesTab — "Zinnen" tab in usage analytics.
  *
  * Per-sentence analytics with filter, sort, and level grouping.
+ * Expandable drill-down shows per-student solutions using compareSentence
+ * and SentenceComparison, so teachers can see exactly where errors occurred.
+ *
+ * structuralTags are shown as metadata badges (teacher-only context).
  */
 import React, { useState } from 'react';
+import type { Sentence } from '../../types';
+import type { SessionReport } from '../../services/sessionReport';
 import type { EnrichedUsage } from './types';
 import { describeRate } from './colorHelpers';
+import { compareSentence, getSentenceSols } from '../../logic/sentenceAnalysis';
+import { SentenceComparison } from './SentenceComparison';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -16,6 +24,8 @@ type SortDir = 'asc' | 'desc';
 
 interface SentencesTabProps {
   enrichedData: EnrichedUsage[];
+  allReports: SessionReport[];
+  sentenceMap: Map<number, Sentence>;
 }
 
 // ---------------------------------------------------------------------------
@@ -58,14 +68,79 @@ function LevelGroup({ title, color, bg, count, avgPerfect, useGrouping, children
 }
 
 // ---------------------------------------------------------------------------
+// SentenceDrillDown — student solutions for one sentence
+// ---------------------------------------------------------------------------
+
+interface SentenceDrillDownProps {
+  sentenceId: number;
+  allReports: SessionReport[];
+  sentenceMap: Map<number, Sentence>;
+}
+
+function SentenceDrillDown({ sentenceId, allReports, sentenceMap }: SentenceDrillDownProps) {
+  const sentence = sentenceMap.get(sentenceId);
+  const sols = getSentenceSols(sentenceId, allReports as Parameters<typeof getSentenceSols>[1]);
+
+  if (sols.length === 0) {
+    return (
+      <p className="text-[11px] text-slate-400 dark:text-slate-500 italic">
+        Geen uitwerkingen beschikbaar voor deze zin.
+      </p>
+    );
+  }
+
+  if (!sentence) {
+    return (
+      <p className="text-[11px] text-slate-400 dark:text-slate-500 italic">
+        Zindata niet gevonden (id {sentenceId}).
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {sols.map((entry, i) => {
+        const comparison = compareSentence(sentence, entry.sol);
+        const isPerfect = comparison.summary.splitErrors === 0 && comparison.summary.labelErrors === 0;
+        return (
+          <div key={i} className="border border-slate-100 dark:border-slate-700 rounded-lg overflow-hidden">
+            <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-700/40 flex items-center gap-2">
+              <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                {entry.studentName}
+              </span>
+              {entry.klas && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-600 text-slate-500 dark:text-slate-300">
+                  {entry.klas}
+                </span>
+              )}
+              <span className="text-[10px] text-slate-400 ml-auto">
+                {new Date(entry.timestamp).toLocaleDateString('nl-NL')}
+              </span>
+            </div>
+            <div className="p-3">
+              <SentenceComparison
+                comparison={comparison}
+                sentenceLabel={sentence.label}
+                isPerfect={isPerfect}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
-export const SentencesTab: React.FC<SentencesTabProps> = ({ enrichedData }) => {
+export const SentencesTab: React.FC<SentencesTabProps> = ({ enrichedData, allReports, sentenceMap }) => {
   const [sortField, setSortField] = useState<SortField>('attempts');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [filterSource, setFilterSource] = useState<'all' | 'builtin' | 'custom'>('all');
   const [filterLevel, setFilterLevel] = useState<number | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
 
   const filtered = enrichedData.filter(d => {
     if (filterSource === 'custom' && !d.isCustom) return false;
@@ -91,6 +166,14 @@ export const SentencesTab: React.FC<SentencesTabProps> = ({ enrichedData }) => {
     const [field, dir] = value.split('-') as [SortField, SortDir];
     setSortField(field);
     setSortDir(dir);
+  };
+
+  const toggleExpand = (id: number) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
   };
 
   const LEVEL_META: Record<number, { label: string; color: string; bg: string }> = {
@@ -158,6 +241,9 @@ export const SentencesTab: React.FC<SentencesTabProps> = ({ enrichedData }) => {
                     const rateInfo = d.usage.attempts > 0 ? describeRate(d.perfectRate) : { text: 'Nog niet gecontroleerd', emoji: '⚪', colorClass: 'text-slate-400' };
                     const totalInteractions = d.usage.attempts + d.usage.showAnswerCount;
                     const gaveUpOften = totalInteractions > 0 && (d.usage.showAnswerCount / totalInteractions) > 0.5;
+                    const isExpanded = expandedIds.has(d.sentenceId);
+                    const sentence = sentenceMap.get(d.sentenceId);
+                    const structuralTags = sentence?.structuralTags ?? [];
 
                     let tip = '';
                     if (d.perfectRate < 25 && d.usage.attempts >= 3) {
@@ -173,54 +259,89 @@ export const SentencesTab: React.FC<SentencesTabProps> = ({ enrichedData }) => {
                     }
 
                     return (
-                      <div key={d.sentenceId} className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
-                        <div className="flex items-start gap-2 mb-3">
-                          <span className="text-lg flex-shrink-0">{rateInfo.emoji}</span>
-                          <div className="flex-1 min-w-0">
-                            <span className="font-semibold text-slate-700 dark:text-slate-200 block truncate">{d.label}</span>
-                            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                              <span className={`text-xs font-bold ${rateInfo.colorClass}`}>{rateInfo.text}</span>
-                              {d.isCustom && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 font-medium">Eigen zin</span>}
-                              {d.usage.flagged && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300 font-medium">Gemarkeerd</span>}
+                      <div key={d.sentenceId} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow overflow-hidden">
+                        {/* Card header — always visible */}
+                        <div className="p-4">
+                          <div className="flex items-start gap-2 mb-3">
+                            <span className="text-lg flex-shrink-0">{rateInfo.emoji}</span>
+                            <div className="flex-1 min-w-0">
+                              <span className="font-semibold text-slate-700 dark:text-slate-200 block truncate">{d.label}</span>
+                              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                <span className={`text-xs font-bold ${rateInfo.colorClass}`}>{rateInfo.text}</span>
+                                {d.isCustom && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 font-medium">Eigen zin</span>}
+                                {d.usage.flagged && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300 font-medium">Gemarkeerd</span>}
+                              </div>
+                              {/* Structural tags — teacher metadata, never shown to students */}
+                              {structuralTags.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mt-1.5">
+                                  {structuralTags.map(tag => (
+                                    <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800">
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            {d.usage.lastAttempted && (
+                              <span className="text-[10px] text-slate-400 flex-shrink-0">{new Date(d.usage.lastAttempted).toLocaleDateString('nl-NL')}</span>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center text-xs">
+                            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-2">
+                              <div className="font-bold text-slate-700 dark:text-slate-200">{d.usage.attempts}</div>
+                              <div className="text-slate-400">pogingen</div>
+                            </div>
+                            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-2">
+                              <div className={`font-bold ${rateInfo.colorClass}`}>{d.usage.attempts > 0 ? `${d.perfectRate.toFixed(0)}%` : '—'}</div>
+                              <div className="text-slate-400">in één keer goed</div>
+                            </div>
+                            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-2">
+                              <div className={`font-bold ${d.usage.showAnswerCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'}`}>{d.usage.showAnswerCount}x</div>
+                              <div className="text-slate-400">antwoord bekeken</div>
+                            </div>
+                            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-2">
+                              <div className={`font-bold ${d.usage.splitErrors > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-slate-400'}`}>{d.usage.splitErrors}</div>
+                              <div className="text-slate-400">verdeelfouten</div>
                             </div>
                           </div>
-                          {d.usage.lastAttempted && (
-                            <span className="text-[10px] text-slate-400 flex-shrink-0">{new Date(d.usage.lastAttempted).toLocaleDateString('nl-NL')}</span>
+                          {roleErrorEntries.length > 0 && (
+                            <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/50">
+                              <span className="text-[11px] text-slate-400 block mb-1">Meest verwarde zinsdelen:</span>
+                              <div className="flex flex-wrap gap-1.5">
+                                {roleErrorEntries.map(([role, count]) => (
+                                  <span key={role} className="text-[11px] px-2 py-1 rounded-lg bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 font-medium">
+                                    {role} ({count}x)
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {d.usage.attempts >= 2 && tip && (
+                            <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/50">
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">{tip}</p>
+                            </div>
+                          )}
+                          {/* Expand toggle — only show when there are reports with sols */}
+                          {d.usage.attempts > 0 && (
+                            <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/50">
+                              <button
+                                onClick={() => toggleExpand(d.sentenceId)}
+                                className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                              >
+                                {isExpanded ? 'Verberg uitwerkingen ▲' : 'Toon uitwerkingen leerlingen ▼'}
+                              </button>
+                            </div>
                           )}
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center text-xs">
-                          <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-2">
-                            <div className="font-bold text-slate-700 dark:text-slate-200">{d.usage.attempts}</div>
-                            <div className="text-slate-400">pogingen</div>
-                          </div>
-                          <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-2">
-                            <div className={`font-bold ${rateInfo.colorClass}`}>{d.usage.attempts > 0 ? `${d.perfectRate.toFixed(0)}%` : '—'}</div>
-                            <div className="text-slate-400">in één keer goed</div>
-                          </div>
-                          <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-2">
-                            <div className={`font-bold ${d.usage.showAnswerCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'}`}>{d.usage.showAnswerCount}x</div>
-                            <div className="text-slate-400">antwoord bekeken</div>
-                          </div>
-                          <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-2">
-                            <div className={`font-bold ${d.usage.splitErrors > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-slate-400'}`}>{d.usage.splitErrors}</div>
-                            <div className="text-slate-400">verdeelfouten</div>
-                          </div>
-                        </div>
-                        {roleErrorEntries.length > 0 && (
-                          <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/50">
-                            <span className="text-[11px] text-slate-400 block mb-1">Meest verwarde zinsdelen:</span>
-                            <div className="flex flex-wrap gap-1.5">
-                              {roleErrorEntries.map(([role, count]) => (
-                                <span key={role} className="text-[11px] px-2 py-1 rounded-lg bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 font-medium">
-                                  {role} ({count}x)
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        {d.usage.attempts >= 2 && tip && (
-                          <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/50">
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">{tip}</p>
+
+                        {/* Drill-down — per-student solutions */}
+                        {isExpanded && (
+                          <div className="border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30 p-4">
+                            <SentenceDrillDown
+                              sentenceId={d.sentenceId}
+                              allReports={allReports}
+                              sentenceMap={sentenceMap}
+                            />
                           </div>
                         )}
                       </div>

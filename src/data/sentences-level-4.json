@@ -131,7 +131,7 @@
   },
   {
     "id": 402,
-    "label": "Zin 402: In de war (Nevenschikking)",
+    "label": "Zin 402: In de war",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -194,11 +194,14 @@
         "text": "oplossing.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
     "id": 403,
-    "label": "Zin 403: Max piloot (Nevenschikking)",
+    "label": "Zin 403: Max piloot",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -281,6 +284,9 @@
         "role": "ng",
         "subRole": "wwd"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -421,7 +427,7 @@
   },
   {
     "id": 406,
-    "label": "Zin 406: Sleutel kwijt (Nevenschikking)",
+    "label": "Zin 406: Sleutel kwijt",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -508,6 +514,9 @@
         "text": "vertrekken.",
         "role": "bijzin"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -587,7 +596,7 @@
   },
   {
     "id": 408,
-    "label": "Zin 408: Groen drankje (Nevenschikking)",
+    "label": "Zin 408: Groen drankje",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -643,11 +652,14 @@
         "text": "het.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
     "id": 409,
-    "label": "Zin 409: Hamburgers of kip (Nevenschikking)",
+    "label": "Zin 409: Hamburgers of kip",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -696,6 +708,9 @@
         "text": "kip?",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "nevenschikking"
     ]
   },
   {
@@ -808,7 +823,7 @@
   },
   {
     "id": 412,
-    "label": "Zin 412: Kat op het dak (OW op afstand + bijzin)",
+    "label": "Zin 412: Kat op het dak",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -889,11 +904,15 @@
         "text": "muis.",
         "role": "lv"
       }
+    ],
+    "structuralTags": [
+      "ow op afstand",
+      "bijzin"
     ]
   },
   {
     "id": 413,
-    "label": "Zin 413: Leerlingen brugklas (OW op afstand + bijzin)",
+    "label": "Zin 413: Leerlingen brugklas",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -972,6 +991,10 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "ow op afstand",
+      "bijzin"
     ]
   },
   {
@@ -1265,7 +1288,7 @@
   },
   {
     "id": 420,
-    "label": "Zin 420: Bijvoeglijke bijzin (dat)",
+    "label": "Zin 420: Bijvoeglijke bijzin",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -1307,11 +1330,14 @@
         "text": "prachtig.",
         "role": "bwb"
       }
+    ],
+    "structuralTags": [
+      "bijvoeglijke bijzin (dat)"
     ]
   },
   {
     "id": 421,
-    "label": "Zin 421: Bijvoeglijke bijzin (waar)",
+    "label": "Zin 421: Bijvoeglijke bijzin",
     "predicateType": "WG",
     "level": 4,
     "tokens": [
@@ -1358,11 +1384,14 @@
         "text": "woonde.",
         "role": "bijzin"
       }
+    ],
+    "structuralTags": [
+      "bijvoeglijke bijzin (waar)"
     ]
   },
   {
     "id": 422,
-    "label": "Zin 422: Bijvoeglijke bijzin (die)",
+    "label": "Zin 422: Bijvoeglijke bijzin",
     "predicateType": "NG",
     "level": 4,
     "tokens": [
@@ -1413,6 +1442,9 @@
         "role": "ng",
         "subRole": "nwd"
       }
+    ],
+    "structuralTags": [
+      "bijvoeglijke bijzin (die)"
     ]
   },
   {
