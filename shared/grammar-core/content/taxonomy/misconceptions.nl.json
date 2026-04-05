@@ -1,0 +1,36 @@
+{
+  "version": "0.1.0",
+  "language": "nl",
+  "misconceptions": [
+    {
+      "code": "PV_STAM_T_OMISSION",
+      "title": "Stam+t weggelaten",
+      "learnerDescription": "Je vergat de -t waar die bij de persoonsvorm wel nodig is.",
+      "teacherDescription": "Leerling laat in de tegenwoordige tijd bij derde persoon enkelvoud of vergelijkbare contexten de vereiste +t weg.",
+      "remediation": [
+        "Laat leerling onderwerp en persoonsvorm markeren.",
+        "Controleer of de context om stam+t vraagt."
+      ]
+    },
+    {
+      "code": "PV_JIJ_INVERSION_FALSE_T",
+      "title": "Onterechte +t bij inversie met jij",
+      "learnerDescription": "Je schreef toch een -t terwijl jij na de persoonsvorm staat.",
+      "teacherDescription": "Leerling past ten onrechte de gewone jij-vorm toe in inversiecontexten.",
+      "remediation": [
+        "Herleid de zin naar normale volgorde.",
+        "Controleer of jij na de persoonsvorm staat."
+      ]
+    },
+    {
+      "code": "HOMOPHONE_FUNCTION_CONFUSION",
+      "title": "Homofone vorm verward door functiefout",
+      "learnerDescription": "De vorm klinkt goed, maar past niet bij de grammaticale functie.",
+      "teacherDescription": "Leerling baseert de spellingkeuze op klank in plaats van op grammaticale functie.",
+      "remediation": [
+        "Bepaal eerst de grammaticale functie.",
+        "Vergelijk met een contrasterende voorbeeldzin."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "shared-u1-001",
+    "text": "Morgen word jij dertien.",
+    "context": "Verjaardag",
+    "difficulty": "contrast",
+    "usableIn": ["ontledingstrainer", "werkwoordlab"],
+    "tags": ["pv-tt", "jij", "inversie-contrast", "word-wordt"]
+  },
+  {
+    "id": "shared-u1-002",
+    "text": "Jij wordt morgen dertien.",
+    "context": "Verjaardag",
+    "difficulty": "contrast",
+    "usableIn": ["ontledingstrainer", "werkwoordlab"],
+    "tags": ["pv-tt", "jij", "geen-inversie", "word-wordt"]
+  },
+  {
+    "id": "shared-u1-003",
+    "text": "Ik vind het antwoord meteen.",
+    "context": "Klassituatie",
+    "difficulty": "basis",
+    "usableIn": ["ontledingstrainer", "werkwoordlab"],
+    "tags": ["pv-tt", "ik", "vind-vindt"]
+  }
+]

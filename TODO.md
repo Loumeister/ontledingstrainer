@@ -297,14 +297,14 @@ Deze fase komt vóór diepere cross-product uitbreiding, maar hoeft lokale produ
 ### E. Shared-core zichtbaar maken in de repo
 **Doel:** de gedeelde canon fysiek beschikbaar maken als eerste leeslaag voor wrappers en agents.
 
-**Status (april 2026):**
-- documentair voorbereid: `shared/grammar-core/` staat expliciet als beoogde lokale locatie in de repo-docs
-- actueel: de subtree/map is in deze repo nog niet fysiek aanwezig
-- deze stap is voorbereiding: er is nog geen actieve shared-core integratie in runtime of productflow
+**Status (april 2026): ✅ DONE**
+- `shared/grammar-core/` toegevoegd als git subtree: `Loumeister/grammar-core main`, squash-commit `68528b4`, merge-commit `289c237`
+- alle 8 verwachte governance-docs aanwezig; agent/skill-bestanden bevestigd canonical
+- AGENTS.md, README.md, SPEC.md, TODO.md bijgewerkt met correcte pad- en autoriteitsverwijzingen
 
-**Taken:**
-- `shared/grammar-core/` als subtree of vergelijkbare lokale sync toevoegen (latere stap)
-- zorgen dat de paden uit `AGENTS.md` pas als actieve leeslaag gelden zodra ze lokaal bestaan
+**Openstaand (na subtree-landing):**
+- toekomstige subtree-updates uitvoeren met `git subtree pull --prefix=shared/grammar-core https://github.com/Loumeister/grammar-core.git main --squash`
+- overwegen om grammar-core privaat te houden en een deploy-token te configureren voor subtree-pulls (zie TODO-G voor sync-aanpak)
 - sync-afspraken vastleggen voor updates van die subtree
 
 ### F. Lokale wrappers en contracten synchroon houden
@@ -314,6 +314,14 @@ Deze fase komt vóór diepere cross-product uitbreiding, maar hoeft lokale produ
 - controleren of lokale skills nog kloppen met `AGENTS.md`
 - lokale contractbestanden synchroon houden met de werkelijke repo
 - voorkomen dat oudere repo-gecentreerde aannames terugsluipen in wrappers of contracten
+
+**Na landing van de subtree — specifieke verificatiepunten:**
+- lokale rollenlijst (pv, ow, lv, mv, bwb, …) verifiëren tegen `shared/grammar-core/docs/taxonomy-governance.md`
+- lokale parsingdidactische keuzes (Rollenladder, Ontleedhulp) vergelijken met `shared/grammar-core/docs/parsing-didactics-kaders.md`
+- lokale contentauteurspraktijken (zinstoevoeging, annotatie, level-keuze) vergelijken met `shared/grammar-core/docs/content-authoring-rules.md`
+- bevestigen dat `.codex/skills/zinsontleding-repo-inspector/references/repo-contract.md` aansluit bij `shared/grammar-core/docs/product-repo-contract-template.md`
+
+*Deze items zijn geen lokale productverbeteringen en staan niet op de lokale sprint-roadmap.*
 
 ### G. Lokale documentcoherentie bewaken
 **Doel:** lokale docs moeten niet uiteenlopen in productscope of architectuurtaal.

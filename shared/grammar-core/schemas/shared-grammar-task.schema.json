@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SharedGrammarTask",
+  "type": "object",
+  "required": ["id", "sentenceId", "sentence"],
+  "properties": {
+    "id": { "type": "string" },
+    "sentenceId": { "type": "string" },
+    "sentence": { "$ref": "./shared-sentence.schema.json" },
+    "parsing": { "$ref": "./parsing-metadata.schema.json" },
+    "spelling": { "$ref": "./spelling-metadata.schema.json" },
+    "notes": {
+      "type": ["object", "null"],
+      "properties": {
+        "didacticRationale": { "type": ["string", "null"] },
+        "recoveryPath": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
