@@ -16,7 +16,7 @@
  *   detectWordOrderFromRoles(roles) — for editor state (ordered role keys)
  */
 
-import type { Token } from '../types';
+import type { Token, RoleKey } from '../types';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -58,14 +58,14 @@ export function wordOrderBadgeClass(code: WordOrderCode): string {
 /** Short Dutch tooltip for the detected word order. */
 export function wordOrderTooltip(code: WordOrderCode): string {
   switch (code) {
-    case 'SVO': return 'Standaard volgorde (OW – PV – LV)';
-    case 'SOV': return 'Bijzinvolgorde (OW – LV – PV)';
-    case 'VSO': return 'Inversie: PV – OW – LV';
-    case 'VOS': return 'Inversie: PV – LV – OW';
-    case 'OVS': return 'Inversie: LV – PV – OW';
-    case 'OSV': return 'Inversie: LV – OW – PV';
-    case 'SV':  return 'Standaard zonder lijdend voorwerp (OW – PV)';
-    case 'VS':  return 'Inversie zonder lijdend voorwerp (PV – OW)';
+    case 'SVO': return 'Standaard volgorde (OW – PV – voorwerp)';
+    case 'SOV': return 'Bijzinvolgorde (OW – voorwerp – PV)';
+    case 'VSO': return 'Inversie: PV – OW – voorwerp';
+    case 'VOS': return 'Inversie: PV – voorwerp – OW';
+    case 'OVS': return 'Inversie: voorwerp – PV – OW';
+    case 'OSV': return 'Inversie: voorwerp – OW – PV';
+    case 'SV':  return 'Standaard zonder voorwerp (OW – PV)';
+    case 'VS':  return 'Inversie zonder voorwerp (PV – OW)';
     default:    return 'Woordvolgorde onbekend';
   }
 }
@@ -81,7 +81,7 @@ export function wordOrderTooltip(code: WordOrderCode): string {
  * Only the FIRST occurrence of each role is used to determine the order.
  * Roles that do not map to S, V, or O are ignored.
  */
-export function detectWordOrderFromRoles(roles: readonly (string | undefined | null)[]): WordOrderInfo {
+export function detectWordOrderFromRoles(roles: readonly (RoleKey | undefined | null)[]): WordOrderInfo {
   let sPos = -1;
   let vPos = -1;
   let oPos = -1;
@@ -133,6 +133,6 @@ export function detectWordOrderFromRoles(roles: readonly (string | undefined | n
  * Uses the position of the first token with each role.
  */
 export function detectWordOrder(tokens: Token[]): WordOrderInfo {
-  const roles = tokens.map(t => t.role as string | undefined);
+  const roles = tokens.map(t => t.role);
   return detectWordOrderFromRoles(roles);
 }

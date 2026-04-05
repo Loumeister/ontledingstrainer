@@ -896,7 +896,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
 
               {/* Live woordvolgorde labelmaker */}
               {(() => {
-                const orderedRoles = chunks.map((_, i) => chunkLabels[i] as string | undefined);
+                const orderedRoles = chunks.map((_, i) => chunkLabels[i] as RoleKey | undefined);
                 const wo = detectWordOrderFromRoles(orderedRoles);
                 const badgeCls = wordOrderBadgeClass(wo.code);
                 return (

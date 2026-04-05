@@ -80,7 +80,7 @@ interface SentenceDrillDownProps {
 
 function SentenceDrillDown({ sentenceId, allReports, sentenceMap }: SentenceDrillDownProps) {
   const sentence = sentenceMap.get(sentenceId);
-  const sols = getSentenceSols(sentenceId, allReports as Parameters<typeof getSentenceSols>[1]);
+  const sols = getSentenceSols(sentenceId, allReports);
 
   if (sols.length === 0) {
     return (
@@ -100,11 +100,12 @@ function SentenceDrillDown({ sentenceId, allReports, sentenceMap }: SentenceDril
 
   return (
     <div className="space-y-3">
-      {sols.map((entry, i) => {
+      {sols.map((entry) => {
         const comparison = compareSentence(sentence, entry.sol);
         const isPerfect = comparison.summary.splitErrors === 0 && comparison.summary.labelErrors === 0;
+        const entryKey = `${sentenceId}-${entry.studentName}-${entry.timestamp}`;
         return (
-          <div key={i} className="border border-slate-100 dark:border-slate-700 rounded-lg overflow-hidden">
+          <div key={entryKey} className="border border-slate-100 dark:border-slate-700 rounded-lg overflow-hidden">
             <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-700/40 flex items-center gap-2">
               <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">
                 {entry.studentName}
