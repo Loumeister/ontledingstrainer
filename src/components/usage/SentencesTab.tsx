@@ -247,6 +247,7 @@ export const SentencesTab: React.FC<SentencesTabProps> = ({ enrichedData, allRep
                     const sentence = sentenceMap.get(d.sentenceId);
                     const structuralTags = sentence?.structuralTags ?? [];
                     const wordOrder = sentence ? detectWordOrder(sentence.tokens) : null;
+                    const hasSols = allReports.some(r => r.sols?.some(s => s.sid === d.sentenceId));
 
                     let tip = '';
                     if (d.perfectRate < 25 && d.usage.attempts >= 3) {
@@ -332,8 +333,8 @@ export const SentencesTab: React.FC<SentencesTabProps> = ({ enrichedData, allRep
                               <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">{tip}</p>
                             </div>
                           )}
-                          {/* Expand toggle — only show when there are reports with sols */}
-                          {d.usage.attempts > 0 && (
+                          {/* Expand toggle — only show when at least one report has sols for this sentence */}
+                          {hasSols && (
                             <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/50">
                               <button
                                 onClick={() => toggleExpand(d.sentenceId)}
