@@ -58,3 +58,51 @@ Bron: `src/constants.ts`.
 - Vermijd zinnen die alleen werken doordat `alternativeRole` een dubbellezing opvangt, tenzij dat expliciet beoogd is.
 - Vermijd constructies met twee verdedigbare schoolanalyses, vooral bij `vv`/`bwb` en bijzinfuncties.
 - Herinterpreteer bestaande zinnen niet stilzwijgend op semantisch of structureel niveau.
+
+---
+
+## Positie in de shared taxonomy governance
+
+`shared/grammar-core/docs/taxonomy-governance.md` definieert een vier-laags model:
+**canonical label / display label / alias / product-local short label**
+
+De lokale `RoleKey`-waarden in dit repo vallen in de **product-local short label**-laag:
+
+| Lokale sleutel | Shared canonical label |
+|---|---|
+| `pv` | `persoonsvorm` |
+| `ow` | `onderwerp` |
+| `lv` | `lijdend_voorwerp` |
+| `mv` | `meewerkend_voorwerp` |
+| `bwb` | `bijwoordelijke_bepaling` |
+| `vv` | `voorzetselvoorwerp` |
+| `bijst` | `bijstelling` |
+| `wg` | `werkwoordelijk_gezegde` |
+| `ng` | (naamwoordelijk gezegde — lokale hoofdrol, geen aparte canonical entry) |
+| `bijzin` | `bijzin` |
+| `vw_neven` | `nevenschikkend_voegwoord` |
+| `bijv_bep` | `bijvoeglijke_bepaling` |
+| `vw_onder` | `onderschikkend_voegwoord` |
+| `wwd` | `werkwoordelijk_deel` |
+| `nwd` | `naamwoordelijk_deel` |
+
+Deze lokale sleutels zijn:
+- **correct** als lokale runtime-sleutels
+- **niet** de shared canonical labels
+- **niet** verplicht te hernoemen om met de shared laag overeen te komen
+
+De mapping is informatief. Hernoemen van lokale sleutels naar canonical labels is geen vereiste.
+
+---
+
+## Lokale interpretatie van shared content-authoring-rules.md
+
+`shared/grammar-core/docs/content-authoring-rules.md` is gezaghebbend voor de **gedeelde** zinnenbank. Voor lokaal Ontleedlab-materiaal gelden twee expliciete kwalificaties:
+
+**Regel 1** (didactische waarde boven volume):
+Geldt als initieel ontwerpprincipe — een nieuw item toevoegen aan een bestaand oefentype is lokaal toegestaan als dat didactisch nuttig is. Het is **geen permanente verbodsbepaling** op herhaling van een oefentype.
+
+**Regel 6** (leeftijds- en onderbouwgeschiktheid):
+Geldt voor de gedeelde zinnenbank in `grammar-core`. Voor lokaal Ontleedlab-materiaal is dit **geen harde eis** — lokale zinnen mogen uitdagender zijn dan de gedeelde onderbouwnorm waar de lokale didactische context dat rechtvaardigt.
+
+Overige shared authoring-regels (2–5) worden lokaal als gezaghebbende richtlijnen gevolgd, tenzij hier expliciet anders gedocumenteerd.
