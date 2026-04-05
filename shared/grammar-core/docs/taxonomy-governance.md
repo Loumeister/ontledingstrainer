@@ -43,6 +43,7 @@ The following table defines the shared canonical labels. The canonical label is 
 | `voorzetselvoorwerp` | Prepositional complement | Voorzetselvoorwerp |
 | `bijstelling` | Appositive | Bijstelling |
 | `werkwoordelijk_gezegde` | Verbal predicate (full) | Werkwoordelijk gezegde |
+| `werkwoordelijk_deel` | Verbal part of a nominal predicate | Werkwoordelijk deel van het gezegde |
 | `naamwoordelijk_deel` | Nominal predicate part | Naamwoordelijk deel van het gezegde |
 | `bijzin` | Subordinate clause functioning as a clause-level constituent | Bijzin (als zinsdeel) |
 | `nevenschikkend_voegwoord` | Coordinating conjunction | Nevenschikkend voegwoord |
@@ -63,6 +64,7 @@ Product repos often use short keys internally. These are product-local and not s
 | `vv` | `voorzetselvoorwerp` |
 | `bijst` | `bijstelling` |
 | `wg` | `werkwoordelijk_gezegde` |
+| `wwd` | `werkwoordelijk_deel` |
 | `nwd` | `naamwoordelijk_deel` |
 | `bijzin` | `bijzin` |
 | `vw_neven` | `nevenschikkend_voegwoord` |

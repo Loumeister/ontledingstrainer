@@ -83,7 +83,8 @@ De lokale `RoleKey`-waarden in dit repo vallen in de **product-local short label
 | `vw_neven` | `nevenschikkend_voegwoord` |
 | `bijv_bep` | `bijvoeglijke_bepaling` |
 | `vw_onder` | `onderschikkend_voegwoord` |
-| `wwd`, `nwd` | sub-only rollen; geen directe canonical mapping |
+| `wwd` | `werkwoordelijk_deel` |
+| `nwd` | `naamwoordelijk_deel` |
 
 Deze lokale sleutels zijn:
 - **correct** als lokale runtime-sleutels
