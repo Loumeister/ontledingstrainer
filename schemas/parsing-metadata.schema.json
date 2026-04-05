@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ParsingMetadata",
+  "type": "object",
+  "properties": {
+    "persoonsvorm": { "type": ["string", "null"] },
+    "onderwerp": { "type": ["string", "null"] },
+    "inversion": { "type": ["boolean", "null"] },
+    "grammaticalFunctionTargets": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "sentencePattern": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}
