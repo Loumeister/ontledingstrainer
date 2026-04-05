@@ -8,6 +8,20 @@ Het doel is niet om losse onderwijsclaims te verzamelen, maar om een klein aanta
 - geen willekeurige of traditionele routines reproduceren
 - nieuwe units, feedback en taxonomie alleen toevoegen als daar didactische grond voor is
 
+## Reikwijdte en adoptiegrens
+
+Dit document is **canoniek binnen `grammar-core`** als gedeeld didactisch kader voor werkwoordspellingsonderwijs.
+
+Dit document is **niet automatisch bindend voor productrepo's**.
+
+Adoptie door productrepo's is een **bewuste, expliciete keuze**:
+- een productrepo die dit kader wil volgen, documenteert die keuze expliciet in zijn lokale productcontract
+- een productrepo die dit kader gedeeltelijk volgt, documenteert welke principes lokaal gelden en welke niet
+- stilzwijgende adoptie is niet geldig; stilzwijgende afwijking is evenmin geldig
+
+**Specifiek voor `ontledingstrainer` / Ontleedlab:**
+`ontledingstrainer` wordt bestuurd door zijn eigen lokale productcontract. Dit document is niet automatisch van kracht in `ontledingstrainer` tenzij het lokale productcontract daar expliciet naar verwijst. Ontleedlab-specifieke keuzes rond evaluatielogica, feedbackflows en progressionlogica blijven lokaal, ook als dit document gedeelde didactische principes formuleert die conceptueel verwant zijn.
+
 ## Hoe dit document gebruikt moet worden
 Bij inhoudelijke wijzigingen aan:
 - units

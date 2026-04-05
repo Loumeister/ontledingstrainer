@@ -1,20 +1,26 @@
-# Ontleedlab Master Operating Map
+# Grammar Platform Program Map
 
-_Last updated: 2026-04-02_
+_Last updated: 2026-04-05_
+
+> **Note on scope**: This document was originally titled "Ontleedlab Master Operating Map". It has been reframed as a neutral cross-repo program map.
+>
+> Ontleedlab-specific operational content (local product state, local documentation drift, local task boards) belongs in `ontledingstrainer`'s own local documentation — not in shared canon. This document retains the governance architecture, workstream structure, and dependency chain that are genuinely cross-repo.
+
+---
 
 ## Purpose
 
-This document is the control map for Ontleedlab.
+This document is the program map for the shared grammar platform.
 
-It exists to keep four kinds of drift visible and bounded:
-1. product drift between Ontleedapp and the werkwoordspelling app
+It keeps four kinds of drift visible and bounded:
+1. product drift between product repos and the shared foundation
 2. documentation drift inside and across repos
 3. AI-instruction drift between `grammar-core` and local product repos
 4. strategy drift toward a vague future grammar platform without the right backbone
 
 This is not a product spec and not a local repo contract.
 It is the shared program map for:
-- what exists now
+- what the governance architecture is
 - what is being aligned
 - what is still in flight
 - what depends on what
@@ -24,13 +30,13 @@ It is the shared program map for:
 
 ## North star
 
-Ontleedlab is moving toward one shared grammar foundation with multiple product modes on top of it.
+The grammar platform is moving toward one shared grammar foundation with multiple product modes on top of it.
 
-That means the real target is not:
+The real target is not:
 
 ```text
-Ontleedapp
-+ werkwoordspelling app
+product repo A
++ product repo B
 + some shared docs
 + later a third big grammar app
 ```
@@ -38,20 +44,20 @@ Ontleedapp
 The real target is:
 
 ```text
-shared grammar backbone
-├─ Ontleedapp / ontledingstrainer
-├─ Werkwoordlab / werkwoordspelling app
+shared grammar backbone (grammar-core)
+├─ ontledingstrainer / parsing product
+├─ Werkwoordlab / verb-spelling product
 └─ later: one integrated grammar platform
 ```
 
 Core rule:
 
-**Do not merge the apps directly. Let them converge upward through the shared foundation.**
+**Do not merge the product repos directly. Let them converge upward through the shared foundation.**
 
 ```text
-Ontleedapp ─┐
-            ├──> shared foundation in grammar-core ───> later integrated grammar platform
-WW app   ───┘
+parsing product ───┐
+                   ├──> shared foundation in grammar-core ───> later integrated grammar platform
+WW product     ────┘
 ```
 
 ---
@@ -65,15 +71,15 @@ LAYER A. SHARED FOUNDATION
 - shared content governance
 - shared Claude/Codex instruction layer
 - shared contract pattern
-- shared sentence/content direction
+- shared sentence/content direction (seed set now; full layer later)
 
 LAYER B. LOCAL PRODUCT REPOS
-- ontledingstrainer / Ontleedapp
-- Werkwoordlab / werkwoordspelling app
+- ontledingstrainer / parsing product
+- Werkwoordlab / verb-spelling product
 
 LAYER C. FUTURE PLATFORM
 - shared grammar-kernel direction
-- shared sentence/content layer
+- shared sentence/content layer (operational)
 - shared learner diagnosis layer
 - multiple exercise modes on one foundation
 - selected shared teacher logic where justified
@@ -97,26 +103,7 @@ Purpose:
 - provide the shared instruction layer for Claude and Codex
 - protect product repos from silent conceptual drift
 
-Canonical files already present on `main` include:
-- `docs/werkwoordspellingsdidactiek-kaders.md`
-- `docs/parsing-didactics-kaders.md`
-- `docs/grammar-platform-principles.md`
-- `docs/content-authoring-rules.md`
-- `docs/taxonomy-governance.md`
-- `docs/repo-sync-strategy.md`
-- `docs/product-repo-contract-template.md`
-- `docs/portable-to-core-map.md`
-- `docs/agent-catalog.md`
-- `/.claude/agents/*`
-- `/.codex/skills/*`
-
-Important current nuance:
-- the tool-native path restructure is already merged
-- `docs/agent-catalog.md` is already on `main`
-- a root `CLAUDE.md` is proposed in an open PR, but is not yet part of `main` at the time of this map
-- the README path cleanup is also still in an open PR at the time of this map
-
-### `ontledingstrainer` / Ontleedapp
+### `ontledingstrainer`
 Role: local parsing product repo.
 
 Purpose:
@@ -124,103 +111,17 @@ Purpose:
 - continue product development without flattening local parsing logic into generic platform language
 - later plug into shared content and shared diagnostic work where appropriate
 
-Current structural reality from recent work:
-- a local `repo-contract.md` sync step is active or recently completed
-- documentation drift and repo incongruence were identified as real risks
-- local parsing behavior must not change during contract-sync or documentation-alignment steps
+Local product state, documentation drift maps, and task boards for `ontledingstrainer` belong in that repo's own local documentation — not in this file.
 
-### `Werkwoordlab` / werkwoordspelling app
+### `Werkwoordlab`
 Role: local verb-spelling product repo.
 
 Purpose:
-- build an evidence-based workwoordspelling product with equal architectural discipline
+- build an evidence-based verb-spelling product with equal architectural discipline
 - maintain product-specific logic, progression, and feedback structure
 - later connect to shared sentence reuse and shared diagnostic work
 
-Current structural reality from recent work:
-- the app is an active product stream, not a future side project
-- it still needs the same degree of contract clarity and instruction discipline as Ontleedapp
-- future convergence should happen through shared content, shared diagnosis, and shared governance, not through direct app fusion
-
----
-
-## Current board state
-
-### Shared foundation
-
-```text
-grammar-core shared governance ............ IN PROGRESS
-shared parsing governance ................. IN PROGRESS
-shared verb-spelling governance ........... IN PROGRESS
-agent catalog ............................. PRESENT ON MAIN
-tool-native agent/skill paths ............. PRESENT ON MAIN
-root CLAUDE.md ............................ PROPOSED IN OPEN PR
-README path cleanup ....................... PROPOSED IN OPEN PR
-shared sentence schema .................... NOT YET LOCKED
-shared learner diagnosis model ............ NOT YET LOCKED
-```
-
-### Ontleedapp
-
-```text
-local repo contract sync .................. ACTIVE
-documentation drift map ................... NEEDED / PARTLY STARTED
-doc realignment ........................... NEEDED
-runtime protection ........................ NON-NEGOTIABLE
-product development ....................... ONGOING
-future shared-content readiness ........... EARLY STAGE
-```
-
-### Werkwoordlab / WW app
-
-```text
-evidence-based didactic backbone .......... ACTIVE
-local structural contract/rules ........... NEEDED
-repo-level alignment with grammar-core .... NEEDED
-product roadmap ........................... ACTIVE
-future integration readiness .............. EARLY STAGE
-```
-
-### Future integrated grammar platform
-
-```text
-platform direction ........................ ACTIVE AS STRATEGY
-separate build stream ..................... SHOULD NOT START YET
-shared kernel extraction .................. LATER
-shared mode logic ......................... LATER
-shared teacher layer ...................... LATER
-```
-
----
-
-## What the recent chats changed
-
-### 1. Bringing the apps together
-Core conclusion:
-- the best end state is one grammar platform
-- the immediate move is not direct fusion
-- the immediate move is shared foundation first
-
-### 2. Mapping outdated or incongruent material in `ontledingstrainer`
-Core conclusion:
-- repo-level documentation drift is already a practical problem
-- Ontleedapp needs a visible documentation and contract realignment pass before larger cross-repo expansion
-
-### 3. Revising `repo-contract.md`
-Core conclusion:
-- Ontleedapp needs a compact, accurate local contract
-- future contributors should read shared canon first, then local contract, then the task prompt
-
-### 4. Extending the shared canonical agent layer
-Core conclusion:
-- parsing didactics needs the same governance quality as workwoordspelling didactics
-- `grammar-core` is becoming the governance hub, not just a note repository
-
-### 5. Designing a root `CLAUDE.md`
-Core conclusion:
-- a top-level AI operating file is strategically useful
-- it should route contributors through the correct reading order without duplicating the full docs layer
-- at the time of this map, that file is proposed but not yet merged to `main`
+Local product state for `Werkwoordlab` belongs in that repo's own local documentation.
 
 ---
 
@@ -231,56 +132,42 @@ Goal: make `grammar-core` the stable control layer.
 
 Includes:
 - shared parsing didactic canon
-- shared workwoordspelling didactic canon
+- shared verb-spelling didactic canon
 - shared content governance
 - shared Claude agents and Codex skills
 - agent catalog
 - shared product-repo contract pattern
-- root-level orchestration once `CLAUDE.md` is merged
 - explicit rules for what must remain product-local
 
 Done when:
 - a new AI contributor can tell what is shared canon, what is local product logic, and what may not be generalized
 
-### Workstream 2. Ontleedapp stabilization and continuity
-Goal: keep Ontleedapp coherent while preparing it for later integration.
+### Workstream 2. Local product repo alignment
+Goal: keep product repos coherent while preparing them for later integration.
 
 Includes:
-- local contract sync
-- explicit outdated/incongruent documentation map
-- documentation realignment
-- preservation of local parsing taxonomy, feedback logic, and UI constraints
+- local contract sync in each product repo
+- explicit documentation of outdated or incongruent material
+- preservation of local parsing taxonomy, feedback logic, and UI constraints in `ontledingstrainer`
+- preservation of local verb-spelling logic in `Werkwoordlab`
 - continued product work inside those boundaries
 
 Done when:
-- Ontleedapp remains internally sharp and becomes easier to extend safely
+- each product repo is legible, internally consistent, and no longer quietly diverges from the shared layer
 
-### Workstream 3. Werkwoordlab backbone
-Goal: give the workwoordspelling app the same structural seriousness as Ontleedapp.
-
-Includes:
-- evidence-based didactic backbone
-- local contract or equivalent structural rules
-- alignment with `grammar-core`
-- product roadmap and repo structure
-- preparation for sentence reuse and shared diagnosis later
-
-Done when:
-- the WW app can evolve without becoming a later integration liability
-
-### Workstream 4. Bridge-layer design
+### Workstream 3. Bridge-layer design
 Goal: prepare convergence without prematurely starting a third full product stream.
 
 Includes:
-- shared sentence model
-- shared metadata model
+- shared sentence schema
+- shared sentence metadata model
 - sentence reuse rules across products
 - shared learner diagnosis concepts
 - bridge tasks between parsing and spelling modes
 - first boundary of a later grammar-kernel extraction
 
 Done when:
-- both apps can converge later without major rewrites or concept clashes
+- both product repos can converge later without major rewrites or concept clashes
 
 ---
 
@@ -302,14 +189,11 @@ later platform convergence
 
 What that means in practice:
 1. stabilize `grammar-core` governance files
-2. merge or finalize the root orchestration layer
-3. lock the shared contract pattern
-4. finish local contract sync in Ontleedapp
-5. make the outdated/incongruent map for Ontleedapp
-6. align Ontleedapp docs to repo reality
-7. create the equivalent structural map for the WW app
-8. only then lock the first bridge artifacts
-9. only after that start extracting genuinely shared runtime pieces
+2. lock the shared contract pattern
+3. finish local contract sync in each product repo
+4. align product repo docs to local repo reality
+5. only then lock the first bridge artifacts
+6. only after that start extracting genuinely shared runtime pieces
 
 ---
 
@@ -320,7 +204,6 @@ Deliverables:
 - shared parsing-oriented governance files
 - shared content governance skill coverage
 - stable agent catalog
-- root-level orchestration layer
 - stable shared product-repo contract template
 
 Exit criterion:
@@ -328,23 +211,20 @@ Exit criterion:
 
 ### Phase 2. Align local product reality
 Deliverables:
-- final local contract in Ontleedapp
-- explicit outdated/incongruent map for Ontleedapp
-- updated Ontleedapp docs that match repo reality
-- equivalent structural map and local rules for the WW app
+- final local contract in each product repo
+- updated product repo docs that match local repo reality
 
 Exit criterion:
 - the product repos are legible and no longer quietly diverge from the shared layer
 
 ### Phase 3. Continue product work safely
 Deliverables:
-- ongoing Ontleedapp feature work
-- ongoing WW app feature work
+- ongoing product feature work in each repo
 - architecture-aware prompts and agent usage
 - no broad runtime changes disguised as documentation work
 
 Exit criterion:
-- both apps continue moving without increasing structural debt
+- both product repos continue moving without increasing structural debt
 
 ### Phase 4. Design the bridge artifacts
 Deliverables:
@@ -374,10 +254,9 @@ Exit criterion:
 
 1. Do not start the integrated grammar platform as a third full build stream yet.
 2. Do not let `grammar-core` become vague or purely aspirational.
-3. Do not let Ontleedapp-specific parsing choices dissolve into shared abstractions.
-4. Do not let the WW app remain structurally looser than Ontleedapp.
-5. Do not hide architecture decisions inside one-off prompts.
-6. Do not perform runtime changes during contract-sync and documentation-alignment steps unless the task explicitly changes scope.
+3. Do not let product-specific parsing or spelling choices dissolve into shared abstractions.
+4. Do not hide architecture decisions inside one-off prompts.
+5. Do not perform runtime changes during contract-sync and documentation-alignment steps unless the task explicitly changes scope.
 
 ---
 
@@ -394,11 +273,9 @@ Exit criterion:
 2. local product contract
 3. task prompt
 
-When root `CLAUDE.md` is merged, it should become the first file in the top-level reading order for work inside `grammar-core`.
-
 ---
 
-## Simple visual overview
+## Visual overview
 
 ```text
                     ┌────────────────────────────────────┐
@@ -411,7 +288,7 @@ When root `CLAUDE.md` is merged, it should become the first file in the top-leve
                     ┌────────────────┴────────────────┐
                     │                                 │
         ┌───────────▼───────────┐         ┌──────────▼───────────┐
-        │     ONTLEEDAPP        │         │   WERKWOORDLAB       │
+        │   ONTLEDINGSTRAINER   │         │   WERKWOORDLAB       │
         │ local parsing logic   │         │ local spelling logic │
         │ local contract        │         │ local contract/rules │
         │ local docs            │         │ local docs           │
@@ -430,26 +307,9 @@ When root `CLAUDE.md` is merged, it should become the first file in the top-leve
 
 ---
 
-## Immediate next actions
-
-1. finish the shared instruction spine in `grammar-core`
-2. merge or finalize the root `CLAUDE.md`
-3. finalize Ontleedapp local contract sync
-4. produce the explicit outdated/incongruent map for Ontleedapp
-5. align Ontleedapp docs with that reality
-6. create the equivalent structural map for the WW app
-7. only then define the first shared bridge artifacts:
-   - shared sentence schema
-   - shared sentence metadata
-   - sentence reuse rules
-   - shared learner diagnosis concepts
-   - progression logic between modes
-
----
-
 ## Operating summary
 
-Ontleedlab should be managed as a layered system:
+The grammar platform should be managed as a layered system:
 - first govern the shared foundation
 - then align the local repos
 - then keep both products moving
