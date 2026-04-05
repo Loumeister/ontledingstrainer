@@ -14,9 +14,10 @@ Shared canon uit `grammar-core` **kadert** het werk, maar overschrijft de lokale
 ## Precedentievolgorde
 Werk altijd in deze volgorde:
 
-1. **Lees shared canon in `shared/grammar-core/` zodra die map lokaal aanwezig is** voor gedeelde didactische en governancekaders.
-2. **Lees de lokale Ontleedlab-contractlaag** voor productspecifieke realiteit (nu al verplicht, en leidend zolang shared-core lokaal nog ontbreekt).
-3. **Lees pas daarna de taakprompt** en voer het werk uit binnen die grenzen.
+1. **Lees `AGENTS.md`** — dit bestand — voor de leesvolgorde, grensbewaking en precedentieregels.
+2. **Lees shared canon in `shared/grammar-core/` zodra die map lokaal aanwezig is** voor gedeelde didactische en governancekaders.
+3. **Lees de lokale Ontleedlab-contractlaag** voor productspecifieke realiteit (nu al verplicht, en leidend zolang shared-core lokaal nog ontbreekt).
+4. **Lees pas daarna de taakprompt** en voer het werk uit binnen die grenzen.
 
 Als deze drie lagen botsen, geldt:
 - shared canon is leidend voor **gedeelde didactische principes en governance**
