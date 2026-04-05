@@ -37,7 +37,7 @@ Lees bij parsing- en governancewerk in elk geval:
 - `shared/grammar-core/docs/product-repo-contract-template.md` — contextueel (sjabloon voor productcontracten; lokaal ingevuld via `repo-contract.md`)
 - `shared/grammar-core/docs/werkwoordspellingsdidactiek-kaders.md` — contextueel, **niet bindend** voor Ontleedlab (aangrenzend spellingdomein, geen lokale implementatieverplichting)
 
-De eerder genoemde bestanden `parsing-didactic-architect.md`, `agent-catalog.md` en `parsing-content-governance/SKILL.md` zijn niet onderdeel van de bevestigde gedeelde bestandenlijst voor grammar-core. Behandel die als optioneel aanvullend materiaal indien aanwezig.
+De bestanden `shared/grammar-core/.claude/agents/parsing-didactic-architect.md`, `shared/grammar-core/docs/agent-catalog.md` en `shared/grammar-core/.codex/skills/parsing-content-governance/SKILL.md` zijn bevestigd aanwezig en canonical in grammar-core. Raadpleeg `agent-catalog.md` voor het volledige overzicht van canonical agents en skills.
 
 Gebruik shared canon voor:
 - parsingdidactische principes

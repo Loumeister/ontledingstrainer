@@ -297,19 +297,14 @@ Deze fase komt vóór diepere cross-product uitbreiding, maar hoeft lokale produ
 ### E. Shared-core zichtbaar maken in de repo
 **Doel:** de gedeelde canon fysiek beschikbaar maken als eerste leeslaag voor wrappers en agents.
 
-**Status (april 2026):**
-- documentair voorbereid: `shared/grammar-core/` staat expliciet als beoogde lokale locatie in de repo-docs
-- subtree-integratie geprobeerd en geblokkeerd: `Loumeister/grammar-core` bestaat nog niet op GitHub (HTTP 404 bevestigd)
-- **concrete blocker:** voordat `git subtree add` kan slagen, moet de repo `Loumeister/grammar-core` eerst aangemaakt en gevuld worden op GitHub
+**Status (april 2026): ✅ DONE**
+- `shared/grammar-core/` toegevoegd als git subtree: `Loumeister/grammar-core main`, squash-commit `68528b4`, merge-commit `289c237`
+- alle 8 verwachte governance-docs aanwezig; agent/skill-bestanden bevestigd canonical
+- AGENTS.md, README.md, SPEC.md, TODO.md bijgewerkt met correcte pad- en autoriteitsverwijzingen
 
-**Vereiste voorzetten (buiten lokale sprint-scope):**
-1. Maak `Loumeister/grammar-core` aan als GitHub-repo
-2. Vul de repo met de governance-docs op `main` (zie upstream correctielijst in audit-rapport)
-3. Voer dan in `ontledingstrainer` uit: `git subtree add --prefix=shared/grammar-core https://github.com/Loumeister/grammar-core.git main --squash`
-
-**Taken (na aanmaken grammar-core):**
-- `shared/grammar-core/` als subtree toevoegen vanaf `Loumeister/grammar-core main`
-- zorgen dat de paden uit `AGENTS.md` pas als actieve leeslaag gelden zodra ze lokaal bestaan
+**Openstaand (na subtree-landing):**
+- toekomstige subtree-updates uitvoeren met `git subtree pull --prefix=shared/grammar-core https://github.com/Loumeister/grammar-core.git main --squash`
+- overwegen om grammar-core privaat te houden en een deploy-token te configureren voor subtree-pulls (zie TODO-G voor sync-aanpak)
 - sync-afspraken vastleggen voor updates van die subtree
 
 ### F. Lokale wrappers en contracten synchroon houden

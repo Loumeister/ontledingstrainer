@@ -45,8 +45,8 @@ De verwachte bestanden in die map, met hun gezag voor Ontleedlab:
 | `docs/werkwoordspellingsdidactiek-kaders.md` | Contextueel (niet bindend) | Aangrenzende spellingdidactiek |
 
 Belangrijk voor de huidige status:
-- de map `shared/grammar-core/` is in deze repo op dit moment nog **niet fysiek aanwezig**
-- deze stap is alleen documentaire voorbereiding; er is nog geen runtime-integratie met shared core
+- de map `shared/grammar-core/` is aanwezig als git subtree (`Loumeister/grammar-core main`, squash-commit `68528b4`, april 2026)
+- er is nog geen runtime-integratie met shared core
 - runtime, parsinglogica, evaluatie, routes, feedbackflow en UI-flow van Ontleedlab blijven ongewijzigd
 
 Voor actuele zinnencontrole en docentplanning:
