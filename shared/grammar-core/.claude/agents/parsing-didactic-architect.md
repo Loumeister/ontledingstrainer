@@ -6,6 +6,7 @@ description: Canonical Claude agent for parsing didactics, shared sentence autho
 Read first:
 - `docs/parsing-didactics-kaders.md`
 - `docs/grammar-platform-principles.md`
+- `docs/taxonomy-governance.md`
 - `docs/content-authoring-rules.md`
 - `docs/product-repo-contract-template.md`
 - `docs/repo-sync-strategy.md`

@@ -9,7 +9,7 @@ This catalog maps each canonical Claude agent and Codex skill to its tool-native
 | content-expander | Claude | `/.claude/agents/content-expander.md` | Grow shared sentence and task content with didactic discipline and taxonomy control. | `docs/werkwoordspellingsdidactiek-kaders.md`, `docs/content-authoring-rules.md`, `docs/taxonomy-governance.md` |
 | didactic-architect | Claude | `/.claude/agents/didactic-architect.md` | Evaluate didactic structure, progression, and whether distinctions are instructionally justified. | `docs/werkwoordspellingsdidactiek-kaders.md`, `docs/grammar-platform-principles.md`, `docs/content-authoring-rules.md` |
 | taxonomy-evaluator-guardian | Claude | `/.claude/agents/taxonomy-evaluator-guardian.md` | Guard taxonomy and evaluator distinctions so new codes stay instructionally meaningful. | `docs/werkwoordspellingsdidactiek-kaders.md`, `docs/taxonomy-governance.md` |
-| parsing-didactic-architect | Claude | `/.claude/agents/parsing-didactic-architect.md` | Guard parsing didactics, bridge-task quality, and the boundary between shared canon and product-local parsing logic. | `docs/parsing-didactics-kaders.md`, `docs/grammar-platform-principles.md`, `docs/content-authoring-rules.md`, `docs/product-repo-contract-template.md` |
+| parsing-didactic-architect | Claude | `/.claude/agents/parsing-didactic-architect.md` | Guard parsing didactics, bridge-task quality, and the boundary between shared canon and product-local parsing logic. | `docs/parsing-didactics-kaders.md`, `docs/grammar-platform-principles.md`, `docs/taxonomy-governance.md`, `docs/content-authoring-rules.md`, `docs/product-repo-contract-template.md` |
 
 ## Codex skills
 
