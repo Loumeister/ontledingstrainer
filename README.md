@@ -19,35 +19,34 @@ Een interactieve browser-app die leerlingen (12-15 jaar, onderbouw havo/vwo) lee
 | **Toegankelijkheid** | ⚠️ Basis | Dark mode + dyslexie; toetsenbord/ARIA ontbreekt |
 | **Touch-ondersteuning** | ⚠️ Beperkt | Drag-and-drop only; tap-to-place gepland |
 | **Rollenladder** | 📋 Gepland | Adaptieve rol-introductie (zie TODO.md §1) |
-| **Werkwoordspelling** | 📋 Gepland | Module 2 (zie SPEC.md) |
+| **Werkwoordspelling** | 🔗 Gedeelde richting | Geen lokale module; zie `shared/grammar-core/docs/grammar-platform-principles.md` |
 
 Zie `TODO.md` voor de volledige roadmap en `SPEC.md` voor de technische specificatie.
 
 Actuele aantallen per niveau: **N1 60, N2 101, N3 42, N4 45** (totaal 248).
 ID-reeksen: **N1 1–60, N2 61–161, N3 300–341, N4 400–444**.
 
-## 🔗 Shared-core lokale integratie (voorbereiding)
+## 🔗 Shared-core lokale integratie
 
-Beoogde lokale locatie voor gedeelde canon:
-- `shared/grammar-core/` = beoogde lokale map voor gedeelde didactische/governance-canon
+`shared/grammar-core/` is aanwezig als git subtree (`Loumeister/grammar-core main`, squash-commit `68528b4`, april 2026).
 
-De verwachte bestanden in die map, met hun gezag voor Ontleedlab:
+De aanwezige bestanden in die map, met hun gezag voor Ontleedlab:
 
 | Bestand in `shared/grammar-core/` | Gezag voor Ontleedlab | Wat het regelt |
 |---|---|---|
 | `README.md` | Contextueel | Scope en doel van de gedeelde laag |
-| `docs/grammar-platform-principles.md` | Gezaghebbend | Platformgrenzen en architectuurrollen |
+| `docs/grammar-platform-principles.md` | Gezaghebbend | Platformgrenzen en architectuurrollen; beschrijft huidige realiteit én toekomstige richting |
 | `docs/parsing-didactics-kaders.md` | Gezaghebbend | Gedeelde parsingdidactische principes |
-| `docs/taxonomy-governance.md` | Gezaghebbend | Roletikettering, naamgeving, taxonomiebeheer |
-| `docs/content-authoring-rules.md` | Gezaghebbend / aanvullend | Herbruikbare contentauthoringregels; lokaal aangevuld |
+| `docs/taxonomy-governance.md` | Gezaghebbend | Roletikettering, vier-laags model, taxonomiebeheer |
+| `docs/content-authoring-rules.md` | Gezaghebbend / lokaal gekwalificeerd | Herbruikbare contentauthoringregels; regels 1 en 6 lokaal gekwalificeerd (zie `AGENTS.md`) |
 | `docs/repo-sync-strategy.md` | Contextueel | Syncmodel en updateproces |
 | `docs/product-repo-contract-template.md` | Contextueel | Sjabloon voor productcontracten (lokaal: `repo-contract.md`) |
-| `docs/werkwoordspellingsdidactiek-kaders.md` | Contextueel (niet bindend) | Aangrenzende spellingdidactiek |
+| `docs/werkwoordspellingsdidactiek-kaders.md` | Contextueel (niet bindend) | Aangrenzende spellingdidactiek; adoptie vereist expliciete lokale keuze |
 
-Belangrijk voor de huidige status:
-- de map `shared/grammar-core/` is aanwezig als git subtree (`Loumeister/grammar-core main`, squash-commit `68528b4`, april 2026)
+Huidige integratieomvang:
 - er is nog geen runtime-integratie met shared core
 - runtime, parsinglogica, evaluatie, routes, feedbackflow en UI-flow van Ontleedlab blijven ongewijzigd
+- de subtree is uitsluitend beschikbaar voor governance, instructie en documentatie
 
 Voor actuele zinnencontrole en docentplanning:
 - `data/sentence-parse-audit.md` (parse- en annotatie-audit)
