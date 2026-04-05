@@ -299,11 +299,16 @@ Deze fase komt vóór diepere cross-product uitbreiding, maar hoeft lokale produ
 
 **Status (april 2026):**
 - documentair voorbereid: `shared/grammar-core/` staat expliciet als beoogde lokale locatie in de repo-docs
-- actueel: de subtree/map is in deze repo nog niet fysiek aanwezig
-- deze stap is voorbereiding: er is nog geen actieve shared-core integratie in runtime of productflow
+- subtree-integratie geprobeerd en geblokkeerd: `Loumeister/grammar-core` bestaat nog niet op GitHub (HTTP 404 bevestigd)
+- **concrete blocker:** voordat `git subtree add` kan slagen, moet de repo `Loumeister/grammar-core` eerst aangemaakt en gevuld worden op GitHub
 
-**Taken:**
-- `shared/grammar-core/` als subtree of vergelijkbare lokale sync toevoegen (latere stap)
+**Vereiste voorzetten (buiten lokale sprint-scope):**
+1. Maak `Loumeister/grammar-core` aan als GitHub-repo
+2. Vul de repo met de governance-docs op `main` (zie upstream correctielijst in audit-rapport)
+3. Voer dan in `ontledingstrainer` uit: `git subtree add --prefix=shared/grammar-core https://github.com/Loumeister/grammar-core.git main --squash`
+
+**Taken (na aanmaken grammar-core):**
+- `shared/grammar-core/` als subtree toevoegen vanaf `Loumeister/grammar-core main`
 - zorgen dat de paden uit `AGENTS.md` pas als actieve leeslaag gelden zodra ze lokaal bestaan
 - sync-afspraken vastleggen voor updates van die subtree
 
