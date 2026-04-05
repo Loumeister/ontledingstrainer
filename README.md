@@ -31,9 +31,22 @@ ID-reeksen: **N1 1–60, N2 61–161, N3 300–341, N4 400–444**.
 Beoogde lokale locatie voor gedeelde canon:
 - `shared/grammar-core/` = beoogde lokale map voor gedeelde didactische/governance-canon
 
+De verwachte bestanden in die map, met hun gezag voor Ontleedlab:
+
+| Bestand in `shared/grammar-core/` | Gezag voor Ontleedlab | Wat het regelt |
+|---|---|---|
+| `README.md` | Contextueel | Scope en doel van de gedeelde laag |
+| `docs/grammar-platform-principles.md` | Gezaghebbend | Platformgrenzen en architectuurrollen |
+| `docs/parsing-didactics-kaders.md` | Gezaghebbend | Gedeelde parsingdidactische principes |
+| `docs/taxonomy-governance.md` | Gezaghebbend | Roletikettering, naamgeving, taxonomiebeheer |
+| `docs/content-authoring-rules.md` | Gezaghebbend / aanvullend | Herbruikbare contentauthoringregels; lokaal aangevuld |
+| `docs/repo-sync-strategy.md` | Contextueel | Syncmodel en updateproces |
+| `docs/product-repo-contract-template.md` | Contextueel | Sjabloon voor productcontracten (lokaal: `repo-contract.md`) |
+| `docs/werkwoordspellingsdidactiek-kaders.md` | Contextueel (niet bindend) | Aangrenzende spellingdidactiek |
+
 Belangrijk voor de huidige status:
-- de map `shared/grammar-core/` is in deze repo op dit moment nog **niet fysiek aanwezig**
-- deze stap is alleen documentaire voorbereiding; er is nog geen runtime-integratie met shared core
+- de map `shared/grammar-core/` is aanwezig als git subtree (`Loumeister/grammar-core main`, squash-commit `68528b4`, april 2026)
+- er is nog geen runtime-integratie met shared core
 - runtime, parsinglogica, evaluatie, routes, feedbackflow en UI-flow van Ontleedlab blijven ongewijzigd
 
 Voor actuele zinnencontrole en docentplanning:
@@ -97,6 +110,8 @@ Leerling: Opent link → Banner "Zinnen van je docent" → Klik "Oefenen"
 ---
 
 ## 📝 Content Management (Nieuwe zinnen toevoegen)
+
+Gedeelde contentauthoringregels (zinsselectie, didactische kwaliteit, annotatiepraktijken): `shared/grammar-core/docs/content-authoring-rules.md` — **gezaghebbend** voor herbruikbare principes; lokaal aangevuld door `.codex/skills/zinsontleding-constraint-sentence-author/SKILL.md`.
 
 De ingebouwde zinnen staan verdeeld over vier JSON-bestanden in `data/`:
 

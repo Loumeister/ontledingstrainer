@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SpellingMetadata",
+  "type": "object",
+  "properties": {
+    "lemma": { "type": ["string", "null"] },
+    "target": { "type": ["string", "null"] },
+    "grammaticalFunction": { "type": ["string", "null"] },
+    "homophonePair": { "type": ["string", "null"] },
+    "primaryMisconception": { "type": ["string", "null"] },
+    "acceptedVariants": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}
