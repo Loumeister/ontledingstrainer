@@ -315,6 +315,14 @@ Deze fase komt vóór diepere cross-product uitbreiding, maar hoeft lokale produ
 - lokale contractbestanden synchroon houden met de werkelijke repo
 - voorkomen dat oudere repo-gecentreerde aannames terugsluipen in wrappers of contracten
 
+**Na landing van de subtree — specifieke verificatiepunten:**
+- lokale rollenlijst (pv, ow, lv, mv, bwb, …) verifiëren tegen `shared/grammar-core/docs/taxonomy-governance.md`
+- lokale parsingdidactische keuzes (Rollenladder, Ontleedhulp) vergelijken met `shared/grammar-core/docs/parsing-didactics-kaders.md`
+- lokale contentauteurspraktijken (zinstoevoeging, annotatie, level-keuze) vergelijken met `shared/grammar-core/docs/content-authoring-rules.md`
+- bevestigen dat `.codex/skills/zinsontleding-repo-inspector/references/repo-contract.md` aansluit bij `shared/grammar-core/docs/product-repo-contract-template.md`
+
+*Deze items zijn geen lokale productverbeteringen en staan niet op de lokale sprint-roadmap.*
+
 ### G. Lokale documentcoherentie bewaken
 **Doel:** lokale docs moeten niet uiteenlopen in productscope of architectuurtaal.
 

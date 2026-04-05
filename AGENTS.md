@@ -27,11 +27,16 @@ Als deze drie lagen botsen, geldt:
 Dit blok is **actief zodra `shared/grammar-core/` lokaal aanwezig is**.
 
 Lees bij parsing- en governancewerk in elk geval:
-- `shared/grammar-core/.claude/agents/parsing-didactic-architect.md`
-- `shared/grammar-core/.codex/skills/parsing-content-governance/SKILL.md`
-- `shared/grammar-core/docs/parsing-didactics-kaders.md`
-- `shared/grammar-core/docs/product-repo-contract-template.md`
-- `shared/grammar-core/docs/agent-catalog.md`
+- `shared/grammar-core/README.md` — contextueel (oriëntatie: scope en doel van de gedeelde laag)
+- `shared/grammar-core/docs/grammar-platform-principles.md` — **gezaghebbend** (platformgrenzen, architectuurverantwoordelijkheden)
+- `shared/grammar-core/docs/parsing-didactics-kaders.md` — **gezaghebbend** (gedeelde parsingdidactische principes)
+- `shared/grammar-core/docs/taxonomy-governance.md` — **gezaghebbend** (rollen, labels, taxonomie-governance)
+- `shared/grammar-core/docs/content-authoring-rules.md` — **gezaghebbend** voor herbruikbare authoringprincipes; lokaal aangevuld via `.codex/skills/zinsontleding-repo-inspector/references/repo-contract.md` waar Ontleedlab productspecifieke constraints heeft
+- `shared/grammar-core/docs/repo-sync-strategy.md` — contextueel (syncmodel en updateproces)
+- `shared/grammar-core/docs/product-repo-contract-template.md` — contextueel (sjabloon voor productcontracten; lokaal ingevuld via `repo-contract.md`)
+- `shared/grammar-core/docs/werkwoordspellingsdidactiek-kaders.md` — contextueel, **niet bindend** voor Ontleedlab (aangrenzend spellingdomein, geen lokale implementatieverplichting)
+
+De eerder genoemde bestanden `parsing-didactic-architect.md`, `agent-catalog.md` en `parsing-content-governance/SKILL.md` zijn niet onderdeel van de bevestigde gedeelde bestandenlijst voor grammar-core. Behandel die als optioneel aanvullend materiaal indien aanwezig.
 
 Gebruik shared canon voor:
 - parsingdidactische principes
