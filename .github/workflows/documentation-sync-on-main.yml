@@ -45,7 +45,13 @@ jobs:
               with urllib.request.urlopen(req) as resp:
                   data = json.loads(resp.read().decode())
           except urllib.error.HTTPError as e:
-              print(f"Anthropic API error {e.code}: {e.read().decode()}", file=sys.stderr)
+              body = e.read().decode()
+              try:
+                  err = json.loads(body)
+                  detail = err.get('error', {})
+                  print(f"Anthropic API error {e.code}: type={detail.get('type')} message={detail.get('message')}", file=sys.stderr)
+              except Exception:
+                  print(f"Anthropic API error {e.code}: {body}", file=sys.stderr)
               sys.exit(1)
           parts = [p.get('text','') for p in data.get('content',[]) if p.get('type') == 'text']
           text = '\n'.join(parts).strip()
@@ -76,13 +82,23 @@ jobs:
               with urllib.request.urlopen(req) as resp:
                   data = json.loads(resp.read().decode())
           except urllib.error.HTTPError as e:
-              print(f"OpenAI API error {e.code}: {e.read().decode()}", file=sys.stderr)
+              body = e.read().decode()
+              try:
+                  err = json.loads(body)
+                  detail = err.get('error', {})
+                  print(f"OpenAI API error {e.code}: type={detail.get('type')} message={detail.get('message')}", file=sys.stderr)
+              except Exception:
+                  print(f"OpenAI API error {e.code}: {body}", file=sys.stderr)
               sys.exit(1)
           choices = data.get('choices', [])
           if not choices:
               print("OpenAI API returned no choices", file=sys.stderr)
               sys.exit(1)
-          out = choices[0]['message']['content'].strip()
+          msg_obj = choices[0].get('message', {})
+          out = msg_obj.get('content', '').strip()
+          if not out:
+              print("OpenAI API returned empty message content", file=sys.stderr)
+              sys.exit(1)
           (root / 'docs/auto-sync/codex-latest-main-summary.md').write_text(out + '\n')
           PY
 
