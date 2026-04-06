@@ -260,7 +260,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <div>
               <p className="font-bold text-slate-800 dark:text-slate-100 text-base mb-1">Welkom bij Ontleedlab!</p>
               <p className="text-sm text-slate-600 dark:text-slate-300">
-                Je oefent zinsontleding in twee stappen: zinsdelen afbakenen en benoemen. Druk op <strong>Snel Starten</strong> om direct te beginnen.
+                Je oefent zinsontleding in twee stappen: zinsdelen knippen en benoemen. Druk op <strong>Snel Starten</strong> om direct te beginnen.
               </p>
             </div>
           </div>
