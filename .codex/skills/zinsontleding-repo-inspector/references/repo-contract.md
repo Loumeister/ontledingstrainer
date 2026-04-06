@@ -78,13 +78,16 @@ De lokale `RoleKey`-waarden in dit repo vallen in de **product-local short label
 | `vv` | `voorzetselvoorwerp` |
 | `bijst` | `bijstelling` |
 | `wg` | `werkwoordelijk_gezegde` |
-| `ng` | (naamwoordelijk gezegde — lokale hoofdrol, geen aparte canonical entry) |
+| `ng` | `naamwoordelijk_gezegde` (canoniek topniveau-label; niet in shorthand-mapping §1.2 — zie opmerking) |
 | `bijzin` | `bijzin` |
 | `vw_neven` | `nevenschikkend_voegwoord` |
 | `bijv_bep` | `bijvoeglijke_bepaling` |
 | `vw_onder` | `onderschikkend_voegwoord` |
-| `wwd` | `werkwoordelijk_deel` |
-| `nwd` | `naamwoordelijk_deel` |
+| `wwd` | `werkwoordelijk_deel` (canoniek deellabel; niet in shorthand-mapping §1.2 — zie opmerking) |
+| `nwd` | `naamwoordelijk_deel` (canoniek deellabel; wél in shorthand-mapping §1.2) |
+
+> **Opmerking over ontbrekende vermeldingen in §1.2 van taxonomy-governance.md:**
+> `naamwoordelijk_gezegde` en `werkwoordelijk_deel` zijn erkende canonieke concepten in de Nederlandse schoolgrammatica maar zijn op dit moment niet opgenomen in de shorthand-mapping-tabel van `taxonomy-governance.md` §1.2. De lokale sleutels `ng` en `wwd` mappen conceptueel op die labels. De shorthand-mapping-tabel in de shared canon heeft een upstream aanvulling nodig om deze twee mappings te bevestigen.
 
 Deze lokale sleutels zijn:
 - **correct** als lokale runtime-sleutels
