@@ -239,27 +239,27 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* Welkomstkaart */}
         {previousScore !== null ? (
-          <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 p-4 flex items-start gap-4">
+          <div className="rounded-2xl bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 border border-rose-100 dark:border-rose-800/40 p-5 flex items-start gap-4">
             <div className="text-3xl leading-none mt-0.5">✨</div>
             <div className="flex-1 min-w-0">
               {hasStudentInfo && (
-                <p className="font-bold text-blue-900 dark:text-blue-100 text-base mb-1">
+                <p className="font-bold text-rose-500 dark:text-rose-300 text-lg mb-1">
                   Welkom terug, {studentName}!
                 </p>
               )}
-              <div className="flex flex-wrap gap-4 text-sm text-blue-800 dark:text-blue-200 mb-1">
+              <div className="flex flex-wrap gap-4 text-sm text-rose-700 dark:text-rose-200 mb-1">
                 <span>Vorige sessie: <strong>{previousScore}%</strong></span>
                 {streak > 1 && <span>🔥 {streak}-dagenreeks</span>}
               </div>
-              <p className="text-xs text-blue-600 dark:text-blue-300">{motivatieZin(previousScore)}</p>
+              <p className="text-xs text-rose-400 dark:text-rose-300">{motivatieZin(previousScore)}</p>
             </div>
           </div>
         ) : (
-          <div className="rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700 p-4 flex items-start gap-4">
+          <div className="rounded-2xl bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border border-violet-100 dark:border-violet-800/40 p-5 flex items-start gap-4">
             <div className="text-3xl leading-none mt-0.5">👋</div>
             <div>
-              <p className="font-bold text-slate-800 dark:text-slate-100 text-base mb-1">Welkom bij Ontleedlab!</p>
-              <p className="text-sm text-slate-600 dark:text-slate-300">
+              <p className="font-bold text-violet-700 dark:text-violet-200 text-lg mb-1">Welkom bij Ontleedlab!</p>
+              <p className="text-sm text-violet-600 dark:text-violet-300">
                 Je oefent zinsontleding in twee stappen: zinsdelen knippen en benoemen. Druk op <strong>Snel Starten</strong> om direct te beginnen.
               </p>
             </div>
