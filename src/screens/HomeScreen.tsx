@@ -4,6 +4,7 @@ import { HelpModal } from '../components/HelpModal';
 import { TrainerState } from '../hooks/useTrainer';
 import { importCustomSentences, getCustomSentences } from '../data/customSentenceStore';
 import { LEVEL_TOOLTIPS } from '../constants';
+import { getPreviousScore, getStreak } from '../services/sessionHistory';
 
 type HomeScreenProps = Pick<TrainerState,
   | 'predicateMode' | 'setPredicateMode'
@@ -68,6 +69,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importMsg, setImportMsg] = useState<string | null>(null);
   const customCount = getCustomSentences().length;
+
+  // Welcome card data
+  const previousScore = getPreviousScore();
+  const streak = getStreak();
+  const motivatieZin = (score: number): string => {
+    if (score >= 80) return 'Geweldig gedaan — ga zo door!';
+    if (score >= 50) return 'Goed bezig — nog even oefenen!';
+    return 'Elke oefening telt — jij kan dit!';
+  };
 
   // Name prompt state
   const [showNamePrompt, setShowNamePrompt] = useState(false);
@@ -226,6 +236,35 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <button onClick={() => setShowHelp(true)} className="w-9 h-9 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 transition-colors" title="Instructies" aria-label="Instructies">?</button>
           </div>
         </div>
+
+        {/* Welkomstkaart */}
+        {previousScore !== null ? (
+          <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 p-4 flex items-start gap-4">
+            <div className="text-3xl leading-none mt-0.5">✨</div>
+            <div className="flex-1 min-w-0">
+              {hasStudentInfo && (
+                <p className="font-bold text-blue-900 dark:text-blue-100 text-base mb-1">
+                  Welkom terug, {studentName}!
+                </p>
+              )}
+              <div className="flex flex-wrap gap-4 text-sm text-blue-800 dark:text-blue-200 mb-1">
+                <span>Vorige sessie: <strong>{previousScore}%</strong></span>
+                {streak > 1 && <span>🔥 {streak}-dagenreeks</span>}
+              </div>
+              <p className="text-xs text-blue-600 dark:text-blue-300">{motivatieZin(previousScore)}</p>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700 p-4 flex items-start gap-4">
+            <div className="text-3xl leading-none mt-0.5">👋</div>
+            <div>
+              <p className="font-bold text-slate-800 dark:text-slate-100 text-base mb-1">Welkom bij Ontleedlab!</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                Je oefent zinsontleding in twee stappen: zinsdelen afbakenen en benoemen. Druk op <strong>Snel Starten</strong> om direct te beginnen.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Shared sentences banner */}
         {sharedSentences.length > 0 && (
