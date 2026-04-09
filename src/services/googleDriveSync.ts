@@ -67,12 +67,13 @@ export function shouldAutoSendReport(
   student: { name: string; initiaal: string; klas: string },
   scriptUrl: string,
 ): boolean {
+  const trimmedUrl = scriptUrl.trim();
   return Boolean(
     student.name.trim() &&
     student.initiaal.trim() &&
     student.klas.trim() &&
-    scriptUrl &&
-    scriptUrl !== PLACEHOLDER_URL,
+    trimmedUrl &&
+    trimmedUrl !== PLACEHOLDER_URL,
   );
 }
 

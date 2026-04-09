@@ -13,6 +13,11 @@ describe('shouldAutoSendReport', () => {
     expect(shouldAutoSendReport(student, PLACEHOLDER_URL)).toBe(false);
   });
 
+  it('triggert niet bij url bestaand uit alleen witruimte of placeholder met witruimte', () => {
+    expect(shouldAutoSendReport(student, '   ')).toBe(false);
+    expect(shouldAutoSendReport(student, `  ${PLACEHOLDER_URL}  `)).toBe(false);
+  });
+
   it('triggert niet zonder volledige leerlinginfo', () => {
     expect(shouldAutoSendReport({ ...student, name: '' }, 'https://script.google.com/macros/s/abc/exec')).toBe(false);
     expect(shouldAutoSendReport({ ...student, initiaal: '' }, 'https://script.google.com/macros/s/abc/exec')).toBe(false);

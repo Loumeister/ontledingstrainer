@@ -9,6 +9,7 @@ import { ZinsdeelHelpModal } from '../components/ZinsdeelHelpModal';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { FeedbackPanel, FeedbackItem } from '../components/FeedbackPanel';
 import { TrainerState } from '../hooks/useTrainer';
+import { shouldShowSessionNextButton } from '../logic/sessionFlow';
 
 type TrainerScreenProps = Pick<TrainerState,
   | 'currentSentence' | 'step' | 'mode'
@@ -42,10 +43,6 @@ type TrainerScreenProps = Pick<TrainerState,
   | 'handleTapPlaceChunk' | 'handleTapPlaceWord'
   | 'handleTouchDrop'
 >;
-
-export function shouldShowSessionNextButton(mode: TrainerState['mode'], hasBeenScored: boolean): boolean {
-  return mode === 'session' && hasBeenScored;
-}
 
 export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   currentSentence, step, mode,

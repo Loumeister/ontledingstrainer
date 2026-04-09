@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { shouldShowSessionNextButton } from './TrainerScreen';
+import { shouldShowSessionNextButton } from '../logic/sessionFlow';
 
 describe('shouldShowSessionNextButton', () => {
   it('laat doorgaan toe zodra een zin is gescoord in sessiemodus', () => {
