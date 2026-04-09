@@ -9,6 +9,7 @@ import { ZinsdeelHelpModal } from '../components/ZinsdeelHelpModal';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { FeedbackPanel, FeedbackItem } from '../components/FeedbackPanel';
 import { TrainerState } from '../hooks/useTrainer';
+import { shouldShowSessionNextButton } from '../logic/sessionFlow';
 
 type TrainerScreenProps = Pick<TrainerState,
   | 'currentSentence' | 'step' | 'mode'
@@ -418,7 +419,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                     </button>
                   )}
 
-                  {mode === 'session' && (validationResult || showAnswerMode) && (
+                  {shouldShowSessionNextButton(mode, hasBeenScored) && (
                     <button onClick={nextSessionSentence} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors text-sm">
                       Volgende
                     </button>
