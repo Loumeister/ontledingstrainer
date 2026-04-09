@@ -12,7 +12,7 @@ import {
   selectAdaptiveQueue,
 } from '../logic/adaptiveSelection';
 import { buildReport, encodeReport } from '../services/sessionReport';
-import { postReport, getScriptUrl } from '../services/googleDriveSync';
+import { postReport, getScriptUrl, shouldAutoSendReport } from '../services/googleDriveSync';
 import { getOrCreateStudent } from '../services/studentStore';
 import { saveSubmission, generateSubmissionId, saveAttempt, generateAttemptId } from '../services/trainerSubmissionStore';
 import { logTrainerEvent } from '../services/trainerActivityLog';
@@ -173,6 +173,10 @@ interface PreAnswerSnapshot {
 }
 
 const STUDENT_INFO_KEY = 'student_info_v1';
+
+export function getSessionAdvanceAction(sessionIndex: number, sessionLength: number): 'next' | 'finish' {
+  return sessionIndex + 1 < sessionLength ? 'next' : 'finish';
+}
 
 function loadStudentInfo(): { name: string; initiaal: string; klas: string } {
   try {
@@ -495,7 +499,7 @@ export function useTrainer(): TrainerState {
 
   const nextSessionSentence = () => {
     const nextIndex = sessionIndex + 1;
-    if (nextIndex < sessionQueue.length) {
+    if (getSessionAdvanceAction(sessionIndex, sessionQueue.length) === 'next') {
       setSessionIndex(nextIndex);
       loadSentence(sessionQueue[nextIndex]);
     } else {
@@ -572,7 +576,8 @@ export function useTrainer(): TrainerState {
 
       // Auto-send report to Google Drive if student info and Drive are configured
       const info = loadStudentInfo();
-      if (info.name && info.initiaal && info.klas && getScriptUrl()) {
+      const scriptUrl = getScriptUrl();
+      if (shouldAutoSendReport(info, scriptUrl)) {
         const sentenceIds = sessionQueue.map(s => s.id);
         const dur = sessionStartTimeRef.current !== null
           ? Math.round((Date.now() - sessionStartTimeRef.current) / 1000)

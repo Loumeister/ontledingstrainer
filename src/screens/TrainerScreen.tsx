@@ -43,6 +43,10 @@ type TrainerScreenProps = Pick<TrainerState,
   | 'handleTouchDrop'
 >;
 
+export function shouldShowSessionNextButton(mode: TrainerState['mode'], hasBeenScored: boolean): boolean {
+  return mode === 'session' && hasBeenScored;
+}
+
 export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   currentSentence, step, mode,
   splitIndices, chunkLabels, subLabels, bijzinFunctieLabels,
@@ -418,7 +422,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                     </button>
                   )}
 
-                  {mode === 'session' && (validationResult || showAnswerMode) && (
+                  {shouldShowSessionNextButton(mode, hasBeenScored) && (
                     <button onClick={nextSessionSentence} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors text-sm">
                       Volgende
                     </button>

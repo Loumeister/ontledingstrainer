@@ -63,6 +63,19 @@ export interface DriveRow {
   code: string;
 }
 
+export function shouldAutoSendReport(
+  student: { name: string; initiaal: string; klas: string },
+  scriptUrl: string,
+): boolean {
+  return Boolean(
+    student.name.trim() &&
+    student.initiaal.trim() &&
+    student.klas.trim() &&
+    scriptUrl &&
+    scriptUrl !== PLACEHOLDER_URL,
+  );
+}
+
 /**
  * Verstuurt een rapport naar de Google Sheet.
  * Gebruikt een GET-request (omzeilt CORS-problemen met Apps Script voor POST).
