@@ -6,10 +6,6 @@ describe('shouldShowSessionNextButton', () => {
     expect(shouldShowSessionNextButton('session', true)).toBe(true);
   });
 
-  it('blijft doorgaan tonen na extra interactie die validationResult wist', () => {
-    expect(shouldShowSessionNextButton('session', true)).toBe(true);
-  });
-
   it('toont geen doorgaan in vrije modus of zonder score', () => {
     expect(shouldShowSessionNextButton('free', true)).toBe(false);
     expect(shouldShowSessionNextButton('session', false)).toBe(false);
