@@ -32,6 +32,8 @@ export function getScriptUrl(): string {
     || '';
 }
 
+// Trim bij opslaan zodat interne functies (postReport, syncToDrive, …) kunnen
+// vergelijken met een exacte === PLACEHOLDER_URL check zonder extra trim-stap.
 export function setScriptUrl(url: string): void {
   localStorage.setItem(SCRIPT_URL_KEY, url.trim());
 }
