@@ -13,6 +13,7 @@ import {
 } from '../logic/adaptiveSelection';
 import { buildReport, encodeReport } from '../services/sessionReport';
 import { postReport, getScriptUrl, shouldAutoSendReport } from '../services/googleDriveSync';
+import { getSessionAdvanceAction } from '../logic/sessionFlow';
 import { getOrCreateStudent } from '../services/studentStore';
 import { saveSubmission, generateSubmissionId, saveAttempt, generateAttemptId } from '../services/trainerSubmissionStore';
 import { logTrainerEvent } from '../services/trainerActivityLog';
@@ -173,10 +174,6 @@ interface PreAnswerSnapshot {
 }
 
 const STUDENT_INFO_KEY = 'student_info_v1';
-
-export function getSessionAdvanceAction(sessionIndex: number, sessionLength: number): 'next' | 'finish' {
-  return sessionIndex + 1 < sessionLength ? 'next' : 'finish';
-}
 
 function loadStudentInfo(): { name: string; initiaal: string; klas: string } {
   try {

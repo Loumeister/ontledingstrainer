@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { DifficultyLevel, Sentence } from '../types';
 import { HelpModal } from '../components/HelpModal';
 import { TrainerState } from '../hooks/useTrainer';
@@ -70,9 +70,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [importMsg, setImportMsg] = useState<string | null>(null);
   const customCount = getCustomSentences().length;
 
-  // Welcome card data
-  const previousScore = getPreviousScore();
-  const streak = getStreak();
+  // Welcome card data — gelezen eenmalig bij mount; sessionHistory verandert niet
+  // zolang HomeScreen getoond wordt, dus lege deps zijn correct.
+  const previousScore = useMemo(() => getPreviousScore(), []);
+  const streak = useMemo(() => getStreak(), []);
   const motivatieZin = (score: number): string => {
     if (score >= 80) return 'Geweldig gedaan — ga zo door!';
     if (score >= 50) return 'Goed bezig — nog even oefenen!';
