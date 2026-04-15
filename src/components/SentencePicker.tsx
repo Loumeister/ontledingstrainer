@@ -133,7 +133,7 @@ export const SentencePicker: React.FC<SentencePickerProps> = ({
                     className={`px-3 py-2 text-sm cursor-pointer flex items-center gap-2 transition-colors ${
                       isSelected
                         ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200'
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300'
+                        : 'hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     <input
