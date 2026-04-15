@@ -183,8 +183,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     } catch (err) {
       setImportMsg(`Fout: ${err instanceof Error ? err.message : 'Ongeldig bestand'}`);
       setTimeout(() => setImportMsg(null), 4000);
+    } finally {
+      if (jsonSessionRef.current) jsonSessionRef.current.value = '';
     }
-    if (jsonSessionRef.current) jsonSessionRef.current.value = '';
   };
 
   return (
