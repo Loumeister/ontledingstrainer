@@ -9,7 +9,6 @@ import { getPreviousScore, getStreak } from '../services/sessionHistory';
 
 type HomeScreenProps = Pick<TrainerState,
   | 'predicateMode' | 'setPredicateMode'
-  | 'predicateMode' | 'setPredicateMode'
   | 'selectedLevel' | 'setSelectedLevel'
   | 'customSessionCount' | 'setCustomSessionCount'
   | 'focusLV' | 'setFocusLV'
