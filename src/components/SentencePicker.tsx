@@ -139,6 +139,7 @@ export const SentencePicker: React.FC<SentencePickerProps> = ({
                     <input
                       type="checkbox"
                       checked={isSelected}
+                      onClick={e => e.stopPropagation()}
                       onChange={() => toggleId(s.id)}
                       className="w-4 h-4 rounded border-slate-300 dark:border-slate-500 text-blue-600 flex-shrink-0"
                       tabIndex={-1}
