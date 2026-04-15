@@ -43,6 +43,8 @@ export interface SessionReport {
     /** chunkFirstTokenId → roleKey as submitted by the student */
     lb: Record<string, string>;
   }>;
+  /** Session source: how the session was started (pool / json / selected / shared) */
+  src?: string;
 }
 
 const STORAGE_KEY = 'zinsontleding_reports_v1';
@@ -160,6 +162,7 @@ export function buildReport(
     hint?: number;
     dur?: number;
     sols?: Array<{ sid: number; sp: number[]; lb: Record<string, string> }>;
+    src?: string;
   },
 ): SessionReport {
   // Only include non-zero errors
@@ -183,6 +186,7 @@ export function buildReport(
   if (extra?.hint !== undefined && extra.hint > 0) report.hint = extra.hint;
   if (extra?.dur !== undefined && extra.dur > 0) report.dur = extra.dur;
   if (extra?.sols && extra.sols.length > 0) report.sols = extra.sols;
+  if (extra?.src) report.src = extra.src;
   return report;
 }
 

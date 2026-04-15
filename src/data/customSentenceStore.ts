@@ -77,6 +77,21 @@ export function importCustomSentences(json: string): Sentence[] {
   return existing;
 }
 
+/**
+ * Parse and validate a JSON string as a Sentence[].
+ * Does NOT persist to localStorage — use for JSON direct-start sessions.
+ */
+export function parseAndValidateSentences(json: string): Sentence[] {
+  const parsed = JSON.parse(json);
+  if (!Array.isArray(parsed)) throw new Error('Ongeldig formaat');
+  parsed.forEach((s: Record<string, unknown>) => {
+    if (!s.id || !s.label || !s.tokens || !s.predicateType || s.level == null) {
+      throw new Error(`Ongeldige zin: ${s.id || 'onbekend'}`);
+    }
+  });
+  return parsed as Sentence[];
+}
+
 // Custom sentences use IDs in the 10000+ range to avoid collisions
 export function getNextCustomId(): number {
   const existing = getCustomSentences();

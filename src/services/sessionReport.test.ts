@@ -162,6 +162,29 @@ describe('buildReport', () => {
     const decoded = decodeReport(encodeReport(report));
     expect(decoded?.sols).toEqual(sols);
   });
+
+  it('includes src when provided via extra', () => {
+    const report = buildReport('Jan', 9, 10, {}, 2, [1], 'D', '2ga', { src: 'json' });
+    expect(report.src).toBe('json');
+  });
+
+  it('omits src when not provided', () => {
+    const report = buildReport('Jan', 9, 10, {}, 2, [1]);
+    expect(report.src).toBeUndefined();
+  });
+
+  it('src round-trips through encode/decode', () => {
+    const report = buildReport('Jan', 9, 10, {}, 2, [1], 'D', '2ga', { src: 'selected' });
+    const decoded = decodeReport(encodeReport(report));
+    expect(decoded?.src).toBe('selected');
+  });
+
+  it('decodes old reports without src (backward compat)', () => {
+    const oldReport: SessionReport = { v: 1, name: 'Oud', ts: '2025-01-01T00:00:00Z', c: 5, t: 10, lvl: 1, err: {}, sids: [1] };
+    const code = encodeReport(oldReport);
+    const decoded = decodeReport(code);
+    expect(decoded?.src).toBeUndefined();
+  });
 });
 
 describe('renameStudent', () => {

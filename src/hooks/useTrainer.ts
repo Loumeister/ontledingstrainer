@@ -30,6 +30,8 @@ export type { ChunkData, ValidationResult };
 export type AppStep = 'split' | 'label';
 export type Mode = 'free' | 'session';
 export type PredicateMode = 'ALL' | 'WG' | 'NG';
+/** Tracks how a session was started so results can be labelled accordingly. */
+export type SessionSource = 'pool' | 'json' | 'selected' | 'shared';
 
 export interface TrainerState {
   // Config
@@ -59,6 +61,7 @@ export interface TrainerState {
 
   // Session
   mode: Mode;
+  sessionSource: SessionSource;
   sessionQueue: Sentence[];
   sessionIndex: number;
   sessionStats: { correct: number; total: number };
@@ -108,6 +111,8 @@ export interface TrainerState {
   refreshCustomSentences: () => void;
   startSession: () => void;
   startSharedSession: (sentences: Sentence[]) => void;
+  startSelectedSession: (sentenceIds: number[]) => void;
+  startJsonSession: (sentences: Sentence[]) => void;
   nextSessionSentence: () => void;
   handleSentenceSelect: (sentenceId: number) => void;
   toggleSplit: (tokenIndex: number) => void;
@@ -245,6 +250,7 @@ export function useTrainer(): TrainerState {
   const [consecutivePerfect, setConsecutivePerfect] = useState(0);
   const [autoSendStatus, setAutoSendStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [autoSendError, setAutoSendError] = useState('');
+  const [sessionSource, setSessionSource] = useState<SessionSource>('pool');
   const sessionStartTimeRef = useRef<number | null>(null);
   // Domain refs: geen re-render nodig, enkel voor attributie
   const submissionIdRef = useRef<string | null>(null);
@@ -409,6 +415,7 @@ export function useTrainer(): TrainerState {
     setConsecutivePerfect(0);
     setAutoSendStatus('idle');
     setAutoSendError('');
+    setSessionSource('pool');
     sessionStartTimeRef.current = Date.now();
     setMode('session');
     logInteraction('session_start', undefined, `count=${count}`);
@@ -452,6 +459,7 @@ export function useTrainer(): TrainerState {
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
+    setSessionSource('shared');
     sessionStartTimeRef.current = Date.now();
     setMode('session');
     logInteraction('session_start', undefined, `shared,count=${shuffled.length}`);
@@ -483,6 +491,106 @@ export function useTrainer(): TrainerState {
       // Domain failure mag de sessie niet blokkeren
     }
     loadSentence(shuffled[0]);
+  };
+
+  /** Start a session with hand-picked sentences from the available pool. */
+  const startSelectedSession = (sentenceIds: number[]) => {
+    if (sentenceIds.length === 0) return;
+    // Resolve IDs → Sentence objects (custom first, then built-in)
+    const resolved: Sentence[] = [];
+    for (const id of sentenceIds) {
+      const found = customSentences.find(s => s.id === id) ?? allSentences.find(s => s.id === id);
+      if (found) resolved.push(found);
+    }
+    if (resolved.length === 0) return;
+
+    const shuffled = [...resolved].sort(() => 0.5 - Math.random());
+    setSessionQueue(shuffled);
+    setSessionIndex(0);
+    setSessionStats({ correct: 0, total: 0 });
+    setMistakeStats({});
+    setSessionSentenceResults([]);
+    setIsSessionFinished(false);
+    setConsecutivePerfect(0);
+    setAutoSendStatus('idle');
+    setAutoSendError('');
+    setSessionSource('selected');
+    sessionStartTimeRef.current = Date.now();
+    setMode('session');
+    logInteraction('session_start', undefined, `selected,count=${shuffled.length}`);
+    try {
+      const student = getOrCreateStudent(studentName, studentInitiaal, studentKlas);
+      studentIdRef.current = student.id;
+      const newSubId = generateSubmissionId();
+      submissionIdRef.current = newSubId;
+      const startedAt = new Date().toISOString();
+      saveSubmission({
+        domain: 'trainer',
+        id: newSubId,
+        studentId: student.id,
+        studentName: student.name || studentName,
+        studentKlas: student.klas || studentKlas,
+        assignmentId: null,
+        assignmentVersion: null,
+        startedAt,
+        scoreCorrect: 0,
+        scoreTotal: 0,
+        levelPlayed: null,
+        showAnswerCount: 0,
+        durationSeconds: null,
+        mistakeStats: {},
+      });
+      logTrainerEvent({ submissionId: newSubId, studentId: student.id, type: 'session_start', timestamp: startedAt, detail: `selected,count=${shuffled.length}` });
+    } catch {
+      // Domain failure mag de sessie niet blokkeren
+    }
+    loadSentence(shuffled[0]);
+  };
+
+  /** Import a JSON file and immediately start a session with those sentences. */
+  const startJsonSession = (sentences: Sentence[]) => {
+    if (sentences.length === 0) return;
+    // Use sentences in their original order (teacher-determined for diagnostic tests)
+    setSessionQueue(sentences);
+    setSessionIndex(0);
+    setSessionStats({ correct: 0, total: 0 });
+    setMistakeStats({});
+    setSessionSentenceResults([]);
+    setIsSessionFinished(false);
+    setConsecutivePerfect(0);
+    setAutoSendStatus('idle');
+    setAutoSendError('');
+    setSessionSource('json');
+    sessionStartTimeRef.current = Date.now();
+    setMode('session');
+    logInteraction('session_start', undefined, `json,count=${sentences.length}`);
+    try {
+      const student = getOrCreateStudent(studentName, studentInitiaal, studentKlas);
+      studentIdRef.current = student.id;
+      const newSubId = generateSubmissionId();
+      submissionIdRef.current = newSubId;
+      const startedAt = new Date().toISOString();
+      saveSubmission({
+        domain: 'trainer',
+        id: newSubId,
+        studentId: student.id,
+        studentName: student.name || studentName,
+        studentKlas: student.klas || studentKlas,
+        assignmentId: null,
+        assignmentVersion: null,
+        startedAt,
+        scoreCorrect: 0,
+        scoreTotal: 0,
+        levelPlayed: null,
+        showAnswerCount: 0,
+        durationSeconds: null,
+        mistakeStats: {},
+      });
+      logTrainerEvent({ submissionId: newSubId, studentId: student.id, type: 'session_start', timestamp: startedAt, detail: `json,count=${sentences.length}` });
+    } catch {
+      // Domain failure mag de sessie niet blokkeren
+    }
+    loadSentence(sentences[0]);
   };
 
   // Effect: trigger session start after quick start state updates
@@ -595,7 +703,7 @@ export function useTrainer(): TrainerState {
           sentenceIds,
           info.initiaal,
           info.klas,
-          { res, hint, dur, sols },
+          { res, hint, dur, sols, src: sessionSource },
         );
         const code = encodeReport(report);
         setAutoSendStatus('sending');
@@ -1256,6 +1364,7 @@ export function useTrainer(): TrainerState {
 
     // Session
     mode,
+    sessionSource,
     sessionQueue, sessionIndex,
     sessionStats, mistakeStats,
     sessionSentenceResults,
@@ -1285,7 +1394,7 @@ export function useTrainer(): TrainerState {
 
     // Actions
     refreshCustomSentences,
-    startSession, startSharedSession, nextSessionSentence,
+    startSession, startSharedSession, startSelectedSession, startJsonSession, nextSessionSentence,
     handleSentenceSelect, toggleSplit,
     handleNextStep, handleBackStep,
     isDragging, handleDragStart, handleDragEnd, handleDropChunk, handleDropWord,
