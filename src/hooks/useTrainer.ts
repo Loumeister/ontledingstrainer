@@ -462,6 +462,8 @@ export function useTrainer(): TrainerState {
     setSessionSource('shared');
     sessionStartTimeRef.current = Date.now();
     setMode('session');
+    setAutoSendStatus('idle');
+    setAutoSendError('');
     logInteraction('session_start', undefined, `shared,count=${shuffled.length}`);
     // Domain: koppel gedeelde sessie aan stabiele student-identiteit en TrainerSubmission
     try {
