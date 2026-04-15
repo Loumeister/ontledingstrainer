@@ -460,6 +460,8 @@ export function useTrainer(): TrainerState {
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
     setSessionSource('shared');
+    setAutoSendStatus('idle');
+    setAutoSendError('');
     sessionStartTimeRef.current = Date.now();
     setMode('session');
     setAutoSendStatus('idle');

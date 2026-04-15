@@ -80,16 +80,59 @@ export function importCustomSentences(json: string): Sentence[] {
 /**
  * Parse and validate a JSON string as a Sentence[].
  * Does NOT persist to localStorage — use for JSON direct-start sessions.
+ *
+ * Performs structural validation on each sentence and its tokens so that
+ * malformed JSON is caught early instead of causing runtime errors in the
+ * trainer.
  */
 export function parseAndValidateSentences(json: string): Sentence[] {
-  const parsed = JSON.parse(json);
-  if (!Array.isArray(parsed)) throw new Error('Ongeldig formaat');
-  parsed.forEach((s: Record<string, unknown>) => {
-    if (!s.id || !s.label || !s.tokens || !s.predicateType || s.level == null) {
-      throw new Error(`Ongeldige zin: ${s.id || 'onbekend'}`);
+  const parsed: unknown = JSON.parse(json);
+  if (!Array.isArray(parsed)) throw new Error('Ongeldig formaat: verwacht een JSON-array');
+
+  const VALID_PREDICATE_TYPES = new Set(['WG', 'NG']);
+
+  return parsed.map((raw: unknown, index: number) => {
+    if (typeof raw !== 'object' || raw === null) {
+      throw new Error(`Zin op positie ${index} is geen object`);
     }
+    const s = raw as Record<string, unknown>;
+    const label = `zin ${typeof s.id === 'number' ? s.id : `op positie ${index}`}`;
+
+    if (typeof s.id !== 'number') {
+      throw new Error(`${label}: 'id' moet een nummer zijn`);
+    }
+    if (typeof s.label !== 'string' || s.label.trim() === '') {
+      throw new Error(`${label}: 'label' moet een niet-lege string zijn`);
+    }
+    if (typeof s.predicateType !== 'string' || !VALID_PREDICATE_TYPES.has(s.predicateType)) {
+      throw new Error(`${label}: 'predicateType' moet 'WG' of 'NG' zijn`);
+    }
+    if (typeof s.level !== 'number' || s.level < 0 || s.level > 4) {
+      throw new Error(`${label}: 'level' moet een getal 0–4 zijn`);
+    }
+    if (!Array.isArray(s.tokens) || s.tokens.length === 0) {
+      throw new Error(`${label}: 'tokens' moet een niet-lege array zijn`);
+    }
+
+    // Validate each token
+    (s.tokens as unknown[]).forEach((tok: unknown, ti: number) => {
+      if (typeof tok !== 'object' || tok === null) {
+        throw new Error(`${label}, token ${ti}: is geen object`);
+      }
+      const t = tok as Record<string, unknown>;
+      if (typeof t.id !== 'string' || t.id.trim() === '') {
+        throw new Error(`${label}, token ${ti}: 'id' moet een niet-lege string zijn`);
+      }
+      if (typeof t.text !== 'string') {
+        throw new Error(`${label}, token ${ti}: 'text' moet een string zijn`);
+      }
+      if (typeof t.role !== 'string' || t.role.trim() === '') {
+        throw new Error(`${label}, token ${ti}: 'role' moet een niet-lege string zijn`);
+      }
+    });
+
+    return raw as Sentence;
   });
-  return parsed as Sentence[];
 }
 
 // Custom sentences use IDs in the 10000+ range to avoid collisions

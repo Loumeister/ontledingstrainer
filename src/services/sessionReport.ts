@@ -44,7 +44,7 @@ export interface SessionReport {
     lb: Record<string, string>;
   }>;
   /** Session source: how the session was started (pool / json / selected / shared) */
-  src?: string;
+  src?: 'pool' | 'json' | 'selected' | 'shared';
 }
 
 const STORAGE_KEY = 'zinsontleding_reports_v1';
@@ -162,7 +162,7 @@ export function buildReport(
     hint?: number;
     dur?: number;
     sols?: Array<{ sid: number; sp: number[]; lb: Record<string, string> }>;
-    src?: string;
+    src?: SessionReport['src'];
   },
 ): SessionReport {
   // Only include non-zero errors
