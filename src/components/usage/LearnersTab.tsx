@@ -95,8 +95,8 @@ function trendColor(trend: 'up' | 'down' | 'flat'): string {
 function levelLabel(lvl: number | null): string {
   if (lvl === 1) return 'Basis';
   if (lvl === 2) return 'Middel';
-  if (lvl === 3) return 'Gevorderd';
-  if (lvl === 4) return 'Expert';
+  if (lvl === 3) return 'Hoog';
+  if (lvl === 4) return 'Samengesteld';
   return 'Mix';
 }
 

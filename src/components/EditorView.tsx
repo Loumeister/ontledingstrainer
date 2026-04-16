@@ -340,7 +340,7 @@ function StatsTab({
     </th>
   );
 
-  const levelLabel = (l: number) => ['', 'Basis', 'Middel', 'Hoog', 'Expert'][l] ?? String(l);
+  const levelLabel = (l: number) => ['Instap', 'Basis', 'Middel', 'Hoog', 'Samengesteld'][l] ?? String(l);
 
   const rows = allSentences.map(s => {
     const u = usageData[s.id];
@@ -610,7 +610,7 @@ function SentencesTab({
   copySuccess, onDelete, onCopyShareUrl, onExport,
 }: SentencesTabProps) {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const levelLabel = (l: number) => ['', 'Basis', 'Middel', 'Hoog'][l] ?? String(l);
+  const levelLabel = (l: number) => ['Instap', 'Basis', 'Middel', 'Hoog', 'Samengesteld'][l] ?? String(l);
 
   const toggleSelect = (id: number) => {
     setSelectedIds(prev => {

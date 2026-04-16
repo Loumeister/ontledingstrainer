@@ -467,7 +467,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                 if (count === 0 && lvl === 0) return null;
                 const maxCount = Math.max(...Object.values(levelDistribution), 1);
                 const pct = (count / maxCount) * 100;
-                const labels = ['Instap', 'Basis', 'Middel', 'Hoog', 'Expert'];
+                const labels = ['Instap', 'Basis', 'Middel', 'Hoog', 'Samengesteld'];
                 const colors = ['from-emerald-300 to-emerald-500', 'from-green-300 to-green-500', 'from-blue-300 to-blue-500', 'from-purple-300 to-purple-500', 'from-red-300 to-red-500'];
                 return (
                   <div key={lvl}>
