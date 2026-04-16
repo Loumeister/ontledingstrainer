@@ -1,8 +1,9 @@
 import React, { useRef, useState, useMemo } from 'react';
 import { DifficultyLevel, Sentence } from '../types';
 import { HelpModal } from '../components/HelpModal';
+import { SentencePicker } from '../components/SentencePicker';
 import { TrainerState } from '../hooks/useTrainer';
-import { importCustomSentences, getCustomSentences } from '../data/customSentenceStore';
+import { importCustomSentences, getCustomSentences, parseAndValidateSentences } from '../data/customSentenceStore';
 import { LEVEL_TOOLTIPS } from '../constants';
 import { getPreviousScore, getStreak } from '../services/sessionHistory';
 
@@ -27,6 +28,8 @@ type HomeScreenProps = Pick<TrainerState,
   | 'startSession'
   | 'handleSentenceSelect'
   | 'startSharedSession'
+  | 'startSelectedSession'
+  | 'startJsonSession'
   | 'handleQuickStart'
   | 'studentName' | 'studentInitiaal' | 'studentKlas' | 'setStudentInfo' | 'hasStudentInfo'
   | 'adaptiveMode' | 'setAdaptiveMode'
@@ -56,6 +59,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   startSession,
   handleSentenceSelect,
   startSharedSession,
+  startSelectedSession,
+  startJsonSession,
   handleQuickStart,
   studentName,
   studentInitiaal,
@@ -85,9 +90,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [nameInput, setNameInput] = useState(studentName);
   const [initiaalInput, setInitiaalInput] = useState(studentInitiaal);
   const [klasInput, setKlasInput] = useState(studentKlas);
-  const [pendingAction, setPendingAction] = useState<{ type: 'session' | 'quickstart' | 'shared' | 'select'; sentenceId?: number } | null>(null);
+  const [pendingAction, setPendingAction] = useState<{
+    type: 'session' | 'quickstart' | 'shared' | 'select' | 'selected' | 'json';
+    sentenceId?: number;
+    sentenceIds?: number[];
+    jsonSentences?: Sentence[];
+  } | null>(null);
 
-  const openNamePrompt = (action: { type: 'session' | 'quickstart' | 'shared' | 'select'; sentenceId?: number } | null) => {
+  const openNamePrompt = (action: typeof pendingAction) => {
     setPendingAction(action);
     setNameInput(studentName);
     setInitiaalInput(studentInitiaal);
@@ -105,11 +115,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     }
   };
 
-  const requireNameThenSelect = (sentenceId: number) => {
+  const requireNameThenSelected = (sentenceIds: number[]) => {
     if (hasStudentInfo) {
-      handleSentenceSelect(sentenceId);
+      startSelectedSession(sentenceIds);
     } else {
-      openNamePrompt({ type: 'select', sentenceId });
+      openNamePrompt({ type: 'selected', sentenceIds });
+    }
+  };
+
+  const requireNameThenJson = (sentences: Sentence[]) => {
+    if (hasStudentInfo) {
+      startJsonSession(sentences);
+    } else {
+      openNamePrompt({ type: 'json', jsonSentences: sentences });
     }
   };
 
@@ -126,6 +144,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       else if (action.type === 'quickstart') handleQuickStart();
       else if (action.type === 'shared') startSharedSession(sharedSentences);
       else if (action.type === 'select' && action.sentenceId != null) handleSentenceSelect(action.sentenceId);
+      else if (action.type === 'selected' && action.sentenceIds) startSelectedSession(action.sentenceIds);
+      else if (action.type === 'json' && action.jsonSentences) startJsonSession(action.jsonSentences);
       setPendingAction(null);
     }, 0);
   };
@@ -145,6 +165,27 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     }
     // Reset file input
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const jsonSessionRef = useRef<HTMLInputElement>(null);
+  const handleJsonSession = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const sentences = parseAndValidateSentences(text);
+      if (sentences.length === 0) {
+        setImportMsg('Fout: het JSON-bestand bevat geen zinnen.');
+        setTimeout(() => setImportMsg(null), 4000);
+        return;
+      }
+      requireNameThenJson(sentences);
+    } catch (err) {
+      setImportMsg(`Fout: ${err instanceof Error ? err.message : 'Ongeldig bestand'}`);
+      setTimeout(() => setImportMsg(null), 4000);
+    } finally {
+      if (jsonSessionRef.current) jsonSessionRef.current.value = '';
+    }
   };
 
   return (
@@ -397,13 +438,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 </button>
               </div>
             </div>
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-center">
-              <h3 className="font-bold text-slate-700 dark:text-slate-200 mb-2 text-center">Kies één zin</h3>
-              <select className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" onChange={(e) => requireNameThenSelect(Number(e.target.value))} defaultValue="" disabled={isLoadingSentences}>
-                <option value="" disabled>{isLoadingSentences ? 'Laden...' : '-- Selecteer --'}</option>
-                {availableSentences.map(s => (<option key={s.id} value={s.id}>{s.label}</option>))}
-              </select>
-            </div>
+            <SentencePicker
+              sentences={availableSentences}
+              isLoading={isLoadingSentences}
+              onStartSession={(ids) => requireNameThenSelected(ids)}
+            />
 
             {/* Import teacher sentences */}
             <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-100 dark:border-green-800 flex flex-col items-center gap-2">
@@ -412,8 +451,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <p className="text-xs text-green-600 dark:text-green-300">{customCount} eigen zinnen geladen</p>
               )}
               <input ref={fileInputRef} type="file" accept=".json" onChange={handleImportFile} className="hidden" />
-              <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 bg-green-600 text-white text-sm font-bold rounded-lg hover:bg-green-700 transition-colors">
+              <button onClick={() => fileInputRef.current?.click()} className="w-full px-4 py-2 bg-green-600 text-white text-sm font-bold rounded-lg hover:bg-green-700 transition-colors">
                 Importeer zinnen (.json)
+              </button>
+              <input ref={jsonSessionRef} type="file" accept=".json" onChange={handleJsonSession} className="hidden" />
+              <button onClick={() => jsonSessionRef.current?.click()} className="w-full px-4 py-2 bg-amber-600 text-white text-sm font-bold rounded-lg hover:bg-amber-700 transition-colors">
+                Ontleed JSON-toets
               </button>
               {importMsg && (
                 <p className={`text-xs font-medium ${importMsg.startsWith('Fout') ? 'text-red-600 dark:text-red-300' : 'text-green-600 dark:text-green-300'}`}>{importMsg}</p>

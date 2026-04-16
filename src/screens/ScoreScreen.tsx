@@ -24,6 +24,7 @@ type ScoreScreenProps = Pick<TrainerState,
   | 'startSession'
   | 'sessionQueue'
   | 'selectedLevel'
+  | 'sessionSource'
   | 'autoSendStatus'
   | 'autoSendError'
   | 'studentName'
@@ -47,6 +48,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
   startSession,
   sessionQueue,
   selectedLevel,
+  sessionSource,
   autoSendStatus,
   autoSendError,
   studentName: studentNameProp,
@@ -209,7 +211,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
       sentenceIds,
       studentInitiaalProp.trim().toUpperCase() || undefined,
       studentKlasProp.trim() || undefined,
-      { res, hint: hint > 0 ? hint : undefined, sols },
+      { res, hint: hint > 0 ? hint : undefined, sols, src: sessionSource },
     );
     return encodeReport(report);
   };
@@ -329,7 +331,24 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
 
         {/* === Section 1: Score Summary === */}
         <section className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 text-center animate-in zoom-in-95 duration-300">
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-4">Sessie Voltooid!</h2>
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-4">
+            Sessie Voltooid!
+            {sessionSource === 'json' && (
+              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 align-middle" title="JSON-toets">
+                📋 JSON
+              </span>
+            )}
+            {sessionSource === 'selected' && (
+              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 align-middle" title="Handmatig gekozen zinnen">
+                ✋ Selectie
+              </span>
+            )}
+            {sessionSource === 'shared' && (
+              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 align-middle" title="Gedeeld door docent">
+                👩‍🏫 Docent
+              </span>
+            )}
+          </h2>
 
           <div className="flex flex-col items-center gap-3 mb-4">
             <div className={scorePercentage === 100 ? 'ring-4 ring-yellow-400 dark:ring-yellow-300 rounded-full animate-pulse-ring' : ''}>

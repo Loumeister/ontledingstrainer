@@ -163,6 +163,8 @@ export default function App() {
         handleSentenceSelect={trainer.handleSentenceSelect}
         sharedSentences={sharedSentences}
         startSharedSession={trainer.startSharedSession}
+        startSelectedSession={trainer.startSelectedSession}
+        startJsonSession={trainer.startJsonSession}
         handleQuickStart={trainer.handleQuickStart}
         studentName={trainer.studentName}
         studentInitiaal={trainer.studentInitiaal}
@@ -190,6 +192,7 @@ export default function App() {
         startSession={trainer.startSession}
         sessionQueue={trainer.sessionQueue}
         selectedLevel={trainer.selectedLevel}
+        sessionSource={trainer.sessionSource}
         autoSendStatus={trainer.autoSendStatus}
         autoSendError={trainer.autoSendError}
         studentName={trainer.studentName}
