@@ -188,6 +188,15 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
 
         {/* Main Content Area */}
         <div className="space-y-2 md:space-y-4 flex-1 flex flex-col">
+
+          {/* Sentence Number Badge */}
+          <div className="flex justify-center">
+            <span className="inline-block px-3 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full tracking-wide">
+              Zin {currentSentence.id}
+              {mode === 'session' && <span className="ml-2 text-slate-400 dark:text-slate-500">({sessionIndex + 1}/{sessionQueue.length})</span>}
+            </span>
+          </div>
+
           {/* Feedback Block */}
           {validationResult && (
             <div className={`p-3 rounded-xl text-center font-bold animate-in slide-in-from-top-2 duration-300 ${validationResult.isPerfect ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200 border border-green-200 dark:border-green-800' : 'bg-orange-50 text-orange-800 dark:bg-orange-900/40 dark:text-orange-200 border border-orange-200 dark:border-orange-800'}`}>

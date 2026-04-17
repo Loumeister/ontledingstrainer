@@ -15,7 +15,7 @@ import type { TrainerSubmission } from '../types';
 // ── Constanten (gespiegeld vanuit StudentDashboardScreen.tsx) ─────────────────
 
 const LEVEL_LABELS: Record<number, string> = {
-  0: 'Instap', 1: 'Basis', 2: 'Middel', 3: 'Hoog', 4: 'Expert',
+  0: 'Instap', 1: 'Basis', 2: 'Middel', 3: 'Hoog', 4: 'Samengesteld',
 };
 
 // ── Pure functies (gespiegeld vanuit StudentDashboardScreen.tsx) ──────────────
@@ -72,8 +72,8 @@ describe('LEVEL_LABELS', () => {
     expect(LEVEL_LABELS[1]).toBe('Basis');
   });
 
-  it('niveau 4 heet Expert', () => {
-    expect(LEVEL_LABELS[4]).toBe('Expert');
+  it('niveau 4 heet Samengesteld', () => {
+    expect(LEVEL_LABELS[4]).toBe('Samengesteld');
   });
 });
 

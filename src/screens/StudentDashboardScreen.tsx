@@ -32,7 +32,7 @@ interface StudentDashboardScreenProps {
 }
 
 const LEVEL_LABELS: Record<number, string> = {
-  0: 'Instap', 1: 'Basis', 2: 'Middel', 3: 'Hoog', 4: 'Expert',
+  0: 'Instap', 1: 'Basis', 2: 'Middel', 3: 'Hoog', 4: 'Samengesteld',
 };
 
 /**
