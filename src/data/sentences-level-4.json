@@ -1287,5 +1287,333 @@
         "role": "bwb"
       }
     ]
+  },
+  {
+    "id": 441,
+    "label": "Zin 441: VV vs BWB paar 3A",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s441t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s441t2",
+        "text": "leerlingen",
+        "role": "ow"
+      },
+      {
+        "id": "s441t3",
+        "text": "denken",
+        "role": "pv"
+      },
+      {
+        "id": "s441t4",
+        "text": "aan",
+        "role": "vv"
+      },
+      {
+        "id": "s441t5",
+        "text": "de",
+        "role": "vv"
+      },
+      {
+        "id": "s441t6",
+        "text": "toets.",
+        "role": "vv"
+      }
+    ]
+  },
+  {
+    "id": 442,
+    "label": "Zin 442: VV vs BWB paar 3B",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s442t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s442t2",
+        "text": "leerlingen",
+        "role": "ow"
+      },
+      {
+        "id": "s442t3",
+        "text": "schrijven",
+        "role": "pv"
+      },
+      {
+        "id": "s442t4",
+        "text": "aan",
+        "role": "bwb"
+      },
+      {
+        "id": "s442t5",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s442t6",
+        "text": "toets.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 443,
+    "label": "Zin 443: Werkwoordspelling relevant 5",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s443t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s443t2",
+        "text": "leerlingen",
+        "role": "ow"
+      },
+      {
+        "id": "s443t3",
+        "text": "zouden",
+        "role": "pv"
+      },
+      {
+        "id": "s443t4",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s443t5",
+        "text": "fouten",
+        "role": "lv"
+      },
+      {
+        "id": "s443t6",
+        "text": "gisteren",
+        "role": "bwb"
+      },
+      {
+        "id": "s443t7",
+        "text": "hebben",
+        "role": "wg"
+      },
+      {
+        "id": "s443t8",
+        "text": "verbeterd.",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 444,
+    "label": "Zin 444: Werkwoordspelling relevant 6",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s444t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s444t2",
+        "text": "mentor",
+        "role": "ow"
+      },
+      {
+        "id": "s444t3",
+        "text": "heeft",
+        "role": "pv"
+      },
+      {
+        "id": "s444t4",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s444t5",
+        "text": "zinnen",
+        "role": "lv"
+      },
+      {
+        "id": "s444t6",
+        "text": "zorgvuldig",
+        "role": "bwb"
+      },
+      {
+        "id": "s444t7",
+        "text": "nagekeken.",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 445,
+    "label": "Zin 445: Zich verslapen",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s445t1",
+        "text": "Omdat",
+        "role": "bijzin",
+        "subRole": "vw_onder",
+        "bijzinFunctie": "bwb"
+      },
+      {
+        "id": "s445t2",
+        "text": "zij",
+        "role": "bijzin"
+      },
+      {
+        "id": "s445t3",
+        "text": "zich",
+        "role": "bijzin"
+      },
+      {
+        "id": "s445t4",
+        "text": "versliep,",
+        "role": "bijzin"
+      },
+      {
+        "id": "s445t5",
+        "text": "kwam",
+        "role": "pv"
+      },
+      {
+        "id": "s445t6",
+        "text": "ze",
+        "role": "ow"
+      },
+      {
+        "id": "s445t7",
+        "text": "te",
+        "role": "bwb"
+      },
+      {
+        "id": "s445t8",
+        "text": "laat.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 446,
+    "label": "Zin 446: Zich schamen",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s446t1",
+        "text": "Hij",
+        "role": "ow"
+      },
+      {
+        "id": "s446t2",
+        "text": "schaamt",
+        "role": "pv"
+      },
+      {
+        "id": "s446t3",
+        "text": "zich,",
+        "role": "lv"
+      },
+      {
+        "id": "s446t4",
+        "text": "maar",
+        "role": "vw_neven"
+      },
+      {
+        "id": "s446t5",
+        "text": "hij",
+        "role": "ow"
+      },
+      {
+        "id": "s446t6",
+        "text": "zegt",
+        "role": "pv"
+      },
+      {
+        "id": "s446t7",
+        "text": "niets.",
+        "role": "lv"
+      }
+    ],
+    "structuralTags": [
+      "nevenschikking"
+    ]
+  },
+  {
+    "id": 447,
+    "label": "Zin 447: Zich vergissen",
+    "predicateType": "WG",
+    "level": 4,
+    "tokens": [
+      {
+        "id": "s447t1",
+        "text": "Ik",
+        "role": "ow"
+      },
+      {
+        "id": "s447t2",
+        "text": "vergiste",
+        "role": "pv"
+      },
+      {
+        "id": "s447t3",
+        "text": "mij",
+        "role": "lv"
+      },
+      {
+        "id": "s447t4",
+        "text": "in",
+        "role": "bwb"
+      },
+      {
+        "id": "s447t5",
+        "text": "het",
+        "role": "bwb"
+      },
+      {
+        "id": "s447t6",
+        "text": "lokaal,",
+        "role": "bwb"
+      },
+      {
+        "id": "s447t7",
+        "text": "waardoor",
+        "role": "bijzin",
+        "subRole": "vw_onder",
+        "bijzinFunctie": "bwb"
+      },
+      {
+        "id": "s447t8",
+        "text": "ik",
+        "role": "bijzin"
+      },
+      {
+        "id": "s447t9",
+        "text": "te",
+        "role": "bijzin"
+      },
+      {
+        "id": "s447t10",
+        "text": "laat",
+        "role": "bijzin"
+      },
+      {
+        "id": "s447t11",
+        "text": "kwam.",
+        "role": "bijzin"
+      }
+    ]
   }
 ]
