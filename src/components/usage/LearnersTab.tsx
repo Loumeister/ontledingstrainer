@@ -93,6 +93,7 @@ function trendColor(trend: 'up' | 'down' | 'flat'): string {
 }
 
 function levelLabel(lvl: number | null): string {
+  if (lvl === 0) return 'Instap';
   if (lvl === 1) return 'Basis';
   if (lvl === 2) return 'Middel';
   if (lvl === 3) return 'Hoog';
