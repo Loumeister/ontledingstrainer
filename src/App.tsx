@@ -173,6 +173,10 @@ export default function App() {
         hasStudentInfo={trainer.hasStudentInfo}
         adaptiveMode={trainer.adaptiveMode}
         setAdaptiveMode={trainer.setAdaptiveMode}
+        ladderEnabled={trainer.ladderEnabled}
+        setLadderEnabled={trainer.setLadderEnabled}
+        ladderStage={trainer.ladderStage}
+        setLadderStage={trainer.setLadderStage}
         openSecretDocentRoute={() => {
           window.location.hash = '#/docent';
           setShowDocent(true);
@@ -198,6 +202,9 @@ export default function App() {
         studentName={trainer.studentName}
         studentInitiaal={trainer.studentInitiaal}
         studentKlas={trainer.studentKlas}
+        ladderEnabled={trainer.ladderEnabled}
+        ladderStage={trainer.ladderStage}
+        ladderPromotion={trainer.ladderPromotion}
       />
     );
   }
@@ -237,6 +244,11 @@ export default function App() {
       handleTapPlaceChunk={trainer.handleTapPlaceChunk}
       handleTapPlaceWord={trainer.handleTapPlaceWord}
       handleTouchDrop={trainer.handleTouchDrop}
+      ladderEnabled={trainer.ladderEnabled}
+      ladderStage={trainer.ladderStage}
+      ladderActiveRoles={trainer.ladderActiveRoles}
+      ladderPromotion={trainer.ladderPromotion}
+      handleSkipSplitStep={trainer.handleSkipSplitStep}
     />
   );
 }

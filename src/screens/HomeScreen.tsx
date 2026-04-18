@@ -6,6 +6,8 @@ import { TrainerState } from '../hooks/useTrainer';
 import { importCustomSentences, getCustomSentences, parseAndValidateSentences } from '../data/customSentenceStore';
 import { LEVEL_TOOLTIPS } from '../constants';
 import { getPreviousScore, getStreak } from '../services/sessionHistory';
+import { getLadderStage, LADDER_STAGES } from '../logic/rollenladder';
+import { saveLadderProgress, loadLadderProgress } from '../services/ladderProgressStore';
 
 type HomeScreenProps = Pick<TrainerState,
   | 'predicateMode' | 'setPredicateMode'
@@ -33,6 +35,8 @@ type HomeScreenProps = Pick<TrainerState,
   | 'handleQuickStart'
   | 'studentName' | 'studentInitiaal' | 'studentKlas' | 'setStudentInfo' | 'hasStudentInfo'
   | 'adaptiveMode' | 'setAdaptiveMode'
+  | 'ladderEnabled' | 'setLadderEnabled'
+  | 'ladderStage' | 'setLadderStage'
 > & {
   sharedSentences: Sentence[];
   openSecretDocentRoute: () => void;
@@ -68,6 +72,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   setStudentInfo,
   hasStudentInfo,
   adaptiveMode, setAdaptiveMode,
+  ladderEnabled, setLadderEnabled,
+  ladderStage, setLadderStage,
   sharedSentences,
   openSecretDocentRoute,
 }) => {
@@ -429,6 +435,46 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   <span className="text-xs font-bold text-blue-800 dark:text-blue-300">Slimme zinsselectie</span>
                   <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500" checked={adaptiveMode} onChange={(e) => setAdaptiveMode(e.target.checked)} />
                 </label>
+
+                {/* Rollenladder toggle */}
+                <label className="flex items-center justify-between w-full p-2 rounded-lg border border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-800 cursor-pointer transition-colors hover:bg-indigo-50 dark:hover:bg-slate-750" title="Leer stap voor stap: eerst PV en OW, dan het gezegde, daarna meer rollen">
+                  <span className="text-xs font-bold text-indigo-800 dark:text-indigo-300">Rollenladder</span>
+                  <input type="checkbox" className="w-5 h-5 text-indigo-600 rounded bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500" checked={ladderEnabled} onChange={(e) => setLadderEnabled(e.target.checked)} />
+                </label>
+
+                {ladderEnabled && (() => {
+                  const stage = getLadderStage(ladderStage);
+                  return stage ? (
+                    <div className="w-full p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg border border-indigo-200 dark:border-indigo-700 text-xs text-indigo-800 dark:text-indigo-200">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-bold">Trede {ladderStage}/8: {stage.name}</span>
+                        <button
+                          onClick={() => {
+                            setLadderStage(1);
+                            saveLadderProgress({ ...loadLadderProgress(), currentStage: 1, recentScores: [], lastChangedAt: new Date().toISOString() });
+                          }}
+                          className="text-xs text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-200 underline"
+                        >
+                          Reset
+                        </button>
+                      </div>
+                      <p className="italic text-indigo-600 dark:text-indigo-300">{stage.question}</p>
+                      <div className="mt-2 flex gap-1 flex-wrap">
+                        {LADDER_STAGES.map(s => (
+                          <button
+                            key={s.id}
+                            onClick={() => setLadderStage(s.id)}
+                            className={`px-2 py-0.5 rounded text-xs font-bold transition-colors ${s.id === ladderStage ? 'bg-indigo-600 text-white' : 'bg-indigo-100 dark:bg-indigo-800 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-700'}`}
+                            title={s.name}
+                          >
+                            {s.id}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
+
                 <div className="flex flex-col items-center gap-1 w-full">
                   <label className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase">Aantal zinnen</label>
                   <input type="number" min="1" max={availableSentences.length} value={customSessionCount} onChange={(e) => setCustomSessionCount(Math.max(1, Math.min(availableSentences.length, parseInt(e.target.value) || 1)))} className="w-full px-3 py-3 text-lg font-bold text-center border-2 border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-800 text-blue-900 dark:text-blue-100 rounded-lg focus:border-blue-500 outline-none" />

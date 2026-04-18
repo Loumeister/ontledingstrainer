@@ -22,9 +22,22 @@ import {
   countRealChunks,
   computeCorrectSplits,
   validateAnswer,
+  getConsistentRole,
   ChunkData,
   ValidationResult,
 } from '../logic/validation';
+import {
+  getLadderStage,
+  getLadderSentenceFilter,
+  computeLadderPromotion,
+  filterValidationForStage,
+  PromotionResult,
+} from '../logic/rollenladder';
+import {
+  loadLadderProgress,
+  saveLadderProgress,
+  appendLadderScore,
+} from '../services/ladderProgressStore';
 
 export type { ChunkData, ValidationResult };
 export type AppStep = 'split' | 'label';
@@ -163,6 +176,15 @@ export interface TrainerState {
   adaptiveMode: boolean;
   setAdaptiveMode: (v: boolean) => void;
 
+  // Rollenladder
+  ladderEnabled: boolean;
+  setLadderEnabled: (v: boolean) => void;
+  ladderStage: number;
+  setLadderStage: (stage: number) => void;
+  ladderActiveRoles: RoleKey[] | null;
+  ladderPromotion: PromotionResult | null;
+  handleSkipSplitStep: () => void;
+
   // Auto-send report status
   autoSendStatus: 'idle' | 'sending' | 'success' | 'error';
   autoSendError: string;
@@ -239,6 +261,29 @@ export function useTrainer(): TrainerState {
     setAdaptiveModeRaw(v);
     try { localStorage.setItem('zinsontleding_adaptive_mode', String(v)); } catch { /* ignore */ }
   };
+
+  // Rollenladder State
+  const [ladderEnabled, setLadderEnabledRaw] = useState<boolean>(() => loadLadderProgress().enabled);
+  const [ladderStage, setLadderStageRaw] = useState<number>(() => loadLadderProgress().currentStage);
+  const [ladderPromotion, setLadderPromotion] = useState<PromotionResult | null>(null);
+
+  const setLadderEnabled = (v: boolean) => {
+    setLadderEnabledRaw(v);
+    const progress = loadLadderProgress();
+    saveLadderProgress({ ...progress, enabled: v, lastChangedAt: new Date().toISOString() });
+  };
+
+  const setLadderStage = (stage: number) => {
+    setLadderStageRaw(stage);
+    const progress = loadLadderProgress();
+    saveLadderProgress({ ...progress, currentStage: stage, lastChangedAt: new Date().toISOString() });
+  };
+
+  const ladderActiveRoles = useMemo((): RoleKey[] | null => {
+    if (!ladderEnabled) return null;
+    const stage = getLadderStage(ladderStage);
+    return stage ? stage.activeRoles : null;
+  }, [ladderEnabled, ladderStage]);
 
   // Session State
   const [sessionQueue, setSessionQueue] = useState<Sentence[]>([]);
@@ -360,13 +405,18 @@ export function useTrainer(): TrainerState {
           return false;
       }
 
-      if (selectedLevel !== null) {
+      if (selectedLevel !== null && !ladderEnabled) {
           if (s.level !== selectedLevel) return false;
+      }
+
+      if (ladderEnabled) {
+        const ladderFilter = getLadderSentenceFilter(ladderStage);
+        if (!ladderFilter(s)) return false;
       }
 
       return true;
     });
-  }, [allSentences, predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, includeBijst, includeVV]);
+  }, [allSentences, predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, includeBijst, includeVV, ladderEnabled, ladderStage]);
 
   const loadSentence = (sentence: Sentence) => {
     logInteraction('sentence_start', sentence.id);
@@ -635,6 +685,26 @@ export function useTrainer(): TrainerState {
       setIsSessionFinished(true);
       setCurrentSentence(null);
       setSelectedRole(null);
+
+      // Ladder: compute promotion after session ends
+      if (ladderEnabled) {
+        try {
+          const promotion = computeLadderPromotion(loadLadderProgress().recentScores);
+          setLadderPromotion(promotion);
+          if (promotion.shouldPromote && ladderStage < 8) {
+            const newStage = ladderStage + 1;
+            setLadderStageRaw(newStage);
+            saveLadderProgress({
+              ...loadLadderProgress(),
+              currentStage: newStage,
+              recentScores: [],
+              lastChangedAt: new Date().toISOString(),
+            });
+          }
+        } catch {
+          // Ladder promotion failure must not block score screen
+        }
+      }
 
       // Domain: finaliseer TrainerSubmission en sla per-zin pogingen op
       try {
@@ -1094,10 +1164,16 @@ export function useTrainer(): TrainerState {
     if (!currentSentence) return;
     logInteraction('check', currentSentence.id);
 
-    const { result: vResult, mistakes: currentMistakes } = validateAnswer(
+    const { result: rawResult, mistakes: rawMistakes } = validateAnswer(
       currentSentence, splitIndices, chunkLabels, subLabels, includeBB,
       bijzinFunctieLabels, bijvBepLinks, wordBijvBepLinks
     );
+
+    // In ladder mode, neutralise out-of-stage chunks before displaying and scoring
+    const chunks = buildUserChunks(currentSentence.tokens, splitIndices);
+    const { result: vResult, mistakes: currentMistakes } = ladderEnabled
+      ? filterValidationForStage(rawResult, rawMistakes, ladderStage, chunks)
+      : { result: rawResult, mistakes: rawMistakes };
 
     setValidationResult(vResult);
 
@@ -1114,7 +1190,7 @@ export function useTrainer(): TrainerState {
       logInteraction('error_bijzin_functie', currentSentence.id, `chunk=${idx}`);
     }
 
-    const realChunkCount = countRealChunks(currentSentence.tokens);
+    const realChunkCount = ladderEnabled ? vResult.total : countRealChunks(currentSentence.tokens);
 
     // Guard: only update stats and record usage on the FIRST check per sentence.
     // Uses hasBeenScored flag (not validationResult) to survive back-step / edit cycles.
@@ -1146,6 +1222,11 @@ export function useTrainer(): TrainerState {
           userLabels: { ...chunkLabels },
           splitIndices: Array.from(splitIndices),
         }]);
+
+        // Ladder: record score for promotion tracking
+        if (ladderEnabled) {
+          appendLadderScore(vResult.score, realChunkCount);
+        }
       }
       const splitErrorCount = Object.values(vResult.chunkStatus).filter(s => s === 'incorrect-split').length;
       recordAttempt(currentSentence.id, vResult.isPerfect, currentMistakes, splitErrorCount);
@@ -1336,10 +1417,24 @@ export function useTrainer(): TrainerState {
   const userChunks = getUserChunks();
   const availableSentences = filteredSentences;
 
+  const handleSkipSplitStep = () => {
+    if (!currentSentence || step !== 'split') return;
+    logInteraction('split_skip', currentSentence.id);
+    const correctSplits = computeCorrectSplits(currentSentence.tokens);
+    setSplitIndices(correctSplits);
+    setStep('label');
+  };
+
   // Compute whether ALL labels are placed (chunk labels + bijzin functions for bijzin chunks)
+  // In ladder mode, only active-stage chunks require labels.
   const allLabeled = userChunks.length > 0 &&
     userChunks.every(c => {
       const firstToken = c.tokens[0];
+      // Ladder mode: skip labeling requirement for out-of-stage chunks
+      if (ladderEnabled && ladderActiveRoles) {
+        const effectiveRole = getConsistentRole(c.tokens) ?? firstToken.role;
+        if (!ladderActiveRoles.includes(effectiveRole)) return true;
+      }
       if (!chunkLabels[firstToken.id]) return false;
       // If chunk is labeled bijzin and has a function, require function label too
       if (chunkLabels[firstToken.id] === 'bijzin' && firstToken.bijzinFunctie) {
@@ -1429,6 +1524,13 @@ export function useTrainer(): TrainerState {
     hasStudentInfo,
     // Adaptive mode
     adaptiveMode, setAdaptiveMode,
+
+    // Rollenladder
+    ladderEnabled, setLadderEnabled,
+    ladderStage, setLadderStage,
+    ladderActiveRoles,
+    ladderPromotion,
+    handleSkipSplitStep,
 
     // Auto-send report status
     autoSendStatus, autoSendError,
