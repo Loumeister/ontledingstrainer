@@ -361,15 +361,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <div>
               <h3 className="font-bold text-slate-700 dark:text-slate-200 mb-2 text-sm uppercase tracking-wider">Soort Zinnen & Gezegde</h3>
               <div className="flex flex-col gap-2">
-                <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'WG' ? 'bg-blue-50 border-blue-500 text-blue-800 dark:bg-blue-900/30 dark:text-blue-100 dark:border-blue-500' : 'hover:bg-slate-50 dark:hover:bg-slate-750 border-slate-200 dark:border-slate-600 dark:text-slate-300'}`}>
+                <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'WG' ? 'bg-blue-50 border-blue-500 text-blue-800 dark:bg-blue-900/30 dark:text-blue-100 dark:border-blue-500' : 'hover:bg-slate-50 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-600 dark:text-slate-300'}`}>
                   <input type="radio" name="pred" className="w-4 h-4 text-blue-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500" checked={predicateMode === 'WG'} onChange={() => setPredicateMode('WG')} />
                   <span className="font-bold text-sm">Alleen Werkwoordelijk (WG)</span>
                 </label>
-                <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'NG' ? 'bg-yellow-50 border-yellow-500 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-100 dark:border-yellow-500' : 'hover:bg-slate-50 dark:hover:bg-slate-750 border-slate-200 dark:border-slate-600 dark:text-slate-300'}`}>
+                <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'NG' ? 'bg-yellow-50 border-yellow-500 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-100 dark:border-yellow-500' : 'hover:bg-slate-50 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-600 dark:text-slate-300'}`}>
                   <input type="radio" name="pred" className="w-4 h-4 text-yellow-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500" checked={predicateMode === 'NG'} onChange={() => setPredicateMode('NG')} />
                   <span className="font-bold text-sm">Alleen Naamwoordelijk (NG)</span>
                 </label>
-                <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'ALL' ? 'bg-indigo-50 border-indigo-500 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-100 dark:border-indigo-500' : 'hover:bg-slate-50 dark:hover:bg-slate-750 border-slate-200 dark:border-slate-600 dark:text-slate-300'}`}>
+                <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${predicateMode === 'ALL' ? 'bg-indigo-50 border-indigo-500 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-100 dark:border-indigo-500' : 'hover:bg-slate-50 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-600 dark:text-slate-300'}`}>
                   <input type="radio" name="pred" className="w-4 h-4 text-indigo-600 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500" checked={predicateMode === 'ALL'} onChange={() => setPredicateMode('ALL')} />
                   <span className="font-bold text-sm">Allebei (Mix)</span>
                 </label>
@@ -389,15 +389,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <h3 className="font-bold text-slate-700 dark:text-slate-200 mb-2 text-sm uppercase tracking-wider">Specifiek Oefenen (Focus)</h3>
               <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Vink aan om alleen zinnen te tonen met dit onderdeel.</p>
               <div className="space-y-2">
-                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-750 cursor-pointer transition-colors">
+                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors">
                   <span className="font-bold text-slate-700 dark:text-slate-300 block text-sm">Lijdend Voorwerp</span>
                   <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-gray-100 border-slate-300" checked={focusLV} onChange={(e) => setFocusLV(e.target.checked)} />
                 </label>
-                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-750 cursor-pointer transition-colors">
+                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors">
                   <span className="font-bold text-slate-700 dark:text-slate-300 block text-sm">Meewerkend Voorwerp</span>
                   <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-gray-100 border-slate-300" checked={focusMV} onChange={(e) => setFocusMV(e.target.checked)} />
                 </label>
-                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-750 cursor-pointer transition-colors">
+                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors">
                   <span className="font-bold text-slate-700 dark:text-slate-300 block text-sm">Voorzetselvoorwerp</span>
                   <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-gray-100 border-slate-300" checked={focusVV} onChange={(e) => setFocusVV(e.target.checked)} />
                 </label>
@@ -407,11 +407,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <h3 className="font-bold text-slate-700 dark:text-slate-200 mb-2 text-sm uppercase tracking-wider">Onderdelen (Moeilijkheid)</h3>
               <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Vink aan om te oefenen met het benoemen van deze zinsdelen</p>
               <div className="space-y-2">
-                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-750 cursor-pointer transition-colors">
+                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors">
                   <span className="font-bold text-slate-700 dark:text-slate-300 block text-sm">Bijstelling</span>
                   <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-gray-100 border-slate-300" checked={includeBijst} onChange={(e) => setIncludeBijst(e.target.checked)} />
                 </label>
-                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-750 cursor-pointer transition-colors">
+                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors">
                   <span className="font-bold text-slate-700 dark:text-slate-300 block text-sm">Bijvoeglijke Bepaling</span>
                   <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-gray-100 border-slate-300" checked={includeBB} onChange={(e) => setIncludeBB(e.target.checked)} />
                 </label>
@@ -431,13 +431,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <div className="text-sm text-blue-600 dark:text-blue-300 mb-4 font-medium">{availableSentences.length} zinnen beschikbaar</div>
               )}
               <div className="flex flex-col items-center gap-3">
-                <label className="flex items-center justify-between w-full p-2 rounded-lg border border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-800 cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-slate-750" title="Selecteert vaker zinnen met rollen waar je moeite mee hebt">
+                <label className="flex items-center justify-between w-full p-2 rounded-lg border border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-800 cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-slate-700" title="Selecteert vaker zinnen met rollen waar je moeite mee hebt">
                   <span className="text-xs font-bold text-blue-800 dark:text-blue-300">Slimme zinsselectie</span>
                   <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500" checked={adaptiveMode} onChange={(e) => setAdaptiveMode(e.target.checked)} />
                 </label>
 
                 {/* Rollenladder toggle */}
-                <label className="flex items-center justify-between w-full p-2 rounded-lg border border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-800 cursor-pointer transition-colors hover:bg-indigo-50 dark:hover:bg-slate-750" title="Leer stap voor stap: eerst PV en OW, dan het gezegde, daarna meer rollen">
+                <label className="flex items-center justify-between w-full p-2 rounded-lg border border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-800 cursor-pointer transition-colors hover:bg-indigo-50 dark:hover:bg-slate-700" title="Leer stap voor stap: eerst PV en OW, dan het gezegde, daarna meer rollen">
                   <span className="text-xs font-bold text-indigo-800 dark:text-indigo-300">Rollenladder</span>
                   <input type="checkbox" className="w-5 h-5 text-indigo-600 rounded bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500" checked={ladderEnabled} onChange={(e) => setLadderEnabled(e.target.checked)} />
                 </label>

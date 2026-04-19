@@ -136,6 +136,7 @@ export function filterValidationForStage(
 
   const activeSet = new Set<RoleKey>(stage.activeRoles);
   const newChunkStatus = { ...result.chunkStatus };
+  const newChunkFeedback = { ...result.chunkFeedback };
   let newScore = 0;
   let newTotal = 0;
 
@@ -143,6 +144,7 @@ export function filterValidationForStage(
     const effectiveRole = getConsistentRole(chunk.tokens) ?? chunk.tokens[0].role;
     if (!activeSet.has(effectiveRole)) {
       newChunkStatus[idx] = 'correct';
+      delete newChunkFeedback[idx];
     } else {
       newTotal++;
       if (newChunkStatus[idx] === 'correct') newScore++;
@@ -175,6 +177,7 @@ export function filterValidationForStage(
     result: {
       ...result,
       chunkStatus: newChunkStatus,
+      chunkFeedback: newChunkFeedback,
       score: newScore,
       total: newTotal,
       isPerfect: newIsPerfect,

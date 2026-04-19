@@ -516,7 +516,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
                   </div>
                   {promoted && (
                     <span className="text-sm font-bold text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/40 px-3 py-1 rounded-full">
-                      ⬆ Trede {ladderStage + 1} bereikt!
+                      ⬆ Trede {ladderStage} bereikt!
                     </span>
                   )}
                 </div>
@@ -534,7 +534,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
                     </div>
                   </div>
                 )}
-                {demote && !promoted && (
+                {demote && !promoted && ladderStage > 1 && (
                   <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
                     Tip: probeer trede {ladderStage - 1} voor meer oefening met eenvoudigere zinnen.
                   </p>
