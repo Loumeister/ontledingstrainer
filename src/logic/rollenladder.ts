@@ -1,6 +1,7 @@
 import { ROLES } from '../constants';
-import { RoleKey, DifficultyLevel, Sentence } from '../types';
-import { getConsistentRole, ChunkData, ValidationResult } from './validation';
+import type { RoleKey, DifficultyLevel, Sentence } from '../types';
+import { getConsistentRole } from './validation';
+import type { ChunkData, ValidationResult } from './validation';
 
 export interface LadderStage {
   id: number;
@@ -29,42 +30,42 @@ export const LADDER_STAGES: LadderStage[] = [
     id: 3,
     name: 'Alle werkwoorden vinden',
     question: 'Zijn er meer werkwoorden? Groepeer ze in stap 1.',
-    activeRoles: ['pv', 'ow'],
+    activeRoles: ['pv', 'ow', 'wg', 'ng'],
     maxSentenceLevel: 1,
   },
   {
     id: 4,
     name: 'WG of NG bepalen',
     question: 'Is het gezegde werkwoordelijk (WG) of naamwoordelijk (NG)?',
-    activeRoles: ['pv', 'ow', 'wg', 'ng'],
+    activeRoles: ['pv', 'ow', 'wg', 'ng', 'wwd', 'nwd'],
     maxSentenceLevel: 1,
   },
   {
     id: 5,
     name: 'Lijdend voorwerp / Naamwoordelijk deel',
     question: 'WG: wie of wat + gezegde (+ OW)? | NG: wat is het naamwoordelijk deel?',
-    activeRoles: ['pv', 'ow', 'wg', 'ng', 'lv'],
+    activeRoles: ['pv', 'ow', 'wg', 'ng', 'wwd', 'nwd', 'lv'],
     maxSentenceLevel: 2,
   },
   {
     id: 6,
     name: 'Meewerkend voorwerp',
     question: 'Aan of voor wie + gezegde (+ OW + LV)?',
-    activeRoles: ['pv', 'ow', 'wg', 'ng', 'lv', 'mv'],
+    activeRoles: ['pv', 'ow', 'wg', 'ng', 'wwd', 'nwd', 'lv', 'mv'],
     maxSentenceLevel: 2,
   },
   {
     id: 7,
     name: 'Bijwoordelijke bepaling',
     question: 'Waar, wanneer, hoe of waarom + gezegde?',
-    activeRoles: ['pv', 'ow', 'wg', 'ng', 'lv', 'mv', 'bwb'],
+    activeRoles: ['pv', 'ow', 'wg', 'ng', 'wwd', 'nwd', 'lv', 'mv', 'bwb'],
     maxSentenceLevel: 3,
   },
   {
     id: 8,
     name: 'Samengestelde zinnen',
     question: 'Wat is de functie van de bijzin (bijzinlabel)?',
-    activeRoles: ['pv', 'ow', 'wg', 'ng', 'lv', 'mv', 'bwb', 'vv', 'bijst', 'bijzin', 'vw_neven'],
+    activeRoles: ['pv', 'ow', 'wg', 'ng', 'wwd', 'nwd', 'lv', 'mv', 'bwb', 'vv', 'bijst', 'bijzin', 'vw_neven', 'vw_onder', 'bijv_bep'],
     maxSentenceLevel: 4,
   },
 ];
@@ -143,7 +144,7 @@ export function filterValidationForStage(
   chunks.forEach((chunk, idx) => {
     const effectiveRole = getConsistentRole(chunk.tokens) ?? chunk.tokens[0].role;
     if (!activeSet.has(effectiveRole)) {
-      newChunkStatus[idx] = 'correct';
+      newChunkStatus[idx] = null;
       delete newChunkFeedback[idx];
     } else {
       newTotal++;
@@ -181,7 +182,7 @@ export function filterValidationForStage(
       score: newScore,
       total: newTotal,
       isPerfect: newIsPerfect,
-      bijzinWarningChunks: result.bijzinWarningChunks,
+      bijzinWarningChunks: result.bijzinWarningChunks.filter(idx => newChunkStatus[idx] !== null),
     },
     mistakes: filteredMistakes,
   };

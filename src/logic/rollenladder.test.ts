@@ -55,10 +55,12 @@ describe('LADDER_STAGES', () => {
     expect(ids).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
   });
 
-  it('stage 3 activeRoles equals stage 2 activeRoles', () => {
+  it('stage 3 adds wg and ng (alle werkwoorden) vs stage 2', () => {
     const s2 = getLadderStage(2)!;
     const s3 = getLadderStage(3)!;
-    expect(s3.activeRoles).toEqual(s2.activeRoles);
+    const added = s3.activeRoles.filter(r => !s2.activeRoles.includes(r));
+    expect(added).toEqual(expect.arrayContaining(['wg', 'ng']));
+    expect(added).toHaveLength(2);
   });
 
   it('stage 3 maxSentenceLevel is 1 (stage 2 is 0)', () => {
@@ -66,11 +68,11 @@ describe('LADDER_STAGES', () => {
     expect(getLadderStage(3)!.maxSentenceLevel).toBe(1);
   });
 
-  it('stage 4 adds wg and ng vs stage 3', () => {
+  it('stage 4 adds wwd and nwd vs stage 3', () => {
     const s3 = getLadderStage(3)!;
     const s4 = getLadderStage(4)!;
     const added = s4.activeRoles.filter(r => !s3.activeRoles.includes(r));
-    expect(added).toEqual(expect.arrayContaining(['wg', 'ng']));
+    expect(added).toEqual(expect.arrayContaining(['wwd', 'nwd']));
     expect(added).toHaveLength(2);
   });
 
@@ -103,15 +105,31 @@ describe('LADDER_STAGES', () => {
     expect(s8.activeRoles).toContain('vw_neven');
   });
 
-  it('wg and ng appear from stage 4', () => {
-    for (let i = 1; i <= 3; i++) {
+  it('wg and ng appear from stage 3', () => {
+    for (let i = 1; i <= 2; i++) {
       expect(getLadderStage(i)!.activeRoles).not.toContain('wg');
       expect(getLadderStage(i)!.activeRoles).not.toContain('ng');
     }
-    for (let i = 4; i <= 8; i++) {
+    for (let i = 3; i <= 8; i++) {
       expect(getLadderStage(i)!.activeRoles).toContain('wg');
       expect(getLadderStage(i)!.activeRoles).toContain('ng');
     }
+  });
+
+  it('wwd and nwd appear from stage 4', () => {
+    for (let i = 1; i <= 3; i++) {
+      expect(getLadderStage(i)!.activeRoles).not.toContain('wwd');
+      expect(getLadderStage(i)!.activeRoles).not.toContain('nwd');
+    }
+    for (let i = 4; i <= 8; i++) {
+      expect(getLadderStage(i)!.activeRoles).toContain('wwd');
+      expect(getLadderStage(i)!.activeRoles).toContain('nwd');
+    }
+  });
+
+  it('stage 8 includes vw_onder and bijv_bep', () => {
+    expect(getLadderStage(8)!.activeRoles).toContain('vw_onder');
+    expect(getLadderStage(8)!.activeRoles).toContain('bijv_bep');
   });
 });
 
@@ -145,11 +163,11 @@ describe('isRoleActiveInStage', () => {
     expect(isRoleActiveInStage('bijzin', 8)).toBe(true);
   });
 
-  it('wg is not active in stages 1-3, active in 4-8', () => {
-    for (let i = 1; i <= 3; i++) {
+  it('wg is not active in stages 1-2, active in 3-8', () => {
+    for (let i = 1; i <= 2; i++) {
       expect(isRoleActiveInStage('wg', i)).toBe(false);
     }
-    for (let i = 4; i <= 8; i++) {
+    for (let i = 3; i <= 8; i++) {
       expect(isRoleActiveInStage('wg', i)).toBe(true);
     }
   });
@@ -268,8 +286,8 @@ describe('computeLadderPromotion', () => {
 // --- filterValidationForStage ---
 
 describe('filterValidationForStage', () => {
-  it('out-of-stage chunks get status correct and are excluded from total', () => {
-    // Stage 1: only pv is active. Chunk 0 = pv (correct), Chunk 1 = ow (out-of-stage, was 'incorrect-role')
+  it('out-of-stage chunks get status null (not assessed) and are excluded from total', () => {
+    // Stage 1: only pv is active. Chunk 0 = pv (correct), Chunk 1 = ow (out-of-stage)
     const chunks = [
       makeChunk([makeToken('pv', 'w1')]),
       makeChunk([makeToken('ow', 'w2')]),
@@ -281,7 +299,7 @@ describe('filterValidationForStage', () => {
       isPerfect: false,
     });
     const { result } = filterValidationForStage(vResult, {}, 1, chunks);
-    expect(result.chunkStatus[1]).toBe('correct');
+    expect(result.chunkStatus[1]).toBeNull();
     expect(result.total).toBe(1);
     expect(result.score).toBe(1);
     expect(result.isPerfect).toBe(true);
