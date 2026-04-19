@@ -2,29 +2,32 @@
 
 Een interactieve browser-app die leerlingen (12-15 jaar, onderbouw havo/vwo) leert om Nederlandse zinnen te ontleden. Gebouwd met **React 18**, **TypeScript**, **Vite** en **Tailwind CSS**. Volledig client-side, geen backend nodig.
 
-## 📊 Projectstatus (maart 2026)
+## 📊 Projectstatus (april 2026)
 
 | Onderdeel | Status | Details |
 |-----------|--------|---------|
 | **Kernfunctionaliteit** | ✅ Compleet | Tweestaps-ontleding (verdelen + benoemen), 13 rollen |
-| **Zinnen-database** | ✅ 248 zinnen | 4 niveaus (Basis → Samengesteld) |
-| **Feedback** | ✅ Contextueel | FEEDBACK_MATRIX met rolspecifieke uitleg |
-| **Docentenmodus** | ✅ Werkend | Editor, URL-delen, importeren, opdracht-versioning |
+| **Zinnen-database** | ✅ 295 zinnen | 5 niveaus (Instap → Samengesteld) |
+| **Feedback** | ✅ Contextueel | FEEDBACK_MATRIX met rolspecifieke uitleg; feedbackLookup met override-support |
+| **Docentenmodus** | ✅ Werkend | Editor, URL-delen, importeren, opdracht-versioning, merge/rename history |
 | **Gamification** | ✅ Basis | Confetti, streaks, badges |
 | **Dark mode / Dyslexie** | ✅ Compleet | Class-toggle, groot lettertype |
-| **Domeinlaag** | ✅ Fundament | Student, TrainerAssignment, Submission, Attempt, ActivityEvent |
+| **Domeinlaag** | ✅ Fundament | Student, TrainerAssignment, Submission, Attempt, ActivityEvent, AnySubmission façade |
 | **Studentdashboard** | ✅ Basis | `#/mijn-voortgang`: scores, rolfouten, sessieoverzicht |
 | **Docentdashboard** | ✅ Basis | `#/docent-dashboard`: klas/student overzicht, rolfouten, opdrachten |
-| **Testdekking** | ⚠️ Deels | 239 tests; domeinlaag goed gedekt; 0% op hooks/screens |
-| **Toegankelijkheid** | ⚠️ Basis | Dark mode + dyslexie; toetsenbord/ARIA ontbreekt |
-| **Touch-ondersteuning** | ⚠️ Beperkt | Drag-and-drop only; tap-to-place gepland |
-| **Rollenladder** | 📋 Gepland | Adaptieve rol-introductie (zie TODO.md §1) |
+| **Rollenladder** | ✅ Geïmplementeerd | 8 treden, promotie/demotie, ladderProgressStore, `#/rollenladder` verborgen route |
+| **Tap-to-Place** | ✅ Geïmplementeerd | Tikken op kaartje en zinsdeel; naast drag-and-drop |
+| **Quick Start** | ✅ Geïmplementeerd | Prominente startknop; defaults niveau 1, 5 zinnen |
+| **Zinnenanalyse** | ✅ Nieuw | `sentenceAnalysis.ts`: token-for-token vergelijking, ErrorType-classificatie |
+| **Woordvolgorde** | ✅ Nieuw | `wordOrderLabel.ts`: SVO/SOV/VSO/VOS/OVS/OSV detectie |
+| **Testdekking** | ✅ Goed | 511 tests, 23 testbestanden; domeinlaag en logica goed gedekt |
+| **Toegankelijkheid** | ⚠️ Basis | Dark mode + dyslexie; toetsenbord/ARIA deels aanwezig |
 | **Werkwoordspelling** | 🔗 Gedeelde richting | Geen lokale module; zie `shared/grammar-core/docs/grammar-platform-principles.md` |
 
 Zie `TODO.md` voor de volledige roadmap en `SPEC.md` voor de technische specificatie.
 
-Actuele aantallen per niveau: **N1 60, N2 101, N3 42, N4 45** (totaal 248).
-ID-reeksen: **N1 1–60, N2 61–161, N3 300–341, N4 400–444**.
+Actuele aantallen per niveau: **N0 25, N1 78, N2 121, N3 45, N4 26** (totaal 295).
+ID-reeksen: **N0 5001–5025, N1 1–448, N2 61–459, N3 300–456, N4 400–466** (uniek, geen overlapping).
 
 ## 🔗 Shared-core lokale integratie
 
@@ -112,14 +115,15 @@ Leerling: Opent link → Banner "Zinnen van je docent" → Klik "Oefenen"
 
 Gedeelde contentauthoringregels (zinsselectie, didactische kwaliteit, annotatiepraktijken): `shared/grammar-core/docs/content-authoring-rules.md` — **gezaghebbend** voor herbruikbare principes; lokaal aangevuld door `.codex/skills/zinsontleding-constraint-sentence-author/SKILL.md`.
 
-De ingebouwde zinnen staan verdeeld over vier JSON-bestanden in `data/`:
+De ingebouwde zinnen staan verdeeld over vijf JSON-bestanden in `data/`:
 
-| Bestand | Niveau |
-|---------|--------|
-| `data/sentences-level-1.json` | Basis |
-| `data/sentences-level-2.json` | Middel |
-| `data/sentences-level-3.json` | Hoog |
-| `data/sentences-level-4.json` | Samengesteld (Expert) |
+| Bestand | Niveau | Zinnen | ID-reeks |
+|---------|--------|--------|---------|
+| `data/sentences-level-0.json` | Instap (Beginner) | 25 | 5001–5025 |
+| `data/sentences-level-1.json` | Basis | 78 | 1–448 |
+| `data/sentences-level-2.json` | Middel | 121 | 61–459 |
+| `data/sentences-level-3.json` | Hoog | 45 | 300–456 |
+| `data/sentences-level-4.json` | Samengesteld (Expert) | 26 | 400–466 |
 
 > **Tip voor docenten:** Gebruik de [Docentenmodus](#-docentenmodus) om zinnen aan te maken zonder de broncode aan te passen.
 
@@ -128,10 +132,10 @@ Voeg nieuwe zinnen toe aan de `SENTENCES` array:
 
 ```typescript
 {
-  id: 162,                        // Volgende vrije nummer (N3: 342, N4: 445)
+  id: 162,                        // Volgend vrij ID (zie tabel hieronder)
   label: "Zin 162: Korte naam",   // Zichtbaar in dropdown
   predicateType: 'WG',            // 'WG' (Werkwoordelijk) of 'NG' (Naamwoordelijk)
-  level: 2,                       // 1=Basis, 2=Middel, 3=Hoog, 4=Samengesteld
+  level: 2,                       // 0=Instap, 1=Basis, 2=Middel, 3=Hoog, 4=Samengesteld
   tokens: [                       // De woorden
     { id: "s162t1", text: "Ik", role: "ow" },
     { id: "s162t2", text: "loop", role: "pv" },
@@ -144,14 +148,15 @@ Voeg nieuwe zinnen toe aan de `SENTENCES` array:
 
 Houd de huidige ID-reeks aan en voeg toe na het laatste ID:
 
-| Niveau | Huidige reeks | Volgend vrij ID |
-|--------|--------------|-----------------|
-| 1 (Basis) | 1–60 | 61 |
-| 2 (Middel) | 61–161 | 162 |
-| 3 (Hoog) | 300–341 | 342 |
-| 4 (Samengesteld) | 400–444 | 445 |
+| Niveau | Bestand | Huidige reeks | Volgend vrij ID |
+|--------|---------|--------------|-----------------|
+| 0 (Instap) | `sentences-level-0.json` | 5001–5025 | 5026 |
+| 1 (Basis) | `sentences-level-1.json` | 1–448 | 449 |
+| 2 (Middel) | `sentences-level-2.json` | 61–459 | 460 |
+| 3 (Hoog) | `sentences-level-3.json` | 300–456 | 457 |
+| 4 (Samengesteld) | `sentences-level-4.json` | 400–466 | 467 |
 
-Label en token-id's (`s<zinId>t<n>`) moeten overeenkomen met het gekozen ID.
+> **Opmerking:** ID's zijn uniek over alle niveaus heen. Controleer altijd of een ID nog vrij is vóór je het gebruikt.
 
 ### 1c. Merge-conflicts in zinnenbestanden snel oplossen
 
@@ -231,6 +236,10 @@ De app heeft een domeinlaag gekregen die naast de bestaande localStorage-service
 | `trainerSubmissionStore.ts` | `zinsontleding_submissions_v1` + `_attempts_v1` | Submissions (max 500) + attempts (max 2000) |
 | `trainerActivityLog.ts` | `zinsontleding_trainer_activity_v1` | Append-only event-log (max 2000 events) |
 | `teacherNoteStore.ts` | `zinsontleding_teacher_notes_v1` | Docentnotities, logisch gescheiden van student-telemetrie |
+| `ladderProgressStore.ts` | `zinsontleding_ladder_v1` | Rollenladder-voortgang (trede, recentScores, enabled) |
+| `activityStore.ts` | *(read-only façade)* | Combineert TrainerSubmissions + LabSubmissions als `AnySubmission[]` |
+| `mergeHistory.ts` | `zinsontleding_merge_history_v1` | Undo-history voor klas/student rename/merge-acties (max 50) |
+| `labExerciseStore.ts` | `zinsdeellab_exercises_v1` | Zinnenlab-oefeningen (custom exercises) |
 
 ### Nieuwe logica (`src/logic/`)
 
@@ -244,12 +253,34 @@ De app heeft een domeinlaag gekregen die naast de bestaande localStorage-service
 | `computeAssignmentParticipation` | `assignmentId, version, submissions` | `ParticipationSummary` |
 | `buildTrainerSubmissionFromReport` | `SessionReport` | `Omit<TrainerSubmission, 'studentId'>` |
 
+**`rollenladder.ts`** — Rollenladder-logica:
+- 8 treden (PV → OW → WG/NG → LV → MV → BWB → VV/bijst/bijv_bep → Bijzinnen)
+- `computeLadderPromotion()`: 80%-beheersingscriterium over 10 zinnen; 50%-grens voor demotie-suggestie
+- `filterValidationForStage()`: niet-actieve rollen tellen als neutraal
+- `getLadderSentenceFilter()`: zinnen boven `maxSentenceLevel` van de trede worden uitgesloten
+
+**`sentenceAnalysis.ts`** — token-for-token vergelijking van verwacht vs. student-antwoord:
+- `ErrorType`: `correct | groepering | benoeming | both`
+- `TokenComparison`, `SentenceComparisonResult`
+- Detecteert eerste divergentie, split- en labelfouten per token
+
+**`wordOrderLabel.ts`** — woordvolgorde-detectie:
+- Codeert Nederlandse woordvolgorde als `SVO | SOV | VSO | VOS | OVS | OSV | SV | VS | ?`
+- `detectWordOrder(tokens)` voor opgeslagen Token[], `detectWordOrderFromRoles(roles)` voor editor-staat
+
+**`sessionFlow.ts`** — pure sessie-flow helpers:
+- `shouldShowSessionNextButton()`, `getSessionAdvanceAction()`
+
+**`feedbackLookup.ts`** — effectieve feedback met override-support:
+- Controleert localStorage-overrides vóór de ingebouwde FEEDBACK_MATRIX
+
 ### Nieuwe routes
 
 | Route | Scherm | Toegang |
 |-------|--------|---------|
 | `#/mijn-voortgang` | `StudentDashboardScreen` | Openbaar (voor ingelogde leerling) |
 | `#/docent-dashboard` | `TeacherDashboardScreen` | PIN-beveiligd (zelfde PIN als `#/login`) |
+| `#/rollenladder` | *(verborgen)* | Schakelt Rollenladder-modus in en landt op HomeScreen; geen zichtbare link |
 
 ### Migratiestatus
 
