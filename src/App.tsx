@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTrainer } from './hooks/useTrainer';
 import { HomeScreen } from './screens/HomeScreen';
 import { ScoreScreen } from './screens/ScoreScreen';
@@ -20,6 +20,13 @@ const initialSharedSentences: Sentence[] = sharedParam ? decodeShared(sharedPara
 
 export default function App() {
   const trainer = useTrainer();
+
+  // Stable refs so effects don't need trainer in their dep arrays
+  const setLadderEnabledRef = useRef(trainer.setLadderEnabled);
+  const resetToHomeRef = useRef(trainer.resetToHome);
+  setLadderEnabledRef.current = trainer.setLadderEnabled;
+  resetToHomeRef.current = trainer.resetToHome;
+
   const [showLogin, setShowLogin] = useState(() => window.location.hash === '#/login');
   const [showEditor, setShowEditor] = useState(() => window.location.hash === '#/editor');
   const [showDocent, setShowDocent] = useState(() => window.location.hash === '#/docent');
@@ -28,10 +35,10 @@ export default function App() {
   // #/rollenladder — hidden entry point: enables ladder mode and lands on HomeScreen
   useEffect(() => {
     if (window.location.hash === '#/rollenladder') {
-      trainer.setLadderEnabled(true);
-      window.location.hash = '';
+      setLadderEnabledRef.current(true);
+      resetToHomeRef.current();
+      history.replaceState(null, '', location.pathname + location.search);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [showStudentDashboard, setShowStudentDashboard] = useState(() => window.location.hash === '#/mijn-voortgang');
   const [showTeacherDashboard, setShowTeacherDashboard] = useState(() => window.location.hash === '#/docent-dashboard');
@@ -46,8 +53,9 @@ export default function App() {
   useEffect(() => {
     const onHashChange = () => {
       if (window.location.hash === '#/rollenladder') {
-        trainer.setLadderEnabled(true);
-        window.location.hash = '';
+        setLadderEnabledRef.current(true);
+        resetToHomeRef.current();
+        history.replaceState(null, '', location.pathname + location.search);
         return;
       }
       setShowLogin(window.location.hash === '#/login');
