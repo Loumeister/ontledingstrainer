@@ -14,16 +14,53 @@ const DEFAULT_PROGRESS: LadderProgress = {
   recentScores: [],
 };
 
+function sanitizeCurrentStage(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return 1;
+  }
+
+  return Math.min(8, Math.max(1, Math.trunc(value)));
+}
+
+function sanitizeRecentScores(value: unknown): { score: number; total: number }[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter(
+    (
+      entry,
+    ): entry is {
+      score: number;
+      total: number;
+    } =>
+      typeof entry === 'object' &&
+      entry !== null &&
+      'score' in entry &&
+      'total' in entry &&
+      typeof entry.score === 'number' &&
+      Number.isFinite(entry.score) &&
+      entry.score >= 0 &&
+      typeof entry.total === 'number' &&
+      Number.isFinite(entry.total) &&
+      entry.total > 0 &&
+      entry.score <= entry.total,
+  );
+}
+
 export function loadLadderProgress(): LadderProgress {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...DEFAULT_PROGRESS };
     const parsed = JSON.parse(raw) as Partial<LadderProgress>;
     return {
-      enabled: parsed.enabled ?? false,
-      currentStage: parsed.currentStage ?? 1,
-      lastChangedAt: parsed.lastChangedAt ?? new Date().toISOString(),
-      recentScores: parsed.recentScores ?? [],
+      enabled: typeof parsed.enabled === 'boolean' ? parsed.enabled : false,
+      currentStage: sanitizeCurrentStage(parsed.currentStage),
+      lastChangedAt:
+        typeof parsed.lastChangedAt === 'string'
+          ? parsed.lastChangedAt
+          : new Date().toISOString(),
+      recentScores: sanitizeRecentScores(parsed.recentScores),
     };
   } catch {
     return { ...DEFAULT_PROGRESS };
