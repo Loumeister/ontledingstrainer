@@ -7,7 +7,6 @@ import { importCustomSentences, getCustomSentences, parseAndValidateSentences } 
 import { LEVEL_TOOLTIPS } from '../constants';
 import { getPreviousScore, getStreak } from '../services/sessionHistory';
 import { getLadderStage, LADDER_STAGES } from '../logic/rollenladder';
-import { saveLadderProgress, loadLadderProgress } from '../services/ladderProgressStore';
 
 const LADDER_UI_VISIBLE = false;
 
@@ -439,7 +438,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 </label>
 
                 {/* Rollenladder toggle — hidden until feature is ready for students */}
-                {LADDER_UI_VISIBLE && (
+                {(LADDER_UI_VISIBLE || ladderEnabled) && (
                   <>
                     <label className="flex items-center justify-between w-full p-2 rounded-lg border border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-800 cursor-pointer transition-colors hover:bg-indigo-50 dark:hover:bg-slate-700" title="Leer stap voor stap: eerst PV en OW, dan het gezegde, daarna meer rollen">
                       <span className="text-xs font-bold text-indigo-800 dark:text-indigo-300">Rollenladder</span>

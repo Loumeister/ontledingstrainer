@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTrainer } from './hooks/useTrainer';
 import { HomeScreen } from './screens/HomeScreen';
 import { ScoreScreen } from './screens/ScoreScreen';
@@ -20,11 +20,26 @@ const initialSharedSentences: Sentence[] = sharedParam ? decodeShared(sharedPara
 
 export default function App() {
   const trainer = useTrainer();
+
+  // Stable refs so effects don't need trainer in their dep arrays
+  const setLadderEnabledRef = useRef(trainer.setLadderEnabled);
+  const resetToHomeRef = useRef(trainer.resetToHome);
+  setLadderEnabledRef.current = trainer.setLadderEnabled;
+  resetToHomeRef.current = trainer.resetToHome;
+
   const [showLogin, setShowLogin] = useState(() => window.location.hash === '#/login');
   const [showEditor, setShowEditor] = useState(() => window.location.hash === '#/editor');
   const [showDocent, setShowDocent] = useState(() => window.location.hash === '#/docent');
   const [showUsageLog, setShowUsageLog] = useState(() => window.location.hash === '#/usage');
   const [showZinsdeellab, setShowZinsdeellab] = useState(() => window.location.hash === '#/zinnenlab');
+  // #/rollenladder — hidden entry point: enables ladder mode and lands on HomeScreen
+  useEffect(() => {
+    if (window.location.hash === '#/rollenladder') {
+      setLadderEnabledRef.current(true);
+      resetToHomeRef.current();
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+  }, []);
   const [showStudentDashboard, setShowStudentDashboard] = useState(() => window.location.hash === '#/mijn-voortgang');
   const [showTeacherDashboard, setShowTeacherDashboard] = useState(() => window.location.hash === '#/docent-dashboard');
   const [sharedSentences] = useState<Sentence[]>(initialSharedSentences);
@@ -37,6 +52,12 @@ export default function App() {
   // Listen for hash changes
   useEffect(() => {
     const onHashChange = () => {
+      if (window.location.hash === '#/rollenladder') {
+        setLadderEnabledRef.current(true);
+        resetToHomeRef.current();
+        history.replaceState(null, '', location.pathname + location.search);
+        return;
+      }
       setShowLogin(window.location.hash === '#/login');
       setShowEditor(window.location.hash === '#/editor');
       setShowDocent(window.location.hash === '#/docent');
