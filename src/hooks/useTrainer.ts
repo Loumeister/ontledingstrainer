@@ -274,9 +274,16 @@ export function useTrainer(): TrainerState {
   };
 
   const setLadderStage = (stage: number) => {
-    setLadderStageRaw(stage);
+    const clampedStage = Math.max(1, Math.min(8, stage));
+    setLadderStageRaw(clampedStage);
+    setLadderPromotion(null);
     const progress = loadLadderProgress();
-    saveLadderProgress({ ...progress, currentStage: stage, lastChangedAt: new Date().toISOString() });
+    saveLadderProgress({
+      ...progress,
+      currentStage: clampedStage,
+      recentScores: [],
+      lastChangedAt: new Date().toISOString(),
+    });
   };
 
   const ladderActiveRoles = useMemo((): RoleKey[] | null => {
