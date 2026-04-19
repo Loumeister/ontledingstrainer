@@ -690,16 +690,18 @@ export function useTrainer(): TrainerState {
       if (ladderEnabled) {
         try {
           const promotion = computeLadderPromotion(loadLadderProgress().recentScores);
-          setLadderPromotion(promotion);
           if (promotion.shouldPromote && ladderStage < 8) {
             const newStage = ladderStage + 1;
             setLadderStageRaw(newStage);
+            setLadderPromotion({ ...promotion, shouldPromote: false });
             saveLadderProgress({
               ...loadLadderProgress(),
               currentStage: newStage,
               recentScores: [],
               lastChangedAt: new Date().toISOString(),
             });
+          } else {
+            setLadderPromotion(promotion);
           }
         } catch {
           // Ladder promotion failure must not block score screen
