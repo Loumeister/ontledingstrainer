@@ -453,10 +453,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                           <div className="flex items-center justify-between mb-1">
                             <span className="font-bold">Trede {ladderStage}/8: {stage.name}</span>
                             <button
-                              onClick={() => {
-                                setLadderStage(1);
-                                saveLadderProgress({ ...loadLadderProgress(), currentStage: 1, recentScores: [], lastChangedAt: new Date().toISOString() });
-                              }}
+                              onClick={() => setLadderStage(1)}
                               className="text-xs text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-200 underline"
                             >
                               Reset

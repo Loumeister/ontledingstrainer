@@ -700,7 +700,7 @@ export function useTrainer(): TrainerState {
           if (promotion.shouldPromote && ladderStage < 8) {
             const newStage = ladderStage + 1;
             setLadderStageRaw(newStage);
-            setLadderPromotion({ ...promotion, shouldPromote: false });
+            setLadderPromotion(promotion);
             saveLadderProgress({
               ...loadLadderProgress(),
               currentStage: newStage,
