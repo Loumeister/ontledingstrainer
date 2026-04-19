@@ -15,6 +15,7 @@ import { updateRoleMastery, RoleMasteryStore } from '../services/rolemastery';
 import { computeRoleConfidences } from '../logic/adaptiveSelection';
 import { buildReport, encodeReport } from '../services/sessionReport';
 import { getScriptUrl } from '../services/googleDriveSync';
+import { getLadderStage } from '../logic/rollenladder';
 
 type ScoreScreenProps = Pick<TrainerState,
   | 'sessionStats'
@@ -30,6 +31,9 @@ type ScoreScreenProps = Pick<TrainerState,
   | 'studentName'
   | 'studentInitiaal'
   | 'studentKlas'
+  | 'ladderEnabled'
+  | 'ladderStage'
+  | 'ladderPromotion'
 >;
 
 // Niveau-afhankelijke drempels (advies Grammar Coach): [green, yellow, orange]
@@ -54,6 +58,9 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
   studentName: studentNameProp,
   studentInitiaal: studentInitiaalProp,
   studentKlas: studentKlasProp,
+  ladderEnabled,
+  ladderStage,
+  ladderPromotion,
 }) => {
   const [reportCode, setReportCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -489,6 +496,52 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
                 : 'Alweer geen fouten. Dit is gewoon hoe je dit nu doet.'}
             </p>
           )}
+
+          {/* Rollenladder – trede progress */}
+          {ladderEnabled && (() => {
+            const stage = getLadderStage(ladderStage);
+            if (!stage) return null;
+            const windowPct = ladderPromotion ? Math.round(ladderPromotion.windowScore * 100) : 0;
+            const windowSize = ladderPromotion?.windowSize ?? 0;
+            const promoted = ladderPromotion?.shouldPromote && ladderStage < 8;
+            const demote = ladderPromotion?.shouldSuggestDemote;
+            return (
+              <div className="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl border border-indigo-200 dark:border-indigo-800">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div>
+                    <p className="text-sm font-bold text-indigo-700 dark:text-indigo-300">
+                      Trede {ladderStage} van 8: {stage.name}
+                    </p>
+                    <p className="text-xs text-indigo-500 dark:text-indigo-400 mt-0.5 italic">{stage.question}</p>
+                  </div>
+                  {promoted && (
+                    <span className="text-sm font-bold text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/40 px-3 py-1 rounded-full">
+                      ⬆ Trede {ladderStage} bereikt!
+                    </span>
+                  )}
+                </div>
+                {windowSize > 0 && (
+                  <div className="mt-3">
+                    <div className="flex justify-between text-xs text-indigo-500 dark:text-indigo-400 mb-1">
+                      <span>Voortgang naar volgende trede</span>
+                      <span>{windowSize}/10 zinnen · {windowPct}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-indigo-200 dark:bg-indigo-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-indigo-500 dark:bg-indigo-400 transition-all duration-500"
+                        style={{ width: `${windowPct}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+                {demote && !promoted && ladderStage > 1 && (
+                  <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                    Tip: probeer trede {ladderStage - 1} voor meer oefening met eenvoudigere zinnen.
+                  </p>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Rollenkas – mastery trophy wall */}
           <RollenKas mistakeStats={mistakeStats} masteryStore={roleMasteryStore} />

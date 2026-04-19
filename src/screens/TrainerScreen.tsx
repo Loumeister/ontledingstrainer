@@ -10,6 +10,7 @@ import { ConfirmationModal } from '../components/ConfirmationModal';
 import { FeedbackPanel, FeedbackItem } from '../components/FeedbackPanel';
 import { TrainerState } from '../hooks/useTrainer';
 import { shouldShowSessionNextButton } from '../logic/sessionFlow';
+import { getLadderStage } from '../logic/rollenladder';
 
 type TrainerScreenProps = Pick<TrainerState,
   | 'currentSentence' | 'step' | 'mode'
@@ -42,6 +43,8 @@ type TrainerScreenProps = Pick<TrainerState,
   | 'handleSelectRole' | 'handleClearSelectedRole'
   | 'handleTapPlaceChunk' | 'handleTapPlaceWord'
   | 'handleTouchDrop'
+  | 'ladderEnabled' | 'ladderStage' | 'ladderActiveRoles' | 'ladderPromotion'
+  | 'handleSkipSplitStep'
 >;
 
 export const TrainerScreen: React.FC<TrainerScreenProps> = ({
@@ -72,6 +75,8 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   nextSessionSentence,
   consecutivePerfect,
   selectedRole, handleSelectRole, handleTapPlaceChunk, handleTapPlaceWord, handleTouchDrop,
+  ladderEnabled, ladderStage, ladderActiveRoles, ladderPromotion,
+  handleSkipSplitStep,
 }) => {
   const [showZinsdeelHelp, setShowZinsdeelHelp] = useState(false);
   const [streakToast, setStreakToast] = useState<string | null>(null);
@@ -223,7 +228,11 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
           {step === 'split' && (
             <div className="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 text-center animate-in fade-in duration-300 flex-1 flex flex-col justify-center">
               <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200 mb-2">Stap 1: Zinsdeelproef</h2>
-              <p className="text-slate-500 dark:text-slate-400 mb-6">Klik tussen de woorden om de zin in zinsdelen te knippen.</p>
+              {ladderEnabled ? (
+                <p className="text-slate-500 dark:text-slate-400 mb-6">Klik tussen de woorden om zinsdelen te groeperen. Je mag dit ook overslaan.</p>
+              ) : (
+                <p className="text-slate-500 dark:text-slate-400 mb-6">Klik tussen de woorden om de zin in zinsdelen te knippen.</p>
+              )}
 
               <div className={`flex flex-wrap items-center justify-center gap-y-6 select-none py-4 ${largeFont ? 'text-2xl md:text-3xl leading-relaxed' : 'text-xl md:text-2xl leading-loose'}`}>
                 {currentSentence.tokens.map((token, idx) => {
@@ -245,8 +254,16 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   );
                 })}
               </div>
-              <div className="mt-8 flex justify-center">
+              <div className="mt-8 flex flex-col items-center gap-3">
                 <button onClick={handleNextStep} className="group px-8 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:bg-blue-700 hover:shadow-blue-200 hover:-translate-y-0.5 transition-all flex items-center gap-3">Naar benoemen<span className="group-hover:translate-x-1 transition-transform">&rarr;</span></button>
+                {ladderEnabled && (
+                  <button
+                    onClick={handleSkipSplitStep}
+                    className="text-sm text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors underline underline-offset-2"
+                  >
+                    Overslaan → (knippen wordt automatisch ingevuld)
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -273,6 +290,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   onSelectRole={handleSelectRole}
                   onTouchDropChunk={handleTouchDrop}
                   chunkLabels={chunkLabels}
+                  ladderActiveRoles={ladderActiveRoles}
                 />
               )}
 
@@ -375,10 +393,10 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
         <footer className={`${shouldPinFooter ? 'md:sticky md:bottom-0 md:z-[500]' : 'relative z-[90]'} left-0 w-full bg-white/95 dark:bg-slate-800/95 backdrop-blur border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-2 md:p-3`}>
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
 
-            {/* Center: Session Progress */}
+            {/* Center: Session Progress + Ladder Stage */}
             {mode === 'session' && (
-              <div className="flex flex-col items-center w-full md:w-auto">
-                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+              <div className="flex flex-col items-center gap-1 w-full md:w-auto">
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                   Zin {sessionIndex + 1} / {sessionQueue.length}
                 </div>
                 <div className="w-32 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
@@ -387,6 +405,27 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                     style={{ width: `${((sessionIndex + 1) / sessionQueue.length) * 100}%` }}
                   ></div>
                 </div>
+                {ladderEnabled && (() => {
+                  const stage = getLadderStage(ladderStage);
+                  const promotion = ladderPromotion;
+                  const windowPct = promotion ? Math.round(promotion.windowScore * 100) : 0;
+                  const windowSize = promotion?.windowSize ?? 0;
+                  return stage ? (
+                    <div className="flex flex-col items-center mt-0.5">
+                      <span className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">
+                        Trede {ladderStage}/8: {stage.name}
+                      </span>
+                      {windowSize > 0 && (
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <div className="w-20 h-1 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                            <div className="h-full bg-indigo-400 transition-all" style={{ width: `${windowPct}%` }} />
+                          </div>
+                          <span className="text-xs text-slate-400 dark:text-slate-500">{windowSize}/10</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : null;
+                })()}
               </div>
             )}
 
@@ -476,6 +515,7 @@ interface RoleToolbarProps {
   onSelectRole: TrainerState['handleSelectRole'];
   onTouchDropChunk: TrainerState['handleTouchDrop'];
   chunkLabels: TrainerState['chunkLabels'];
+  ladderActiveRoles?: TrainerState['ladderActiveRoles'];
 }
 
 const RoleToolbar: React.FC<RoleToolbarProps> = ({
@@ -491,16 +531,19 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
   onSelectRole,
   onTouchDropChunk,
   chunkLabels,
+  ladderActiveRoles,
 }) => {
   const levelRoles = selectedLevel ? ROLES_PER_LEVEL[selectedLevel] : null;
 
   const isRoleVisible = (roleKey: string): boolean => {
+    // Ladder mode: hide roles not in the active stage (overrides all other visibility logic)
+    if (ladderActiveRoles && !ladderActiveRoles.includes(roleKey as import('../types').RoleKey)) return false;
     // Always show if the current sentence contains this role.
     // For 'wd', only match main role (t.role) — subRole 'wd' on PV is display-only and has no chunk to label.
     if (roleKey === 'wd') {
       if (currentSentence?.tokens.some(t => t.role === 'wd')) return true;
     } else if (currentSentence?.tokens.some(t => t.role === roleKey || t.subRole === roleKey)) return true;
-    // No level selected → show everything
+    // No level selected → show everything (unless ladder is active, handled above)
     if (!levelRoles) return true;
     // Focus flag overrides
     if (roleKey === 'vv' && (focusVV || includeVV)) return true;
@@ -538,8 +581,9 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
 
             <div className="w-full" />
 
-            {/* WG, NG — always visible */}
+            {/* WG, NG — always visible unless ladder hides them */}
             {ROLES.filter(r => !r.isSubOnly && ['wg', 'ng'].includes(r.key as string))
+                  .filter(r => isRoleVisible(r.key))
                   .map(role => (
               <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} onDragEnd={handleDragEnd} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} />
             ))}

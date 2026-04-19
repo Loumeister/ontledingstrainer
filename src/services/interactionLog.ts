@@ -25,7 +25,8 @@ export type InteractionType =
   | 'lab_exercise_start'
   | 'lab_construction_submit'
   | 'lab_parse_complete'
-  | 'lab_exercise_complete';
+  | 'lab_exercise_complete'
+  | 'split_skip';
 
 export interface InteractionEntry {
   timestamp: string;
