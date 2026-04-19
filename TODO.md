@@ -19,17 +19,24 @@ Ontleedlab blijft in deze roadmap:
 Deze onderdelen blijven zichtbaar in de roadmap omdat ze de huidige productrealiteit bepalen.
 
 ### Lokale basis: domeinarchitectuur, dashboards en versioning
-- Nieuwe domeintypes in `src/types.ts`: `Student`, `TrainerAssignment`, `TrainerSubmission`, `TrainerAttempt`, `TrainerActivityEvent` / `TrainerEventType`, `TeacherNote`
-- Nieuwe services zoals `studentStore.ts`, `trainerAssignmentStore.ts`, `trainerSubmissionStore.ts`, `trainerActivityLog.ts`, `teacherNoteStore.ts`
+- Nieuwe domeintypes in `src/types.ts`: `Student`, `TrainerAssignment`, `TrainerSubmission`, `TrainerAttempt`, `TrainerActivityEvent` / `TrainerEventType`, `TeacherNote`, `AnySubmission`
+- Nieuwe services zoals `studentStore.ts`, `trainerAssignmentStore.ts`, `trainerSubmissionStore.ts`, `trainerActivityLog.ts`, `teacherNoteStore.ts`, `ladderProgressStore.ts`, `activityStore.ts`, `mergeHistory.ts`
 - `analyticsHelpers.ts` met progressie-, participatie- en foutpatroonfuncties
 - Integratie in bestaande flow via `useTrainer.ts`, `SentenceEditorScreen.tsx`, `ScoreScreen.tsx`, `App.tsx`
 - Nieuwe schermen voor leerling- en docentvoortgang
 - Migratieprincipes rond localStorage, interaction log en compatibiliteit zijn al ingevoerd
 
 ### Lokale parsing- en zinnenbasis
-- `sentences-level-0.json` toegevoegd met 25 instapzinnen
-- Niveau 1 t/m 3 uitgebreid met NG-zinnen
+- `sentences-level-0.json` toegevoegd met 25 instapzinnen (IDs 5001–5025)
+- Niveau 1 t/m 3 uitgebreid (N1: 78, N2: 121, N3: 45, N4: 26 zinnen; totaal 295)
 - Google Sheet sync uitgebreid met per-zin resultaten, hintteller en sessieduur
+
+### Lokale logica-uitbreidingen (volledig geïmplementeerd)
+- `rollenladder.ts`: 8 treden, promotie/demotie-logica, zinnenfilter per trede — **✅ DONE**
+- `sentenceAnalysis.ts`: token-for-token vergelijking, ErrorType-classificatie — **✅ DONE**
+- `wordOrderLabel.ts`: SVO/SOV/VSO/VOS/OVS/OSV detectie — **✅ DONE**
+- `sessionFlow.ts`: pure sessie-flow helpers — **✅ DONE**
+- `feedbackLookup.ts`: override-aware feedbackopzoeker — **✅ DONE**
 
 ### Lokale infrastructuur en beheer
 - Gecentraliseerde login via `#/login`
@@ -57,24 +64,11 @@ Deze items zijn direct uitvoerbaar binnen de huidige Ontleedlab-productscope en 
 
 ## A. Interactie, toegankelijkheid en instap
 
-### 0a. "Snel Starten"-knop (Quick Start)
-*Probleem: het startscherm toont veel opties; leerlingen willen direct beginnen.*
+### 0a. "Snel Starten"-knop (Quick Start) — **✅ DONE**
+`handleQuickStart()` aanwezig in `TrainerState`; HomeScreen toont prominente startknop met defaults niveau 1, 5 zinnen.
 
-**Implementatie:**
-- één prominente knop bovenaan HomeScreen
-- defaults: `selectedLevel: 1`, `predicateMode: 'all'`, `customSessionCount: 5`
-- gebruik eerdere lokale voorkeuren waar beschikbaar
-- verplaats overige instellingen naar een uitklapbaar paneel
-
-### 0b. Tik-om-te-plaatsen (Tap-to-Place)
-*Probleem: drag-and-drop werkt zwak op tablets en touchscreens.*
-
-**Implementatie:**
-- voeg `selectedRole: RoleKey | null` toe aan TrainerState
-- `WordChip` krijgt `onClick` naast `onDragStart`
-- `DropZone` accepteert plaatsing via klik
-- visuele selectie-indicator op het actieve kaartje
-- drag-and-drop blijft volledig bestaan
+### 0b. Tik-om-te-plaatsen (Tap-to-Place) — **✅ DONE**
+`handleTapPlaceChunk()` en `handleTapPlaceWord()` aanwezig in `TrainerState`; `selectedRole` en bijbehorende handlers geïmplementeerd.
 
 ### 0c. Toetsenbordnavigatie
 *Probleem: kerninteracties zijn niet volledig toetsbaar met het toetsenbord.*
@@ -123,25 +117,10 @@ Deze items zijn direct uitvoerbaar binnen de huidige Ontleedlab-productscope en 
 
 ## B. Parsingdidactische versterking
 
-### 1. Rollenladder
-*Bron: scaffolding, cognitieve belastingtheorie, veel kennis van weinig.*
+### 1. Rollenladder — **✅ DONE**
+Geïmplementeerd in `src/logic/rollenladder.ts` en `src/services/ladderProgressStore.ts`. 8 treden (PV t/m bijzinnen), 80%-beheersingscriterium over 10 zinnen, promotie/demotie-logica, `filterValidationForStage()`. Geïntegreerd in `useTrainer.ts` via `ladderEnabled`, `ladderStage`, `ladderActiveRoles`, `ladderPromotion`. Verborgen route `#/rollenladder` schakelt laddermode in.
 
-**Doel:** rollen stapsgewijs introduceren en cognitieve belasting verlagen.
-
-**Lokale uitwerking:**
-- trede 1: PV
-- trede 2: PV + OW
-- trede 3: PV + OW + LV/MV/BWB
-- trede 4: + VV, WG/NG
-- trede 5: volledig
-- 80%-beheersingscriterium over 10 zinnen
-- suggestie tot lagere trede bij herhaald lage scores
-
-**Implementatie:**
-- `rollenladderTrede` in useTrainer
-- toolbar filteren op trede
-- validatie buiten actieve trede als rest of niet-fout behandelen
-- voortgang visueel tonen
+*Didactische achtergrond: scaffolding, cognitieve belastingtheorie.*
 
 ### 2. Interactieve beslisboom / Ontleedhulp
 *Bron: algoritmische werkwijze als controlemechanisme.*
@@ -208,7 +187,7 @@ Deze items zijn direct uitvoerbaar binnen de huidige Ontleedlab-productscope en 
 ## C. Lokale content- en productkwaliteit
 
 ### 0e. Zinnen-database verder uitbreiden
-**Status:** deels gedaan.
+**Status:** 295 zinnen aanwezig (N0: 25, N1: 78, N2: 121, N3: 45, N4: 26).
 
 **Nog openstaand:**
 - niveau 2 en 3 verder uitbreiden met gevarieerde NG-zinnen
@@ -262,7 +241,7 @@ Deze items zijn direct uitvoerbaar binnen de huidige Ontleedlab-productscope en 
 - Fase C: zo nodig `useReducer`
 
 ### 17. Testdekking uitbreiden
-**Status:** 374 tests groen, 16 testbestanden.
+**Status:** 511 tests groen, 23 testbestanden.
 
 **Nog openstaand:**
 - `handleCheck()` beter afdekken
@@ -428,20 +407,16 @@ Deze richtingen blijven inhoudelijk relevant, maar zijn pas aan de beurt ná lok
 - kleine UI-wijziging zonder architectuurgevolgen
 - direct merkbare verbetering voor leerlingen
 
-### Eerst vóór diepere platformuitbouw
-**shared/grammar-core-hiërarchie actief bewaken**
-- eerst: `shared/grammar-core/` fysiek toevoegen op de afgesproken locatie
-- daarna: de wrapperhiërarchie operationeel maken zonder lokale parsingcontracten af te vlakken
-
 ---
 
 ## Geordende implementatievolgorde
 
 | Fase | Type werk | Items |
 |------|-----------|-------|
-| **Nu lokaal** | snelle productimpact | 0a Quick Start, 0b Tap-to-Place, 19 zichtbare module-navigatie |
+| **✅ Gedaan** | snelle productimpact | 0a Quick Start, 0b Tap-to-Place, 1 Rollenladder |
 | **Nu lokaal** | toegankelijkheid | 0c Keyboard, 0d Aria, 11 Responsief, 12 Onboarding |
-| **Nu lokaal** | parsingdidactiek | 1 Rollenladder, 4 Tooltips, 2 Beslisboom, 5 Metacognitie |
+| **Nu lokaal** | zichtbaarheid | 19 zichtbare module-navigatie |
+| **Nu lokaal** | parsingdidactiek | 4 Tooltips, 2 Beslisboom, 5 Metacognitie |
 | **Nu lokaal** | verdieping | 3 Foutenanalyse, 6 Contrastparen, 8 Oefenplan, 21 Spaced repetition |
 | **Nu lokaal** | codekwaliteit | 0f Performance, 16 State, 17 Tests, 18 Validatiescript |
 | **Eerst alignment** | shared-core zichtbaarheid | shared subtree toevoegen, daarna wrappers en contractsync controleren |

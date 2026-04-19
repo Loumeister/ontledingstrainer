@@ -32,7 +32,7 @@ During migration:
 - `npm ci` - Install dependencies (use in CI / fresh clone)
 - `npm run dev` - Start dev server (port 5173)
 - `npm run build` - Production build (`tsc && vite build`)
-- `npm run test` - Run all tests (`vitest run`, 239 tests across 10 files)
+- `npm run test` - Run all tests (`vitest run`, 511 tests across 23 files)
 - `npm run preview` - Preview production build
 - `npm run deploy` - Deploy to GitHub Pages
 
@@ -56,7 +56,7 @@ src/
     ZinsdeellabScreen.tsx             → Zinnenlab student screen (#/zinnenlab)
     StudentDashboardScreen.tsx        → Student progress view (#/mijn-voortgang)
     TeacherDashboardScreen.tsx        → Teacher class/assignment dashboard (#/docent-dashboard, PIN)
-  components/ (10+ files, ~1675 lines total)
+  components/ (15+ files)
     WordChip.tsx                 → Draggable role tag component
     DropZone.tsx                 → SentenceChunk drop target with validation
     HelpModal.tsx                → Instructions overlay
@@ -67,11 +67,18 @@ src/
     ZinsdeelHelpModal.tsx        → Role-specific help with definitions
     EditorView.tsx               → Teacher analytics dashboard
     FeedbackPanel.tsx            → Structured feedback display
+    FeedbackEditorTab.tsx        → Feedback override editor tab in admin panel
     FrameSlot.tsx                → Zinnenlab bouwbalk slot (one per FrameSlotKey)
     ChunkBank.tsx                → Zinnenlab card bank (shows available ChunkCards)
     LabEditorTab.tsx             → Zinnenlab editor tab in SentenceEditorScreen
+    LabActivitySection.tsx       → Zinnenlab activity display
+    LabCardEditor.tsx            → Zinnenlab chunk card editor
+    LabFrameEditor.tsx           → Zinnenlab frame editor
+    LoginScreen.tsx              → Standalone login screen (#/login)
+    SentencePicker.tsx           → Sentence selection UI for teacher/editor flows
   data/
-    sentences-level-{1-4}.json   → Sentence data files
+    sentences-level-0.json       → Instap (Beginner) sentences (IDs 5001–5025)
+    sentences-level-{1-4}.json   → Sentence data files (Basis → Samengesteld)
     sentences-review.json        → Review sentences
     sentenceLoader.ts            → Dynamic import with caching + preload
     customSentenceStore.ts       → localStorage custom sentence management
@@ -89,6 +96,11 @@ src/
     bwbTimeRefHeuristic.ts       → Dutch BWB temporal reference detection
     poolToFrame.ts               → (used by labSentencePools, still available)
     analyticsHelpers.ts          → Pure aggregation: progress/class/role errors/participation
+    rollenladder.ts              → Rollenladder: 8 stages, promotion/demotion logic, sentence filter
+    sentenceAnalysis.ts          → Token-for-token expected vs student comparison, ErrorType
+    sessionFlow.ts               → Pure session-flow helpers (shouldShowNextButton, advanceAction)
+    wordOrderLabel.ts            → Dutch word order detection: SVO/SOV/VSO/VOS/OVS/OSV
+    feedbackLookup.ts            → Effective feedback with localStorage override support
   services/                      → Persistence & external integrations
     sessionHistory.ts            → Session persistence (localStorage) [legacy]
     sessionReport.ts             → Session report encode/decode [legacy, preserved]
@@ -104,8 +116,12 @@ src/
     trainerSubmissionStore.ts    → Submissions + attempts (zinsontleding_submissions_v1, _attempts_v1)
     trainerActivityLog.ts        → Append-only event log (zinsontleding_trainer_activity_v1)
     teacherNoteStore.ts          → Teacher annotations, separate from telemetry
+    ladderProgressStore.ts       → Rollenladder progress (zinsontleding_ladder_v1)
+    activityStore.ts             → Read-only façade: combines TrainerSubmissions + LabSubmissions as AnySubmission[]
+    mergeHistory.ts              → Undo history for klas/student rename/merge (max 50, zinsontleding_merge_history_v1)
     labActivityLog.ts            → Zinnenlab activity event log (localStorage)
     labSubmissionStore.ts        → Zinnenlab submission store (localStorage)
+    labExerciseStore.ts          → Custom Zinnenlab exercises (zinsdeellab_exercises_v1)
     labFrameStore.ts             → Custom Zinnenlab frames (localStorage)
     labChunkCardStore.ts         → Custom Zinnenlab chunk cards (localStorage)
 ```
@@ -118,7 +134,7 @@ src/
 - **Chunk**: A group of consecutive tokens belonging to the same constituent
 - **newChunk**: Flag on tokens to force split even when adjacent tokens share the same role
 - **PlacementMap**: Record mapping token IDs to role keys (for chunk labels and sub-labels)
-- **Rollenladder**: Planned scaffolded introduction of roles (see TODO.md §1)
+- **Rollenladder**: Implemented scaffolded introduction of roles — 8 stages (PV → full set), 80% promotion criterion over 10 sentences. Enabled via `#/rollenladder` hidden route or teacher toggle.
 - **TrainerAssignment**: Versionable teacher-authored sentence set (id stable, version increments, contentHash for attribution)
 - **TrainerSubmission**: One student session linked to a stable studentId and optional assignmentId+version
 - **TrainerAttempt**: One sentence within a submission; stores splits and labels for teacher review
@@ -189,11 +205,18 @@ New domain, analytics, assignment, and sync logic should preferably be extracted
 
 ## Adding Sentences
 
-Sentences live in `src/data/sentences-level-{1-4}.json`. Each sentence needs:
+Sentences live in `src/data/sentences-level-{0-4}.json`. Each sentence needs:
 - Unique `id` (number) and human-readable `label`
 - `predicateType`: `'WG'` or `'NG'`
-- `level`: 1 (Basis), 2 (Middel), 3 (Hoog), 4 (Samengesteld)
+- `level`: 0 (Instap), 1 (Basis), 2 (Middel), 3 (Hoog), 4 (Samengesteld)
 - `tokens[]`: words with `id` (format: `s{id}w{index}`), `text`, `role`, optional `subRole`/`newChunk`/`alternativeRole`/`bijzinFunctie`/`bijvBepTarget`
+
+Current ID ranges (all IDs unique across all files):
+- Level 0 (Instap): 5001–5025, next free: 5026
+- Level 1 (Basis): 1–448, next free: 449
+- Level 2 (Middel): 61–459, next free: 460
+- Level 3 (Hoog): 300–456, next free: 457
+- Level 4 (Samengesteld): 400–466, next free: 467
 
 Optional Zinnenlab annotations (override heuristics if needed):
 - `owNumber?: 'sg' | 'pl'` — OW number for congruence check
@@ -203,19 +226,30 @@ See README.md for detailed rules (especially the `newChunk` flag).
 
 ## Test Coverage
 
+511 tests across 23 test files (`npm run test`).
+
 | Module | Coverage | Notes |
 |--------|----------|-------|
-| `src/logic/validation.ts` | ✅ 100% | 47 tests, factory helpers available |
+| `src/logic/validation.ts` | ✅ 100% | 56 tests, factory helpers available |
 | `src/logic/analyticsHelpers.ts` | ✅ Good | 22 tests, all pure functions |
-| `src/services/usageData.ts` | ✅ Good | 13 tests, mocked localStorage |
-| `src/services/interactionLog.ts` | ✅ Good | 17 tests (renamed from 23 → actual count) |
-| `src/services/sessionReport.ts` | ✅ Good | 35 tests |
-| `src/services/nameAliases.ts` | ✅ Good | 17 tests |
-| `src/services/studentStore.ts` | ✅ Good | 18 tests |
+| `src/logic/rollenladder.ts` | ✅ Good | 38 tests: stages, promotion, filterValidation |
+| `src/logic/sentenceAnalysis.ts` | ✅ Good | 30 tests: token comparison, ErrorType |
+| `src/logic/wordOrderLabel.ts` | ✅ Good | 30 tests: SVO/SOV/VSO detection |
+| `src/logic/constructionValidation.ts` | ✅ Good | 17 tests: Zinnenlab validation rules |
+| `src/logic/adaptiveSelection.ts` | ✅ Good | 15 tests |
+| `src/logic/v2WordOrders.ts` | ✅ Good | 7 tests |
+| `src/logic/sessionFlow.ts` | ✅ Good | 5 tests |
+| `src/services/sessionReport.ts` | ✅ Good | 39 tests |
+| `src/services/interactionLog.ts` | ✅ Good | 23 tests |
+| `src/services/mergeHistory.ts` | ✅ Good | 19 tests |
 | `src/services/trainerAssignmentStore.ts` | ✅ Good | 23 tests |
 | `src/services/trainerSubmissionStore.ts` | ✅ Good | 17 tests |
-| `src/logic/adaptiveSelection.ts` | ✅ Good | 15 tests |
+| `src/services/studentStore.ts` | ✅ Good | 18 tests |
+| `src/services/usageData.ts` | ✅ Good | 13 tests, mocked localStorage |
+| `src/services/nameAliases.ts` | ✅ Good | 17 tests |
+| `src/services/googleDriveSync.ts` | ✅ Partial | 4 tests |
 | `src/hooks/useTrainer.ts` | ✅ Partial | 31 tests: filteredSentences, loadStudentInfo, setStudentInfo transforms |
+| `src/hooks/useZinsbouwlab.ts` | ✅ Partial | 21 tests |
 | `src/screens/ScoreScreen.tsx` | ✅ Partial | 30 tests: SCORE_THRESHOLDS, effectiveThresholds, scorePercentage, recommendation, badges |
 | `src/screens/StudentDashboardScreen.tsx` | ✅ Partial | 15 tests: LEVEL_LABELS, sessionPct, completedSubs sorting |
 | `src/screens/TeacherDashboardScreen.tsx` | ✅ Partial | 21 tests: scoreColor, extractKlassen, filterByKlas, studentSubs sorting |
