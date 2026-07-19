@@ -31,7 +31,7 @@ ID-reeksen: **N0 5001–5025, N1 1–448, N2 61–459, N3 300–456, N4 400–46
 
 ## 🔗 Shared-core lokale integratie
 
-`shared/grammar-core/` is aanwezig als git subtree (`Loumeister/grammar-core main`, squash-commit `b28475d`, april 2026).
+`shared/grammar-core/` is aanwezig als git subtree (`Loumeister/grammar-core main`, squash-commit `b724767`, juli 2026).
 
 De aanwezige bestanden in die map, met hun gezag voor Ontleedlab:
 

@@ -1,0 +1,18 @@
+{
+  "name": "grammar-core",
+  "owner": {
+    "name": "Loumeister"
+  },
+  "description": "Canonieke grammar-core Claude-skills voor productrepo's (werkwoordlab, ontledingstrainer).",
+  "plugins": [
+    {
+      "name": "grammar-core-toolkit",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/Loumeister/grammar-core.git",
+        "path": "plugins/grammar-core-toolkit"
+      },
+      "description": "Distribueert canonieke grammar-core Claude-skills naar productrepo's."
+    }
+  ]
+}

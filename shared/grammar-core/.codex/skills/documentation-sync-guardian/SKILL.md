@@ -1,7 +1,7 @@
 # documentation-sync-guardian
 
 ## Purpose
-Safe documentation sync skill.
+Use when a commit has landed on `main` and generated documentation needs a follow-up summary — updates `docs/auto-sync/*` only, without rewriting canonical governance or local product scope.
 
 ## Read first
 - `docs/repo-scope-contracts.md`
