@@ -277,7 +277,7 @@ Deze fase komt vóór diepere cross-product uitbreiding, maar hoeft lokale produ
 **Doel:** de gedeelde canon fysiek beschikbaar maken als eerste leeslaag voor wrappers en agents.
 
 **Status (april 2026): ✅ DONE**
-- `shared/grammar-core/` toegevoegd als git subtree: `Loumeister/grammar-core main`, squash-commit `68528b4`, merge-commit `289c237`
+- `shared/grammar-core/` toegevoegd als git subtree: `Loumeister/grammar-core main`, squash-commit `b28475d`, merge-commit `6f21ca9`
 - alle 8 verwachte governance-docs aanwezig; agent/skill-bestanden bevestigd canonical
 - AGENTS.md, README.md, SPEC.md, TODO.md bijgewerkt met correcte pad- en autoriteitsverwijzingen
 
