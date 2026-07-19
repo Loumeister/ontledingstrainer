@@ -6,7 +6,9 @@
 - Owns shared schema direction.
 - Owns shared sentence and content rules.
 - Owns shared AI instruction layers.
+- Owns shared portable feedback type contracts (`src/feedback/types.ts`) and shared feedback authoring conventions (`docs/feedback-authoring.md`).
 - Does not own local runtime UI, local evaluator behavior, local dashboards, local route logic, or product-specific feedback flows.
+- Does not own app-specific feedback content, misconception taxonomies, feedback storage logic, or override patterns.
 - Does not become a third product.
 
 ## ontledingstrainer
@@ -21,5 +23,5 @@
 - Does not own parsing runtime UI or shared didactic governance.
 
 ## Boundary rule
-Shared didactic principles, shared taxonomy, shared sentence rules, and shared AI instructions belong in grammar-core.
-Local learner flow, UI, evaluator behavior, annotations, and teacher workflows belong in the product repo.
+Shared didactic principles, shared taxonomy, shared sentence rules, shared AI instructions, and shared portable type contracts belong in grammar-core.
+Local learner flow, UI, evaluator behavior, annotations, teacher workflows, feedback content, and misconception mappings belong in the product repo.

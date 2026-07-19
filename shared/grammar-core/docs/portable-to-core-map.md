@@ -1,5 +1,42 @@
 # Portable to core map
 
+## 0. Werkwoordlab feedback contract handoff (2026-04-10)
+
+Adopted from staged artifacts in `Loumeister/werkwoordlab` PR #28 (`staging/grammar-core-feedback/`).
+
+### What was promoted
+
+| Source (werkwoordlab PR #28) | Target in grammar-core | Notes |
+|---|---|---|
+| `staging/grammar-core-feedback/types.ts` | `src/feedback/types.ts` | Adopted verbatim minus the staging header comment |
+| `staging/grammar-core-feedback/feedback-authoring.md` | `docs/feedback-authoring.md` | Tightened to grammar-core style; no product references |
+
+### What was not adopted
+
+| Artifact | Reason |
+|---|---|
+| `staging/grammar-core-feedback/README.md` | Staging meta-doc; migration notes do not belong in shared canon |
+| `misconceptions.ts` (MisconceptionCode enum) | Domain-specific to werkwoordlab verb-spelling errors |
+| `builtInFeedback.ts` | App-specific built-in feedback content |
+| `feedbackOverrides.ts` | App-specific localStorage key and CRUD logic |
+| `feedbackLookup.ts` | App-specific resolver wired to local content |
+| UI components and routing | Product-specific; not shared |
+
+### isRichFeedbackEntry decision
+
+**Adopted into shared core.**
+
+The guard (`typeof entry === "object" && entry !== null && "herstelvraag" in entry`) is structurally minimal and domain-agnostic. Every TypeScript consumer of `FeedbackEntry` needs narrowing from `string | RichFeedbackEntry`. Without a shared guard, downstream repos each write the identical one-liner independently.
+
+### Shared/local boundary after this handoff
+
+Grammar-core owns: portable feedback type contracts, portable feedback authoring conventions.
+Grammar-core does not own: misconception taxonomies, built-in feedback content, storage/override patterns, UI rendering, or app-specific feedback flows.
+
+See `docs/repo-scope-contracts.md` for the authoritative boundary.
+
+---
+
 ## 1. Purpose of this map
 
 Dit document is een **operationeel migratiebeslisdocument** voor de overgang van didactische, governance-, agent-, skill- en contractelementen uit `Loumeister/ontledingstrainer` naar `Loumeister/grammar-core`.
