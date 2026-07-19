@@ -37,3 +37,19 @@ In practice that means local wrappers should resolve through shared paths such a
 - `shared/grammar-core/.codex/skills/.../SKILL.md`
 
 Local wrappers may adapt behavior to repo reality, but they must not silently replace or contradict shared canon.
+
+## Plugin marketplace channel (Claude skills)
+Alongside subtree, `grammar-core` ships a Claude Code plugin marketplace (`grammar-core`, defined in `/.claude-plugin/marketplace.json`) that distributes canonical Claude **skills** — currently the `grammar-core-toolkit` plugin under `plugins/grammar-core-toolkit/`.
+
+This is a complementary distribution channel, not a replacement for subtree:
+- **Subtree** stays the mechanism for making shared docs, schemas, agents, and Codex skills physically visible in a product repo under `shared/grammar-core/`.
+- **The plugin marketplace** lets product repos install canonical Claude skills directly with `/plugin install`, without wrapper files and with version tracking via `plugin.json`.
+
+Because plugin skills live under `plugins/grammar-core-toolkit/skills/` rather than `/.claude/skills/`, they do not auto-load in `grammar-core` sessions and are not consumed through the subtree's tool-native paths. Install them in product repos with:
+
+```text
+/plugin marketplace add Loumeister/grammar-core
+/plugin install grammar-core-toolkit@grammar-core
+```
+
+Installed skills are namespaced, e.g. `/grammar-core-toolkit:grammar-core-sync`.

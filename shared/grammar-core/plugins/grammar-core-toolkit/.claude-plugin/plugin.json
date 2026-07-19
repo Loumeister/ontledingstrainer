@@ -1,0 +1,8 @@
+{
+  "name": "grammar-core-toolkit",
+  "description": "Canonieke grammar-core Claude-skills voor het synchroniseren van gedeelde canon in productrepo's.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Loumeister"
+  }
+}
