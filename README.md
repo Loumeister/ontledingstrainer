@@ -95,6 +95,20 @@ Shared subtree sync should preserve the tool-native paths in this repo, especial
 - `shared/grammar-core/.claude/agents/*`
 - `shared/grammar-core/.codex/skills/*`
 
+## Installing canonical Claude skills in product repos
+
+This repo also ships a Claude Code plugin marketplace (`grammar-core`) so product repos
+can install canonical Claude skills directly, without wrapper files. In a product repo:
+
+```text
+/plugin marketplace add Loumeister/grammar-core
+/plugin install grammar-core-toolkit@grammar-core
+```
+
+After installing, the sync skill is available as `/grammar-core-toolkit:grammar-core-sync`.
+Use it to sync `shared/grammar-core/` with canon and to route local canon-improvements upstream first.
+To pick up new plugin versions, run `/plugin marketplace update grammar-core` and then re-run `/plugin install grammar-core-toolkit@grammar-core`.
+
 ## Local wrapper rule
 
 Product repos may keep local agent files, but those must be wrappers.
