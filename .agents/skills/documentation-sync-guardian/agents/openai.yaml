@@ -1,0 +1,4 @@
+interface:
+  display_name: "Documentation Sync Guardian"
+  short_description: "Beperk geautomatiseerde docsynchronisatie"
+  default_prompt: "Gebruik $documentation-sync-guardian om alleen de toegestane auto-syncdocumentatie bij te werken."

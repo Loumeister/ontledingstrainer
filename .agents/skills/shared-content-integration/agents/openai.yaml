@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shared Content Integration"
+  short_description: "Integreer shared content zonder schemadrift"
+  default_prompt: "Gebruik $shared-content-integration om deze grammar-core-content via een expliciete lokale adapter te integreren."

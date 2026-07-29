@@ -113,7 +113,7 @@ Leerling: Opent link → Banner "Zinnen van je docent" → Klik "Oefenen"
 
 ## 📝 Content Management (Nieuwe zinnen toevoegen)
 
-Gedeelde contentauthoringregels (zinsselectie, didactische kwaliteit, annotatiepraktijken): `shared/grammar-core/docs/content-authoring-rules.md` — **gezaghebbend** voor herbruikbare principes; lokaal aangevuld door `.codex/skills/zinsontleding-constraint-sentence-author/SKILL.md`.
+Gedeelde contentauthoringregels (zinsselectie, didactische kwaliteit, annotatiepraktijken): `shared/grammar-core/docs/content-authoring-rules.md` — **gezaghebbend** voor herbruikbare principes; lokaal aangevuld door `.agents/skills/zinsontleding-constraint-sentence-author/SKILL.md` en gecontroleerd met `.agents/skills/zinsontleding-content-quality-gate/SKILL.md`.
 
 De ingebouwde zinnen staan verdeeld over vijf JSON-bestanden in `data/`:
 

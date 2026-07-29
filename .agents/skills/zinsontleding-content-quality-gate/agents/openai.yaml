@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zinsontleding Content Quality Gate"
+  short_description: "Valideer zinnen, labels en annotaties"
+  default_prompt: "Gebruik $zinsontleding-content-quality-gate om deze gewijzigde oefenzinnen volledig te beoordelen."

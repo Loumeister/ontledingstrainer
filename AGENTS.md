@@ -1,158 +1,103 @@
-# AGENTS.md
+# AGENTS.md — Ontleedlab
 
 ## Doel
-Dit bestand is de **lokale wrapperlaag** voor Ontleedlab.
 
-Ontleedlab is geen passieve consumer van shared canon, maar een product met:
-- eigen didactische UI-logica
-- eigen parsecontracten
-- eigen annotatie- en structuurconventies
-- eigen safeguards tegen dubbellezing en ongewenste generalisatie
+Ontleedlab is een lokaal parsingproduct met eigen:
 
-Shared canon uit `grammar-core` **kadert** het werk, maar overschrijft de lokale productlogica niet.
+- learner-flow en UI-logica;
+- parse-, evaluatie- en feedbackcontracten;
+- annotatie- en chunkconventies;
+- safeguards tegen dubbellezing en ongewenste generalisatie.
 
-## Precedentievolgorde
-Werk altijd in deze volgorde:
+`shared/grammar-core/` levert gedeelde didactische en governancecanon. Die canon kadert het werk, maar maakt lokale runtimeconstructies niet automatisch platformbreed.
 
-1. **Lees `AGENTS.md`** — dit bestand — voor de leesvolgorde, grensbewaking en precedentieregels.
-2. **Lees shared canon in `shared/grammar-core/`** voor gedeelde didactische en governancekaders. De map is lokaal aanwezig als git subtree.
-3. **Lees de lokale Ontleedlab-contractlaag** voor productspecifieke realiteit.
-4. **Lees pas daarna de taakprompt** en voer het werk uit binnen die grenzen.
+## Waarheids- en leesvolgorde
 
-Als deze drie lagen botsen, geldt:
-- shared canon is leidend voor **gedeelde didactische principes en governance**
-- lokale contracten zijn leidend voor **productspecifieke inhoud, evaluatielogica, annotatiegedrag, adaptermappings, parsinguitkomsten en UI-gebonden didactiek**
-- de taakprompt mag het werk **focussen of begrenzen**, maar mag die twee bovenliggende lagen niet overrulen
+Werk in deze volgorde:
 
-## 1. Eerst lezen: shared canon in `shared/grammar-core/`
-`shared/grammar-core/` is lokaal aanwezig als git subtree. Lees bij parsing- en governancewerk:
+1. Lees `AGENTS.md`.
+2. Lees alleen de taakrelevante shared canon onder `shared/grammar-core/`.
+3. Lees `.agents/skills/zinsontleding-repo-inspector/references/repo-contract.md` wanneer de taak parsingcontent, evaluatie, feedback, adapters of annotatie raakt.
+4. Inspecteer de relevante lokale runtime in `src/`.
+5. Pas daarna de taakprompt toe.
 
-- `shared/grammar-core/README.md` — contextueel (oriëntatie: scope en doel van de gedeelde laag)
-- `shared/grammar-core/docs/grammar-platform-principles.md` — **gezaghebbend** voor platformgrenzen en architectuurverantwoordelijkheden; beschrijft zowel **huidige gedeelde realiteit** als **toekomstige integratierichting** — lees als governance-context, niet als lijst van huidige platformmogelijkheden of lokale implementatievereisten voor dit product
-- `shared/grammar-core/docs/parsing-didactics-kaders.md` — **gezaghebbend** (gedeelde parsingdidactische principes)
-- `shared/grammar-core/docs/taxonomy-governance.md` — **gezaghebbend** (rollen, labels, taxonomie-governance); zie vier-laags model hieronder
-- `shared/grammar-core/docs/content-authoring-rules.md` — **gezaghebbend** voor herbruikbare authoringprincipes; lokaal aangevuld en deels lokaal gekwalificeerd — zie opmerking hieronder
-- `shared/grammar-core/docs/repo-sync-strategy.md` — contextueel (syncmodel en updateproces)
-- `shared/grammar-core/docs/product-repo-contract-template.md` — contextueel (sjabloon voor productcontracten; lokaal ingevuld via `repo-contract.md`)
-- `shared/grammar-core/docs/werkwoordspellingsdidactiek-kaders.md` — contextueel, **niet bindend** voor Ontleedlab; adoptie vereist expliciete lokale keuze die wordt gedocumenteerd in het lokale productcontract
+Voor feitelijk huidig repogedrag gaat runtimewaarheid boven beschrijvende documentatie. Corrigeer of markeer de documentatiedrift; verander runtime niet stilzwijgend om een document waar te maken.
 
-De bestanden `shared/grammar-core/.claude/agents/parsing-didactic-architect.md`, `shared/grammar-core/docs/agent-catalog.md` en `shared/grammar-core/.codex/skills/parsing-content-governance/SKILL.md` zijn bevestigd aanwezig en canonical in grammar-core. Raadpleeg `agent-catalog.md` voor het volledige overzicht van canonical agents en skills.
+Normatieve shared didactiek en governance blijven gezaghebbend binnen hun eigen scope. Als runtime daarvan lijkt af te wijken, rapporteer het conflict en behandel een gedragswijziging als expliciete producttaak.
 
-### Vier-laags taxonomiemodel
+## Relevante shared canon
 
-`taxonomy-governance.md` hanteert vier lagen: canonical label / display label / alias / product-local short label.
+| Onderwerp | Lees |
+|---|---|
+| Platform- en repogrenzen | `shared/grammar-core/docs/grammar-platform-principles.md` |
+| Parsingdidactiek | `shared/grammar-core/docs/parsing-didactics-kaders.md` |
+| Canonieke labels en taxonomie | `shared/grammar-core/docs/taxonomy-governance.md` |
+| Herbruikbare authoringregels | `shared/grammar-core/docs/content-authoring-rules.md` |
+| Lokaal contractformat | `shared/grammar-core/docs/product-repo-contract-template.md` |
+| Subtree- en wrappermodel | `shared/grammar-core/docs/repo-sync-strategy.md` |
+| Shared agentcatalogus | `shared/grammar-core/docs/agent-catalog.md` |
 
-De lokale runtime-sleutels van Ontleedlab (`pv`, `ow`, `lv`, `mv`, `bwb`, `vv`, `bijst`, `wg`, `ng`, `bijzin`, `vw_neven`, `bijv_bep`, `vw_onder`, `wwd`, `nwd`) vallen in de **product-local short label**-laag. Zij zijn:
-- correct en stabiel als lokale runtime-sleutels
-- **niet** de shared canonical labels (die heten bijv. `persoonsvorm`, `onderwerp`, `lijdend_voorwerp`)
-- **niet** verplicht te hernoemen om met de shared canonieke laag overeen te komen
+De lokale korte sleutels zoals `pv`, `ow`, `lv` en `bwb` zijn productlokale runtimekeuzes. Behandel ze niet als shared canonical labels. Lokale kwalificaties op shared authoringregels staan in het repo-contract.
 
-De mapping in `taxonomy-governance.md` (§1.2) is **informatief**. Het hernoemen van lokale sleutels naar shared canonical labels is **geen vereiste** vanuit de gedeelde governance.
+## Lokale skills
 
-### Lokale interpretatie van content-authoring-rules.md
+Lokale skills staan uitsluitend onder `.agents/skills/`. Kies de skill die de productspecifieke werkstroom dekt:
 
-De shared `content-authoring-rules.md` is gezaghebbend voor het gedeelde contentwerk in `grammar-core`. Voor lokaal Ontleedlab-materiaal gelden twee kwalificaties:
+| Werkstroom | Skill |
+|---|---|
+| Lokaal parsecontract inspecteren | `zinsontleding-repo-inspector` |
+| Oefenzinnen maken of herformuleren | `zinsontleding-constraint-sentence-author` |
+| Zinnen en annotaties vrijgaveklaar beoordelen | `zinsontleding-content-quality-gate` |
+| Diagnostische feedback en hints | `zinsontleding-feedback-didactiek` |
+| Leerlingflow en productspecifieke UI-interactie | `ontleedlab-learner-flow-ui` |
+| Leerdata, aggregaties en docentinzichten | `ontleedlab-learning-analytics` |
+| Grens tussen shared parsingcanon en lokaal contract | `parsing-content-governance` |
+| Shared content via een lokale adapter consumeren | `shared-content-integration` |
+| Beperkte docs/auto-sync-automatisering | `documentation-sync-guardian` |
+| Grammar-core-subtree bijwerken | `grammar-core-sync` |
 
-- **Regel 1** (didactische waarde boven volume): geldt als **initieel ontwerpprincipe** voor nieuw lokaal materiaal — het is goed als een nieuw item een nieuwe misconceptiedoelstelling of contrasterelatie toevoegt, maar het is **geen permanente verbodsbepaling** op meerdere items van hetzelfde type. Herhaling van een oefentype is lokaal toegestaan waar didactisch nuttig.
-- **Regel 6** (leeftijds- en onderbouwgeschiktheid): geldt voor de **gedeelde zinnenbank** in `grammar-core`, maar is **geen harde lokale eis** voor Ontleedlab-eigenmateriaal. Lokale zinnen mogen uitdagender zijn dan de gedeelde onderbouwnorm waar de lokale didactische context dat rechtvaardigt.
+Gebruik bij nieuwe of gewijzigde zinnen eerst de inspector en author en sluit af met de content-quality-gate. Gebruik geen lokale skill als de taak buiten zijn trigger en grenzen valt.
 
-Andere afwijkingen van shared authoring-regels worden gedocumenteerd in `.codex/skills/zinsontleding-repo-inspector/references/repo-contract.md`.
+De canonical shared wrappers blijven in de subtree zichtbaar via `shared/grammar-core/.codex/skills/`; dat is bronstructuur van grammar-core, niet de lokale discovery-interface.
 
-Gebruik shared canon voor:
-- parsingdidactische principes
-- gedeelde contentgovernance
-- begrenzing tussen shared canon en productlokale logica
-- wrappers die naar shared tool-native paden moeten verwijzen
+## Algemene proces- en designskills
 
-Gebruik shared canon **niet** als excuus om lokale Ontleedlab-logica te vervangen door abstracte platformtaal.
+- Gebruik de globale Matt Pocock-skills voor planning, implementatie, TDD, diagnose en review.
+- Gebruik bij visueel ontwerp of UI-bouw de globale `frontend-design`-skill samen met `ontleedlab-learner-flow-ui`.
+- Gebruik de globale `web-design-guidelines` als afsluitende UI-, UX- en toegankelijkheidsaudit.
+- Laat design- en domeinskills geen eigen Git-, TDD-, review- of projectmanagementworkflow starten.
 
-## 2. Daarna lezen: lokale Ontleedlab-contractlaag
-Lees vervolgens de lokale laag die vastlegt hoe Ontleedlab **hier en nu** werkt.
+Dupliceer algemene frontend-, test-, documentatie-, Git- of planningsmethodiek niet in lokale skills.
 
-Voor parsing- en contentwerk zijn in elk geval relevant:
-- `.codex/skills/zinsontleding-repo-inspector/SKILL.md`
-- `.codex/skills/zinsontleding-repo-inspector/references/repo-contract.md`
-- `.codex/skills/zinsontleding-constraint-sentence-author/SKILL.md`
-- `.codex/skills/grammar-coach/SKILL.md`
+## Delivery discipline
 
-Gebruik de lokale laag zodra het werk gaat over:
-- productspecifieke content
-- evaluatielogica
-- annotatiegedrag
-- adaptermappings
-- parsinguitkomsten
-- UI-gebonden didactiek
-- lokale ambiguïteitssafeguards
+- Anchor non-trivial work to an issue or numbered plan step, and state its scope.
+- Before editing, select the applicable global Matt process skill and local domain skill.
+- Decide the test and validation evidence before implementation.
+- Review the exact Git range before claiming completion.
+- Report commands, results, and failures honestly.
+- Do not claim work is done until applicable checks and required review pass.
 
-Voor andere taken gebruik je daarnaast de passende lokale skill, bijvoorbeeld:
-- `frontend-developer`
-- `test-engineer`
-- `technical-writer`
-- `accessibility-auditor`
-- `whimsy-injector`
+## Productgrenzen
 
-## 3. Pas daarna: taakprompt
-Laat de taakprompt pas sturen nadat de hogere lagen zijn gelezen: eerst shared canon in `shared/grammar-core/`, dan de lokale contractlaag.
+- Houd lokale parseuitkomsten, `RoleKey`, JSON-shapes, chunkconventies, evaluatorlogica en feedbackflows lokaal.
+- Wijzig geen bestaande zinsinterpretatie, chunking, annotatie, route of learner-flow zonder expliciete opdracht.
+- Hardcode geen oefenzinnen in UI-code.
+- Laat shared canon geen excuus zijn om lokale Ontleedlab-logica door abstracte platformtaal te vervangen.
+- Voeg geen speculatieve werkwoordspellingmodule toe; werkwoordspelling is alleen relevant na een expliciete lokale productkeuze.
+- Behandel sentence-content met twee verdedigbare schoolanalyses als risico en accepteer die niet stilzwijgend via `alternativeRole`.
 
-De taakprompt mag dus niet stilzwijgend:
-- lokale parseuitkomsten herdefiniëren
-- lokale annotatieconventies vervangen
-- lokale UI-didactiek afvlakken
-- runtimegedrag wijzigen zonder expliciete opdracht
+## Grammar-core-wijzigingen
 
-De taakprompt mag wel:
-- de opdracht afbakenen in scope, volgorde of oplevervorm
-- keuzes maken binnen de grenzen van shared canon en lokale contracten
+Bewerk `shared/grammar-core/` niet als lokale bron.
 
-## Wat shared canon hier wel en niet doet
-Shared canon doet hier wél:
-- parsingdidactiek disciplineren
-- bewaken dat werk niet alleen over labelcorrectheid gaat, maar ook over diagnostische denkstappen, vraagvolgorde, didactische focus, zorgvuldig gekozen contrasten en beheersbare cognitieve belasting
-- duidelijk maken wat gedeeld kan worden en wat lokaal moet blijven
+Bij een echte canonfix:
 
-Shared canon doet hier níét:
-- Ontleedlab-data of parsecontracten canoniseren
-- lokale productlogica stilzwijgend overschrijven
-- productspecifieke aannames presenteren als platformwaarheid
+1. werk in de aparte checkout van `grammar-core`;
+2. maak een branch vanaf de geverifieerde defaultbranch;
+3. implementeer en valideer de fix daar;
+4. draai `claude plugin validate .` wanneer de pluginstructuur is geraakt;
+5. commit, push en open alleen een draft PR wanneer de opdracht dat autoriseert;
+6. voer na merge `grammar-core-sync` uit in de productrepo's.
 
-## Runtimegedrag niet impliciet wijzigen
-Tenzij de opdracht dat expliciet vraagt, mag werk aan de instructielaag **niet** leiden tot wijzigingen in:
-- parsingresultaten
-- zinsinterpretatie
-- chunkinggedrag
-- structuurgedrag
-- annotatiegedrag
-- feedbackflow
-- routes
-- UI-flow
-- productlogica
-
-## Niet doen
-- Behandel lokale annotatievelden niet als gedeelde waarheid.
-- Herinterpreteer bestaande zinnen niet semantisch zonder expliciete opdracht.
-- Wijzig chunking- of structuurgedrag niet zonder expliciete opdracht.
-- Canoniseer lokale feedbackflows niet.
-- Gebruik shared didactic guidance niet als excuus om productlokale parsinglogica te overschrijven.
-- Verzin geen gedeelde waarheid rond lokale RoleKeys, JSON-shapes, chunkconventies of evaluatielogica.
-- Eis geen volledige repo-inspectie voor triviale taken; inspecteer het lokale contract gericht zodra het werk productspecifieke content, evaluatielogica of adaptermappings raakt.
-
-## Synchronisatie-opmerking
-Lokale contractbestanden moeten inhoudelijk synchroon blijven met de werkelijke repo.
-
-Als `.codex/skills/zinsontleding-repo-inspector/references/repo-contract.md` deels verouderd of onvolledig blijkt, markeer dat expliciet en behandel herziening daarvan als **aparte gerichte stap**.
-Herstel zulke drift niet stilzwijgend via algemene aannames in deze wrapperlaag.
-
-## Subtree-updatepraktijk
-
-De map `shared/grammar-core/` is toegevoegd als git subtree vanuit `Loumeister/grammar-core`. Om toekomstige upstream-wijzigingen op te halen:
-
-```bash
-git subtree pull --prefix=shared/grammar-core https://github.com/Loumeister/grammar-core main --squash
-```
-
-Na elke pull:
-1. Controleer of gewijzigde shared docs de gezagsniveaus in dit bestand (`AGENTS.md`) nog steeds correct weergeven.
-2. Controleer of lokale kwalificaties in `repo-contract.md` nog actueel zijn ten opzichte van de bijgewerkte shared docs.
-3. Als de upstream-wijziging een lokale afwijking raakt, documenteer die afwijking dan **expliciet** in `repo-contract.md` — stilzwijgende adoptie of stilzwijgende divergentie zijn beide niet geldig.
-
-Upstream-wijzigingen worden **niet automatisch lokaal bindend**. Dit product beslist zelf wat het adopteert.
+Gebruik geen blanket conflictstrategie bij subtree-syncs en gooi nooit lokaal gebruikerswerk weg.

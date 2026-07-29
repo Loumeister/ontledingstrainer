@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zinsontleding Feedbackdidactiek"
+  short_description: "Ontwerp diagnostische parsingfeedback"
+  default_prompt: "Gebruik $zinsontleding-feedback-didactiek om deze leerlingfeedback diagnostisch en uitvoerbaar te maken."
