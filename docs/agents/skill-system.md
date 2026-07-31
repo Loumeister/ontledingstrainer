@@ -10,7 +10,7 @@ Codex ontdekt de lokale domeinskills onder:
 
 Iedere skill heeft daarnaast `agents/openai.yaml` voor de zichtbare naam, korte omschrijving en een voorbeeldprompt. De directorynaam, frontmatter-`name` en `$skill-name` in de voorbeeldprompt moeten gelijk zijn.
 
-Bestanden onder `shared/grammar-core/.codex/skills/` behoren tot de gesynchroniseerde bronstructuur van grammar-core. Lokale wrappers lezen die canonieke instructies eerst en passen daarna het Ontleedlab-contract toe.
+De portable grammar-core-skills migreren upstream van `.codex/skills/` naar `.agents/skills/`. Claim die shared ownership en de nieuwe paden pas nadat de grammar-core-wijziging is gemerged en deze productsubtree opnieuw is gesynchroniseerd. Tot die tijd is de lokale `.agents/skills/`-set de enige productdiscovery-interface; verwijderde repo-lokale `.codex/skills/*` zijn niet bruikbaar.
 
 ## Lokale set
 
@@ -26,6 +26,16 @@ Bestanden onder `shared/grammar-core/.codex/skills/` behoren tot de gesynchronis
 | `shared-content-integration` | Shared content via expliciete adapters integreren |
 | `documentation-sync-guardian` | Automatische updates beperken tot `docs/auto-sync/*` |
 | `grammar-core-sync` | De grammar-core-subtree veilig synchroniseren |
+
+## Globale prerequisites
+
+De globale proces- en designskills zijn niet in deze repository gebundeld. Installeer ze vooraf in de user-level/global skillcatalogus van de agent:
+
+- Matt Pocock-processkills uit `mattpocock/skills`;
+- `frontend-design` uit `anthropics/skills`;
+- `web-design-guidelines` uit `vercel-labs/agent-skills`.
+
+Controleer daarna in de actieve skillcatalogus of de vereiste namen beschikbaar zijn. Kopieer ze niet naar deze repository. Als een globale proces-skill ontbreekt, gebruik dan de deterministische delivery gates uit `AGENTS.md` en rapporteer de fallback; beschouw een vereiste UI-audit als niet uitgevoerd wanneer `web-design-guidelines` ontbreekt.
 
 ## Combinaties
 

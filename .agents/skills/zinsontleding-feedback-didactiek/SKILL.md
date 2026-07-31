@@ -8,7 +8,7 @@ description: Ontwerp of review diagnostische Ontleedlab-feedback, hints en scaff
 ## Lees eerst
 
 1. Lees `shared/grammar-core/docs/parsing-didactics-kaders.md`.
-2. Lees `zinsontleding-repo-inspector/references/repo-contract.md`.
+2. Lees `.agents/skills/zinsontleding-repo-inspector/references/repo-contract.md`.
 3. Inspecteer de taakrelevante route in:
    - `src/constants.ts`;
    - `src/types.ts` (`FeedbackEntry` en `RichFeedbackEntry`);

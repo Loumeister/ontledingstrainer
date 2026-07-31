@@ -278,10 +278,11 @@ Deze fase komt vóór diepere cross-product uitbreiding, maar hoeft lokale produ
 
 **Status (april 2026): ✅ DONE**
 - `shared/grammar-core/` toegevoegd als git subtree: `Loumeister/grammar-core main`, squash-commit `b724767`, merge-commit `d75d464`
-- alle 8 verwachte governance-docs aanwezig; agent/skill-bestanden bevestigd canonical
+- alle 8 verwachte governance-docs aanwezig; portable skillownership en gemigreerde canonical `.agents/skills/`-paden worden pas bevestigd nadat de grammar-core-skillwijziging is gemerged en de subtree opnieuw is gesynchroniseerd
 - AGENTS.md, README.md, SPEC.md, TODO.md bijgewerkt met correcte pad- en autoriteitsverwijzingen
 
 **Openstaand (na subtree-landing):**
+- na merge van de grammar-core-skillwijziging de subtree synchroniseren en pas daarna lokale wrappers naar de nieuwe shared `.agents/skills/`-paden laten verwijzen
 - toekomstige subtree-updates uitvoeren met `git subtree pull --prefix=shared/grammar-core https://github.com/Loumeister/grammar-core.git main --squash`
 - overwegen om grammar-core privaat te houden en een deploy-token te configureren voor subtree-pulls (zie TODO-G voor sync-aanpak)
 - sync-afspraken vastleggen voor updates van die subtree

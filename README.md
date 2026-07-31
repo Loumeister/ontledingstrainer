@@ -115,52 +115,51 @@ Leerling: Opent link → Banner "Zinnen van je docent" → Klik "Oefenen"
 
 Gedeelde contentauthoringregels (zinsselectie, didactische kwaliteit, annotatiepraktijken): `shared/grammar-core/docs/content-authoring-rules.md` — **gezaghebbend** voor herbruikbare principes; lokaal aangevuld door `.agents/skills/zinsontleding-constraint-sentence-author/SKILL.md` en gecontroleerd met `.agents/skills/zinsontleding-content-quality-gate/SKILL.md`.
 
-De ingebouwde zinnen staan verdeeld over vijf JSON-bestanden in `data/`:
+De ingebouwde zinnen staan verdeeld over vijf JSON-bestanden in `src/data/`:
 
-| Bestand | Niveau | Zinnen | ID-reeks |
+| Bestand | Niveau | Zinnen | ID-bereik |
 |---------|--------|--------|---------|
-| `data/sentences-level-0.json` | Instap (Beginner) | 25 | 5001–5025 |
-| `data/sentences-level-1.json` | Basis | 78 | 1–448 |
-| `data/sentences-level-2.json` | Middel | 121 | 61–459 |
-| `data/sentences-level-3.json` | Hoog | 45 | 300–456 |
-| `data/sentences-level-4.json` | Samengesteld (Expert) | 26 | 400–466 |
+| `src/data/sentences-level-0.json` | Instap (Beginner) | 25 | 5001–5025 |
+| `src/data/sentences-level-1.json` | Basis | 78 | 1–448 |
+| `src/data/sentences-level-2.json` | Middel | 121 | 61–459 |
+| `src/data/sentences-level-3.json` | Hoog | 45 | 300–456 |
+| `src/data/sentences-level-4.json` | Samengesteld (Expert) | 26 | 400–466 |
 
 > **Tip voor docenten:** Gebruik de [Docentenmodus](#-docentenmodus) om zinnen aan te maken zonder de broncode aan te passen.
 
 ### 1. Datastructuur van een zin
-Voeg nieuwe zinnen toe aan de `SENTENCES` array:
+Ieder `src/data/sentences-level-*.json`-bestand is zelf een JSON-array. Voeg het nieuwe zinobject toe aan het bestand voor het gekozen niveau; de runtime bevat geen centrale `SENTENCES`-array.
 
-```typescript
+```json
 {
-  id: 162,                        // Volgend vrij ID (zie tabel hieronder)
-  label: "Zin 162: Korte naam",   // Zichtbaar in dropdown
-  predicateType: 'WG',            // 'WG' (Werkwoordelijk) of 'NG' (Naamwoordelijk)
-  level: 2,                       // 0=Instap, 1=Basis, 2=Middel, 3=Hoog, 4=Samengesteld
-  tokens: [                       // De woorden
-    { id: "s162t1", text: "Ik", role: "ow" },
-    { id: "s162t2", text: "loop", role: "pv" },
-    // ...
+  "id": 467,
+  "label": "Zin 467: Korte naam",
+  "predicateType": "WG",
+  "level": 2,
+  "tokens": [
+    { "id": "s467t1", "text": "Ik", "role": "ow" },
+    { "id": "s467t2", "text": "loop", "role": "pv" }
   ]
 }
 ```
 
+Gebruik `predicateType` `WG` of `NG` en een `level` van `0` tot en met `4`. Controleer vóór toevoegen in alle niveaubestanden of het gekozen zins-ID vrij is en laat ieder token-ID met `s<zins-id>t` beginnen.
+
 ### 1b. Nummering per niveau
 
-Houd de huidige ID-reeks aan en voeg toe na het laatste ID:
+De zins-ID is repositorybreed uniek. De huidige min–maxbereiken zijn informatief: ze overlappen tussen niveaus en de waarden binnen een bestand zijn niet noodzakelijk aaneengesloten. Leid een nieuw ID daarom nooit af uit alleen het maximum van één niveaubestand; controleer alle vijf bestanden voordat je een vrij geheel getal kiest.
 
-| Niveau | Bestand | Huidige reeks | Volgend vrij ID |
-|--------|---------|--------------|-----------------|
-| 0 (Instap) | `sentences-level-0.json` | 5001–5025 | 5026 |
-| 1 (Basis) | `sentences-level-1.json` | 1–448 | 449 |
-| 2 (Middel) | `sentences-level-2.json` | 61–459 | 460 |
-| 3 (Hoog) | `sentences-level-3.json` | 300–456 | 457 |
-| 4 (Samengesteld) | `sentences-level-4.json` | 400–466 | 467 |
-
-> **Opmerking:** ID's zijn uniek over alle niveaus heen. Controleer altijd of een ID nog vrij is vóór je het gebruikt.
+| Niveau | Bestand | Zinnen | Huidig min–max |
+|--------|---------|--------|-----------------|
+| 0 (Instap) | `src/data/sentences-level-0.json` | 25 | 5001–5025 |
+| 1 (Basis) | `src/data/sentences-level-1.json` | 78 | 1–448 |
+| 2 (Middel) | `src/data/sentences-level-2.json` | 121 | 61–459 |
+| 3 (Hoog) | `src/data/sentences-level-3.json` | 45 | 300–456 |
+| 4 (Samengesteld) | `src/data/sentences-level-4.json` | 26 | 400–466 |
 
 ### 1c. Merge-conflicts in zinnenbestanden snel oplossen
 
-Bij grote merges kunnen `data/sentences-level-*.json` veel conflictregels geven. Gebruik dan de helper:
+Bij grote merges kunnen `src/data/sentences-level-*.json` veel conflictregels geven. Gebruik dan de helper:
 
 ```bash
 # kies de kant die je volledig wilt overnemen

@@ -58,9 +58,17 @@ Lokale skills staan uitsluitend onder `.agents/skills/`. Kies de skill die de pr
 
 Gebruik bij nieuwe of gewijzigde zinnen eerst de inspector en author en sluit af met de content-quality-gate. Gebruik geen lokale skill als de taak buiten zijn trigger en grenzen valt.
 
-De canonical shared wrappers blijven in de subtree zichtbaar via `shared/grammar-core/.codex/skills/`; dat is bronstructuur van grammar-core, niet de lokale discovery-interface.
+De portable grammar-core-skills migreren upstream van `.codex/skills/` naar `.agents/skills/`. Claim die shared ownership en de nieuwe paden pas nadat de grammar-core-wijziging is gemerged en deze productsubtree opnieuw is gesynchroniseerd. Tot die tijd zijn uitsluitend de lokale `.agents/skills/` hierboven de productdiscovery-interface; verwijderde repo-lokale `.codex/skills/*` zijn niet bruikbaar.
 
 ## Algemene proces- en designskills
+
+Deze repository bundelt de globale proces- en designskills niet. Installeer ze in de user-level/global skillcatalogus van de agent voordat een taak ze vereist:
+
+- Matt Pocock-processkills uit `mattpocock/skills`;
+- `frontend-design` uit `anthropics/skills`;
+- `web-design-guidelines` uit `vercel-labs/agent-skills`.
+
+Controleer daarna in de actieve skillcatalogus of de vereiste namen beschikbaar zijn. Kopieer deze globale skills niet naar de repository. Als een globale proces-skill ontbreekt, gebruik dan de deterministische delivery gates hieronder en rapporteer de fallback; claim een vereiste UI-audit niet als `web-design-guidelines` ontbreekt.
 
 - Gebruik de globale Matt Pocock-skills voor planning, implementatie, TDD, diagnose en review.
 - Gebruik bij visueel ontwerp of UI-bouw de globale `frontend-design`-skill samen met `ontleedlab-learner-flow-ui`.
@@ -72,9 +80,9 @@ Dupliceer algemene frontend-, test-, documentatie-, Git- of planningsmethodiek n
 ## Delivery discipline
 
 - Anchor non-trivial work to an issue or numbered plan step, and state its scope.
-- Before editing, select the applicable global Matt process skill and local domain skill.
+- Before editing, select an installed global process skill appropriate to the task and any applicable local domain skill. If no matching global process skill is installed, follow the deterministic scope, validation, range-review, and reporting gates in this file and report that fallback.
 - Decide the test and validation evidence before implementation.
-- Review the exact Git range before claiming completion.
+- Before claiming completion, resolve the target base and review `git diff <base>...HEAD`; also review `git diff --cached` for staged work and `git diff` for remaining unstaged work.
 - Report commands, results, and failures honestly.
 - Do not claim work is done until applicable checks and required review pass.
 

@@ -10,7 +10,7 @@ Deze skill bevat alleen productspecifieke didactische en interactieregels. Laat 
 ## Lees eerst
 
 1. Lees `shared/grammar-core/docs/parsing-didactics-kaders.md`.
-2. Lees `zinsontleding-repo-inspector/references/repo-contract.md`.
+2. Lees `.agents/skills/zinsontleding-repo-inspector/references/repo-contract.md`.
 3. Traceer de relevante flow in:
    - `src/hooks/useTrainer.ts`;
    - `src/screens/HomeScreen.tsx`, `TrainerScreen.tsx` en `ScoreScreen.tsx`;
