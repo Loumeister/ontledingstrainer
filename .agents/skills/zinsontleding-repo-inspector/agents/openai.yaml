@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ontleedlab Repo Inspector"
+  short_description: "Inspecteer lokale parsingcontracten veilig"
+  default_prompt: "Gebruik $zinsontleding-repo-inspector om het lokale parsingcontract voor deze wijziging te controleren."

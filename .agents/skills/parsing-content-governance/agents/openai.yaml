@@ -1,0 +1,4 @@
+interface:
+  display_name: "Parsing Content Governance"
+  short_description: "Bewaak shared canon en lokale parsegrenzen"
+  default_prompt: "Gebruik $parsing-content-governance om shared canon en lokale Ontleedlab-regels correct te scheiden."

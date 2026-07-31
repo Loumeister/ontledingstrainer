@@ -71,7 +71,7 @@ jobs:
           python <<'PY'
           import json, os, pathlib, sys, urllib.request, urllib.error
           root = pathlib.Path('.')
-          system = (root / '.codex/skills/documentation-sync-guardian/SKILL.md').read_text()
+          system = (root / '.agents/skills/documentation-sync-guardian/SKILL.md').read_text()
           msg = (root / '.ai-sync/commit_message.txt').read_text()
           files = (root / '.ai-sync/changed_files.txt').read_text()
           diff = (root / '.ai-sync/last_diff.patch').read_text()

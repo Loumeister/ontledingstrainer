@@ -1,0 +1,4 @@
+interface:
+  display_name: "Grammar Core Sync"
+  short_description: "Synchroniseer grammar-core veilig als subtree"
+  default_prompt: "Gebruik $grammar-core-sync om de lokale grammar-core-subtree veilig te synchroniseren en valideren."

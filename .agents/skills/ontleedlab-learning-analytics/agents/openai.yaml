@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ontleedlab Learning Analytics"
+  short_description: "Vertaal leerdata naar veilige inzichten"
+  default_prompt: "Gebruik $ontleedlab-learning-analytics om deze leervraag met expliciete meetdefinities te analyseren."

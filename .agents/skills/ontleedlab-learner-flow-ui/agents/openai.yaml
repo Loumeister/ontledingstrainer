@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ontleedlab Learner Flow UI"
+  short_description: "Bewaak didactische leerlinginteracties"
+  default_prompt: "Gebruik $ontleedlab-learner-flow-ui om deze leerlinginteractie didactisch en toegankelijk uit te werken."

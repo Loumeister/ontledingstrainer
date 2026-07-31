@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zinsontleding Sentence Author"
+  short_description: "Maak eenduidige Ontleedlab-oefenzinnen"
+  default_prompt: "Gebruik $zinsontleding-constraint-sentence-author om een eenduidige oefenzin in het lokale formaat te maken."
