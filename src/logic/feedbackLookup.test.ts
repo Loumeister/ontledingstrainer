@@ -32,6 +32,10 @@ describe('getEffectiveFeedback', () => {
     it('geeft undefined als sourceRole bestaat maar targetRole niet', () => {
       expect(getEffectiveFeedback('ow', 'onbekende_target')).toBeUndefined();
     });
+
+    it('geeft een herstelvraag als een bijzin ten onrechte als NG is gelabeld', () => {
+      expect(getEffectiveFeedback('bijzin', 'ng')).toContain('koppelwerkwoord');
+    });
   });
 
   describe('localStorage overschrijft FEEDBACK_MATRIX', () => {
