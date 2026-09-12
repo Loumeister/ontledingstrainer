@@ -27,35 +27,31 @@ beforeEach(() => {
 describe('loadLadderProgress', () => {
   it('geeft standaardwaarden terug als storage leeg is', () => {
     const p = loadLadderProgress();
-    expect(p.enabled).toBe(false);
     expect(p.currentStage).toBe(1);
     expect(p.recentScores).toEqual([]);
   });
 
   it('laadt opgeslagen voortgang correct', () => {
     store[KEY] = JSON.stringify({
-      enabled: true,
       currentStage: 4,
       lastChangedAt: '2026-01-01T00:00:00.000Z',
       recentScores: [{ score: 8, total: 10 }],
     });
     const p = loadLadderProgress();
-    expect(p.enabled).toBe(true);
     expect(p.currentStage).toBe(4);
     expect(p.recentScores).toHaveLength(1);
   });
 
   it('clamt currentStage op [1, 8]', () => {
-    store[KEY] = JSON.stringify({ enabled: false, currentStage: 99, lastChangedAt: '', recentScores: [] });
+    store[KEY] = JSON.stringify({ currentStage: 99, lastChangedAt: '', recentScores: [] });
     expect(loadLadderProgress().currentStage).toBe(8);
 
-    store[KEY] = JSON.stringify({ enabled: false, currentStage: -5, lastChangedAt: '', recentScores: [] });
+    store[KEY] = JSON.stringify({ currentStage: -5, lastChangedAt: '', recentScores: [] });
     expect(loadLadderProgress().currentStage).toBe(1);
   });
 
   it('filtert ongeldige recentScores eruit', () => {
     store[KEY] = JSON.stringify({
-      enabled: false,
       currentStage: 1,
       lastChangedAt: '',
       recentScores: [
@@ -75,22 +71,16 @@ describe('loadLadderProgress', () => {
     store[KEY] = 'GEEN GELDIG JSON{';
     const p = loadLadderProgress();
     expect(p.currentStage).toBe(1);
-    expect(p.enabled).toBe(false);
-  });
-
-  it('gebruikt false als enabled niet aanwezig is', () => {
-    store[KEY] = JSON.stringify({ currentStage: 3, lastChangedAt: '', recentScores: [] });
-    expect(loadLadderProgress().enabled).toBe(false);
   });
 });
 
 describe('saveLadderProgress', () => {
   it('slaat voortgang op in localStorage', () => {
     const now = new Date().toISOString();
-    saveLadderProgress({ enabled: true, currentStage: 3, lastChangedAt: now, recentScores: [] });
+    saveLadderProgress({ currentStage: 3, lastChangedAt: now, recentScores: [] });
     const stored = JSON.parse(store[KEY]);
     expect(stored.currentStage).toBe(3);
-    expect(stored.enabled).toBe(true);
+    expect(stored.enabled).toBeUndefined();
   });
 });
 

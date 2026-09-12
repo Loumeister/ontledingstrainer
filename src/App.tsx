@@ -12,6 +12,7 @@ import { preloadCommonLevels } from './data/sentenceLoader';
 import { decodeShared } from './data/customSentenceStore';
 import { StudentDashboardScreen } from './screens/StudentDashboardScreen';
 import { TeacherDashboardScreen } from './screens/TeacherDashboardScreen';
+import { isRollenladderRoute } from './logic/appRoute';
 import type { Sentence } from './types';
 
 // Decode teacher-shared sentences from ?zinnen= URL param
@@ -34,10 +35,9 @@ export default function App() {
   const [showZinsdeellab, setShowZinsdeellab] = useState(() => window.location.hash === '#/zinnenlab');
   // #/rollenladder — hidden entry point: enables ladder mode and lands on HomeScreen
   useEffect(() => {
-    if (window.location.hash === '#/rollenladder') {
+    if (isRollenladderRoute(window.location.hash)) {
       setLadderEnabledRef.current(true);
       resetToHomeRef.current();
-      history.replaceState(null, '', location.pathname + location.search);
     }
   }, []);
   const [showStudentDashboard, setShowStudentDashboard] = useState(() => window.location.hash === '#/mijn-voortgang');
@@ -52,10 +52,10 @@ export default function App() {
   // Listen for hash changes
   useEffect(() => {
     const onHashChange = () => {
-      if (window.location.hash === '#/rollenladder') {
-        setLadderEnabledRef.current(true);
+      const ladderRoute = isRollenladderRoute(window.location.hash);
+      setLadderEnabledRef.current(ladderRoute);
+      if (ladderRoute) {
         resetToHomeRef.current();
-        history.replaceState(null, '', location.pathname + location.search);
         return;
       }
       setShowLogin(window.location.hash === '#/login');

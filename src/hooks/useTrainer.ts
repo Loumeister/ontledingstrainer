@@ -263,14 +263,12 @@ export function useTrainer(): TrainerState {
   };
 
   // Rollenladder State
-  const [ladderEnabled, setLadderEnabledRaw] = useState<boolean>(() => loadLadderProgress().enabled);
+  const [ladderEnabled, setLadderEnabledRaw] = useState(false);
   const [ladderStage, setLadderStageRaw] = useState<number>(() => loadLadderProgress().currentStage);
   const [ladderPromotion, setLadderPromotion] = useState<PromotionResult | null>(null);
 
   const setLadderEnabled = (v: boolean) => {
     setLadderEnabledRaw(v);
-    const progress = loadLadderProgress();
-    saveLadderProgress({ ...progress, enabled: v, lastChangedAt: new Date().toISOString() });
   };
 
   const setLadderStage = (stage: number) => {

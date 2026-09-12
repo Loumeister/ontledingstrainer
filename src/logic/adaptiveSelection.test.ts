@@ -187,6 +187,11 @@ describe('computeSentenceScore', () => {
 // ---------------------------------------------------------------------------
 
 describe('selectAdaptiveQueue', () => {
+  const seededRandom = () => {
+    let seed = 42;
+    return () => ((seed = seed * 16807 % 2147483647) - 1) / 2147483646;
+  };
+
   it('returns empty array for empty pool', () => {
     const confidences = new Map<RoleKey, RoleConfidence>();
     expect(selectAdaptiveQueue([], 5, confidences)).toEqual([]);
@@ -231,9 +236,10 @@ describe('selectAdaptiveQueue', () => {
     let lvCount = 0;
     const totalRuns = 200;
     const selectCount = 5;
+    const random = seededRandom();
 
     for (let r = 0; r < totalRuns; r++) {
-      const selected = selectAdaptiveQueue(pool, selectCount, confidences);
+      const selected = selectAdaptiveQueue(pool, selectCount, confidences, random);
       lvCount += selected.filter(s => s.tokens.some(t => t.role === 'lv')).length;
     }
 
@@ -248,8 +254,9 @@ describe('selectAdaptiveQueue', () => {
     const confidences = new Map<RoleKey, RoleConfidence>();
 
     const results = new Set<string>();
+    const random = seededRandom();
     for (let i = 0; i < 10; i++) {
-      const selected = selectAdaptiveQueue(pool, 5, confidences);
+      const selected = selectAdaptiveQueue(pool, 5, confidences, random);
       results.add(selected.map(s => s.id).sort().join(','));
     }
 

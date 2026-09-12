@@ -35,7 +35,10 @@ function doGet(e) {
 
   // Verificeer API-sleutel voor alle andere acties
   var expectedKey = PropertiesService.getScriptProperties().getProperty('API_KEY') || '';
-  if (expectedKey && params.apiKey !== expectedKey) {
+  if (!expectedKey) {
+    return jsonResponse({ ok: false, error: 'Serverconfiguratie ontbreekt: stel API_KEY in' });
+  }
+  if (params.apiKey !== expectedKey) {
     return jsonResponse({ ok: false, error: 'Ongeautoriseerd: ongeldige API-sleutel' });
   }
 
