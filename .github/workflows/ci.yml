@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+
+jobs:
+  verify:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  grammar-core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Controleer gedeelde canon
+        run: |
+          git clone --depth=1 https://github.com/Loumeister/grammar-core.git "$RUNNER_TEMP/grammar-core"
+          diff -qr --exclude=.git --exclude=.github --exclude=.claude-plugin --exclude=plugins \
+            "$RUNNER_TEMP/grammar-core" shared/grammar-core

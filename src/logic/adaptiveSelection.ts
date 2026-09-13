@@ -142,6 +142,7 @@ export function selectAdaptiveQueue(
   pool: Sentence[],
   count: number,
   roleConfidences: Map<RoleKey, RoleConfidence>,
+  random: () => number = Math.random,
 ): Sentence[] {
   if (pool.length === 0) return [];
   const n = Math.min(count, pool.length);
@@ -151,7 +152,7 @@ export function selectAdaptiveQueue(
 
   // Compute raw scores
   const scored = pool.map(sentence => {
-    const score = computeSentenceScore(sentence, roleConfidences, usageStore, now);
+    const score = computeSentenceScore(sentence, roleConfidences, usageStore, now, random);
     return { sentence, score };
   });
 
@@ -163,13 +164,13 @@ export function selectAdaptiveQueue(
     const totalWeight = remaining.reduce((sum, item) => sum + item.score, 0);
     if (totalWeight <= 0) {
       // Fallback: pick randomly from remaining
-      const idx = Math.floor(Math.random() * remaining.length);
+      const idx = Math.floor(random() * remaining.length);
       selected.push(remaining[idx].sentence);
       remaining.splice(idx, 1);
       continue;
     }
 
-    let r = Math.random() * totalWeight;
+    let r = random() * totalWeight;
     let picked = remaining.length - 1;
     for (let j = 0; j < remaining.length; j++) {
       r -= remaining[j].score;
@@ -185,7 +186,7 @@ export function selectAdaptiveQueue(
 
   // Shuffle selected sentences so the order is not score-based
   for (let i = selected.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(random() * (i + 1));
     [selected[i], selected[j]] = [selected[j], selected[i]];
   }
 
@@ -201,6 +202,7 @@ export function computeSentenceScore(
   roleConfidences: Map<RoleKey, RoleConfidence>,
   usageStore: Record<number, SentenceUsageData>,
   now: number,
+  random: () => number = Math.random,
 ): number {
   // 1. Role weight: average (1 - confidence) across roles in this sentence
   const rolesInSentence = new Set(sentence.tokens.map(t => t.role));
@@ -229,7 +231,7 @@ export function computeSentenceScore(
   }
 
   // 4. Random noise
-  const randomScore = Math.random();
+  const randomScore = random();
 
   // Weighted sum (all components are [0, 1])
   const total =
