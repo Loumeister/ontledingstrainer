@@ -36,6 +36,10 @@ describe('getEffectiveFeedback', () => {
     it('geeft een herstelvraag als een bijzin ten onrechte als NG is gelabeld', () => {
       expect(getEffectiveFeedback('bijzin', 'ng')).toContain('koppelwerkwoord');
     });
+
+    it('houdt bijzin-naar-bijstelling beschikbaar voor feedbackoverrides', () => {
+      expect(getEffectiveFeedback('bijzin', 'bijst')).toContain('andere naam');
+    });
   });
 
   describe('localStorage overschrijft FEEDBACK_MATRIX', () => {

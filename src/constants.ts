@@ -255,6 +255,7 @@ export const FEEDBACK_MATRIX: Record<string, Record<string, FeedbackEntry>> = {
     pv: ROLE_REPAIR.pv,
     wg: ROLE_REPAIR.wg,
     ng: ROLE_REPAIR.ng,
+    bijst: ROLE_REPAIR.bijst,
   },
   vw_onder: {
     vw_neven: "Kan het volgende deel zelfstandig als hoofdzin staan, of is het afhankelijk?",
