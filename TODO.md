@@ -5,9 +5,6 @@ _Alleen open werk. Afgerond werk staat in git._
 ## P0: vertrouwen
 
 - [ ] Ontwerp de vervanging van de huidige Sheets-koppeling: server-side autorisatie, minimale oefengegevens en alleen een willekeurige leerlingcode; de koppeling naar een leerling blijft uitsluitend bij de docent.
-- [ ] Beperk en documenteer tot die migratie wat de bestaande Sheets-route verstuurt en bewaart.
-- [ ] Maak de adaptieve selectietest deterministisch; de huidige kansgestuurde drempel kan zonder codewijziging wisselen.
-- [ ] Laat CI op iedere PR tests, build en `grammar-core`-drift controleren.
 
 ## P1: didactische kern
 

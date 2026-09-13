@@ -137,7 +137,7 @@ export const FEEDBACK_STRUCTURE = {
 };
 
 const ROLE_REPAIR: Record<string, string> = {
-  pv: "Verander de zin van tijd en daarna van getal. Welk werkwoord verandert mee?",
+  pv: "Verander de zin van tijd. Welk werkwoord verandert mee?",
   ow: "Bepaal eerst de persoonsvorm. Wie of wat bepaalt enkelvoud of meervoud daarvan?",
   lv: "Maak onderwerp en gezegde eerst zeker. Wie of wat wordt door de handeling geraakt?",
   mv: "Wie of wat is ontvanger of belanghebbende? Kun je er 'aan' of 'voor' bij zetten?",

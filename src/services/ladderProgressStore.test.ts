@@ -40,6 +40,7 @@ describe('loadLadderProgress', () => {
     const p = loadLadderProgress();
     expect(p.currentStage).toBe(4);
     expect(p.recentScores).toHaveLength(1);
+    expect(p).not.toHaveProperty('lastChangedAt');
   });
 
   it('clamt currentStage op [1, 8]', () => {
@@ -76,11 +77,11 @@ describe('loadLadderProgress', () => {
 
 describe('saveLadderProgress', () => {
   it('slaat voortgang op in localStorage', () => {
-    const now = new Date().toISOString();
-    saveLadderProgress({ currentStage: 3, lastChangedAt: now, recentScores: [] });
+    saveLadderProgress({ currentStage: 3, recentScores: [] });
     const stored = JSON.parse(store[KEY]);
     expect(stored.currentStage).toBe(3);
     expect(stored.enabled).toBeUndefined();
+    expect(stored.lastChangedAt).toBeUndefined();
   });
 });
 

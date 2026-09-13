@@ -52,19 +52,19 @@ export default function App() {
   // Listen for hash changes
   useEffect(() => {
     const onHashChange = () => {
-      const ladderRoute = isRollenladderRoute(window.location.hash);
+      const hash = window.location.hash;
+      const ladderRoute = isRollenladderRoute(hash);
       setLadderEnabledRef.current(ladderRoute);
+      setShowLogin(hash === '#/login');
+      setShowEditor(hash === '#/editor');
+      setShowDocent(hash === '#/docent');
+      setShowUsageLog(hash === '#/usage');
+      setShowZinsdeellab(hash === '#/zinnenlab');
+      setShowStudentDashboard(hash === '#/mijn-voortgang');
+      setShowTeacherDashboard(hash === '#/docent-dashboard');
       if (ladderRoute) {
         resetToHomeRef.current();
-        return;
       }
-      setShowLogin(window.location.hash === '#/login');
-      setShowEditor(window.location.hash === '#/editor');
-      setShowDocent(window.location.hash === '#/docent');
-      setShowUsageLog(window.location.hash === '#/usage');
-      setShowZinsdeellab(window.location.hash === '#/zinnenlab');
-      setShowStudentDashboard(window.location.hash === '#/mijn-voortgang');
-      setShowTeacherDashboard(window.location.hash === '#/docent-dashboard');
     };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);

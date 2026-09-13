@@ -280,7 +280,6 @@ export function useTrainer(): TrainerState {
       ...progress,
       currentStage: clampedStage,
       recentScores: [],
-      lastChangedAt: new Date().toISOString(),
     });
   };
 
@@ -703,7 +702,6 @@ export function useTrainer(): TrainerState {
               ...loadLadderProgress(),
               currentStage: newStage,
               recentScores: [],
-              lastChangedAt: new Date().toISOString(),
             });
           } else {
             setLadderPromotion(promotion);

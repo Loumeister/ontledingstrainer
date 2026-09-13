@@ -59,6 +59,8 @@ function makeSentence(id: number, roles: RoleKey[], level: 1 | 2 | 3 | 4 = 1): S
   };
 }
 
+const fixedRandom = () => 0.5;
+
 beforeEach(() => {
   Object.keys(store).forEach(k => delete store[k]);
   vi.clearAllMocks();
@@ -130,21 +132,12 @@ describe('computeSentenceScore', () => {
     const sentenceWithLV = makeSentence(1, ['pv', 'ow', 'lv']);
     const sentenceWithoutLV = makeSentence(2, ['pv', 'ow', 'bwb']);
 
-    // Run multiple times and check average scores
     const usageStore: Record<number, SentenceUsageData> = {};
     const now = Date.now();
+    const scoreLV = computeSentenceScore(sentenceWithLV, confidences, usageStore, now, fixedRandom);
+    const scoreNoLV = computeSentenceScore(sentenceWithoutLV, confidences, usageStore, now, fixedRandom);
 
-    let scoreLV = 0;
-    let scoreNoLV = 0;
-    const runs = 100;
-
-    for (let i = 0; i < runs; i++) {
-      scoreLV += computeSentenceScore(sentenceWithLV, confidences, usageStore, now);
-      scoreNoLV += computeSentenceScore(sentenceWithoutLV, confidences, usageStore, now);
-    }
-
-    // Sentence with weak LV should have a higher average score
-    expect(scoreLV / runs).toBeGreaterThan(scoreNoLV / runs);
+    expect(scoreLV).toBeGreaterThan(scoreNoLV);
   });
 
   it('gives freshness bonus to sentences not recently attempted', () => {
@@ -161,15 +154,10 @@ describe('computeSentenceScore', () => {
       1: { attempts: 5, perfectCount: 3, showAnswerCount: 0, roleErrors: {}, splitErrors: 0, flagged: false, note: '', lastAttempted: new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString() },
     };
 
-    let recentScore = 0;
-    let oldScore = 0;
-    const runs = 100;
-    for (let i = 0; i < runs; i++) {
-      recentScore += computeSentenceScore(sentence, confidences, recentUsage, now);
-      oldScore += computeSentenceScore(sentence, confidences, oldUsage, now);
-    }
+    const recentScore = computeSentenceScore(sentence, confidences, recentUsage, now, fixedRandom);
+    const oldScore = computeSentenceScore(sentence, confidences, oldUsage, now, fixedRandom);
 
-    expect(oldScore / runs).toBeGreaterThan(recentScore / runs);
+    expect(oldScore).toBeGreaterThan(recentScore);
   });
 
   it('always returns a positive score', () => {
@@ -177,7 +165,7 @@ describe('computeSentenceScore', () => {
     confidences.set('pv', { role: 'pv', confidence: 1.0, totalEncounters: 10, recentErrors: 0 });
 
     const sentence = makeSentence(1, ['pv']);
-    const score = computeSentenceScore(sentence, confidences, {}, Date.now());
+    const score = computeSentenceScore(sentence, confidences, {}, Date.now(), fixedRandom);
     expect(score).toBeGreaterThan(0);
   });
 });
