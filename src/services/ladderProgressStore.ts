@@ -49,10 +49,12 @@ export function loadLadderProgress(): LadderProgress {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...DEFAULT_PROGRESS };
     const parsed = JSON.parse(raw) as Partial<LadderProgress>;
-    return {
+    const progress = {
       currentStage: sanitizeCurrentStage(parsed.currentStage),
       recentScores: sanitizeRecentScores(parsed.recentScores),
     };
+    if (raw !== JSON.stringify(progress)) saveLadderProgress(progress);
+    return progress;
   } catch {
     return { ...DEFAULT_PROGRESS };
   }

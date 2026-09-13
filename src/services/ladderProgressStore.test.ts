@@ -41,6 +41,10 @@ describe('loadLadderProgress', () => {
     expect(p.currentStage).toBe(4);
     expect(p.recentScores).toHaveLength(1);
     expect(p).not.toHaveProperty('lastChangedAt');
+    expect(JSON.parse(store[KEY])).toEqual({
+      currentStage: 4,
+      recentScores: [{ score: 8, total: 10 }],
+    });
   });
 
   it('clamt currentStage op [1, 8]', () => {
