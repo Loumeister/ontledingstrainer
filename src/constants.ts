@@ -138,8 +138,8 @@ export const FEEDBACK_STRUCTURE = {
 
 const ROLE_REPAIR: Record<string, string> = {
   pv: "Verander de zin van tijd. Welk werkwoord verandert mee?",
-  ow: "Bepaal eerst de persoonsvorm. Wie of wat bepaalt enkelvoud of meervoud daarvan?",
-  lv: "Maak onderwerp en gezegde eerst zeker. Wie of wat wordt door de handeling geraakt?",
+  ow: "Wie of wat bepaalt enkelvoud of meervoud van de persoonsvorm?",
+  lv: "Wie of wat wordt door de handeling geraakt?",
   mv: "Wie of wat is ontvanger of belanghebbende? Kun je er 'aan' of 'voor' bij zetten?",
   bwb: "Welke vrije informatie geeft dit deel over tijd, plaats, manier, reden of ontkenning?",
   wg: "Welke werkwoorden vormen samen het gezegde en drukken een handeling of gebeurtenis uit?",

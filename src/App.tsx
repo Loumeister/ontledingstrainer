@@ -198,7 +198,6 @@ export default function App() {
         adaptiveMode={trainer.adaptiveMode}
         setAdaptiveMode={trainer.setAdaptiveMode}
         ladderEnabled={trainer.ladderEnabled}
-        setLadderEnabled={trainer.setLadderEnabled}
         ladderStage={trainer.ladderStage}
         setLadderStage={trainer.setLadderStage}
         openSecretDocentRoute={() => {
