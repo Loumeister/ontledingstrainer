@@ -12,7 +12,7 @@ import { preloadCommonLevels } from './data/sentenceLoader';
 import { decodeShared } from './data/customSentenceStore';
 import { StudentDashboardScreen } from './screens/StudentDashboardScreen';
 import { TeacherDashboardScreen } from './screens/TeacherDashboardScreen';
-import { isRollenladderRoute } from './logic/appRoute';
+import { isRollenladderRoute, shouldResetTrainerOnRouteChange } from './logic/appRoute';
 import type { Sentence } from './types';
 
 // Decode teacher-shared sentences from ?zinnen= URL param
@@ -25,6 +25,7 @@ export default function App() {
   // Stable refs so effects don't need trainer in their dep arrays
   const setLadderEnabledRef = useRef(trainer.setLadderEnabled);
   const resetToHomeRef = useRef(trainer.resetToHome);
+  const activeHashRef = useRef(window.location.hash);
   setLadderEnabledRef.current = trainer.setLadderEnabled;
   resetToHomeRef.current = trainer.resetToHome;
 
@@ -53,6 +54,8 @@ export default function App() {
   useEffect(() => {
     const onHashChange = () => {
       const hash = window.location.hash;
+      const previousHash = activeHashRef.current;
+      activeHashRef.current = hash;
       const ladderRoute = isRollenladderRoute(hash);
       setLadderEnabledRef.current(ladderRoute);
       setShowLogin(hash === '#/login');
@@ -62,7 +65,7 @@ export default function App() {
       setShowZinsdeellab(hash === '#/zinnenlab');
       setShowStudentDashboard(hash === '#/mijn-voortgang');
       setShowTeacherDashboard(hash === '#/docent-dashboard');
-      if (ladderRoute) {
+      if (shouldResetTrainerOnRouteChange(previousHash, hash)) {
         resetToHomeRef.current();
       }
     };

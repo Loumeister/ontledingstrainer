@@ -269,6 +269,7 @@ export function useTrainer(): TrainerState {
 
   const setLadderEnabled = (v: boolean) => {
     setLadderEnabledRaw(v);
+    if (v) setSelectedLevel(null);
   };
 
   const setLadderStage = (stage: number) => {
