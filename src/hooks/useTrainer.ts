@@ -13,7 +13,8 @@ import {
 } from '../logic/adaptiveSelection';
 import { buildReport, encodeReport } from '../services/sessionReport';
 import { postReport, getScriptUrl, shouldAutoSendReport } from '../services/googleDriveSync';
-import { getSessionAdvanceAction } from '../logic/sessionFlow';
+import { getSessionAdvanceAction, shouldLogAbortOnReset } from '../logic/sessionFlow';
+import { shouldClearSelectedLevelOnLadderToggle } from '../logic/appRoute';
 import { getOrCreateStudent } from '../services/studentStore';
 import { saveSubmission, generateSubmissionId, saveAttempt, generateAttemptId } from '../services/trainerSubmissionStore';
 import { logTrainerEvent } from '../services/trainerActivityLog';
@@ -249,7 +250,7 @@ export function useTrainer(): TrainerState {
   const [includeVV] = useState(false);
 
   // Level & Count
-  const [selectedLevel, setSelectedLevel] = useState<DifficultyLevel | null>(null);
+  const [selectedLevel, setSelectedLevelRaw] = useState<DifficultyLevel | null>(null);
   const [customSessionCount, setCustomSessionCount] = useState<number>(10);
   const [adaptiveMode, setAdaptiveModeRaw] = useState<boolean>(() => {
     try {
@@ -263,14 +264,25 @@ export function useTrainer(): TrainerState {
   };
 
   // Rollenladder State
-  const [ladderEnabled, setLadderEnabledRaw] = useState<boolean>(() => loadLadderProgress().enabled);
+  const [ladderEnabled, setLadderEnabledRaw] = useState(false);
   const [ladderStage, setLadderStageRaw] = useState<number>(() => loadLadderProgress().currentStage);
   const [ladderPromotion, setLadderPromotion] = useState<PromotionResult | null>(null);
 
+  const setSelectedLevel = (level: DifficultyLevel | null) => {
+    if (ladderEnabled) {
+      setSelectedLevelRaw(null);
+      return;
+    }
+    setSelectedLevelRaw(level);
+  };
+
   const setLadderEnabled = (v: boolean) => {
-    setLadderEnabledRaw(v);
-    const progress = loadLadderProgress();
-    saveLadderProgress({ ...progress, enabled: v, lastChangedAt: new Date().toISOString() });
+    setLadderEnabledRaw(previousEnabled => {
+      if (shouldClearSelectedLevelOnLadderToggle(previousEnabled, v)) {
+        setSelectedLevelRaw(null);
+      }
+      return v;
+    });
   };
 
   const setLadderStage = (stage: number) => {
@@ -282,7 +294,6 @@ export function useTrainer(): TrainerState {
       ...progress,
       currentStage: clampedStage,
       recentScores: [],
-      lastChangedAt: new Date().toISOString(),
     });
   };
 
@@ -705,7 +716,6 @@ export function useTrainer(): TrainerState {
               ...loadLadderProgress(),
               currentStage: newStage,
               recentScores: [],
-              lastChangedAt: new Date().toISOString(),
             });
           } else {
             setLadderPromotion(promotion);
@@ -1412,7 +1422,9 @@ export function useTrainer(): TrainerState {
   };
 
   const resetToHome = () => {
-    logInteraction('abort', currentSentence?.id);
+    if (shouldLogAbortOnReset(currentSentence !== null)) {
+      logInteraction('abort', currentSentence?.id);
+    }
     setCurrentSentence(null);
     setMode('free');
     setSessionQueue([]);

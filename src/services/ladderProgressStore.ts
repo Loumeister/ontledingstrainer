@@ -1,16 +1,12 @@
 const STORAGE_KEY = 'zinsontleding_ladder_v1';
 
 export interface LadderProgress {
-  enabled: boolean;
   currentStage: number;    // 1–8
-  lastChangedAt: string;   // ISO
   recentScores: { score: number; total: number }[];
 }
 
 const DEFAULT_PROGRESS: LadderProgress = {
-  enabled: false,
   currentStage: 1,
-  lastChangedAt: new Date().toISOString(),
   recentScores: [],
 };
 
@@ -53,15 +49,12 @@ export function loadLadderProgress(): LadderProgress {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...DEFAULT_PROGRESS };
     const parsed = JSON.parse(raw) as Partial<LadderProgress>;
-    return {
-      enabled: typeof parsed.enabled === 'boolean' ? parsed.enabled : false,
+    const progress = {
       currentStage: sanitizeCurrentStage(parsed.currentStage),
-      lastChangedAt:
-        typeof parsed.lastChangedAt === 'string'
-          ? parsed.lastChangedAt
-          : new Date().toISOString(),
       recentScores: sanitizeRecentScores(parsed.recentScores),
     };
+    if (raw !== JSON.stringify(progress)) saveLadderProgress(progress);
+    return progress;
   } catch {
     return { ...DEFAULT_PROGRESS };
   }

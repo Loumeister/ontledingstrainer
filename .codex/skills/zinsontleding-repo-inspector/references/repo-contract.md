@@ -43,12 +43,20 @@ Bronnen: `src/types.ts`, `src/constants.ts`, `src/data/sentences-level-0.json`, 
 
 Bron: `src/constants.ts`.
 
-- `FEEDBACK_MATRIX` voor rolverwisselingen en herstelvragen.
+- `FEEDBACK_MATRIX` voor korte, controleerbare herstelvragen bij relevante rolverwisselingen.
 - `FEEDBACK_STRUCTURE` voor knip- en structuurfeedback.
 - `FEEDBACK_BIJZIN_FUNCTIE` voor vervolgfeedback bij goed gevonden bijzinnen met functiekeuze.
 - `FEEDBACK_SWAP` voor gevallen waarin een bijzin wel een functie heeft maar als vorm anders beoordeeld moet worden.
 - `HINTS` voor ontbrekende rollen, deelrollen en generieke herstelstappen.
 - `FEEDBACK_SHORT_LABELS` voor compacte feedbacklabels in de UI.
+
+Een verkeerd rollenpaar toont alleen een waarneembare verwarring. Het is geen bewijs van de gedachte van de leerling en wordt daarom niet als cognitieve diagnose geformuleerd.
+
+## Mode contract
+
+- De standaardroute vraagt alle toepasselijke rollen tegelijk.
+- De Rollenladder is uitsluitend een verborgen experiment via `#/rollenladder`.
+- Ladderactivatie wordt niet opgeslagen. Alleen de gekozen trede en recente scores mogen blijven staan.
 
 ## Risks / ambiguities to avoid
 
