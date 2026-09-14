@@ -13,7 +13,8 @@ import {
 } from '../logic/adaptiveSelection';
 import { buildReport, encodeReport } from '../services/sessionReport';
 import { postReport, getScriptUrl, shouldAutoSendReport } from '../services/googleDriveSync';
-import { getSessionAdvanceAction } from '../logic/sessionFlow';
+import { getSessionAdvanceAction, shouldLogAbortOnReset } from '../logic/sessionFlow';
+import { shouldClearSelectedLevelOnLadderToggle } from '../logic/appRoute';
 import { getOrCreateStudent } from '../services/studentStore';
 import { saveSubmission, generateSubmissionId, saveAttempt, generateAttemptId } from '../services/trainerSubmissionStore';
 import { logTrainerEvent } from '../services/trainerActivityLog';
@@ -249,7 +250,7 @@ export function useTrainer(): TrainerState {
   const [includeVV] = useState(false);
 
   // Level & Count
-  const [selectedLevel, setSelectedLevel] = useState<DifficultyLevel | null>(null);
+  const [selectedLevel, setSelectedLevelRaw] = useState<DifficultyLevel | null>(null);
   const [customSessionCount, setCustomSessionCount] = useState<number>(10);
   const [adaptiveMode, setAdaptiveModeRaw] = useState<boolean>(() => {
     try {
@@ -267,9 +268,21 @@ export function useTrainer(): TrainerState {
   const [ladderStage, setLadderStageRaw] = useState<number>(() => loadLadderProgress().currentStage);
   const [ladderPromotion, setLadderPromotion] = useState<PromotionResult | null>(null);
 
+  const setSelectedLevel = (level: DifficultyLevel | null) => {
+    if (ladderEnabled) {
+      setSelectedLevelRaw(null);
+      return;
+    }
+    setSelectedLevelRaw(level);
+  };
+
   const setLadderEnabled = (v: boolean) => {
-    setLadderEnabledRaw(v);
-    if (v) setSelectedLevel(null);
+    setLadderEnabledRaw(previousEnabled => {
+      if (shouldClearSelectedLevelOnLadderToggle(previousEnabled, v)) {
+        setSelectedLevelRaw(null);
+      }
+      return v;
+    });
   };
 
   const setLadderStage = (stage: number) => {
@@ -1409,7 +1422,9 @@ export function useTrainer(): TrainerState {
   };
 
   const resetToHome = () => {
-    logInteraction('abort', currentSentence?.id);
+    if (shouldLogAbortOnReset(currentSentence !== null)) {
+      logInteraction('abort', currentSentence?.id);
+    }
     setCurrentSentence(null);
     setMode('free');
     setSessionQueue([]);
