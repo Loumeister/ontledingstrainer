@@ -12,6 +12,7 @@ import { preloadCommonLevels } from './data/sentenceLoader';
 import { decodeShared } from './data/customSentenceStore';
 import { StudentDashboardScreen } from './screens/StudentDashboardScreen';
 import { TeacherDashboardScreen } from './screens/TeacherDashboardScreen';
+import { isRollenladderRoute, shouldResetTrainerOnRouteChange } from './logic/appRoute';
 import type { Sentence } from './types';
 
 // Decode teacher-shared sentences from ?zinnen= URL param
@@ -24,6 +25,7 @@ export default function App() {
   // Stable refs so effects don't need trainer in their dep arrays
   const setLadderEnabledRef = useRef(trainer.setLadderEnabled);
   const resetToHomeRef = useRef(trainer.resetToHome);
+  const activeHashRef = useRef(window.location.hash);
   setLadderEnabledRef.current = trainer.setLadderEnabled;
   resetToHomeRef.current = trainer.resetToHome;
 
@@ -34,10 +36,9 @@ export default function App() {
   const [showZinsdeellab, setShowZinsdeellab] = useState(() => window.location.hash === '#/zinnenlab');
   // #/rollenladder — hidden entry point: enables ladder mode and lands on HomeScreen
   useEffect(() => {
-    if (window.location.hash === '#/rollenladder') {
+    if (isRollenladderRoute(window.location.hash)) {
       setLadderEnabledRef.current(true);
       resetToHomeRef.current();
-      history.replaceState(null, '', location.pathname + location.search);
     }
   }, []);
   const [showStudentDashboard, setShowStudentDashboard] = useState(() => window.location.hash === '#/mijn-voortgang');
@@ -52,19 +53,21 @@ export default function App() {
   // Listen for hash changes
   useEffect(() => {
     const onHashChange = () => {
-      if (window.location.hash === '#/rollenladder') {
-        setLadderEnabledRef.current(true);
+      const hash = window.location.hash;
+      const previousHash = activeHashRef.current;
+      activeHashRef.current = hash;
+      const ladderRoute = isRollenladderRoute(hash);
+      setLadderEnabledRef.current(ladderRoute);
+      setShowLogin(hash === '#/login');
+      setShowEditor(hash === '#/editor');
+      setShowDocent(hash === '#/docent');
+      setShowUsageLog(hash === '#/usage');
+      setShowZinsdeellab(hash === '#/zinnenlab');
+      setShowStudentDashboard(hash === '#/mijn-voortgang');
+      setShowTeacherDashboard(hash === '#/docent-dashboard');
+      if (shouldResetTrainerOnRouteChange(previousHash, hash)) {
         resetToHomeRef.current();
-        history.replaceState(null, '', location.pathname + location.search);
-        return;
       }
-      setShowLogin(window.location.hash === '#/login');
-      setShowEditor(window.location.hash === '#/editor');
-      setShowDocent(window.location.hash === '#/docent');
-      setShowUsageLog(window.location.hash === '#/usage');
-      setShowZinsdeellab(window.location.hash === '#/zinnenlab');
-      setShowStudentDashboard(window.location.hash === '#/mijn-voortgang');
-      setShowTeacherDashboard(window.location.hash === '#/docent-dashboard');
     };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
@@ -195,7 +198,6 @@ export default function App() {
         adaptiveMode={trainer.adaptiveMode}
         setAdaptiveMode={trainer.setAdaptiveMode}
         ladderEnabled={trainer.ladderEnabled}
-        setLadderEnabled={trainer.setLadderEnabled}
         ladderStage={trainer.ladderStage}
         setLadderStage={trainer.setLadderStage}
         openSecretDocentRoute={() => {

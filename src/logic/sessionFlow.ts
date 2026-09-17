@@ -27,3 +27,11 @@ export function shouldShowSessionNextButton(
 export function getSessionAdvanceAction(sessionIndex: number, sessionLength: number): 'next' | 'finish' {
   return sessionIndex + 1 < sessionLength ? 'next' : 'finish';
 }
+
+/**
+ * Log een abort alleen als er werkelijk een actieve zin was.
+ * Routewissels vanaf Home mogen geen extra aborts tellen.
+ */
+export function shouldLogAbortOnReset(hasActiveSentence: boolean): boolean {
+  return hasActiveSentence;
+}

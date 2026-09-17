@@ -170,10 +170,16 @@ describe('saveAttempt', () => {
   });
 
   it('trims to 2000 entries when limit exceeded', () => {
-    for (let i = 0; i < 2005; i++) {
-      saveAttempt(makeAttempt({ id: `tatt-${i}` }));
-    }
-    expect(getAttempts()).toHaveLength(2000);
+    store['zinsontleding_attempts_v1'] = JSON.stringify(
+      Array.from({ length: 2000 }, (_, i) => makeAttempt({ id: `tatt-${i}` })),
+    );
+
+    saveAttempt(makeAttempt({ id: 'tatt-2000' }));
+
+    const attempts = getAttempts();
+    expect(attempts).toHaveLength(2000);
+    expect(attempts[0].id).toBe('tatt-1');
+    expect(attempts[1999].id).toBe('tatt-2000');
   });
 });
 

@@ -59,6 +59,8 @@ function makeSentence(id: number, roles: RoleKey[], level: 1 | 2 | 3 | 4 = 1): S
   };
 }
 
+const fixedRandom = () => 0.5;
+
 beforeEach(() => {
   Object.keys(store).forEach(k => delete store[k]);
   vi.clearAllMocks();
@@ -130,21 +132,12 @@ describe('computeSentenceScore', () => {
     const sentenceWithLV = makeSentence(1, ['pv', 'ow', 'lv']);
     const sentenceWithoutLV = makeSentence(2, ['pv', 'ow', 'bwb']);
 
-    // Run multiple times and check average scores
     const usageStore: Record<number, SentenceUsageData> = {};
     const now = Date.now();
+    const scoreLV = computeSentenceScore(sentenceWithLV, confidences, usageStore, now, fixedRandom);
+    const scoreNoLV = computeSentenceScore(sentenceWithoutLV, confidences, usageStore, now, fixedRandom);
 
-    let scoreLV = 0;
-    let scoreNoLV = 0;
-    const runs = 100;
-
-    for (let i = 0; i < runs; i++) {
-      scoreLV += computeSentenceScore(sentenceWithLV, confidences, usageStore, now);
-      scoreNoLV += computeSentenceScore(sentenceWithoutLV, confidences, usageStore, now);
-    }
-
-    // Sentence with weak LV should have a higher average score
-    expect(scoreLV / runs).toBeGreaterThan(scoreNoLV / runs);
+    expect(scoreLV).toBeGreaterThan(scoreNoLV);
   });
 
   it('gives freshness bonus to sentences not recently attempted', () => {
@@ -161,15 +154,10 @@ describe('computeSentenceScore', () => {
       1: { attempts: 5, perfectCount: 3, showAnswerCount: 0, roleErrors: {}, splitErrors: 0, flagged: false, note: '', lastAttempted: new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString() },
     };
 
-    let recentScore = 0;
-    let oldScore = 0;
-    const runs = 100;
-    for (let i = 0; i < runs; i++) {
-      recentScore += computeSentenceScore(sentence, confidences, recentUsage, now);
-      oldScore += computeSentenceScore(sentence, confidences, oldUsage, now);
-    }
+    const recentScore = computeSentenceScore(sentence, confidences, recentUsage, now, fixedRandom);
+    const oldScore = computeSentenceScore(sentence, confidences, oldUsage, now, fixedRandom);
 
-    expect(oldScore / runs).toBeGreaterThan(recentScore / runs);
+    expect(oldScore).toBeGreaterThan(recentScore);
   });
 
   it('always returns a positive score', () => {
@@ -177,7 +165,7 @@ describe('computeSentenceScore', () => {
     confidences.set('pv', { role: 'pv', confidence: 1.0, totalEncounters: 10, recentErrors: 0 });
 
     const sentence = makeSentence(1, ['pv']);
-    const score = computeSentenceScore(sentence, confidences, {}, Date.now());
+    const score = computeSentenceScore(sentence, confidences, {}, Date.now(), fixedRandom);
     expect(score).toBeGreaterThan(0);
   });
 });
@@ -187,6 +175,11 @@ describe('computeSentenceScore', () => {
 // ---------------------------------------------------------------------------
 
 describe('selectAdaptiveQueue', () => {
+  const seededRandom = () => {
+    let seed = 42;
+    return () => ((seed = seed * 16807 % 2147483647) - 1) / 2147483646;
+  };
+
   it('returns empty array for empty pool', () => {
     const confidences = new Map<RoleKey, RoleConfidence>();
     expect(selectAdaptiveQueue([], 5, confidences)).toEqual([]);
@@ -231,9 +224,10 @@ describe('selectAdaptiveQueue', () => {
     let lvCount = 0;
     const totalRuns = 200;
     const selectCount = 5;
+    const random = seededRandom();
 
     for (let r = 0; r < totalRuns; r++) {
-      const selected = selectAdaptiveQueue(pool, selectCount, confidences);
+      const selected = selectAdaptiveQueue(pool, selectCount, confidences, random);
       lvCount += selected.filter(s => s.tokens.some(t => t.role === 'lv')).length;
     }
 
@@ -248,8 +242,9 @@ describe('selectAdaptiveQueue', () => {
     const confidences = new Map<RoleKey, RoleConfidence>();
 
     const results = new Set<string>();
+    const random = seededRandom();
     for (let i = 0; i < 10; i++) {
-      const selected = selectAdaptiveQueue(pool, 5, confidences);
+      const selected = selectAdaptiveQueue(pool, 5, confidences, random);
       results.add(selected.map(s => s.id).sort().join(','));
     }
 

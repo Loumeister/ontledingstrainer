@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { shouldShowSessionNextButton, getSessionAdvanceAction } from './sessionFlow';
+import {
+  shouldShowSessionNextButton,
+  getSessionAdvanceAction,
+  shouldLogAbortOnReset,
+} from './sessionFlow';
 
 describe('shouldShowSessionNextButton', () => {
   it('laat doorgaan toe zodra een zin is gescoord in sessiemodus', () => {
@@ -25,5 +29,12 @@ describe('getSessionAdvanceAction', () => {
 
   it('lege sessie (length 0) eindigt direct', () => {
     expect(getSessionAdvanceAction(0, 0)).toBe('finish');
+  });
+});
+
+describe('shouldLogAbortOnReset', () => {
+  it('logt abort alleen bij actieve zin', () => {
+    expect(shouldLogAbortOnReset(true)).toBe(true);
+    expect(shouldLogAbortOnReset(false)).toBe(false);
   });
 });
