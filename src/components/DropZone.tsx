@@ -181,52 +181,12 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
         </div>
       )}
 
-      {/* Main Role Header */}
-      <div
-        draggable={!!assignedRole}
-        className={`
-          h-7 border-b border-dashed border-slate-200 dark:border-slate-600 flex items-center justify-center text-xs rounded-t-lg relative z-10 cursor-pointer transition-opacity focus-visible:ring-2 focus-visible:ring-blue-500
-          ${assignedRole ? assignedRole.colorClass + ' font-bold hover:opacity-80' : 'text-slate-400 dark:text-slate-500 italic'}
-        `}
-        onDragStart={(e) => {
-          if (!assignedRole) return;
-          e.stopPropagation();
-          e.dataTransfer.setData("text/role", assignedRole.key);
-          e.dataTransfer.setData("text/move-from-chunk", chunkId);
-          e.dataTransfer.effectAllowed = 'copyMove';
-        }}
-        onDragEnd={(e) => {
-          if (e.dataTransfer.dropEffect === 'none') onRemoveRole(chunkId);
-        }}
-        onClick={(e) => {
-          if (assignedRole) {
-            e.stopPropagation();
-            onRemoveRole(chunkId);
-          }
-        }}
-      >
-        {assignedRole ? (
-          <div className="flex items-center gap-2 w-full justify-center px-2 relative group/header">
-            <span className="relative z-10">{assignedRole.label}</span>
-            <button 
-              onClick={(e) => { e.stopPropagation(); onRemoveRole(chunkId); }}
-              className="hidden group-hover/header:flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-5 h-5 items-center justify-center transition-colors z-20 focus-visible:ring-2 focus-visible:ring-blue-500"
-              title="Verwijder benaming"
-              aria-label="Verwijder benaming"
-            >
-              ×
-            </button>
-          </div>
-        ) : (
-          "Sleep zinsdeel hier"
-        )}
-      </div>
-
-      {/* Gezegdetype Row - shown when chunk is labeled PV; the PV always belongs to a WG or NG gezegde */}
+      {/* Gezegdetype Row - shown when chunk is labeled PV; the PV always belongs to a WG or NG gezegde.
+          Rendered above the PV label itself: WG/NG is the gezegde the PV is part of, PV nests under it. */}
       {showPredicateTypeRow && (
         <div
           className={`
-            h-7 border-b border-dashed border-slate-200 dark:border-slate-600 flex items-center justify-center text-[11px] cursor-pointer transition-all
+            h-7 border-b border-dashed border-slate-200 dark:border-slate-600 flex items-center justify-center text-[11px] rounded-t-lg cursor-pointer transition-all
             ${isOverPredicateType ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-500' : ''}
             ${assignedPredicateType ? assignedPredicateType.colorClass + ' font-bold hover:opacity-80' : 'text-slate-400 dark:text-slate-500 italic'}
           `}
@@ -263,6 +223,48 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
           )}
         </div>
       )}
+
+      {/* Main Role Header - PV nests directly under the gezegdetype row above when one is shown */}
+      <div
+        draggable={!!assignedRole}
+        className={`
+          h-7 border-b border-dashed border-slate-200 dark:border-slate-600 flex items-center justify-center text-xs relative z-10 cursor-pointer transition-opacity focus-visible:ring-2 focus-visible:ring-blue-500
+          ${showPredicateTypeRow ? '' : 'rounded-t-lg'}
+          ${assignedRole ? assignedRole.colorClass + ' font-bold hover:opacity-80' : 'text-slate-400 dark:text-slate-500 italic'}
+        `}
+        onDragStart={(e) => {
+          if (!assignedRole) return;
+          e.stopPropagation();
+          e.dataTransfer.setData("text/role", assignedRole.key);
+          e.dataTransfer.setData("text/move-from-chunk", chunkId);
+          e.dataTransfer.effectAllowed = 'copyMove';
+        }}
+        onDragEnd={(e) => {
+          if (e.dataTransfer.dropEffect === 'none') onRemoveRole(chunkId);
+        }}
+        onClick={(e) => {
+          if (assignedRole) {
+            e.stopPropagation();
+            onRemoveRole(chunkId);
+          }
+        }}
+      >
+        {assignedRole ? (
+          <div className="flex items-center gap-2 w-full justify-center px-2 relative group/header">
+            <span className="relative z-10">{assignedRole.label}</span>
+            <button
+              onClick={(e) => { e.stopPropagation(); onRemoveRole(chunkId); }}
+              className="hidden group-hover/header:flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-5 h-5 items-center justify-center transition-colors z-20 focus-visible:ring-2 focus-visible:ring-blue-500"
+              title="Verwijder benaming"
+              aria-label="Verwijder benaming"
+            >
+              ×
+            </button>
+          </div>
+        ) : (
+          "Sleep zinsdeel hier"
+        )}
+      </div>
 
       {/* Bijzin Function Row - shown when chunk is labeled as bijzin and has a function */}
       {showBijzinFunctieRow && (
