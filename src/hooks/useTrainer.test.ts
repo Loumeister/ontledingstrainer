@@ -12,6 +12,9 @@
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { Sentence, Token, DifficultyLevel } from '../types';
+import level0 from '../data/sentences-level-0.json';
+import level1 from '../data/sentences-level-1.json';
+import level2 from '../data/sentences-level-2.json';
 import { filterSentences, defaultIncludeVV, type SentenceFilterConfig } from '../logic/sentenceFilter';
 
 // ── localStorage mock ─────────────────────────────────────────────────────────
@@ -268,8 +271,21 @@ describe('filterSentences — bijst en vv', () => {
   const metVV = makeSentence({ level: 2, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('vv')] });
   const basisZin = makeSentence({ level: 2, predicateType: 'WG' });
 
-  it('bijst-zinnen doen altijd mee (geen aparte schakelaar meer)', () => {
+  it('bijst-zinnen doen mee vanaf Hoog', () => {
     expect(filterSentences([metBijst], { ...defaultCfg, selectedLevel: 3 })).toContain(metBijst);
+  });
+
+  it('bijst-zinnen op een laag niveau (bijv. docentzinnen) vallen altijd weg', () => {
+    const laagMetBijst = makeSentence({ level: 1, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('bijst')] });
+    expect(filterSentences([laagMetBijst], { ...defaultCfg, selectedLevel: 1 })).toHaveLength(0);
+    expect(filterSentences([laagMetBijst], defaultCfg)).toHaveLength(0);
+  });
+
+  it('ingebouwde zinnen van Instap t/m Middel bevatten geen bijstelling', () => {
+    for (const data of [level0, level1, level2]) {
+      const metBijstelling = (data as Sentence[]).filter(z => z.tokens.some(t => t.role === 'bijst' || t.subRole === 'bijst'));
+      expect(metBijstelling.map(z => z.id)).toEqual([]);
+    }
   });
 
   it('vv-zinnen vallen weg als includeVV uit staat, ook bij Middel en Alles', () => {

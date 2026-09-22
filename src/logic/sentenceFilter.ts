@@ -41,6 +41,9 @@ export function filterSentences(sentences: Sentence[], cfg: SentenceFilterConfig
       return false;
     }
 
+    // Bijstellingen horen pas bij Hoog en Samengesteld, ook in docentzinnen.
+    if (s.level < 3 && hasRole('bijst')) return false;
+
     // De Rollenladder bepaalt zelf welke rollen meedoen.
     if (cfg.ladderFilter) return cfg.ladderFilter(s);
 
