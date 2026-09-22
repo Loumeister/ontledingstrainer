@@ -24,8 +24,14 @@ const MAX_ATTEMPTS = 2000;
 
 // ── ID generators ─────────────────────────────────────────────────────────────
 
+// Monotonic per-session tiebreaker: a millisecond timestamp + 4-digit random suffix can
+// collide when many ids are generated in the same tick (e.g. seeding several submissions
+// in a loop), which risks silently overwriting a different record on upsert.
+let idSequence = 0;
+
 /**
- * Genereert een uniek submission-ID in het formaat `tsub-{ISO-datum-zonder-tekens}-{4-cijfer-getal}`.
+ * Genereert een uniek submission-ID in het formaat
+ * `tsub-{ISO-datum-zonder-tekens}-{4-cijfer-getal}-{oplopende-sequentie}`.
  *
  * Het ID wordt aangemaakt vóórdat de submission wordt opgeslagen, zodat de aanroeper
  * het ID al kent (bijv. om het mee te sturen naar een activiteitslog) zonder
@@ -36,11 +42,13 @@ const MAX_ATTEMPTS = 2000;
 export function generateSubmissionId(): string {
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
   const rand = Math.floor(Math.random() * 9000) + 1000;
-  return `tsub-${ts}-${rand}`;
+  const seq = (idSequence++).toString(36);
+  return `tsub-${ts}-${rand}-${seq}`;
 }
 
 /**
- * Genereert een uniek attempt-ID in het formaat `tatt-{ISO-datum-zonder-tekens}-{4-cijfer-getal}`.
+ * Genereert een uniek attempt-ID in het formaat
+ * `tatt-{ISO-datum-zonder-tekens}-{4-cijfer-getal}-{oplopende-sequentie}`.
  *
  * Zelfde patroon als `generateSubmissionId()`, maar met prefix `tatt` zodat
  * attempts en submissions altijd te onderscheiden zijn op ID-prefix.
@@ -50,7 +58,8 @@ export function generateSubmissionId(): string {
 export function generateAttemptId(): string {
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
   const rand = Math.floor(Math.random() * 9000) + 1000;
-  return `tatt-${ts}-${rand}`;
+  const seq = (idSequence++).toString(36);
+  return `tatt-${ts}-${rand}-${seq}`;
 }
 
 // ── Submission persistence ────────────────────────────────────────────────────

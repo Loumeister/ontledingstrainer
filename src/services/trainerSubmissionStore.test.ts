@@ -76,6 +76,20 @@ describe('generateSubmissionId', () => {
     const ids = new Set(Array.from({ length: 20 }, generateSubmissionId));
     expect(ids.size).toBe(20);
   });
+
+  it('stays unique even when the timestamp and random suffix collide', () => {
+    // Timestamp (ms resolution) + a 4-digit random number can repeat when many ids
+    // are generated in the same tick; the sequence counter must break the tie.
+    const dateSpy = vi.spyOn(Date.prototype, 'toISOString').mockReturnValue('2026-01-01T10:00:00.000Z');
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    try {
+      const ids = new Set(Array.from({ length: 20 }, generateSubmissionId));
+      expect(ids.size).toBe(20);
+    } finally {
+      dateSpy.mockRestore();
+      randomSpy.mockRestore();
+    }
+  });
 });
 
 describe('generateAttemptId', () => {

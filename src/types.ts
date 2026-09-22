@@ -277,7 +277,7 @@ export interface TrainerAssignment {
  */
 export interface TrainerSubmission {
   domain: 'trainer';            // discriminator voor cross-domain aggregatie
-  id: string;                   // 'tsub-{ISO-nocolon}-{4random}'
+  id: string;                   // 'tsub-{ISO-nocolon}-{4random}-{seq}'
   studentId: string;            // Student.id
   studentName: string;          // gedenormaliseerd voor weergave
   studentKlas: string;          // gedenormaliseerd voor weergave
@@ -298,7 +298,7 @@ export interface TrainerSubmission {
  * Bewaart splitposities en labels zodat docenten de studentoplossing kunnen zien.
  */
 export interface TrainerAttempt {
-  id: string;           // 'tatt-{ISO-nocolon}-{4random}'
+  id: string;           // 'tatt-{ISO-nocolon}-{4random}-{seq}'
   submissionId: string;
   sentenceId: number;
   startedAt: string;    // ISO-8601
