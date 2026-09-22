@@ -305,6 +305,9 @@ export const HINTS = {
   MISSING_BIJST: "Tip: Zoek een extra naam voor iets wat al genoemd is.",
   MISSING_BIJZIN_FUNCTIE: "Tip: Welke vraag beantwoordt de volledige bijzin in de hoofdzin?",
   SUBLABEL_NEEDS_MAIN_ROLE: "Tip: Geef dit deel eerst een hoofdlabel (bijv. WG of NG) voordat je een deelrol op een woord plaatst.",
+  GEZEGDE_DEEL_MISSING: (word: string) => `Benoem elk woord van het naamwoordelijk gezegde, ook de PV. Is '${word}' een werkwoord (WWD) of zegt het iets over het onderwerp (NWD)?`,
+  GEZEGDE_DEEL_WRONG: (word: string) => `Is '${word}' een werkwoord? Alle werkwoorden van het naamwoordelijk gezegde, ook de PV, vormen samen het werkwoordelijk deel; de rest is het naamwoordelijk deel.`,
+  GEZEGDE_DEEL_NOT_NG: (word: string) => `Hoort '${word}' bij een naamwoordelijk gezegde? Alleen daarin benoem je een werkwoordelijk en een naamwoordelijk deel.`,
   generic: (_roleLabel: string) => "Tip: Loop je ontleding nog eens rustig stap voor stap door.",
   ALL_PLACED: "Alles staat op een plek. Kijk nog één keer of het echt klopt.",
 };

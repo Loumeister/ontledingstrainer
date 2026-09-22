@@ -23,6 +23,7 @@ import {
   countRealChunks,
   computeCorrectSplits,
   validateAnswer,
+  getGezegdeDeel,
   getConsistentRole,
   ChunkData,
   ValidationResult,
@@ -71,6 +72,8 @@ export interface TrainerState {
   setIncludeBijst: (v: boolean) => void;
   includeBB: boolean;
   setIncludeBB: (v: boolean) => void;
+  includeGezegdeDelen: boolean;
+  setIncludeGezegdeDelen: (v: boolean) => void;
   includeVV: boolean;
 
   // Session
@@ -247,6 +250,8 @@ export function useTrainer(): TrainerState {
   // Complexity Filters
   const [includeBijst, setIncludeBijst] = useState(false);
   const [includeBB, setIncludeBB] = useState(false);
+  // Opt-in: also name werkwoordelijk and naamwoordelijk deel inside an NG. Off by default.
+  const [includeGezegdeDelen, setIncludeGezegdeDelen] = useState(false);
   const [includeVV] = useState(false);
 
   // Level & Count
@@ -1176,6 +1181,11 @@ export function useTrainer(): TrainerState {
       }
     }
 
+    if (includeGezegdeDelen) {
+      const missing = currentSentence.tokens.find(t => getGezegdeDeel(t) && !subLabels[t.id]);
+      if (missing) { setHintMessage(HINTS.GEZEGDE_DEEL_MISSING(missing.text)); return; }
+    }
+
     setHintMessage(HINTS.ALL_PLACED);
   };
 
@@ -1185,7 +1195,7 @@ export function useTrainer(): TrainerState {
 
     const { result: rawResult, mistakes: rawMistakes } = validateAnswer(
       currentSentence, splitIndices, chunkLabels, subLabels, includeBB,
-      bijzinFunctieLabels, bijvBepLinks, wordBijvBepLinks
+      bijzinFunctieLabels, bijvBepLinks, wordBijvBepLinks, includeGezegdeDelen
     );
 
     // In ladder mode, neutralise out-of-stage chunks before displaying and scoring
@@ -1322,6 +1332,8 @@ export function useTrainer(): TrainerState {
           }
         }
       }
+      const gezegdeDeel = includeGezegdeDelen ? getGezegdeDeel(t) : undefined;
+      if (gezegdeDeel && correctSubLabels[t.id] !== 'bijv_bep') correctSubLabels[t.id] = gezegdeDeel;
       if (correctSplits.has(i - 1)) {
          currentChunkStartId = t.id;
          correctChunkLabels[currentChunkStartId] = t.role;
@@ -1342,7 +1354,7 @@ export function useTrainer(): TrainerState {
       setHasBeenScored(true);
       const { result: vResult, mistakes: currentMistakes } = validateAnswer(
         currentSentence, splitIndices, chunkLabels, subLabels, includeBB,
-        bijzinFunctieLabels, bijvBepLinks, wordBijvBepLinks
+        bijzinFunctieLabels, bijvBepLinks, wordBijvBepLinks, includeGezegdeDelen
       );
       const realChunkCount = countRealChunks(currentSentence.tokens);
       if (mode === 'session') {
@@ -1480,6 +1492,7 @@ export function useTrainer(): TrainerState {
     // Complexity filters
     includeBijst, setIncludeBijst,
     includeBB, setIncludeBB,
+    includeGezegdeDelen, setIncludeGezegdeDelen,
     includeVV,
 
     // Session

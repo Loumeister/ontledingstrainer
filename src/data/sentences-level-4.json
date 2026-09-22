@@ -281,8 +281,7 @@
       {
         "id": "s403t14",
         "text": "afgerond.",
-        "role": "ng",
-        "subRole": "wwd"
+        "role": "wg"
       }
     ],
     "structuralTags": [
@@ -444,14 +443,12 @@
       {
         "id": "s406t3",
         "text": "willen",
-        "role": "ng",
-        "subRole": "wwd"
+        "role": "wg"
       },
       {
         "id": "s406t4",
         "text": "komen,",
-        "role": "ng",
-        "subRole": "wwd"
+        "role": "wg"
       },
       {
         "id": "s406t5",

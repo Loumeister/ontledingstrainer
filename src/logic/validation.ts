@@ -98,6 +98,29 @@ export function getConsistentRole(tokens: Token[]): RoleKey | null {
 }
 
 /**
+ * Gezegdedeel of a token: in a naamwoordelijk gezegde every verb (the PV included) belongs to the
+ * werkwoordelijk deel, all other words of the NG belong to the naamwoordelijk deel.
+ * Derived from the main role so that a word-level subRole such as bijv_bep does not hide it.
+ */
+export function getGezegdeDeel(token: Token): 'wwd' | 'nwd' | undefined {
+  if (token.role === 'ng') return token.subRole === 'wwd' ? 'wwd' : 'nwd';
+  if (token.role === 'pv' && token.subRole === 'wwd') return 'wwd';
+  return undefined;
+}
+
+/**
+ * The word-level sub-label a student is expected to place on this token, given the active options.
+ * wwd/nwd are only asked with includeGezegdeDelen; a bijv_bep label takes precedence over nwd.
+ */
+export function getExpectedSubLabel(token: Token, includeBB: boolean, includeGezegdeDelen = false): RoleKey | undefined {
+  let expected = token.subRole;
+  if (!includeBB && expected === 'bijv_bep') expected = undefined;
+  if (expected === 'wd' || expected === 'wwd' || expected === 'nwd' || expected === 'vw_onder') expected = undefined; // display-only unless asked below
+  if (!expected && includeGezegdeDelen) expected = getGezegdeDeel(token);
+  return expected;
+}
+
+/**
  * Main validation function: checks user's splits and labels against the sentence data.
  * Supports bijzin function validation and bijvBep link validation.
  */
@@ -110,6 +133,7 @@ export function validateAnswer(
   bijzinFunctieLabels?: PlacementMap,
   bijvBepLinks?: Record<string, string>,
   wordBijvBepLinks?: Record<string, string>,
+  includeGezegdeDelen = false,
 ): { result: ValidationResult; mistakes: Record<string, number> } {
   const userChunks = buildUserChunks(sentence.tokens, splitIndices);
   const chunkStatus: Record<number, ValidationState> = {};
@@ -317,10 +341,22 @@ export function validateAnswer(
   let subRoleMismatch = false;
   sentence.tokens.forEach(t => {
     const userSub = subLabels[t.id];
-    let expectedSub = t.subRole;
-    if (!includeBB && expectedSub === 'bijv_bep') expectedSub = undefined;
-    if (expectedSub === 'wd' || expectedSub === 'wwd' || expectedSub === 'nwd' || expectedSub === 'vw_onder') expectedSub = undefined; // display-only subRoles, not validated
-    if (userSub !== expectedSub) subRoleMismatch = true;
+    const expectedSub = getExpectedSubLabel(t, includeBB, includeGezegdeDelen);
+    if (userSub === expectedSub) return;
+    subRoleMismatch = true;
+
+    // Gezegdedelen: give one repair step on an otherwise correct chunk, without naming the answer.
+    const isGezegdeDeelIssue = userSub === 'wwd' || userSub === 'nwd' || expectedSub === 'wwd' || expectedSub === 'nwd';
+    if (!includeGezegdeDelen || !isGezegdeDeelIssue) return;
+    const chunkIdx = userChunks.findIndex(c => c.tokens.some(ct => ct.id === t.id));
+    if (chunkIdx < 0 || chunkStatus[chunkIdx] !== 'correct') return;
+    chunkFeedback[chunkIdx] = !userSub
+      ? HINTS.GEZEGDE_DEEL_MISSING(t.text)
+      : !expectedSub
+        ? HINTS.GEZEGDE_DEEL_NOT_NG(t.text)
+        : HINTS.GEZEGDE_DEEL_WRONG(t.text);
+    chunkStatus[chunkIdx] = 'warning';
+    currentMistakes[userSub || expectedSub!] = (currentMistakes[userSub || expectedSub!] || 0) + 1;
   });
 
   // --- Word-level bijv_bep link validation ---

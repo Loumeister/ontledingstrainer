@@ -18,6 +18,7 @@ type HomeScreenProps = Pick<TrainerState,
   | 'focusBijzin' | 'setFocusBijzin'
   | 'includeBijst' | 'setIncludeBijst'
   | 'includeBB' | 'setIncludeBB'
+  | 'includeGezegdeDelen' | 'setIncludeGezegdeDelen'
   | 'showHelp' | 'setShowHelp'
   | 'darkMode' | 'setDarkMode'
   | 'largeFont' | 'setLargeFont'
@@ -51,6 +52,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   focusBijzin, setFocusBijzin,
   includeBijst, setIncludeBijst,
   includeBB, setIncludeBB,
+  includeGezegdeDelen, setIncludeGezegdeDelen,
   showHelp, setShowHelp,
   darkMode, setDarkMode,
   largeFont, setLargeFont,
@@ -413,6 +415,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors">
                   <span className="font-bold text-slate-700 dark:text-slate-300 block text-sm">Bijvoeglijke Bepaling</span>
                   <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-gray-100 border-slate-300" checked={includeBB} onChange={(e) => setIncludeBB(e.target.checked)} />
+                </label>
+                <label className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors">
+                  <span className="font-bold text-slate-700 dark:text-slate-300 block text-sm">Werkwoordelijk en naamwoordelijk deel (NG)</span>
+                  <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-gray-100 border-slate-300" checked={includeGezegdeDelen} onChange={(e) => setIncludeGezegdeDelen(e.target.checked)} />
                 </label>
               </div>
             </div>

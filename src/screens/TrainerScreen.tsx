@@ -24,7 +24,7 @@ type TrainerScreenProps = Pick<TrainerState,
   | 'darkMode' | 'setDarkMode'
   | 'largeFont' | 'setLargeFont'
   | 'dyslexiaMode' | 'setDyslexiaMode'
-  | 'includeVV' | 'includeBB'
+  | 'includeVV' | 'includeBB' | 'includeGezegdeDelen'
   | 'focusVV' | 'focusBijzin'
   | 'selectedLevel'
   | 'sessionIndex' | 'sessionQueue'
@@ -59,7 +59,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   darkMode, setDarkMode,
   largeFont, setLargeFont,
   dyslexiaMode, setDyslexiaMode,
-  includeVV, includeBB,
+  includeVV, includeBB, includeGezegdeDelen,
   focusVV, focusBijzin,
   selectedLevel,
   sessionIndex, sessionQueue,
@@ -279,6 +279,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   currentSentence={currentSentence}
                   includeVV={includeVV}
                   includeBB={includeBB}
+                  includeGezegdeDelen={includeGezegdeDelen}
                   focusVV={focusVV}
                   focusBijzin={focusBijzin}
                   selectedLevel={selectedLevel}
@@ -504,6 +505,7 @@ interface RoleToolbarProps {
   currentSentence: TrainerState['currentSentence'];
   includeVV: boolean;
   includeBB: boolean;
+  includeGezegdeDelen: boolean;
   focusVV: boolean;
   focusBijzin: boolean;
   selectedLevel: TrainerState['selectedLevel'];
@@ -520,7 +522,7 @@ interface RoleToolbarProps {
 
 const RoleToolbar: React.FC<RoleToolbarProps> = ({
   currentSentence,
-  includeVV, includeBB,
+  includeVV, includeBB, includeGezegdeDelen,
   focusVV, focusBijzin,
   selectedLevel,
   largeFont,
@@ -608,7 +610,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
             )}
           </div>
         </div>
-        {includeBB && (
+        {(includeBB || includeGezegdeDelen) && (
         <div className="border-t border-slate-100 dark:border-slate-700 pt-3">
           {(() => {
             const hasAnyMainRole = Object.keys(chunkLabels).length > 0;
@@ -619,7 +621,10 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {ROLES.filter(r => r.isSubOnly)
-                        .filter(r => isRoleVisible(r.key))
+                        // Only offer word labels that are actually checked. WWD/NWD are shown for every
+                        // sentence so their presence does not reveal whether the sentence has an NG.
+                        .filter(r => (r.key === 'bijv_bep' && includeBB && isRoleVisible(r.key))
+                          || ((r.key === 'wwd' || r.key === 'nwd') && includeGezegdeDelen))
                         .map(role => (
                     <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} disabled={!hasAnyMainRole} />
                   ))}

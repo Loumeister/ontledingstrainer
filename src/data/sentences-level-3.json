@@ -1552,26 +1552,22 @@
       {
         "id": "s324t3",
         "text": "is",
-        "role": "pv",
-        "subRole": "wwd"
+        "role": "pv"
       },
       {
         "id": "s324t4",
         "text": "op",
-        "role": "ng",
-        "subRole": "nwd"
+        "role": "bwb"
       },
       {
         "id": "s324t5",
         "text": "het",
-        "role": "ng",
-        "subRole": "nwd"
+        "role": "bwb"
       },
       {
         "id": "s324t6",
         "text": "dak,",
-        "role": "ng",
-        "subRole": "nwd"
+        "role": "bwb"
       },
       {
         "id": "s324t7",
@@ -2541,7 +2537,8 @@
       {
         "id": "s341t7",
         "text": "blijft",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wwd"
       },
       {
         "id": "s341t8",
