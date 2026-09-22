@@ -892,8 +892,11 @@ export function useTrainer(): TrainerState {
     const token = currentSentence.tokens.find(t => t.id === chunkId);
     const bijzinFunctie = token?.bijzinFunctie;
     const hasBijzinFunctie = !!bijzinFunctie && (bijzinFunctie !== 'bijv_bep' || includeBB);
+    // Note: this stays true even once a predicateType is already set, so a WG/NG drop
+    // always updates predicateTypeLabels — including changing an earlier WG choice to NG —
+    // instead of falling through to chunkLabels and silently overwriting the PV label.
     const pvNeedsPredicateType = !ladderEnabled && chunkLabels[chunkId] === 'pv'
-      && requiresPredicateChoice(currentSentence) && !predicateTypeLabels[chunkId];
+      && requiresPredicateChoice(currentSentence);
 
     if (chunkLabels[chunkId] === 'bijzin' && hasBijzinFunctie && !bijzinFunctieLabels[chunkId]) {
       // Bijzin function slot — any role is valid here (bijv_bep is a legitimate function)

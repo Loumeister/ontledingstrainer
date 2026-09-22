@@ -211,7 +211,7 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
               <span className="relative z-10">{assignedPredicateType.shortLabel}</span>
               <button
                 onClick={(e) => { e.stopPropagation(); onRemovePredicateType?.(chunkId); }}
-                className="hidden group-hover/predtype:flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-4 h-4 items-center justify-center transition-colors z-20 text-[10px] focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-4 h-4 items-center justify-center transition-colors z-20 text-[10px] focus-visible:ring-2 focus-visible:ring-blue-500"
                 title="Verwijder gezegdetype"
                 aria-label="Verwijder gezegdetype"
               >
