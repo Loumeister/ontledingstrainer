@@ -71,6 +71,8 @@ export interface SentenceResult {
   showAnswerUsed: boolean;
   /** User's chunk labels keyed by first token ID */
   userLabels: PlacementMap;
+  /** User's WG/NG gezegdetype choice on PV chunks, keyed by the PV chunk's first token ID */
+  predicateTypeLabels: PlacementMap;
   /** User's split indices */
   splitIndices: number[];
 }
@@ -308,6 +310,7 @@ export interface TrainerAttempt {
   showAnswerUsed: boolean;
   splitIndices: number[];
   userLabels: Record<string, string>; // PlacementMap (tokenId → roleKey)
+  predicateTypeLabels?: Record<string, string>; // WG/NG-keuze op PV-chunks; optioneel, ontbreekt op pogingen van vóór dit veld
 }
 
 /**

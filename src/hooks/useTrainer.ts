@@ -772,6 +772,7 @@ export function useTrainer(): TrainerState {
               showAnswerUsed: r.showAnswerUsed,
               splitIndices: r.splitIndices,
               userLabels: r.userLabels as Record<string, string>,
+              predicateTypeLabels: r.predicateTypeLabels as Record<string, string>,
             });
           }
           logTrainerEvent({ submissionId: subId, studentId: studentIdRef.current ?? '', type: 'session_finish', timestamp: completedAt });
@@ -1285,6 +1286,7 @@ export function useTrainer(): TrainerState {
           mistakes: currentMistakes,
           showAnswerUsed: false,
           userLabels: { ...chunkLabels },
+          predicateTypeLabels: { ...predicateTypeLabels },
           splitIndices: Array.from(splitIndices),
         }]);
 
@@ -1420,6 +1422,7 @@ export function useTrainer(): TrainerState {
           mistakes: currentMistakes,
           showAnswerUsed: true,
           userLabels: { ...chunkLabels },
+          predicateTypeLabels: { ...predicateTypeLabels },
           splitIndices: Array.from(splitIndices),
         }]);
       }
