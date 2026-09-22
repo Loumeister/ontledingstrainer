@@ -508,6 +508,31 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 })}
               </div>
             </section>
+            {/* Bestanden van de docent */}
+            <section aria-labelledby="docent-bestand" className="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-100 dark:border-green-800">
+              <h2 id="docent-bestand" className="font-bold text-green-800 dark:text-green-200 mb-3">Bestand van je docent gekregen?</h2>
+              <input ref={fileInputRef} type="file" accept=".json" onChange={handleImportFile} className="hidden" />
+              <input ref={jsonSessionRef} type="file" accept=".json" onChange={handleJsonSession} className="hidden" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <button onClick={() => fileInputRef.current?.click()} className="w-full px-4 py-2 bg-green-600 text-white text-sm font-bold rounded-lg hover:bg-green-700 transition-colors">
+                    Oefenzinnen toevoegen
+                  </button>
+                  <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                    De zinnen komen bij je zinvoorraad.{customCount > 0 && <> Je hebt er nu {customCount} van je docent.</>}
+                  </p>
+                </div>
+                <div>
+                  <button onClick={() => jsonSessionRef.current?.click()} className="w-full px-4 py-2 bg-amber-600 text-white text-sm font-bold rounded-lg hover:bg-amber-700 transition-colors">
+                    Toets openen
+                  </button>
+                  <p className="text-xs text-green-700 dark:text-green-300 mt-1">Je start meteen met precies de zinnen uit het bestand.</p>
+                </div>
+              </div>
+              {importMsg && (
+                <p role="status" className={`mt-2 text-xs font-medium ${importMsg.startsWith('Fout') ? 'text-red-600 dark:text-red-300' : 'text-green-600 dark:text-green-300'}`}>{importMsg}</p>
+              )}
+            </section>
           </div>
 
           {/* Samenvatting & start */}
@@ -602,29 +627,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               onStartSession={(ids) => requireNameThenSelected(ids)}
             />
 
-            {/* Bestanden van de docent */}
-            <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-100 dark:border-green-800 space-y-3">
-              <h3 className="font-bold text-green-800 dark:text-green-200 text-sm">Bestand van je docent gekregen?</h3>
-              <input ref={fileInputRef} type="file" accept=".json" onChange={handleImportFile} className="hidden" />
-              <div>
-                <button onClick={() => fileInputRef.current?.click()} className="w-full px-4 py-2 bg-green-600 text-white text-sm font-bold rounded-lg hover:bg-green-700 transition-colors">
-                  Oefenzinnen toevoegen
-                </button>
-                <p className="text-xs text-green-700 dark:text-green-300 mt-1">
-                  De zinnen komen bij je zinvoorraad.{customCount > 0 && <> Je hebt er nu {customCount} van je docent.</>}
-                </p>
-              </div>
-              <input ref={jsonSessionRef} type="file" accept=".json" onChange={handleJsonSession} className="hidden" />
-              <div>
-                <button onClick={() => jsonSessionRef.current?.click()} className="w-full px-4 py-2 bg-amber-600 text-white text-sm font-bold rounded-lg hover:bg-amber-700 transition-colors">
-                  Toets openen
-                </button>
-                <p className="text-xs text-green-700 dark:text-green-300 mt-1">Je start meteen met precies de zinnen uit het bestand.</p>
-              </div>
-              {importMsg && (
-                <p role="status" className={`text-xs font-medium ${importMsg.startsWith('Fout') ? 'text-red-600 dark:text-red-300' : 'text-green-600 dark:text-green-300'}`}>{importMsg}</p>
-              )}
-            </div>
           </aside>
         </div>
 
