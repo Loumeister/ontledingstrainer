@@ -250,17 +250,33 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
         }}
       >
         {assignedRole ? (
-          <div className="flex items-center gap-2 w-full justify-center px-2 relative group/header">
-            <span className="relative z-10">{assignedRole.label}</span>
-            <button
-              onClick={(e) => { e.stopPropagation(); onRemoveRole(chunkId); }}
-              className="hidden group-hover/header:flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-5 h-5 items-center justify-center transition-colors z-20 focus-visible:ring-2 focus-visible:ring-blue-500"
-              title="Verwijder benaming"
-              aria-label="Verwijder benaming"
-            >
-              ×
-            </button>
-          </div>
+          assignedRole.key === 'pv' ? (
+            // Persistent (not hover-only) light-yellow badge: PV now carries the nested gezegdetype
+            // row above it, so it should always be obvious that it can be deselected again.
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 shadow-sm">
+              <span className="relative z-10">{assignedRole.label}</span>
+              <button
+                onClick={(e) => { e.stopPropagation(); onRemoveRole(chunkId); }}
+                className="flex hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-4 h-4 items-center justify-center transition-colors z-20 text-[11px] focus-visible:ring-2 focus-visible:ring-blue-500"
+                title="Verwijder benaming"
+                aria-label="Verwijder benaming"
+              >
+                ×
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 w-full justify-center px-2 relative group/header">
+              <span className="relative z-10">{assignedRole.label}</span>
+              <button
+                onClick={(e) => { e.stopPropagation(); onRemoveRole(chunkId); }}
+                className="hidden group-hover/header:flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-5 h-5 items-center justify-center transition-colors z-20 focus-visible:ring-2 focus-visible:ring-blue-500"
+                title="Verwijder benaming"
+                aria-label="Verwijder benaming"
+              >
+                ×
+              </button>
+            </div>
+          )
         ) : (
           "Sleep zinsdeel hier"
         )}
