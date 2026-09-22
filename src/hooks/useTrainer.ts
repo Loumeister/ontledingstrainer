@@ -43,7 +43,8 @@ import {
 export type { ChunkData, ValidationResult };
 export type AppStep = 'split' | 'label';
 export type Mode = 'free' | 'session';
-export type PredicateMode = 'ALL' | 'WG' | 'NG';
+import { PredicateMode, filterSentences, defaultIncludeVV } from '../logic/sentenceFilter';
+export type { PredicateMode };
 /** Tracks how a session was started so results can be labelled accordingly. */
 export type SessionSource = 'pool' | 'json' | 'selected' | 'shared';
 
@@ -67,11 +68,10 @@ export interface TrainerState {
   setFocusBijzin: (v: boolean) => void;
 
   // Complexity filters
-  includeBijst: boolean;
-  setIncludeBijst: (v: boolean) => void;
   includeBB: boolean;
   setIncludeBB: (v: boolean) => void;
   includeVV: boolean;
+  setIncludeVV: (v: boolean) => void;
 
   // Session
   mode: Mode;
@@ -245,13 +245,12 @@ export function useTrainer(): TrainerState {
   const [focusBijzin, setFocusBijzin] = useState(false);
 
   // Complexity Filters
-  const [includeBijst, setIncludeBijst] = useState(false);
   const [includeBB, setIncludeBB] = useState(false);
-  const [includeVV] = useState(false);
+  const [includeVV, setIncludeVV] = useState(() => defaultIncludeVV(null));
 
   // Level & Count
   const [selectedLevel, setSelectedLevelRaw] = useState<DifficultyLevel | null>(null);
-  const [customSessionCount, setCustomSessionCount] = useState<number>(10);
+  const [customSessionCount, setCustomSessionCount] = useState<number>(3);
   const [adaptiveMode, setAdaptiveModeRaw] = useState<boolean>(() => {
     try {
       const stored = localStorage.getItem('zinsontleding_adaptive_mode');
@@ -274,6 +273,8 @@ export function useTrainer(): TrainerState {
       return;
     }
     setSelectedLevelRaw(level);
+    // Elke niveaukeuze zet de vz.vw-schakelaar terug naar de standaard van dat niveau.
+    setIncludeVV(defaultIncludeVV(level));
   };
 
   const setLadderEnabled = (v: boolean) => {
@@ -389,52 +390,10 @@ export function useTrainer(): TrainerState {
 
   // --- Logic ---
 
-  const filteredSentences = useMemo((): Sentence[] => {
-    return allSentences.filter(s => {
-      const isCompound = s.level === 4;
-      const explicitlySelectedCompoundLevel = selectedLevel === 4;
-      if (isCompound && !focusBijzin && !explicitlySelectedCompoundLevel) return false;
-
-      if (predicateMode === 'WG' && s.predicateType !== 'WG') return false;
-      if (predicateMode === 'NG' && s.predicateType !== 'NG') return false;
-
-      const specificFocusActive = focusLV || focusMV || focusVV;
-
-      if (specificFocusActive) {
-        const matchesFocus = (
-            (focusLV && s.tokens.some(t => t.role === 'lv')) ||
-            (focusMV && s.tokens.some(t => t.role === 'mv')) ||
-            (focusVV && s.tokens.some(t => t.role === 'vv')) ||
-            (focusBijzin && isCompound)
-        );
-        if (!matchesFocus) return false;
-      } else if (focusBijzin) {
-         if (!isCompound) return false;
-      }
-
-      const isLevelHighOrAll = selectedLevel === 3 || selectedLevel === null;
-      const isLevelLow = selectedLevel === 1;
-
-      if (!isCompound && !isLevelHighOrAll && !includeBijst && s.tokens.some(t => t.role === 'bijst')) {
-          return false;
-      }
-
-      if (!isCompound && isLevelLow && !includeVV && !focusVV && s.tokens.some(t => t.role === 'vv')) {
-          return false;
-      }
-
-      if (selectedLevel !== null && !ladderEnabled) {
-          if (s.level !== selectedLevel) return false;
-      }
-
-      if (ladderEnabled) {
-        const ladderFilter = getLadderSentenceFilter(ladderStage);
-        if (!ladderFilter(s)) return false;
-      }
-
-      return true;
-    });
-  }, [allSentences, predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, includeBijst, includeVV, ladderEnabled, ladderStage]);
+  const filteredSentences = useMemo((): Sentence[] => filterSentences(allSentences, {
+    predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, includeVV,
+    ladderFilter: ladderEnabled ? getLadderSentenceFilter(ladderStage) : undefined,
+  }), [allSentences, predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, includeVV, ladderEnabled, ladderStage]);
 
   const loadSentence = (sentence: Sentence) => {
     logInteraction('sentence_start', sentence.id);
@@ -1126,7 +1085,7 @@ export function useTrainer(): TrainerState {
 
     setSelectedLevel(level);
     setPredicateMode('ALL');
-    setCustomSessionCount(5);
+    setCustomSessionCount(3);
     setFocusLV(false);
     setFocusMV(false);
     setFocusVV(false);
@@ -1478,9 +1437,8 @@ export function useTrainer(): TrainerState {
     focusBijzin, setFocusBijzin,
 
     // Complexity filters
-    includeBijst, setIncludeBijst,
     includeBB, setIncludeBB,
-    includeVV,
+    includeVV, setIncludeVV,
 
     // Session
     mode,

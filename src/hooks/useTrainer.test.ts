@@ -12,6 +12,7 @@
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { Sentence, Token, DifficultyLevel } from '../types';
+import { filterSentences, defaultIncludeVV, type SentenceFilterConfig } from '../logic/sentenceFilter';
 
 // ── localStorage mock ─────────────────────────────────────────────────────────
 
@@ -49,60 +50,6 @@ function applyStudentInfoTransform(name: string, initiaal: string, klas: string)
   };
 }
 
-// Gespiegeld van filteredSentences useMemo in useTrainer.ts
-interface FilterConfig {
-  predicateMode: 'ALL' | 'WG' | 'NG';
-  selectedLevel: DifficultyLevel | null;
-  focusLV: boolean;
-  focusMV: boolean;
-  focusVV: boolean;
-  focusBijzin: boolean;
-  includeBijst: boolean;
-  includeVV: boolean;
-}
-
-function filterSentences(sentences: Sentence[], cfg: FilterConfig): Sentence[] {
-  return sentences.filter(s => {
-    const isCompound = s.level === 4;
-    const explicitlySelectedCompoundLevel = cfg.selectedLevel === 4;
-    if (isCompound && !cfg.focusBijzin && !explicitlySelectedCompoundLevel) return false;
-
-    if (cfg.predicateMode === 'WG' && s.predicateType !== 'WG') return false;
-    if (cfg.predicateMode === 'NG' && s.predicateType !== 'NG') return false;
-
-    const specificFocusActive = cfg.focusLV || cfg.focusMV || cfg.focusVV;
-
-    if (specificFocusActive) {
-      const matchesFocus = (
-        (cfg.focusLV && s.tokens.some(t => t.role === 'lv')) ||
-        (cfg.focusMV && s.tokens.some(t => t.role === 'mv')) ||
-        (cfg.focusVV && s.tokens.some(t => t.role === 'vv')) ||
-        (cfg.focusBijzin && isCompound)
-      );
-      if (!matchesFocus) return false;
-    } else if (cfg.focusBijzin) {
-      if (!isCompound) return false;
-    }
-
-    const isLevelHighOrAll = cfg.selectedLevel === 3 || cfg.selectedLevel === null;
-    const isLevelLow = cfg.selectedLevel === 1;
-
-    if (!isCompound && !isLevelHighOrAll && !cfg.includeBijst && s.tokens.some(t => t.role === 'bijst')) {
-      return false;
-    }
-
-    if (!isCompound && isLevelLow && !cfg.includeVV && !cfg.focusVV && s.tokens.some(t => t.role === 'vv')) {
-      return false;
-    }
-
-    if (cfg.selectedLevel !== null) {
-      if (s.level !== cfg.selectedLevel) return false;
-    }
-
-    return true;
-  });
-}
-
 // ── Testdata hulpfuncties ─────────────────────────────────────────────────────
 
 function makeToken(role: string, overrides: Partial<Token> = {}): Token {
@@ -123,14 +70,13 @@ function makeSentence(overrides: Partial<Sentence> & { level: DifficultyLevel; p
   };
 }
 
-const defaultCfg: FilterConfig = {
+const defaultCfg: SentenceFilterConfig = {
   predicateMode: 'ALL',
   selectedLevel: null,
   focusLV: false,
   focusMV: false,
   focusVV: false,
   focusBijzin: false,
-  includeBijst: false,
   includeVV: false,
 };
 
@@ -315,38 +261,38 @@ describe('filterSentences — focusfilters', () => {
   });
 });
 
-// ── Tests: filterSentences — bijst en vv filters ─────────────────────────────
+// ── Tests: filterSentences — bijstelling en voorzetselvoorwerp ─────────────
 
-describe('filterSentences — bijst en vv-filters', () => {
-  const metBijst = makeSentence({ level: 2, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('bijst')] });
-  const metVV = makeSentence({ level: 1, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('vv')] });
+describe('filterSentences — bijst en vv', () => {
+  const metBijst = makeSentence({ level: 3, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('bijst')] });
+  const metVV = makeSentence({ level: 2, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('vv')] });
   const basisZin = makeSentence({ level: 2, predicateType: 'WG' });
 
-  it('bijst-zinnen worden uitgefilterd bij level 2 zonder includeBijst', () => {
-    const result = filterSentences([metBijst, basisZin], { ...defaultCfg, selectedLevel: 2, includeBijst: false });
-    expect(result).not.toContain(metBijst);
-    expect(result).toContain(basisZin);
+  it('bijst-zinnen doen altijd mee (geen aparte schakelaar meer)', () => {
+    expect(filterSentences([metBijst], { ...defaultCfg, selectedLevel: 3 })).toContain(metBijst);
   });
 
-  it('bijst-zinnen worden toegelaten bij includeBijst=true', () => {
-    const result = filterSentences([metBijst, basisZin], { ...defaultCfg, selectedLevel: 2, includeBijst: true });
-    expect(result).toContain(metBijst);
+  it('vv-zinnen vallen weg als includeVV uit staat, ook bij Middel en Alles', () => {
+    expect(filterSentences([metVV, basisZin], { ...defaultCfg, selectedLevel: 2 })).toEqual([basisZin]);
+    expect(filterSentences([metVV], defaultCfg)).toHaveLength(0);
   });
 
-  it('bijst-zinnen worden altijd toegelaten bij level 3 (isLevelHighOrAll)', () => {
-    const metBijst3 = makeSentence({ level: 3, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('bijst')] });
-    const result = filterSentences([metBijst3], { ...defaultCfg, selectedLevel: 3, includeBijst: false });
-    expect(result).toContain(metBijst3);
-  });
-
-  it('vv-zinnen worden uitgefilterd bij level 1 zonder includeVV', () => {
-    const result = filterSentences([metVV], { ...defaultCfg, selectedLevel: 1, includeVV: false });
-    expect(result).not.toContain(metVV);
+  it('vv-zinnen doen mee als includeVV aan staat', () => {
+    expect(filterSentences([metVV], { ...defaultCfg, selectedLevel: 2, includeVV: true })).toContain(metVV);
   });
 
   it('vv-zinnen worden toegelaten bij focusVV', () => {
-    const result = filterSentences([metVV], { ...defaultCfg, selectedLevel: 1, includeVV: false, focusVV: true });
+    expect(filterSentences([metVV], { ...defaultCfg, selectedLevel: 2, focusVV: true })).toContain(metVV);
+  });
+
+  it('de Rollenladder negeert de vz.vw-schakelaar', () => {
+    const result = filterSentences([metVV], { ...defaultCfg, ladderFilter: () => true });
     expect(result).toContain(metVV);
+  });
+
+  it('vz.vw staat standaard alleen aan bij Hoog en Samengesteld', () => {
+    expect([null, 0, 1, 2, 3, 4].map(l => defaultIncludeVV(l as DifficultyLevel | null)))
+      .toEqual([false, false, false, false, true, true]);
   });
 });
 
