@@ -97,6 +97,18 @@ export function getConsistentRole(tokens: Token[]): RoleKey | null {
   return null;
 }
 
+/** Level at which a betrekkelijke (bijvoeglijke) bijzin is named as such: only the highest level. */
+export const BETREKKELIJKE_BIJZIN_LEVEL = 4;
+
+/**
+ * Whether the student must name this bijzin function. A bijvoeglijke bijzin is harder than the other
+ * bijzinnen: it is only asked on the highest level, and only when bijvoeglijke bepalingen are practised.
+ */
+export function isBijzinFunctieAsked(functie: RoleKey | undefined, includeBB: boolean, level: number): boolean {
+  if (!functie) return false;
+  return functie !== 'bijv_bep' || (includeBB && level >= BETREKKELIJKE_BIJZIN_LEVEL);
+}
+
 /**
  * Gezegdedeel of a token: in a naamwoordelijk gezegde every verb (the PV included) belongs to the
  * werkwoordelijk deel, all other words of the NG belong to the naamwoordelijk deel.
@@ -280,8 +292,7 @@ export function validateAnswer(
     const firstToken = chunk.tokens[0];
     const expectedFunctie = firstToken.bijzinFunctie;
     if (firstToken.role !== 'bijzin' || !expectedFunctie) return;
-    // Skip bijv_bep function swap detection when includeBB is off
-    if (expectedFunctie === 'bijv_bep' && !includeBB) return;
+    if (!isBijzinFunctieAsked(expectedFunctie, includeBB, sentence.level)) return;
     const userLabel = chunkLabels[firstToken.id];
     if (userLabel === expectedFunctie) {
       const functieName = ROLES.find(r => r.key === expectedFunctie)?.label || expectedFunctie;
@@ -300,7 +311,7 @@ export function validateAnswer(
       const expectedFunctie = firstToken.bijzinFunctie;
       if (!expectedFunctie) return;
       // Skip bijv_bep function validation when includeBB is off
-      if (expectedFunctie === 'bijv_bep' && !includeBB) return;
+      if (!isBijzinFunctieAsked(expectedFunctie, includeBB, sentence.level)) return;
       const userLabel = chunkLabels[firstToken.id];
       if (userLabel !== 'bijzin') return;
       if (chunkStatus[idx] !== 'correct') return;

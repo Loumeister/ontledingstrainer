@@ -6,6 +6,7 @@ import {
   roleMatchesToken,
   getConsistentRole,
   validateAnswer,
+  isBijzinFunctieAsked,
 } from './validation';
 import type { Token, Sentence, PlacementMap } from '../types';
 
@@ -742,5 +743,15 @@ describe('validateAnswer — gezegdedelen', () => {
     const sub: PlacementMap = { b2: 'wwd', b3: 'nwd', b4: 'bijv_bep', b5: 'nwd' };
     const { result } = validateAnswer(bb, new Set([0, 1]), { b1: 'ow', b2: 'pv', b3: 'ng' }, sub, true, {}, {}, { b4: 'b5' }, true);
     expect(result.isPerfect).toBe(true);
+  });
+});
+
+describe('isBijzinFunctieAsked', () => {
+  it('vraagt een betrekkelijke bijzin alleen op het hoogste niveau en met BB aan', () => {
+    expect(isBijzinFunctieAsked('bijv_bep', true, 4)).toBe(true);
+    expect(isBijzinFunctieAsked('bijv_bep', true, 3)).toBe(false);
+    expect(isBijzinFunctieAsked('bijv_bep', false, 4)).toBe(false);
+    expect(isBijzinFunctieAsked('lv', false, 3)).toBe(true);
+    expect(isBijzinFunctieAsked(undefined, true, 4)).toBe(false);
   });
 });

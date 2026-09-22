@@ -127,27 +127,47 @@
         "text": "waarom",
         "role": "bijzin",
         "bijzinFunctie": "lv",
-        "subRole": "vw_onder"
+        "subRole": "vw_onder",
+        "bijzinAnalyse": {
+          "role": "bwb",
+          "notAsked": true
+        }
       },
       {
         "id": "s302t4",
         "text": "hij",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "ow"
+        }
       },
       {
         "id": "s302t5",
         "text": "zo",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "ng",
+          "subRole": "bijv_bep",
+          "bijvBepTarget": "s302t6"
+        }
       },
       {
         "id": "s302t6",
         "text": "boos",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "ng",
+          "subRole": "nwd"
+        }
       },
       {
         "id": "s302t7",
         "text": "is?",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "pv",
+          "subRole": "wwd"
+        }
       }
     ]
   },
@@ -1932,22 +1952,34 @@
         "text": "dat",
         "role": "bijzin",
         "subRole": "vw_onder",
-        "bijzinFunctie": "lv"
+        "bijzinFunctie": "lv",
+        "bijzinAnalyse": {
+          "role": "vw_onder"
+        }
       },
       {
         "id": "s329t4",
         "text": "hij",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "ow"
+        }
       },
       {
         "id": "s329t5",
         "text": "morgen",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "bwb"
+        }
       },
       {
         "id": "s329t6",
         "text": "komt.",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "pv"
+        }
       }
     ]
   },
@@ -2410,22 +2442,34 @@
         "text": "toen",
         "role": "bijzin",
         "subRole": "vw_onder",
-        "bijzinFunctie": "bwb"
+        "bijzinFunctie": "bwb",
+        "bijzinAnalyse": {
+          "role": "vw_onder"
+        }
       },
       {
         "id": "s338t5",
         "text": "de",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "ow"
+        }
       },
       {
         "id": "s338t6",
         "text": "scheidsrechter",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "ow"
+        }
       },
       {
         "id": "s338t7",
         "text": "afloot.",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "pv"
+        }
       }
     ]
   },
@@ -2440,22 +2484,34 @@
         "text": "Dat",
         "role": "bijzin",
         "subRole": "vw_onder",
-        "bijzinFunctie": "ow"
+        "bijzinFunctie": "ow",
+        "bijzinAnalyse": {
+          "role": "vw_onder"
+        }
       },
       {
         "id": "s339t2",
         "text": "jullie",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "ow"
+        }
       },
       {
         "id": "s339t3",
         "text": "vandaag",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "bwb"
+        }
       },
       {
         "id": "s339t4",
         "text": "winnen",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "pv"
+        }
       },
       {
         "id": "s339t5",

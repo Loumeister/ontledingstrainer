@@ -1,5 +1,5 @@
 import { PlacementMap, Sentence, Token } from '../types';
-import { buildUserChunks, computeCorrectSplits } from './validation';
+import { buildUserChunks, computeCorrectSplits, isBijzinFunctieAsked } from './validation';
 
 /** The bijzinnen of a sentence as token groups, following the same chunk rules as the main analysis. */
 export function getBijzinTokenGroups(sentence: Sentence): Token[][] {
@@ -51,6 +51,5 @@ export function isBijzinUnlocked(
   if (!match || chunkLabels[ids[0]] !== 'bijzin') return false;
 
   const functie = bijzinTokens[0].bijzinFunctie;
-  const functieAsked = !!functie && (functie !== 'bijv_bep' || includeBB);
-  return !functieAsked || bijzinFunctieLabels[ids[0]] === functie;
+  return !isBijzinFunctieAsked(functie, includeBB, sentence.level) || bijzinFunctieLabels[ids[0]] === functie;
 }

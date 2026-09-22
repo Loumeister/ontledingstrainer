@@ -24,6 +24,7 @@ import {
   computeCorrectSplits,
   validateAnswer,
   getGezegdeDeel,
+  isBijzinFunctieAsked,
   getConsistentRole,
   ChunkData,
   ValidationResult,
@@ -887,7 +888,7 @@ export function useTrainer(): TrainerState {
     if (!currentSentence) return;
     const token = currentSentence.tokens.find(t => t.id === chunkId);
     const bijzinFunctie = token?.bijzinFunctie;
-    const hasBijzinFunctie = !!bijzinFunctie && (bijzinFunctie !== 'bijv_bep' || includeBB);
+    const hasBijzinFunctie = isBijzinFunctieAsked(bijzinFunctie, includeBB, currentSentence.level);
 
     if (chunkLabels[chunkId] === 'bijzin' && hasBijzinFunctie && !bijzinFunctieLabels[chunkId]) {
       // Bijzin function slot — any role is valid here (bijv_bep is a legitimate function)
@@ -1172,8 +1173,7 @@ export function useTrainer(): TrainerState {
       const firstToken = chunk.tokens[0];
       const userLabel = chunkLabels[firstToken.id];
       const functie = firstToken.bijzinFunctie;
-      // Skip bijv_bep function requirement when includeBB is off
-      if (functie === 'bijv_bep' && !includeBB) continue;
+      if (!isBijzinFunctieAsked(functie, includeBB, currentSentence.level)) continue;
       if (userLabel === 'bijzin' && functie && !bijzinFunctieLabels[firstToken.id]) {
         const bijzinWords = chunk.tokens.map(t => t.text).join(' ');
         setHintMessage(`Kijk naar de bijzin "${bijzinWords}". ${HINTS.MISSING_BIJZIN_FUNCTIE}`);
@@ -1314,7 +1314,7 @@ export function useTrainer(): TrainerState {
     let currentChunkStartId = currentSentence.tokens[0].id;
     correctChunkLabels[currentChunkStartId] = currentSentence.tokens[0].role;
     if (currentSentence.tokens[0].bijzinFunctie) {
-      if (currentSentence.tokens[0].bijzinFunctie !== 'bijv_bep' || includeBB) {
+      if (isBijzinFunctieAsked(currentSentence.tokens[0].bijzinFunctie, includeBB, currentSentence.level)) {
         correctBijzinFunctieLabels[currentChunkStartId] = currentSentence.tokens[0].bijzinFunctie;
         if (currentSentence.tokens[0].bijvBepTarget) {
           correctBijvBepLinks[currentChunkStartId] = currentSentence.tokens[0].bijvBepTarget;
@@ -1338,8 +1338,7 @@ export function useTrainer(): TrainerState {
          currentChunkStartId = t.id;
          correctChunkLabels[currentChunkStartId] = t.role;
          if (t.bijzinFunctie) {
-           // Skip bijv_bep function when includeBB is off
-           if (t.bijzinFunctie !== 'bijv_bep' || includeBB) {
+           if (isBijzinFunctieAsked(t.bijzinFunctie, includeBB, currentSentence.level)) {
              correctBijzinFunctieLabels[currentChunkStartId] = t.bijzinFunctie;
              if (t.bijvBepTarget) {
                correctBijvBepLinks[currentChunkStartId] = t.bijvBepTarget;
@@ -1471,7 +1470,7 @@ export function useTrainer(): TrainerState {
       if (!chunkLabels[firstToken.id]) return false;
       // If chunk is labeled bijzin and has a function, require function label too
       if (chunkLabels[firstToken.id] === 'bijzin' && firstToken.bijzinFunctie) {
-        if (firstToken.bijzinFunctie === 'bijv_bep' && !includeBB) return true;
+        if (!isBijzinFunctieAsked(firstToken.bijzinFunctie, includeBB, currentSentence?.level ?? 0)) return true;
         if (!bijzinFunctieLabels[firstToken.id]) return false;
       }
       return true;

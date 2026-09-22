@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { Sentence } from '../types';
 import { buildBijzinSentence, getBijzinTokenGroups } from '../logic/bijzinAnalysis';
+import { BETREKKELIJKE_BIJZIN_LEVEL } from '../logic/validation';
 import level0 from './sentences-level-0.json';
 import level1 from './sentences-level-1.json';
 import level2 from './sentences-level-2.json';
@@ -64,5 +65,27 @@ describe('zinnendata — bijzinontleding', () => {
         expect(buildBijzinSentence(s, group)?.tokens.some(t => t.role === 'pv'), `zin ${s.id}`).toBe(true);
       }
     }
+  });
+});
+
+describe('zinnendata — wederkerende werkwoorden', () => {
+  it('rekent een verplicht wederkerend voornaamwoord tot het WG (zinnen 465, 466; 464 in de bijzin)', () => {
+    expect(byId(465).tokens.find(t => t.text === 'zich,')?.role).toBe('wg');
+    expect(byId(466).tokens.find(t => t.text === 'mij')?.role).toBe('wg');
+    expect(byId(464).tokens.find(t => t.text === 'zich')?.bijzinAnalyse?.role).toBe('wg');
+  });
+
+  it('laat "zich scheren" een LV houden: scheren is niet verplicht wederkerend (zin 132)', () => {
+    expect(byId(132).tokens.find(t => t.text === 'zich')?.role).toBe('lv');
+  });
+});
+
+describe('zinnendata — betrekkelijke bijzinnen', () => {
+  it('staan alleen op het hoogste niveau', () => {
+    const tooLow = all
+      .filter(s => s.tokens.some(t => t.bijzinFunctie === 'bijv_bep'))
+      .filter(s => s.level < BETREKKELIJKE_BIJZIN_LEVEL)
+      .map(s => s.id);
+    expect(tooLow).toEqual([]);
   });
 });

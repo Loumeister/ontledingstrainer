@@ -10,6 +10,7 @@ import { ConfirmationModal } from '../components/ConfirmationModal';
 import { FeedbackPanel, FeedbackItem } from '../components/FeedbackPanel';
 import { TrainerState } from '../hooks/useTrainer';
 import { shouldShowSessionNextButton } from '../logic/sessionFlow';
+import { isBijzinFunctieAsked } from '../logic/validation';
 import { getLadderStage } from '../logic/rollenladder';
 
 type TrainerScreenProps = Pick<TrainerState,
@@ -327,8 +328,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   const bijzinFunctieKey = bijzinFunctieLabels[startTokenId];
                   const bijzinFunctieDef = bijzinFunctieKey ? ROLES.find(r => r.key === bijzinFunctieKey) || null : null;
                   const rawFunctie = chunk.tokens[0].bijzinFunctie;
-                  // Gate bijv_bep function behind includeBB
-                  const hasBijzinFunctie = !!rawFunctie && (rawFunctie !== 'bijv_bep' || includeBB);
+                  const hasBijzinFunctie = isBijzinFunctieAsked(rawFunctie, includeBB, currentSentence.level);
                   // Resolve bvb link target text
                   const bijvBepTargetId = bijvBepLinks[startTokenId];
                   const bijvBepTargetToken = bijvBepTargetId ? currentSentence.tokens.find(t => t.id === bijvBepTargetId) : null;
