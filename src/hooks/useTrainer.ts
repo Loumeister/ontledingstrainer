@@ -885,6 +885,18 @@ export function useTrainer(): TrainerState {
 
   const handleDragEnd = () => setIsDragging(false);
 
+  // Drops any WG/NG gezegdetype choice recorded for this chunk. Used whenever the chunk's
+  // main label is removed, moved away, or overwritten with something else, so a stale
+  // choice never reappears if the chunk gets labeled PV again later.
+  const clearPredicateType = (chunkId: string) => {
+    setPredicateTypeLabels(prev => {
+      if (!(chunkId in prev)) return prev;
+      const n = { ...prev };
+      delete n[chunkId];
+      return n;
+    });
+  };
+
   // Smart routing: if main role is already 'bijzin' and the chunk expects a bijzin function
   // that hasn't been filled yet, route the drop to bijzinFunctieLabels instead of chunkLabels.
   // Same idea for 'pv': once a chunk is labeled PV, a WG/NG drop routes to predicateTypeLabels
@@ -912,6 +924,10 @@ export function useTrainer(): TrainerState {
       if (ROLES.find(r => r.key === roleKey)?.isSubOnly) return;
       logInteraction('label_drop', currentSentence.id, `chunk=${chunkId},role=${roleKey}`);
       setChunkLabels(prev => ({ ...prev, [chunkId]: roleKey }));
+      // This chunk's label is changing to something this branch doesn't set a
+      // gezegdetype for (it may no longer even be PV) — drop any stale WG/NG choice
+      // so a later re-labeling as PV never inherits an answer the student didn't give.
+      clearPredicateType(chunkId);
     }
     setValidationResult(null);
     setHintMessage(null);
@@ -927,6 +943,7 @@ export function useTrainer(): TrainerState {
       const moveFromChunk = e.dataTransfer.getData("text/move-from-chunk");
       if (moveFromChunk && moveFromChunk !== chunkId) {
         setChunkLabels(prev => { const n = { ...prev }; delete n[moveFromChunk]; return n; });
+        clearPredicateType(moveFromChunk);
       }
     }
   };
@@ -993,6 +1010,7 @@ export function useTrainer(): TrainerState {
     const newLabels = { ...chunkLabels };
     delete newLabels[chunkId];
     setChunkLabels(newLabels);
+    clearPredicateType(chunkId);
     setValidationResult(null);
     setHintMessage(null);
   };

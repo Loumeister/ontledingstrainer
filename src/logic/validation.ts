@@ -372,6 +372,7 @@ export function validateAnswer(
       const userType = predicateTypeLabels[firstTokenId];
       if (userType === expectedType) return;
       predicateTypeMismatch = true;
+      correctChunksCount--; // this chunk was counted as correct above; the missing/wrong gezegdetype revokes that
       chunkStatus[idx] = 'warning';
       chunkFeedback[idx] = userType
         ? FEEDBACK_PREDICATE_TYPE.WRONG(expectedType)

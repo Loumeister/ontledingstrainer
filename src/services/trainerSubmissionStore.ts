@@ -24,14 +24,18 @@ const MAX_ATTEMPTS = 2000;
 
 // ── ID generators ─────────────────────────────────────────────────────────────
 
-// Monotonic per-session tiebreaker: a millisecond timestamp + 4-digit random suffix can
-// collide when many ids are generated in the same tick (e.g. seeding several submissions
-// in a loop), which risks silently overwriting a different record on upsert.
-let idSequence = 0;
+// A millisecond timestamp + a short random suffix can still collide — not just within one
+// module instance (a lone counter can't fix that either: it resets on every page load), but
+// across browser tabs and reloads that run concurrently. Since saveSubmission/saveAttempt
+// upsert by id, a real collision would silently overwrite a different record. crypto.randomUUID()
+// gives each id its own 122 bits of randomness, which is cross-context-safe on its own.
+function randomIdSuffix(): string {
+  return crypto.randomUUID();
+}
 
 /**
  * Genereert een uniek submission-ID in het formaat
- * `tsub-{ISO-datum-zonder-tekens}-{4-cijfer-getal}-{oplopende-sequentie}`.
+ * `tsub-{ISO-datum-zonder-tekens}-{uuid}`.
  *
  * Het ID wordt aangemaakt vóórdat de submission wordt opgeslagen, zodat de aanroeper
  * het ID al kent (bijv. om het mee te sturen naar een activiteitslog) zonder
@@ -41,14 +45,12 @@ let idSequence = 0;
  */
 export function generateSubmissionId(): string {
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
-  const rand = Math.floor(Math.random() * 9000) + 1000;
-  const seq = (idSequence++).toString(36);
-  return `tsub-${ts}-${rand}-${seq}`;
+  return `tsub-${ts}-${randomIdSuffix()}`;
 }
 
 /**
  * Genereert een uniek attempt-ID in het formaat
- * `tatt-{ISO-datum-zonder-tekens}-{4-cijfer-getal}-{oplopende-sequentie}`.
+ * `tatt-{ISO-datum-zonder-tekens}-{uuid}`.
  *
  * Zelfde patroon als `generateSubmissionId()`, maar met prefix `tatt` zodat
  * attempts en submissions altijd te onderscheiden zijn op ID-prefix.
@@ -57,9 +59,7 @@ export function generateSubmissionId(): string {
  */
 export function generateAttemptId(): string {
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
-  const rand = Math.floor(Math.random() * 9000) + 1000;
-  const seq = (idSequence++).toString(36);
-  return `tatt-${ts}-${rand}-${seq}`;
+  return `tatt-${ts}-${randomIdSuffix()}`;
 }
 
 // ── Submission persistence ────────────────────────────────────────────────────

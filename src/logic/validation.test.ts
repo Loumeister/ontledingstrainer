@@ -372,19 +372,21 @@ describe('validateAnswer – predicate type on the PV chunk', () => {
     expect(requiresPredicateChoice(sentence)).toBe(true);
   });
 
-  it('keeps a correctly found PV imperfect when the gezegdetype is missing', () => {
+  it('keeps a correctly found PV imperfect when the gezegdetype is missing, and does not count it toward the score', () => {
     const labels: PlacementMap = { t1: 'ow', t3: 'pv', t4: 'bwb' };
     const { result } = validateAnswer(sentence, correctSplits, labels, {}, false, {}, {}, {}, {});
     expect(result.chunkStatus[1]).toBe('warning');
     expect(result.isPerfect).toBe(false);
+    expect(result.score).toBe(2); // ow + bwb correct, pv chunk revoked by the missing gezegdetype
   });
 
-  it('marks the gezegdetype wrong when it does not match predicateType', () => {
+  it('marks the gezegdetype wrong when it does not match predicateType, and does not count it toward the score', () => {
     const labels: PlacementMap = { t1: 'ow', t3: 'pv', t4: 'bwb' };
     const predicateTypeLabels: PlacementMap = { t3: 'ng' }; // sentence is WG
     const { result } = validateAnswer(sentence, correctSplits, labels, {}, false, {}, {}, {}, predicateTypeLabels);
     expect(result.chunkStatus[1]).toBe('warning');
     expect(result.isPerfect).toBe(false);
+    expect(result.score).toBe(2);
   });
 
   it('is perfect once PV and its matching gezegdetype are both correct', () => {
