@@ -6,6 +6,7 @@ import {
   roleMatchesToken,
   getConsistentRole,
   validateAnswer,
+  requiresPredicateChoice,
 } from './validation';
 import type { Token, Sentence, PlacementMap } from '../types';
 
@@ -343,6 +344,60 @@ describe('validateAnswer – label checking', () => {
     const { mistakes } = validateAnswer(sentence, correctSplits, labels, {}, false);
     expect(mistakes['Onderwerp']).toBe(1);
     expect(mistakes['Persoonsvorm']).toBe(1);
+  });
+});
+
+// ──────────────────────────────────────────────
+// requiresPredicateChoice / predicate type (WG/NG) on the PV chunk
+// ──────────────────────────────────────────────
+describe('validateAnswer – predicate type on the PV chunk', () => {
+  const sentence = makeSentence([
+    makeToken({ id: 't1', text: 'De', role: 'ow' }),
+    makeToken({ id: 't2', text: 'kat', role: 'ow' }),
+    makeToken({ id: 't3', text: 'slaapt', role: 'pv' }),
+    makeToken({ id: 't4', text: 'lekker', role: 'bwb' }),
+  ], { level: 1, predicateType: 'WG' });
+  const correctSplits = new Set([1, 2]);
+
+  it('is not required at level 0, where WG/NG are not yet taught', () => {
+    const level0Sentence = makeSentence(sentence.tokens, { level: 0, predicateType: 'WG' });
+    expect(requiresPredicateChoice(level0Sentence)).toBe(false);
+    const labels: PlacementMap = { t1: 'ow', t3: 'pv', t4: 'bwb' };
+    const { result } = validateAnswer(level0Sentence, correctSplits, labels, {}, false, {}, {}, {}, {});
+    expect(result.isPerfect).toBe(true);
+  });
+
+  it('is required from level 1 onward', () => {
+    expect(requiresPredicateChoice(sentence)).toBe(true);
+  });
+
+  it('keeps a correctly found PV imperfect when the gezegdetype is missing', () => {
+    const labels: PlacementMap = { t1: 'ow', t3: 'pv', t4: 'bwb' };
+    const { result } = validateAnswer(sentence, correctSplits, labels, {}, false, {}, {}, {}, {});
+    expect(result.chunkStatus[1]).toBe('warning');
+    expect(result.isPerfect).toBe(false);
+  });
+
+  it('marks the gezegdetype wrong when it does not match predicateType', () => {
+    const labels: PlacementMap = { t1: 'ow', t3: 'pv', t4: 'bwb' };
+    const predicateTypeLabels: PlacementMap = { t3: 'ng' }; // sentence is WG
+    const { result } = validateAnswer(sentence, correctSplits, labels, {}, false, {}, {}, {}, predicateTypeLabels);
+    expect(result.chunkStatus[1]).toBe('warning');
+    expect(result.isPerfect).toBe(false);
+  });
+
+  it('is perfect once PV and its matching gezegdetype are both correct', () => {
+    const labels: PlacementMap = { t1: 'ow', t3: 'pv', t4: 'bwb' };
+    const predicateTypeLabels: PlacementMap = { t3: 'wg' };
+    const { result } = validateAnswer(sentence, correctSplits, labels, {}, false, {}, {}, {}, predicateTypeLabels);
+    expect(result.chunkStatus[1]).toBe('correct');
+    expect(result.isPerfect).toBe(true);
+  });
+
+  it('does not require a gezegdetype when the PV itself was not found', () => {
+    const labels: PlacementMap = { t1: 'ow', t3: 'ow', t4: 'bwb' }; // PV mislabeled as OW
+    const { result } = validateAnswer(sentence, correctSplits, labels, {}, false, {}, {}, {}, {});
+    expect(result.chunkStatus[1]).toBe('incorrect-role');
   });
 });
 

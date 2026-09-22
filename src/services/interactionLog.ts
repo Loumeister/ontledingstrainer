@@ -10,6 +10,8 @@ export type InteractionType =
   | 'sub_label_remove'
   | 'bijzin_functie_drop'
   | 'bijzin_functie_remove'
+  | 'predicate_type_drop'
+  | 'predicate_type_remove'
   | 'bijvbep_link'
   | 'bijvbep_unlink'
   | 'word_bijvbep_link'

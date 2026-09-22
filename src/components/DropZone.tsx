@@ -11,11 +11,15 @@ interface SentenceChunkProps {
   assignedBijzinFunctie: RoleDefinition | null;
   bijvBepTargetText: string | null; // Text of the word this bvb bijzin refers to
   subRoles: Record<string, RoleDefinition>; // Map tokenId -> RoleDefinition
+  assignedPredicateType?: RoleDefinition | null; // WG/NG chosen for a PV chunk
+  showPredicateTypeRow?: boolean; // Whether this chunk needs a WG/NG gezegdetype choice
   onDropChunk: (e: React.DragEvent<HTMLDivElement>, chunkId: string) => void;
   onDropBijzinFunctie: (e: React.DragEvent<HTMLDivElement>, chunkId: string) => void;
+  onDropPredicateType?: (e: React.DragEvent<HTMLDivElement>, chunkId: string) => void;
   onDropWord: (e: React.DragEvent<HTMLSpanElement>, tokenId: string) => void;
   onRemoveRole: (chunkId: string) => void;
   onRemoveBijzinFunctie: (chunkId: string) => void;
+  onRemovePredicateType?: (chunkId: string) => void;
   onRemoveSubRole: (tokenId: string) => void;
   onToggleSplit: (globalTokenIndex: number) => void;
   onStartBijvBepLinking: (sourceId: string) => void;
@@ -43,11 +47,15 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
   assignedBijzinFunctie,
   bijvBepTargetText,
   subRoles,
+  assignedPredicateType = null,
+  showPredicateTypeRow = false,
   onDropChunk,
   onDropBijzinFunctie,
+  onDropPredicateType,
   onDropWord,
   onRemoveRole,
   onRemoveBijzinFunctie,
+  onRemovePredicateType,
   onRemoveSubRole,
   onToggleSplit,
   onStartBijvBepLinking,
@@ -69,6 +77,7 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
 }) => {
   const [isOverChunk, setIsOverChunk] = useState(false);
   const [isOverBijzinFunctie, setIsOverBijzinFunctie] = useState(false);
+  const [isOverPredicateType, setIsOverPredicateType] = useState(false);
   const [hoveredWordId, setHoveredWordId] = useState<string | null>(null);
   const [snapPop, setSnapPop] = useState(false);
   const prevValidation = useRef<ValidationState | undefined>(undefined);
@@ -212,6 +221,48 @@ export const SentenceChunk: React.FC<SentenceChunkProps> = ({
           "Sleep zinsdeel hier"
         )}
       </div>
+
+      {/* Gezegdetype Row - shown when chunk is labeled PV; the PV always belongs to a WG or NG gezegde */}
+      {showPredicateTypeRow && (
+        <div
+          className={`
+            h-7 border-b border-dashed border-slate-200 dark:border-slate-600 flex items-center justify-center text-[11px] cursor-pointer transition-all
+            ${isOverPredicateType ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-500' : ''}
+            ${assignedPredicateType ? assignedPredicateType.colorClass + ' font-bold hover:opacity-80' : 'text-slate-400 dark:text-slate-500 italic'}
+          `}
+          onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setIsOverPredicateType(true); setIsOverChunk(false); }}
+          onDragLeave={() => setIsOverPredicateType(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsOverPredicateType(false);
+            onDropPredicateType?.(e, chunkId);
+          }}
+          onClick={(e) => {
+            if (assignedPredicateType) {
+              e.stopPropagation();
+              onRemovePredicateType?.(chunkId);
+            }
+          }}
+        >
+          {assignedPredicateType ? (
+            <div className="flex items-center gap-2 w-full justify-center px-2 relative group/predtype">
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 mr-1">gezegde:</span>
+              <span className="relative z-10">{assignedPredicateType.shortLabel}</span>
+              <button
+                onClick={(e) => { e.stopPropagation(); onRemovePredicateType?.(chunkId); }}
+                className="hidden group-hover/predtype:flex absolute right-0 hover:bg-black/10 dark:hover:bg-white/10 rounded-full w-4 h-4 items-center justify-center transition-colors z-20 text-[10px] focus-visible:ring-2 focus-visible:ring-blue-500"
+                title="Verwijder gezegdetype"
+                aria-label="Verwijder gezegdetype"
+              >
+                ×
+              </button>
+            </div>
+          ) : (
+            <span className="text-[10px]">Sleep WG of NG hier</span>
+          )}
+        </div>
+      )}
 
       {/* Bijzin Function Row - shown when chunk is labeled as bijzin and has a function */}
       {showBijzinFunctieRow && (
