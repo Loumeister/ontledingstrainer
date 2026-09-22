@@ -10,22 +10,36 @@
         "text": "Omdat",
         "role": "bijzin",
         "subRole": "vw_onder",
-        "bijzinFunctie": "bwb"
+        "bijzinFunctie": "bwb",
+        "bijzinAnalyse": {
+          "role": "vw_onder"
+        }
       },
       {
         "id": "s400t2",
         "text": "ik",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "ow"
+        }
       },
       {
         "id": "s400t3",
         "text": "verkouden",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "ng",
+          "subRole": "nwd"
+        }
       },
       {
         "id": "s400t4",
         "text": "ben,",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "pv",
+          "subRole": "wwd"
+        }
       },
       {
         "id": "s400t5",
@@ -847,32 +861,52 @@
         "role": "bijzin",
         "subRole": "vw_onder",
         "bijzinFunctie": "bijv_bep",
-        "bijvBepTarget": "s412t3"
+        "bijvBepTarget": "s412t3",
+        "bijzinAnalyse": {
+          "role": "ow",
+          "notAsked": true
+        }
       },
       {
         "id": "s412t5",
         "text": "altijd",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "bwb"
+        }
       },
       {
         "id": "s412t6",
         "text": "op",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "bwb",
+          "newChunk": true
+        }
       },
       {
         "id": "s412t7",
         "text": "het",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "bwb"
+        }
       },
       {
         "id": "s412t8",
         "text": "dak",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "bwb"
+        }
       },
       {
         "id": "s412t9",
         "text": "zit,",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "pv"
+        }
       },
       {
         "id": "s412t10",
@@ -1231,7 +1265,7 @@
         "text": "Dat",
         "role": "bijzin",
         "subRole": "vw_onder",
-        "bijzinFunctie": "mv"
+        "bijzinFunctie": "lv"
       },
       {
         "id": "s440t2",

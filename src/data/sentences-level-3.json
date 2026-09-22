@@ -1977,22 +1977,34 @@
         "text": "omdat",
         "role": "bijzin",
         "subRole": "vw_onder",
-        "bijzinFunctie": "bwb"
+        "bijzinFunctie": "bwb",
+        "bijzinAnalyse": {
+          "role": "vw_onder"
+        }
       },
       {
         "id": "s330t5",
         "text": "het",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "ow"
+        }
       },
       {
         "id": "s330t6",
         "text": "hard",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "bwb"
+        }
       },
       {
         "id": "s330t7",
         "text": "regende.",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "pv"
+        }
       }
     ]
   },
@@ -2333,27 +2345,42 @@
         "text": "dat",
         "role": "bijzin",
         "subRole": "vw_onder",
-        "bijzinFunctie": "lv"
+        "bijzinFunctie": "lv",
+        "bijzinAnalyse": {
+          "role": "vw_onder"
+        }
       },
       {
         "id": "s337t5",
         "text": "ik",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "ow"
+        }
       },
       {
         "id": "s337t6",
         "text": "vandaag",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "bwb"
+        }
       },
       {
         "id": "s337t7",
         "text": "moet",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "pv"
+        }
       },
       {
         "id": "s337t8",
         "text": "rusten.",
-        "role": "bijzin"
+        "role": "bijzin",
+        "bijzinAnalyse": {
+          "role": "wg"
+        }
       }
     ]
   },
@@ -2501,7 +2528,7 @@
   {
     "id": 341,
     "label": "Zin 341: De bel gaat maar de klas blijft stil",
-    "predicateType": "WG",
+    "predicateType": "NG",
     "level": 3,
     "tokens": [
       {
@@ -2543,7 +2570,9 @@
       {
         "id": "s341t8",
         "text": "opvallend",
-        "role": "bwb"
+        "role": "ng",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s341t9"
       },
       {
         "id": "s341t9",
