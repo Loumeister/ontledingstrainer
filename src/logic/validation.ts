@@ -107,6 +107,40 @@ export function requiresPredicateChoice(sentence: Sentence): boolean {
 }
 
 /**
+ * Splits a sentence's tokens into nevenschikkend-gecoördineerde clauses (on vw_neven tokens,
+ * e.g. "en"/"maar"/"of"). Each clause carries its own gezegde and can have its own WG/NG type —
+ * e.g. "De bel gaat (WG) maar de klas blijft stil (NG)" has one WG clause and one NG clause.
+ */
+function splitByNevenschikking(tokens: Token[]): Token[][] {
+  const clauses: Token[][] = [];
+  let current: Token[] = [];
+  tokens.forEach(t => {
+    if (t.role === 'vw_neven') {
+      if (current.length) clauses.push(current);
+      current = [];
+    } else {
+      current.push(t);
+    }
+  });
+  if (current.length) clauses.push(current);
+  return clauses;
+}
+
+/**
+ * The correct WG/NG gezegdetype for a specific PV token, derived from its own clause rather
+ * than sentence.predicateType — that field only reflects the sentence's first clause, which is
+ * wrong for nevenschikkende zinnen met een gemengd gezegde (zie splitByNevenschikking hierboven).
+ * A clause's type is NG whenever it contains an 'ng'-role token (the naamwoordelijk deel), WG
+ * otherwise. Bijzinnen are tagged uniformly as role 'bijzin' and never carry their own PV chunk,
+ * so they don't need their own clause split here.
+ */
+export function getExpectedPredicateType(sentence: Sentence, pvTokenId: string): 'wg' | 'ng' {
+  const clauses = splitByNevenschikking(sentence.tokens);
+  const clause = clauses.find(c => c.some(t => t.id === pvTokenId)) ?? sentence.tokens;
+  return clause.some(t => t.role === 'ng') ? 'ng' : 'wg';
+}
+
+/**
  * Main validation function: checks user's splits and labels against the sentence data.
  * Supports bijzin function validation and bijvBep link validation.
  */
@@ -334,7 +368,7 @@ export function validateAnswer(
       if (consistentRole !== 'pv') return;
       if (chunkStatus[idx] !== 'correct') return; // grade this only once PV itself is right
       const firstTokenId = chunk.tokens[0].id;
-      const expectedType = sentence.predicateType.toLowerCase() as 'wg' | 'ng';
+      const expectedType = getExpectedPredicateType(sentence, firstTokenId);
       const userType = predicateTypeLabels[firstTokenId];
       if (userType === expectedType) return;
       predicateTypeMismatch = true;

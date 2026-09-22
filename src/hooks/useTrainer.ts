@@ -25,6 +25,7 @@ import {
   validateAnswer,
   getConsistentRole,
   requiresPredicateChoice,
+  getExpectedPredicateType,
   ChunkData,
   ValidationResult,
 } from '../logic/validation';
@@ -1360,7 +1361,7 @@ export function useTrainer(): TrainerState {
       }
     }
     if (currentSentence.tokens[0].role === 'pv' && needsPredicateChoice) {
-      correctPredicateTypeLabels[currentChunkStartId] = currentSentence.predicateType.toLowerCase() as RoleKey;
+      correctPredicateTypeLabels[currentChunkStartId] = getExpectedPredicateType(currentSentence, currentChunkStartId);
     }
 
     currentSentence.tokens.forEach((t, i) => {
@@ -1386,7 +1387,7 @@ export function useTrainer(): TrainerState {
            }
          }
          if (t.role === 'pv' && needsPredicateChoice) {
-           correctPredicateTypeLabels[currentChunkStartId] = currentSentence.predicateType.toLowerCase() as RoleKey;
+           correctPredicateTypeLabels[currentChunkStartId] = getExpectedPredicateType(currentSentence, currentChunkStartId);
          }
       }
     });

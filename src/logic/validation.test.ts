@@ -7,6 +7,7 @@ import {
   getConsistentRole,
   validateAnswer,
   requiresPredicateChoice,
+  getExpectedPredicateType,
 } from './validation';
 import type { Token, Sentence, PlacementMap } from '../types';
 
@@ -402,6 +403,51 @@ describe('validateAnswer – predicate type on the PV chunk', () => {
 });
 
 // ──────────────────────────────────────────────
+// getExpectedPredicateType — per-clause gezegdetype in nevenschikkende zinnen
+// ──────────────────────────────────────────────
+describe('getExpectedPredicateType – nevenschikking met gemengd gezegde', () => {
+  // "De bel gaat (WG) maar de klas blijft stil (NG)" — real dataset sentence (id 341):
+  // sentence.predicateType is a single 'WG', but the second clause is actually NG.
+  const sentence = makeSentence([
+    makeToken({ id: 't1', text: 'De', role: 'ow' }),
+    makeToken({ id: 't2', text: 'bel', role: 'ow' }),
+    makeToken({ id: 't3', text: 'gaat,', role: 'pv' }),
+    makeToken({ id: 't4', text: 'maar', role: 'vw_neven' }),
+    makeToken({ id: 't5', text: 'de', role: 'ow' }),
+    makeToken({ id: 't6', text: 'klas', role: 'ow' }),
+    makeToken({ id: 't7', text: 'blijft', role: 'pv' }),
+    makeToken({ id: 't8', text: 'stil.', role: 'ng', subRole: 'nwd' }),
+  ], { level: 3, predicateType: 'WG' });
+  const correctSplits = computeCorrectSplits(sentence.tokens);
+
+  it("derives WG for the first clause's PV and NG for the second clause's PV", () => {
+    expect(getExpectedPredicateType(sentence, 't3')).toBe('wg');
+    expect(getExpectedPredicateType(sentence, 't7')).toBe('ng');
+  });
+
+  it('lets a student get both PV chunks perfect even though they need different gezegdetypes', () => {
+    const labels: PlacementMap = {
+      t1: 'ow', t3: 'pv', t4: 'vw_neven', t5: 'ow', t7: 'pv', t8: 'ng',
+    };
+    const predicateTypeLabels: PlacementMap = { t3: 'wg', t7: 'ng' };
+    const { result } = validateAnswer(sentence, correctSplits, labels, {}, false, {}, {}, {}, predicateTypeLabels);
+    expect(result.chunkStatus[1]).toBe('correct'); // t3 chunk (gaat,)
+    expect(result.chunkStatus[4]).toBe('correct'); // t7 chunk (blijft)
+    expect(result.isPerfect).toBe(true);
+  });
+
+  it('flags the second PV as wrong when forced to the first clause\'s type (the old bug)', () => {
+    const labels: PlacementMap = {
+      t1: 'ow', t3: 'pv', t4: 'vw_neven', t5: 'ow', t7: 'pv', t8: 'ng',
+    };
+    const predicateTypeLabels: PlacementMap = { t3: 'wg', t7: 'wg' }; // forced to sentence.predicateType
+    const { result } = validateAnswer(sentence, correctSplits, labels, {}, false, {}, {}, {}, predicateTypeLabels);
+    expect(result.chunkStatus[4]).toBe('warning');
+    expect(result.isPerfect).toBe(false);
+  });
+});
+
+// ──────────────────────────────────────────────
 // validateAnswer – SubRole validation
 // ──────────────────────────────────────────────
 describe('validateAnswer – subRole checking', () => {
@@ -594,6 +640,23 @@ describe('sentence data integrity', () => {
     for (const s of [...level1, ...level2, ...level3, ...level4]) {
       const hasPv = s.tokens.some(t => t.role === 'pv');
       expect(hasPv).toBe(true);
+    }
+  });
+
+  it('derives the same gezegdetype as sentence.predicateType for every single-PV sentence', async () => {
+    // Sanity check: sentence.predicateType is only wrong for sentences with multiple,
+    // nevenschikkend-gecoördineerde PV's carrying different gezegdes (see the dedicated
+    // "nevenschikking met gemengd gezegde" tests above for that case). For the common,
+    // single-PV sentence it must still agree with the per-clause derivation.
+    const level1 = (await import('../data/sentences-level-1.json')).default as unknown as Sentence[];
+    const level2 = (await import('../data/sentences-level-2.json')).default as unknown as Sentence[];
+    const level3 = (await import('../data/sentences-level-3.json')).default as unknown as Sentence[];
+    const level4 = (await import('../data/sentences-level-4.json')).default as unknown as Sentence[];
+    for (const s of [...level1, ...level2, ...level3, ...level4]) {
+      if (!requiresPredicateChoice(s)) continue;
+      const pvTokens = s.tokens.filter(t => t.role === 'pv');
+      if (pvTokens.length !== 1) continue;
+      expect(getExpectedPredicateType(s, pvTokens[0].id)).toBe(s.predicateType.toLowerCase());
     }
   });
 });
