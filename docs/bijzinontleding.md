@@ -66,5 +66,5 @@ In het paneel knipt de leerling met knopjes tussen de woorden en kiest per deel 
 1. Docent test alle 23 bijzinzinnen via `#/bijzinontleding`.
 2. Besluit of de bijzinscore meetelt, en zo ja hoe.
 3. Zinseditor aangepast (TODO).
-4. Besluit of het paneel ook WWD/NWD en bijvoeglijke bepalingen binnen de bijzin moet nakijken als die opties aanstaan. Nu roept het paneel `validateAnswer` aan zonder woordlabels.
+4. Besluit of het paneel ook WWD/NWD en bijvoeglijke bepalingen binnen de bijzin moet nakijken als die opties aanstaan. Nu roept het paneel `validateAnswer` aan zonder woordlabels. Zo vraagt het binnen de bijzin ook nog geen WG/NG-keuze op de PV, zoals de hoofdzin sinds #155 wel doet.
 5. Vinkje zonder route tonen: verwijder de `bijzinOntledingAvailable`-voorwaarde in `HomeScreen.tsx` en `App.tsx`.

@@ -39,7 +39,7 @@ const chunkColorClass = (status: ValidationState): string => {
 export const SentenceResultCard: React.FC<SentenceResultCardProps> = ({ result, index }) => {
   const [expanded, setExpanded] = useState(false);
 
-  const { sentence, score, total, chunkStatus, chunkFeedback, userLabels } = result;
+  const { sentence, score, total, chunkStatus, chunkFeedback, userLabels, predicateTypeLabels } = result;
   const hasDetails = Object.keys(chunkStatus).length > 0;
 
   // Build the user's chunks for display
@@ -112,6 +112,8 @@ export const SentenceResultCard: React.FC<SentenceResultCardProps> = ({ result, 
                 const firstTokenId = chunk.tokens[0].id;
                 const label = userLabels[firstTokenId];
                 const roleDef = label ? ROLES.find(r => r.key === label) : null;
+                const predicateTypeKey = predicateTypeLabels?.[firstTokenId];
+                const predicateTypeDef = predicateTypeKey ? ROLES.find(r => r.key === predicateTypeKey) : null;
                 return (
                   <span
                     key={idx}
@@ -119,7 +121,9 @@ export const SentenceResultCard: React.FC<SentenceResultCardProps> = ({ result, 
                   >
                     {chunk.tokens.map(t => t.text).join(' ')}
                     {roleDef && (
-                      <span className="opacity-70 text-[10px]">({roleDef.shortLabel})</span>
+                      <span className="opacity-70 text-[10px]">
+                        ({roleDef.shortLabel}{predicateTypeDef && ` · ${predicateTypeDef.shortLabel}`})
+                      </span>
                     )}
                   </span>
                 );

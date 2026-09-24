@@ -1,6 +1,6 @@
 # Productspecificatie Ontleedlab
 
-_Actueel op 2026-09-12._
+_Actueel op 2026-09-24._
 
 ## Doel
 
@@ -31,6 +31,8 @@ Het juiste antwoord wordt pas getoond wanneer de leerling daar expliciet voor ki
 ### Standaard
 
 Alle toepasselijke rollen zijn tegelijk beschikbaar. Dit is de productnorm en wordt met regressietests beschermd.
+
+Eén afgeleide eis binnen deze norm: de persoonsvorm hoort altijd bij een werkwoordelijk of naamwoordelijk gezegde, nooit op zichzelf. Zodra een leerling een zinsdeel als PV labelt, moet die vanaf niveau 1 (waar WG/NG onderwezen wordt) ook het gezegdetype (WG/NG) op die PV-chunk kiezen voordat gecontroleerd kan worden. Dit is een subrol-eis op de PV zelf, geen extra hoofdrol en geen afgedwongen volgorde voor de overige rollen — die blijven tegelijk beschikbaar. Zie `requiresPredicateChoice`/`getExpectedPredicateType` in `src/logic/validation.ts`.
 
 ### Rollenladder
 

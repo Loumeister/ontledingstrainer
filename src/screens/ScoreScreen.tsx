@@ -12,7 +12,7 @@ import {
   getPerfectSessionCount, incrementPerfectSessionCount,
 } from '../services/sessionHistory';
 import { updateRoleMastery, RoleMasteryStore } from '../services/rolemastery';
-import { computeRoleConfidences } from '../logic/adaptiveSelection';
+import { loadRoleConfidencesFor } from '../logic/adaptiveSelection';
 import { buildReport, encodeReport } from '../services/sessionReport';
 import { getScriptUrl } from '../services/googleDriveSync';
 import { getLadderStage } from '../logic/rollenladder';
@@ -544,7 +544,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
           })()}
 
           {/* Rollenkas – mastery trophy wall */}
-          <RollenKas mistakeStats={mistakeStats} masteryStore={roleMasteryStore} />
+          <RollenKas mistakeStats={mistakeStats} masteryStore={roleMasteryStore} student={{ name: studentNameProp, initiaal: studentInitiaalProp, klas: studentKlasProp }} />
         </section>
 
         {/* === Section 2: Per-sentence overview === */}
@@ -682,12 +682,15 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
 
 // --- Helper sub-components ---
 
-function RollenKas({ mistakeStats, masteryStore }: { mistakeStats: Record<string, number>; masteryStore: RoleMasteryStore }) {
+function RollenKas({ mistakeStats, masteryStore, student }: { mistakeStats: Record<string, number>; masteryStore: RoleMasteryStore; student: { name: string; initiaal: string; klas: string } }) {
   const [open, setOpen] = React.useState(false);
   const errorRoles = new Set(Object.keys(mistakeStats));
 
   // Load role confidence for visual indicators
-  const confidences = React.useMemo(() => computeRoleConfidences(), []);
+  const confidences = React.useMemo(
+    () => loadRoleConfidencesFor(student.name, student.initiaal, student.klas),
+    [student.name, student.initiaal, student.klas],
+  );
 
   return (
     <div className="mt-4 border-t border-slate-100 dark:border-slate-700 pt-3">

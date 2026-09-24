@@ -242,7 +242,7 @@ export default function App() {
   return (
     <TrainerScreen
       currentSentence={trainer.currentSentence} step={trainer.step} mode={trainer.mode}
-      splitIndices={trainer.splitIndices} chunkLabels={trainer.chunkLabels} subLabels={trainer.subLabels} bijzinFunctieLabels={trainer.bijzinFunctieLabels}
+      splitIndices={trainer.splitIndices} chunkLabels={trainer.chunkLabels} subLabels={trainer.subLabels} bijzinFunctieLabels={trainer.bijzinFunctieLabels} predicateTypeLabels={trainer.predicateTypeLabels}
       bijvBepLinks={trainer.bijvBepLinks} linkingBijvBepId={trainer.linkingBijvBepId}
       wordBijvBepLinks={trainer.wordBijvBepLinks} linkingWordTokenId={trainer.linkingWordTokenId}
       validationResult={trainer.validationResult} showAnswerMode={trainer.showAnswerMode} hintMessage={trainer.hintMessage}
@@ -262,6 +262,7 @@ export default function App() {
       isDragging={trainer.isDragging} handleDragStart={trainer.handleDragStart} handleDragEnd={trainer.handleDragEnd} handleDropChunk={trainer.handleDropChunk} handleDropWord={trainer.handleDropWord}
       removeLabel={trainer.removeLabel} removeSubLabel={trainer.removeSubLabel}
       handleDropBijzinFunctie={trainer.handleDropBijzinFunctie} removeBijzinFunctieLabel={trainer.removeBijzinFunctieLabel}
+      handleDropPredicateType={trainer.handleDropPredicateType} removePredicateTypeLabel={trainer.removePredicateTypeLabel}
       startBijvBepLinking={trainer.startBijvBepLinking} completeBijvBepLink={trainer.completeBijvBepLink} cancelBijvBepLinking={trainer.cancelBijvBepLinking} removeBijvBepLink={trainer.removeBijvBepLink}
       completeWordBijvBepLink={trainer.completeWordBijvBepLink} cancelWordBijvBepLinking={trainer.cancelWordBijvBepLinking}
       handleHint={trainer.handleHint} handleCheck={trainer.handleCheck}
