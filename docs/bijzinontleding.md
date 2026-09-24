@@ -16,7 +16,7 @@ Een leerling die een bijzin goed heeft gevonden, ontleedt die bijzin daarna als 
   - Deze regel geldt voor **alle** zinnen, ook voor docentzinnen uit de zinseditor en uit `?zinnen=`.
   - Dat is een gedragswijziging. Vroeger vroeg de app de functie van een betrekkelijke bijzin bij elke docentzin, als bijvoeglijke bepalingen aanstonden. Nu gebeurt dat alleen nog bij een docentzin op niveau 4. Bij een lager niveau benoemt de leerling de bijzin wel, maar krijgt geen functievraag.
   - De zinseditor moet de docent hierop wijzen (zie `TODO.md`).
-- **Verplicht wederkerend voornaamwoord:** hoort ook in een bijzin bij het werkwoordelijk gezegde (zin 464: *zich versliep*).
+- **Wederkerend voornaamwoord:** hoort altijd bij het werkwoordelijk gezegde, of het wederkerend werkwoord nu verplicht is (*zich vergissen*) of niet (*zich scheren*). Dat geldt ook binnen een bijzin (zin 464: *zich versliep*). Een datatest bewaakt dit voor *zich*.
 
 ## Datamodel
 

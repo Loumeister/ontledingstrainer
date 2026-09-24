@@ -67,15 +67,27 @@ describe('zinnendata — bijzinontleding', () => {
   });
 });
 
-describe('zinnendata — wederkerende werkwoorden', () => {
+describe('zinnendata — wederkerende voornaamwoorden horen bij het WG', () => {
   it('rekent een verplicht wederkerend voornaamwoord tot het WG (zinnen 465, 466; 464 in de bijzin)', () => {
     expect(byId(465).tokens.find(t => t.text === 'zich,')?.role).toBe('wg');
     expect(byId(466).tokens.find(t => t.text === 'mij')?.role).toBe('wg');
     expect(byId(464).tokens.find(t => t.text === 'zich')?.bijzinAnalyse?.role).toBe('wg');
   });
 
-  it('laat "zich scheren" een LV houden: scheren is niet verplicht wederkerend (zin 132)', () => {
-    expect(byId(132).tokens.find(t => t.text === 'zich')?.role).toBe('lv');
+  it('rekent ook een niet-verplicht wederkerend voornaamwoord tot het WG (zin 132)', () => {
+    expect(byId(132).tokens.find(t => t.text === 'zich')?.role).toBe('wg');
+  });
+
+  it('labelt "zich" overal als deel van het WG, ook binnen een bijzin', () => {
+    const offenders = all.flatMap(s => s.tokens
+      .filter(t => /^zich[,.!?]?$/i.test(t.text))
+      .filter(t => (t.role === 'bijzin' ? t.bijzinAnalyse?.role : t.role) !== 'wg')
+      .map(t => `${s.id}:${t.text}`));
+    expect(offenders).toEqual([]);
+  });
+
+  it('"zich vergissen in" heeft een voorzetselvoorwerp (zin 466)', () => {
+    expect(byId(466).tokens.filter(t => ['in', 'het', 'lokaal,'].includes(t.text)).map(t => t.role)).toEqual(['vv', 'vv', 'vv']);
   });
 });
 
