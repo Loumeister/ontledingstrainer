@@ -88,6 +88,8 @@ export interface SessionHistoryEntry {
   roleSeen?: Partial<Record<RoleKey, number>>;
   /** Waarvan goed benoemd. */
   roleCorrect?: Partial<Record<RoleKey, number>>;
+  /** Rollenladder-sessie: telt niet mee voor adaptieve selectie. */
+  adaptiveExcluded?: boolean;
 }
 
 export interface RichFeedbackEntry {

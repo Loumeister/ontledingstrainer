@@ -111,6 +111,11 @@ describe('computeRoleConfidences', () => {
     expect(c.get('pv')!.confidence).toBe(0.5);
   });
 
+  it('negeert Rollenladder-sessies', () => {
+    const c = computeRoleConfidences([session({ adaptiveExcluded: true, mistakeStats: { 'Meewerkend Voorwerp': 4 } })]);
+    expect(c.get('mv')!.confidence).toBe(0.5);
+  });
+
   it('telt alleen sessies van de huidige leerling op een gedeelde browser', () => {
     const other = session({ studentId: 'std-b', roleSeen: { mv: 5 }, roleCorrect: { mv: 0 } });
     const legacy = session({ mistakeStats: { 'Meewerkend Voorwerp': 4 } });
@@ -124,16 +129,21 @@ describe('computeRoleConfidences', () => {
 // ---------------------------------------------------------------------------
 
 describe('tallySentenceRoles', () => {
-  it('telt zinsdelen per rol en trekt fouten per label af', () => {
-    const s = makeSentence(1, ['ow', 'ow', 'pv', 'mv', 'lv', 'lv']);
-    const { seen, correct } = tallySentenceRoles(s, { 'Meewerkend Voorwerp': 1, Verdeling: 1 });
+  const s = makeSentence(1, ['ow', 'ow', 'pv', 'mv', 'lv', 'lv']);
+  const chunk = (from: number, to: number) => ({ tokens: s.tokens.slice(from, to) });
+
+  it('telt goed en fout benoemde zinsdelen per rol', () => {
+    const chunks = [chunk(0, 2), chunk(2, 3), chunk(3, 4), chunk(4, 6)];
+    const { seen, correct } = tallySentenceRoles(chunks, { 0: 'correct', 1: 'correct', 2: 'incorrect-role', 3: 'warning' });
     expect(seen).toEqual({ ow: 1, pv: 1, mv: 1, lv: 1 });
-    expect(correct).toEqual({ ow: 1, pv: 1, mv: 0, lv: 1 });
+    expect(correct).toEqual({ ow: 1, pv: 1 });
   });
 
-  it('negeert rollen buiten de actieve trede', () => {
-    const s = makeSentence(1, ['ow', 'pv', 'mv']);
-    expect(tallySentenceRoles(s, {}, ['ow', 'pv']).seen).toEqual({ ow: 1, pv: 1 });
+  it('telt niets bij een verdelingsfout of een zinsdeel buiten de trede', () => {
+    const { seen, correct } = tallySentenceRoles([chunk(0, 6)], { 0: 'incorrect-split' });
+    expect(seen).toEqual({});
+    expect(correct).toEqual({});
+    expect(tallySentenceRoles([chunk(0, 2)], { 0: null }).seen).toEqual({});
   });
 });
 

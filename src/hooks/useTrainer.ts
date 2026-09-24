@@ -12,6 +12,7 @@ import {
   selectAdaptiveQueue,
   tallySentenceRoles,
   addRoleTally,
+  type RoleTally,
 } from '../logic/adaptiveSelection';
 import { buildReport, encodeReport } from '../services/sessionReport';
 import { postReport, getScriptUrl, shouldAutoSendReport } from '../services/googleDriveSync';
@@ -311,7 +312,7 @@ export function useTrainer(): TrainerState {
   const [sessionStats, setSessionStats] = useState({ correct: 0, total: 0 });
   const [mistakeStats, setMistakeStats] = useState<Record<string, number>>({});
   // Per-rol gezien/goed voor adaptieve selectie; geen re-render nodig
-  const roleTallyRef = useRef<{ seen: Partial<Record<RoleKey, number>>; correct: Partial<Record<RoleKey, number>> }>({ seen: {}, correct: {} });
+  const roleTallyRef = useRef<RoleTally>({ seen: {}, correct: {} });
   const [sessionSentenceResults, setSessionSentenceResults] = useState<SentenceResult[]>([]);
   const [isSessionFinished, setIsSessionFinished] = useState(false);
   const [consecutivePerfect, setConsecutivePerfect] = useState(0);
@@ -701,9 +702,13 @@ export function useTrainer(): TrainerState {
           total: finalTotal,
           mistakeStats: { ...mistakeStats },
           sentenceCount: sessionQueue.length,
-          studentId: resolveHistoryStudentId(studentName, studentInitiaal, studentKlas) ?? undefined,
-          roleSeen: { ...roleTallyRef.current.seen },
-          roleCorrect: { ...roleTallyRef.current.correct },
+          // Rollenladder: alleen trede en scores bewaren, geen identiteit of rolprofiel
+          ...(ladderEnabled ? {} : {
+            studentId: resolveHistoryStudentId(studentName, studentInitiaal, studentKlas) ?? undefined,
+            roleSeen: { ...roleTallyRef.current.seen },
+            roleCorrect: { ...roleTallyRef.current.correct },
+          }),
+          ...(ladderEnabled ? { adaptiveExcluded: true } : {}),
         });
       } catch {
         // Persistence failure must not prevent the score screen from showing
@@ -1232,7 +1237,8 @@ export function useTrainer(): TrainerState {
            newMistakeStats[role] = (newMistakeStats[role] || 0) + count;
         });
         setMistakeStats(newMistakeStats);
-        addRoleTally(roleTallyRef.current, tallySentenceRoles(currentSentence, currentMistakes, ladderActiveRoles));
+        // Rollenladder blijft buiten het adaptieve profiel
+        if (!ladderEnabled) addRoleTally(roleTallyRef.current, tallySentenceRoles(chunks, vResult.chunkStatus));
 
         // Track consecutive perfect sentences
         setConsecutivePerfect(prev => vResult.isPerfect ? prev + 1 : 0);
@@ -1363,7 +1369,9 @@ export function useTrainer(): TrainerState {
           newMistakeStats[role] = (newMistakeStats[role] || 0) + count;
         });
         setMistakeStats(newMistakeStats);
-        addRoleTally(roleTallyRef.current, tallySentenceRoles(currentSentence, currentMistakes, ladderActiveRoles));
+        if (!ladderEnabled) {
+          addRoleTally(roleTallyRef.current, tallySentenceRoles(buildUserChunks(currentSentence.tokens, splitIndices), vResult.chunkStatus));
+        }
         setSessionSentenceResults(prev => [...prev, {
           sentence: currentSentence,
           score: vResult.score,

@@ -12,7 +12,7 @@
  *    MAX_FOCUS_SHARE van de sessie, tenzij de pool niets anders biedt.
  */
 
-import { Sentence, RoleKey, SentenceUsageData, SessionHistoryEntry } from '../types';
+import { Sentence, RoleKey, SentenceUsageData, SessionHistoryEntry, Token, ValidationState } from '../types';
 import { loadUsageData } from '../services/usageData';
 import { loadSessionHistory } from '../services/sessionHistory';
 import { getOrCreateStudent, getStudents } from '../services/studentStore';
@@ -21,6 +21,11 @@ import { ROLES } from '../constants';
 // ---------------------------------------------------------------------------
 // Types & constants
 // ---------------------------------------------------------------------------
+
+export interface RoleTally {
+  seen: Partial<Record<RoleKey, number>>;
+  correct: Partial<Record<RoleKey, number>>;
+}
 
 export interface RoleConfidence {
   role: RoleKey;
@@ -47,43 +52,30 @@ const LABEL_TO_KEY = new Map<string, RoleKey>(ROLES.map(r => [r.label, r.key]));
 // ---------------------------------------------------------------------------
 
 /**
- * Tel per rol hoeveel zinsdelen in deze zin beoordeeld zijn en hoeveel daarvan
- * goed waren. `mistakes` is de uitvoer van validateAnswer (gekeyed op label).
- * Verdelingsfouten zijn niet aan een rol toe te wijzen en tellen niet als fout.
- * Met `activeRoles` (Rollenladder) tellen alleen rollen van de huidige trede.
+ * Tel per rol hoeveel zinsdelen de leerling in deze zin benoemd heeft en hoeveel
+ * daarvan goed waren, uit de chunkstatus van validateAnswer.
+ * Alleen goed verdeelde zinsdelen tellen: bij een verdelingsfout (of een
+ * zinsdeel buiten de actieve trede, status null) is de rol niet beoordeeld.
+ * Een waarschuwing telt als gezien maar niet als goed.
  */
 export function tallySentenceRoles(
-  sentence: Sentence,
-  mistakes: Record<string, number>,
-  activeRoles?: readonly RoleKey[] | null,
-): { seen: Partial<Record<RoleKey, number>>; correct: Partial<Record<RoleKey, number>> } {
+  chunks: { tokens: Token[] }[],
+  chunkStatus: Record<number, ValidationState>,
+): RoleTally {
   const seen: Partial<Record<RoleKey, number>> = {};
-  sentence.tokens.forEach((t, i) => {
-    const prev = sentence.tokens[i - 1];
-    if (i === 0 || t.role !== prev.role || t.newChunk) {
-      if (activeRoles && !activeRoles.includes(t.role)) return;
-      seen[t.role] = (seen[t.role] ?? 0) + 1;
-    }
-  });
-
-  const errors: Partial<Record<RoleKey, number>> = {};
-  for (const [label, count] of Object.entries(mistakes)) {
-    const key = LABEL_TO_KEY.get(label);
-    if (key && seen[key] !== undefined) errors[key] = (errors[key] ?? 0) + count;
-  }
-
   const correct: Partial<Record<RoleKey, number>> = {};
-  for (const [key, n] of Object.entries(seen) as [RoleKey, number][]) {
-    correct[key] = Math.max(0, n - (errors[key] ?? 0));
-  }
+  chunks.forEach((chunk, idx) => {
+    const status = chunkStatus[idx];
+    if (status !== 'correct' && status !== 'incorrect-role' && status !== 'warning') return;
+    const role = chunk.tokens[0].role;
+    seen[role] = (seen[role] ?? 0) + 1;
+    if (status === 'correct') correct[role] = (correct[role] ?? 0) + 1;
+  });
   return { seen, correct };
 }
 
 /** Tel een per-zin telling op bij een sessietotaal (muteert `target`). */
-export function addRoleTally(
-  target: { seen: Partial<Record<RoleKey, number>>; correct: Partial<Record<RoleKey, number>> },
-  add: { seen: Partial<Record<RoleKey, number>>; correct: Partial<Record<RoleKey, number>> },
-): void {
+export function addRoleTally(target: RoleTally, add: RoleTally): void {
   for (const [k, v] of Object.entries(add.seen) as [RoleKey, number][]) {
     target.seen[k] = (target.seen[k] ?? 0) + v;
   }
@@ -119,7 +111,7 @@ export function computeRoleConfidences(
 ): Map<RoleKey, RoleConfidence> {
   const { studentId = null, includeUntagged = true } = options;
   const relevant = history.filter(s =>
-    s.studentId ? s.studentId === studentId : includeUntagged,
+    !s.adaptiveExcluded && (s.studentId ? s.studentId === studentId : includeUntagged),
   );
 
   const seen: Partial<Record<RoleKey, number>> = {};
