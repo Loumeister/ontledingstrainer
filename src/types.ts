@@ -88,6 +88,8 @@ export interface SessionHistoryEntry {
   roleSeen?: Partial<Record<RoleKey, number>>;
   /** Waarvan goed benoemd. */
   roleCorrect?: Partial<Record<RoleKey, number>>;
+  /** Zin-id's uit deze sessie, voor versheid in adaptieve selectie. */
+  sentenceIds?: number[];
   /** Rollenladder-sessie: telt niet mee voor adaptieve selectie. */
   adaptiveExcluded?: boolean;
 }

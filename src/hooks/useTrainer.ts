@@ -7,7 +7,7 @@ import { recordAttempt, recordShowAnswer } from '../services/usageData';
 import { logInteraction } from '../services/interactionLog';
 import { saveSessionToHistory } from '../services/sessionHistory';
 import {
-  loadRoleConfidencesFor,
+  loadAdaptiveProfileFor,
   resolveHistoryStudentId,
   selectAdaptiveQueue,
   tallySentenceRoles,
@@ -472,8 +472,8 @@ export function useTrainer(): TrainerState {
 
     let selected: Sentence[];
     if (adaptiveMode) {
-      const confidences = loadRoleConfidencesFor(studentName, studentInitiaal, studentKlas);
-      selected = selectAdaptiveQueue(pool, count, confidences);
+      const { confidences, recentSentences } = loadAdaptiveProfileFor(studentName, studentInitiaal, studentKlas);
+      selected = selectAdaptiveQueue(pool, count, confidences, Math.random, recentSentences);
     } else {
       const shuffled = [...pool].sort(() => 0.5 - Math.random());
       selected = shuffled.slice(0, count);
@@ -707,6 +707,7 @@ export function useTrainer(): TrainerState {
             studentId: resolveHistoryStudentId(studentName, studentInitiaal, studentKlas) ?? undefined,
             roleSeen: { ...roleTallyRef.current.seen },
             roleCorrect: { ...roleTallyRef.current.correct },
+            sentenceIds: sessionQueue.map(q => q.id),
           }),
           ...(ladderEnabled ? { adaptiveExcluded: true } : {}),
         });

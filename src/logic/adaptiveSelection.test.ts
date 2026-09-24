@@ -4,13 +4,10 @@ import {
   selectAdaptiveQueue,
   computeSentenceScore,
   tallySentenceRoles,
+  computeRecentSentences,
   RoleConfidence,
 } from './adaptiveSelection';
-import type { Sentence, RoleKey, SentenceUsageData, SessionHistoryEntry } from '../types';
-
-vi.mock('../services/usageData', () => ({
-  loadUsageData: vi.fn(() => ({})),
-}));
+import type { Sentence, RoleKey, SessionHistoryEntry } from '../types';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -160,18 +157,21 @@ describe('tallySentenceRoles', () => {
 describe('computeSentenceScore', () => {
   it('laat één zwakke rol niet wegdrukken door sterke PV en OW', () => {
     const c = conf([['pv', 0.95], ['ow', 0.95], ['lv', 0.95], ['mv', 0.1]]);
-    const withMV = computeSentenceScore(makeSentence(1, ['pv', 'ow', 'lv', 'mv']), c, {}, Date.now());
-    const without = computeSentenceScore(makeSentence(2, ['pv', 'ow', 'lv']), c, {}, Date.now());
+    const withMV = computeSentenceScore(makeSentence(1, ['pv', 'ow', 'lv', 'mv']), c);
+    const without = computeSentenceScore(makeSentence(2, ['pv', 'ow', 'lv']), c);
     expect(withMV / without).toBeGreaterThan(3);
   });
 
-  it('geeft recent geoefende zinnen minder gewicht', () => {
-    const now = Date.now();
-    const base: SentenceUsageData = { attempts: 5, perfectCount: 3, showAnswerCount: 0, roleErrors: {}, splitErrors: 0, flagged: false, note: '' };
-    const s = makeSentence(1, ['pv']);
-    const recent = computeSentenceScore(s, new Map(), { 1: { ...base, lastAttempted: new Date(now).toISOString() } }, now);
-    const old = computeSentenceScore(s, new Map(), { 1: { ...base, lastAttempted: new Date(now - 30 * 864e5).toISOString() } }, now);
-    expect(old).toBeGreaterThan(recent);
+  it('geeft zinnen uit de eigen recente sessies minder gewicht', () => {
+    const history = [
+      session({ studentId: 'std-a', sentenceIds: [1] }),
+      session({ studentId: 'std-b', sentenceIds: [2] }),
+      session({ studentId: 'std-a', adaptiveExcluded: true, sentenceIds: [3] }),
+    ];
+    const recent = computeRecentSentences(history, { studentId: 'std-a', includeUntagged: false });
+    expect([...recent.keys()]).toEqual([1]);
+    const score = (id: number) => computeSentenceScore(makeSentence(id, ['pv']), new Map(), recent);
+    expect(score(1)).toBeLessThan(score(2));
   });
 });
 
@@ -186,7 +186,7 @@ describe('selectAdaptiveQueue', () => {
 
   it('geeft precies count unieke zinnen', () => {
     const pool = Array.from({ length: 20 }, (_, i) => makeSentence(i + 1, ['pv', 'ow']));
-    const result = selectAdaptiveQueue(pool, 10, new Map(), seededRandom(), {});
+    const result = selectAdaptiveQueue(pool, 10, new Map(), seededRandom());
     expect(result).toHaveLength(10);
     expect(new Set(result.map(s => s.id)).size).toBe(10);
   });
@@ -197,7 +197,7 @@ describe('selectAdaptiveQueue', () => {
     let mv = 0;
     let picks = 0;
     for (let run = 0; run < 200; run++) {
-      const selected = selectAdaptiveQueue(mvPool, 5, c, random, {});
+      const selected = selectAdaptiveQueue(mvPool, 5, c, random);
       mv += selected.filter(isMV).length;
       picks += selected.length;
     }
@@ -210,7 +210,7 @@ describe('selectAdaptiveQueue', () => {
     const random = seededRandom(11);
     for (const size of [3, 4, 5, 10]) {
       for (let run = 0; run < 200; run++) {
-        const selected = selectAdaptiveQueue(mvPool, size, c, random, {});
+        const selected = selectAdaptiveQueue(mvPool, size, c, random);
         expect(selected.every(isMV)).toBe(false);
       }
     }
@@ -224,7 +224,7 @@ describe('selectAdaptiveQueue', () => {
     const c = conf([['mv', 0.05]]);
     const random = seededRandom(5);
     for (let run = 0; run < 100; run++) {
-      expect(selectAdaptiveQueue(pool, 5, c, random, {}).every(isMV)).toBe(false);
+      expect(selectAdaptiveQueue(pool, 5, c, random).every(isMV)).toBe(false);
     }
   });
 
@@ -233,7 +233,7 @@ describe('selectAdaptiveQueue', () => {
     const random = seededRandom(3);
     let mv = 0;
     for (let run = 0; run < 200; run++) {
-      mv += selectAdaptiveQueue(mvPool, 5, c, random, {}).filter(isMV).length;
+      mv += selectAdaptiveQueue(mvPool, 5, c, random).filter(isMV).length;
     }
     expect(mv / 1000).toBeGreaterThan(0.15);
     expect(mv / 1000).toBeLessThan(0.25);

@@ -12,9 +12,8 @@
  *    MAX_FOCUS_SHARE van de sessie, tenzij de pool niets anders biedt.
  */
 
-import { Sentence, RoleKey, SentenceUsageData, SessionHistoryEntry, Token, ValidationState, PlacementMap } from '../types';
+import { Sentence, RoleKey, SessionHistoryEntry, Token, ValidationState, PlacementMap } from '../types';
 import { roleMatchesToken } from './validation';
-import { loadUsageData } from '../services/usageData';
 import { loadSessionHistory } from '../services/sessionHistory';
 import { getOrCreateStudent, getStudents } from '../services/studentStore';
 import { ROLES } from '../constants';
@@ -103,6 +102,35 @@ export interface ConfidenceOptions {
   includeUntagged?: boolean;
 }
 
+/** Sessies die meetellen voor deze leerling, oud → nieuw. */
+function relevantHistory(history: SessionHistoryEntry[], options: ConfidenceOptions): SessionHistoryEntry[] {
+  const { studentId = null, includeUntagged = true } = options;
+  return history.filter(s =>
+    !s.adaptiveExcluded && (s.studentId ? s.studentId === studentId : includeUntagged),
+  );
+}
+
+/** Na zoveel eigen sessies telt een eerder gemaakte zin weer als vers. */
+const FRESHNESS_SESSIONS = 4;
+
+/**
+ * Per zin-id: hoeveel sessies geleden de leerling hem maakte (0 = vorige sessie),
+ * alleen voor de laatste FRESHNESS_SESSIONS sessies van deze leerling.
+ */
+export function computeRecentSentences(
+  history: SessionHistoryEntry[],
+  options: ConfidenceOptions = {},
+): Map<number, number> {
+  const relevant = relevantHistory(history, options);
+  const recent = new Map<number, number>();
+  for (let age = 0; age < FRESHNESS_SESSIONS && age < relevant.length; age++) {
+    for (const id of relevant[relevant.length - 1 - age].sentenceIds ?? []) {
+      if (!recent.has(id)) recent.set(id, age);
+    }
+  }
+  return recent;
+}
+
 /**
  * Bereken per rol een confidence uit de sessiegeschiedenis (oud → nieuw).
  *
@@ -114,10 +142,7 @@ export function computeRoleConfidences(
   history: SessionHistoryEntry[],
   options: ConfidenceOptions = {},
 ): Map<RoleKey, RoleConfidence> {
-  const { studentId = null, includeUntagged = true } = options;
-  const relevant = history.filter(s =>
-    !s.adaptiveExcluded && (s.studentId ? s.studentId === studentId : includeUntagged),
-  );
+  const relevant = relevantHistory(history, options);
 
   const seen: Partial<Record<RoleKey, number>> = {};
   const errors: Partial<Record<RoleKey, number>> = {};
@@ -169,15 +194,34 @@ export function resolveHistoryStudentId(name: string, initiaal: string, klas: st
 }
 
 /**
- * Confidences voor de huidige leerling uit localStorage. Oude sessies zonder
- * studentId tellen alleen mee als deze browser maar één leerling kent;
- * op een gedeelde laptop zijn die niet aan één leerling toe te wijzen.
+ * Welke sessies uit localStorage bij de huidige leerling horen. Oude sessies
+ * zonder studentId tellen alleen mee als deze browser maar één leerling kent
+ * én er geen gelabelde sessie van iemand anders is (bijv. Sam B. naast Sam K.,
+ * die in studentStore hetzelfde record delen).
  */
+function historyOptionsFor(history: SessionHistoryEntry[], name: string, initiaal: string, klas: string): ConfidenceOptions {
+  const studentId = resolveHistoryStudentId(name, initiaal, klas);
+  const otherTagged = history.some(s => s.studentId && s.studentId !== studentId);
+  return { studentId, includeUntagged: getStudents().length <= 1 && !otherTagged };
+}
+
+/** Confidences voor de huidige leerling (rollenkas op het scorescherm). */
 export function loadRoleConfidencesFor(name: string, initiaal: string, klas: string): Map<RoleKey, RoleConfidence> {
-  return computeRoleConfidences(loadSessionHistory(), {
-    studentId: resolveHistoryStudentId(name, initiaal, klas),
-    includeUntagged: getStudents().length <= 1,
-  });
+  const history = loadSessionHistory();
+  return computeRoleConfidences(history, historyOptionsFor(history, name, initiaal, klas));
+}
+
+/** Alles wat selectAdaptiveQueue voor de huidige leerling nodig heeft. */
+export function loadAdaptiveProfileFor(name: string, initiaal: string, klas: string): {
+  confidences: Map<RoleKey, RoleConfidence>;
+  recentSentences: Map<number, number>;
+} {
+  const history = loadSessionHistory();
+  const options = historyOptionsFor(history, name, initiaal, klas);
+  return {
+    confidences: computeRoleConfidences(history, options),
+    recentSentences: computeRecentSentences(history, options),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -199,32 +243,23 @@ export function sentenceWeakness(
 /**
  * Gewicht van een zin bij het trekken. Neutraal = 1.
  * - Zwakste rol: 1 + ROLE_BOOST × (hoeveel zwakker dan neutraal), 1 … 1+ROLE_BOOST
- * - Versheid: recent geoefende zinnen ×0,6 … nooit/lang geleden ×1
- * - Zin vaak fout: ×1 … ×1,3
+ * - Versheid: zin uit de vorige eigen sessie ×0,6, daarna +0,1 per sessie tot ×1
+ *
+ * Bewust niet uit de gedeelde gebruiksstatistiek (usageData): die is per
+ * browser en bevat ook Rollenladder-pogingen en andere leerlingen.
  */
 export function computeSentenceScore(
   sentence: Sentence,
   roleConfidences: Map<RoleKey, RoleConfidence>,
-  usageStore: Record<number, SentenceUsageData>,
-  now: number,
+  recentSentences: Map<number, number> = new Map(),
 ): number {
   const weakness = sentenceWeakness(sentence, roleConfidences);
   const roleFactor = 1 + ROLE_BOOST * Math.max(0, (weakness - 0.5) / 0.5);
 
-  const usage = usageStore[sentence.id];
-  let freshness = 1;
-  if (usage?.lastAttempted) {
-    const daysSince = (now - new Date(usage.lastAttempted).getTime()) / (1000 * 60 * 60 * 24);
-    freshness = Math.max(0, Math.min(1, daysSince / 30));
-  }
-  const freshnessFactor = 0.6 + 0.4 * freshness;
+  const age = recentSentences.get(sentence.id);
+  const freshnessFactor = age === undefined ? 1 : Math.min(1, 0.6 + 0.1 * age);
 
-  let errorFactor = 1;
-  if (usage && usage.attempts > 0) {
-    errorFactor = 1 + 0.3 * (1 - usage.perfectCount / usage.attempts);
-  }
-
-  return roleFactor * freshnessFactor * errorFactor;
+  return roleFactor * freshnessFactor;
 }
 
 function weakRolesIn(sentence: Sentence, weakRoles: Set<RoleKey>): boolean {
@@ -233,15 +268,14 @@ function weakRolesIn(sentence: Sentence, weakRoles: Set<RoleKey>): boolean {
 
 /**
  * Kies `count` zinnen uit `pool` met gewogen trekking zonder terugleggen.
- * Pure functie: gebruik-statistiek en random zijn injecteerbaar.
+ * Pure functie: recente zinnen en random zijn injecteerbaar.
  */
 export function selectAdaptiveQueue(
   pool: Sentence[],
   count: number,
   roleConfidences: Map<RoleKey, RoleConfidence>,
   random: () => number = Math.random,
-  usageStore: Record<number, SentenceUsageData> = loadUsageData(),
-  now: number = Date.now(),
+  recentSentences: Map<number, number> = new Map(),
 ): Sentence[] {
   if (pool.length === 0) return [];
   const n = Math.min(count, pool.length);
@@ -253,7 +287,7 @@ export function selectAdaptiveQueue(
 
   const remaining = pool.map(sentence => ({
     sentence,
-    score: computeSentenceScore(sentence, roleConfidences, usageStore, now),
+    score: computeSentenceScore(sentence, roleConfidences, recentSentences),
     focus: weakRolesIn(sentence, weakRoles),
   }));
 
