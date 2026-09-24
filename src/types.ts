@@ -82,6 +82,12 @@ export interface SessionHistoryEntry {
   total: number;
   mistakeStats: Record<string, number>;
   sentenceCount: number;
+  /** Sinds adaptieve selectie v2; ontbreekt in oudere sessies. */
+  studentId?: string;
+  /** Aantal beoordeelde zinsdelen per rol in deze sessie. */
+  roleSeen?: Partial<Record<RoleKey, number>>;
+  /** Waarvan goed benoemd. */
+  roleCorrect?: Partial<Record<RoleKey, number>>;
 }
 
 export interface RichFeedbackEntry {

@@ -1,245 +1,292 @@
 /**
- * Adaptive sentence selection: calculates per-role confidence scores from
- * historical performance data and uses weighted random sampling to prioritise
- * sentences that contain roles the student struggles with.
+ * Adaptive sentence selection ("Slimme zinsselectie").
  *
- * Design: ~35% of the weight is random so selection is never fully
- * deterministic ("in enige mate, maar niet volledig adaptief").
+ * 1. Per rol schatten we hoe zeker de leerling is: (goed + 1) / (gezien + 2),
+ *    met recente sessies zwaarder dan oude (halveringstijd in sessies).
+ *    Een rol die nooit gezien is blijft op 0,5 (neutraal).
+ * 2. Een zin is zo interessant als zijn zwakste rol (maximale zwakte, niet
+ *    het gemiddelde — PV en OW mogen een zwakke rol niet wegdrukken).
+ * 3. Zinnen worden gewogen getrokken zonder terugleggen. Een zin met een
+ *    zeer zwakke rol weegt maximaal (1 + ROLE_BOOST) keer zo zwaar.
+ * 4. Variatie-ondergrens: zinnen met een zwakke rol vullen hooguit
+ *    MAX_FOCUS_SHARE van de sessie, tenzij de pool niets anders biedt.
  */
 
-import { Sentence, RoleKey, SentenceUsageData } from '../types';
-import { loadSessionHistory } from '../services/sessionHistory';
+import { Sentence, RoleKey, SentenceUsageData, SessionHistoryEntry } from '../types';
 import { loadUsageData } from '../services/usageData';
+import { loadSessionHistory } from '../services/sessionHistory';
+import { getOrCreateStudent, getStudents } from '../services/studentStore';
 import { ROLES } from '../constants';
 
 // ---------------------------------------------------------------------------
-// Types
+// Types & constants
 // ---------------------------------------------------------------------------
 
 export interface RoleConfidence {
   role: RoleKey;
-  confidence: number;   // 0.0 (weak) – 1.0 (strong)
+  confidence: number;   // 0.0 (weak) – 1.0 (strong); 0.5 = geen gegevens
+  /** Gewogen aantal keer dat de rol beoordeeld is (na vervagen). */
   totalEncounters: number;
+  /** Gewogen aantal fouten op deze rol (na vervagen). */
   recentErrors: number;
+}
+
+/** Na zoveel sessies telt een uitkomst nog maar half mee. */
+export const HALF_LIFE_SESSIONS = 5;
+/** Extra gewicht voor een zin waarvan de zwakste rol maximaal zwak is. */
+export const ROLE_BOOST = 3;
+/** Hoogstens dit deel van een sessie bestaat uit zinnen met een zwakke rol. */
+export const MAX_FOCUS_SHARE = 0.6;
+/** Een rol telt als zwak (focusrol) vanaf deze zwakte (= 1 − confidence). */
+const WEAK_THRESHOLD = 0.55;
+
+const LABEL_TO_KEY = new Map<string, RoleKey>(ROLES.map(r => [r.label, r.key]));
+
+// ---------------------------------------------------------------------------
+// Per-session role tallies
+// ---------------------------------------------------------------------------
+
+/**
+ * Tel per rol hoeveel zinsdelen in deze zin beoordeeld zijn en hoeveel daarvan
+ * goed waren. `mistakes` is de uitvoer van validateAnswer (gekeyed op label).
+ * Verdelingsfouten zijn niet aan een rol toe te wijzen en tellen niet als fout.
+ * Met `activeRoles` (Rollenladder) tellen alleen rollen van de huidige trede.
+ */
+export function tallySentenceRoles(
+  sentence: Sentence,
+  mistakes: Record<string, number>,
+  activeRoles?: readonly RoleKey[] | null,
+): { seen: Partial<Record<RoleKey, number>>; correct: Partial<Record<RoleKey, number>> } {
+  const seen: Partial<Record<RoleKey, number>> = {};
+  sentence.tokens.forEach((t, i) => {
+    const prev = sentence.tokens[i - 1];
+    if (i === 0 || t.role !== prev.role || t.newChunk) {
+      if (activeRoles && !activeRoles.includes(t.role)) return;
+      seen[t.role] = (seen[t.role] ?? 0) + 1;
+    }
+  });
+
+  const errors: Partial<Record<RoleKey, number>> = {};
+  for (const [label, count] of Object.entries(mistakes)) {
+    const key = LABEL_TO_KEY.get(label);
+    if (key && seen[key] !== undefined) errors[key] = (errors[key] ?? 0) + count;
+  }
+
+  const correct: Partial<Record<RoleKey, number>> = {};
+  for (const [key, n] of Object.entries(seen) as [RoleKey, number][]) {
+    correct[key] = Math.max(0, n - (errors[key] ?? 0));
+  }
+  return { seen, correct };
+}
+
+/** Tel een per-zin telling op bij een sessietotaal (muteert `target`). */
+export function addRoleTally(
+  target: { seen: Partial<Record<RoleKey, number>>; correct: Partial<Record<RoleKey, number>> },
+  add: { seen: Partial<Record<RoleKey, number>>; correct: Partial<Record<RoleKey, number>> },
+): void {
+  for (const [k, v] of Object.entries(add.seen) as [RoleKey, number][]) {
+    target.seen[k] = (target.seen[k] ?? 0) + v;
+  }
+  for (const [k, v] of Object.entries(add.correct) as [RoleKey, number][]) {
+    target.correct[k] = (target.correct[k] ?? 0) + v;
+  }
 }
 
 // ---------------------------------------------------------------------------
 // Role-confidence calculation
 // ---------------------------------------------------------------------------
 
-const CONFIDENCE_STORAGE_KEY = 'zinsontleding_role_confidence_v1';
+export interface ConfidenceOptions {
+  /** Alleen sessies van deze leerling meetellen. */
+  studentId?: string | null;
+  /**
+   * Sessies zonder studentId (van vóór deze versie) ook meetellen.
+   * Alleen veilig als deze browser maar één leerling kent.
+   */
+  includeUntagged?: boolean;
+}
 
 /**
- * Compute a confidence score per role based on recent session history.
+ * Bereken per rol een confidence uit de sessiegeschiedenis (oud → nieuw).
  *
- * Uses the `mistakeStats` from the last N sessions (default: all available,
- * capped at 20 by sessionHistory). For each role we count how often it
- * appeared in a session and how many errors were recorded.
+ * Nieuwe sessies hebben `roleSeen`/`roleCorrect`. Oude sessies hebben alleen
+ * fouten; die tellen als "gezien en fout" — we weten daar niet hoe vaak de rol
+ * goed ging, dus alleen fouten zijn bewijs. Rollen zonder bewijs blijven 0,5.
  */
-export function computeRoleConfidences(): Map<RoleKey, RoleConfidence> {
-  const history = loadSessionHistory();
-  const allRoleKeys = ROLES.map(r => r.key);
+export function computeRoleConfidences(
+  history: SessionHistoryEntry[],
+  options: ConfidenceOptions = {},
+): Map<RoleKey, RoleConfidence> {
+  const { studentId = null, includeUntagged = true } = options;
+  const relevant = history.filter(s =>
+    s.studentId ? s.studentId === studentId : includeUntagged,
+  );
 
-  // Aggregate: per role how many sessions contained it, how many errors total
-  const encounters: Record<string, number> = {};
-  const errors: Record<string, number> = {};
+  const seen: Partial<Record<RoleKey, number>> = {};
+  const errors: Partial<Record<RoleKey, number>> = {};
 
-  for (const session of history) {
-    // Every session implicitly "encounters" the core roles (PV, OW at least).
-    // We count a role as encountered if either (a) it had errors or (b) it was
-    // part of a session where at least some scoring happened. Since we don't
-    // store per-role correct counts, we approximate: every role that exists in
-    // mistakeStats OR was likely present (we count all roles per session, since
-    // the student practiced a mix of sentences).
-    //
-    // Better heuristic: count per role how many sessions had mistakes, and use
-    // total sessions as the denominator.
-    for (const roleKey of allRoleKeys) {
-      const roleLabel = ROLES.find(r => r.key === roleKey)?.label ?? roleKey;
-      encounters[roleKey] = (encounters[roleKey] ?? 0) + 1;
-      const errCount = session.mistakeStats[roleLabel] ?? 0;
-      if (errCount > 0) {
-        errors[roleKey] = (errors[roleKey] ?? 0) + errCount;
+  relevant.forEach((session, idx) => {
+    const age = relevant.length - 1 - idx; // 0 = meest recente sessie
+    const w = Math.pow(0.5, age / HALF_LIFE_SESSIONS);
+
+    if (session.roleSeen) {
+      for (const [k, n] of Object.entries(session.roleSeen) as [RoleKey, number][]) {
+        const ok = Math.min(n, session.roleCorrect?.[k] ?? 0);
+        seen[k] = (seen[k] ?? 0) + w * n;
+        errors[k] = (errors[k] ?? 0) + w * (n - ok);
+      }
+    } else {
+      // Legacy: alleen fouten bekend, gekeyed op label.
+      for (const [label, count] of Object.entries(session.mistakeStats ?? {})) {
+        const k = LABEL_TO_KEY.get(label);
+        if (!k || count <= 0) continue;
+        seen[k] = (seen[k] ?? 0) + w * count;
+        errors[k] = (errors[k] ?? 0) + w * count;
       }
     }
-  }
+  });
 
   const result = new Map<RoleKey, RoleConfidence>();
-
-  for (const roleKey of allRoleKeys) {
-    const totalEnc = encounters[roleKey] ?? 0;
-    const totalErr = errors[roleKey] ?? 0;
-
-    let confidence: number;
-    if (totalEnc === 0) {
-      // Never encountered → neutral
-      confidence = 0.5;
-    } else {
-      // Simple ratio: fraction of sessions without errors for this role.
-      // Each session adds 1 encounter; each error-session can add multiple
-      // errors, so we cap the ratio.
-      confidence = Math.max(0.1, Math.min(1.0, 1 - (totalErr / (totalEnc * 2))));
-    }
-
-    result.set(roleKey, {
-      role: roleKey,
-      confidence,
-      totalEncounters: totalEnc,
-      recentErrors: totalErr,
-    });
+  for (const { key } of ROLES) {
+    const n = seen[key] ?? 0;
+    const e = errors[key] ?? 0;
+    // Laplace-schatting: 0,5 zonder gegevens; één fout duwt niet meteen naar 0.
+    const confidence = (n - e + 1) / (n + 2);
+    result.set(key, { role: key, confidence, totalEncounters: n, recentErrors: e });
   }
-
   return result;
 }
 
-// ---------------------------------------------------------------------------
-// Persistence helpers
-// ---------------------------------------------------------------------------
-
-export function saveRoleConfidences(confidences: Map<RoleKey, RoleConfidence>): void {
-  try {
-    const obj: Record<string, RoleConfidence> = {};
-    confidences.forEach((v, k) => { obj[k] = v; });
-    localStorage.setItem(CONFIDENCE_STORAGE_KEY, JSON.stringify(obj));
-  } catch { /* ignore */ }
+/**
+ * Stabiel student-id voor het labelen van sessiegeschiedenis, of null voor een
+ * anonieme leerling (die krijgt anders elke keer een nieuw, niet-opgeslagen id).
+ */
+export function resolveHistoryStudentId(name: string, initiaal: string, klas: string): string | null {
+  if (!name.trim()) return null;
+  try { return getOrCreateStudent(name, initiaal, klas).id; } catch { return null; }
 }
 
-export function loadRoleConfidences(): Map<RoleKey, RoleConfidence> | null {
-  try {
-    const raw = localStorage.getItem(CONFIDENCE_STORAGE_KEY);
-    if (!raw) return null;
-    const obj = JSON.parse(raw) as Record<string, RoleConfidence>;
-    const map = new Map<RoleKey, RoleConfidence>();
-    for (const [k, v] of Object.entries(obj)) {
-      map.set(k as RoleKey, v);
-    }
-    return map;
-  } catch {
-    return null;
-  }
+/**
+ * Confidences voor de huidige leerling uit localStorage. Oude sessies zonder
+ * studentId tellen alleen mee als deze browser maar één leerling kent;
+ * op een gedeelde laptop zijn die niet aan één leerling toe te wijzen.
+ */
+export function loadRoleConfidencesFor(name: string, initiaal: string, klas: string): Map<RoleKey, RoleConfidence> {
+  return computeRoleConfidences(loadSessionHistory(), {
+    studentId: resolveHistoryStudentId(name, initiaal, klas),
+    includeUntagged: getStudents().length <= 1,
+  });
 }
 
 // ---------------------------------------------------------------------------
 // Weighted sentence selection
 // ---------------------------------------------------------------------------
 
-/** Weight configuration – tuneable constants */
-const ROLE_WEIGHT_FACTOR = 0.35;      // How much "weak roles" matter
-const FRESHNESS_WEIGHT_FACTOR = 0.15; // How much "not recently seen" matters
-const ERROR_WEIGHT_FACTOR = 0.15;     // How much "previously failed" matters
-const RANDOM_WEIGHT_FACTOR = 0.35;    // Random component for variety
-
-/**
- * Select `count` sentences from `pool` using adaptive weighted sampling.
- *
- * Each sentence receives a priority score composed of:
- * 1. Role weight – sum of (1 - confidence) for each role present
- * 2. Freshness – bonus for sentences not recently attempted
- * 3. Error history – bonus for sentences with low perfect ratio
- * 4. Random noise – ensures variety
- */
-export function selectAdaptiveQueue(
-  pool: Sentence[],
-  count: number,
+/** Zwakte (1 − confidence) van de zwakste rol in de zin; 0,5 bij onbekend. */
+export function sentenceWeakness(
+  sentence: Sentence,
   roleConfidences: Map<RoleKey, RoleConfidence>,
-  random: () => number = Math.random,
-): Sentence[] {
-  if (pool.length === 0) return [];
-  const n = Math.min(count, pool.length);
-
-  const usageStore = loadUsageData();
-  const now = Date.now();
-
-  // Compute raw scores
-  const scored = pool.map(sentence => {
-    const score = computeSentenceScore(sentence, roleConfidences, usageStore, now, random);
-    return { sentence, score };
-  });
-
-  // Weighted random sampling without replacement
-  const selected: Sentence[] = [];
-  const remaining = [...scored];
-
-  for (let i = 0; i < n; i++) {
-    const totalWeight = remaining.reduce((sum, item) => sum + item.score, 0);
-    if (totalWeight <= 0) {
-      // Fallback: pick randomly from remaining
-      const idx = Math.floor(random() * remaining.length);
-      selected.push(remaining[idx].sentence);
-      remaining.splice(idx, 1);
-      continue;
-    }
-
-    let r = random() * totalWeight;
-    let picked = remaining.length - 1;
-    for (let j = 0; j < remaining.length; j++) {
-      r -= remaining[j].score;
-      if (r <= 0) {
-        picked = j;
-        break;
-      }
-    }
-
-    selected.push(remaining[picked].sentence);
-    remaining.splice(picked, 1);
+): number {
+  let max = 0;
+  for (const t of sentence.tokens) {
+    max = Math.max(max, 1 - (roleConfidences.get(t.role)?.confidence ?? 0.5));
   }
-
-  // Shuffle selected sentences so the order is not score-based
-  for (let i = selected.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [selected[i], selected[j]] = [selected[j], selected[i]];
-  }
-
-  return selected;
+  return sentence.tokens.length > 0 ? max : 0.5;
 }
 
 /**
- * Compute a single sentence's priority score.
- * All sub-scores are normalised to [0, 1] before weighting.
+ * Gewicht van een zin bij het trekken. Neutraal = 1.
+ * - Zwakste rol: 1 + ROLE_BOOST × (hoeveel zwakker dan neutraal), 1 … 1+ROLE_BOOST
+ * - Versheid: recent geoefende zinnen ×0,6 … nooit/lang geleden ×1
+ * - Zin vaak fout: ×1 … ×1,3
  */
 export function computeSentenceScore(
   sentence: Sentence,
   roleConfidences: Map<RoleKey, RoleConfidence>,
   usageStore: Record<number, SentenceUsageData>,
   now: number,
-  random: () => number = Math.random,
 ): number {
-  // 1. Role weight: average (1 - confidence) across roles in this sentence
-  const rolesInSentence = new Set(sentence.tokens.map(t => t.role));
-  let roleScore = 0;
-  let roleCount = 0;
-  for (const role of rolesInSentence) {
-    const conf = roleConfidences.get(role);
-    roleScore += 1 - (conf?.confidence ?? 0.5);
-    roleCount++;
-  }
-  const avgRoleScore = roleCount > 0 ? roleScore / roleCount : 0.5;
+  const weakness = sentenceWeakness(sentence, roleConfidences);
+  const roleFactor = 1 + ROLE_BOOST * Math.max(0, (weakness - 0.5) / 0.5);
 
-  // 2. Freshness: days since last attempt (capped at 30 days = score 1.0)
   const usage = usageStore[sentence.id];
-  let freshnessScore = 1.0; // never attempted = maximum freshness
+  let freshness = 1;
   if (usage?.lastAttempted) {
     const daysSince = (now - new Date(usage.lastAttempted).getTime()) / (1000 * 60 * 60 * 24);
-    freshnessScore = Math.min(1.0, daysSince / 30);
+    freshness = Math.max(0, Math.min(1, daysSince / 30));
   }
+  const freshnessFactor = 0.6 + 0.4 * freshness;
 
-  // 3. Error history: low perfect ratio = higher score
-  let errorScore = 0.5; // default for unattempted sentences
+  let errorFactor = 1;
   if (usage && usage.attempts > 0) {
-    const perfectRatio = usage.perfectCount / usage.attempts;
-    errorScore = 1 - perfectRatio; // 0 = always perfect, 1 = never perfect
+    errorFactor = 1 + 0.3 * (1 - usage.perfectCount / usage.attempts);
   }
 
-  // 4. Random noise
-  const randomScore = random();
+  return roleFactor * freshnessFactor * errorFactor;
+}
 
-  // Weighted sum (all components are [0, 1])
-  const total =
-    avgRoleScore * ROLE_WEIGHT_FACTOR +
-    freshnessScore * FRESHNESS_WEIGHT_FACTOR +
-    errorScore * ERROR_WEIGHT_FACTOR +
-    randomScore * RANDOM_WEIGHT_FACTOR;
+function weakRolesIn(sentence: Sentence, weakRoles: Set<RoleKey>): boolean {
+  return sentence.tokens.some(t => weakRoles.has(t.role));
+}
 
-  // Ensure non-negative (floor at a small positive value so every sentence has a chance)
-  return Math.max(0.01, total);
+/**
+ * Kies `count` zinnen uit `pool` met gewogen trekking zonder terugleggen.
+ * Pure functie: gebruik-statistiek en random zijn injecteerbaar.
+ */
+export function selectAdaptiveQueue(
+  pool: Sentence[],
+  count: number,
+  roleConfidences: Map<RoleKey, RoleConfidence>,
+  random: () => number = Math.random,
+  usageStore: Record<number, SentenceUsageData> = loadUsageData(),
+  now: number = Date.now(),
+): Sentence[] {
+  if (pool.length === 0) return [];
+  const n = Math.min(count, pool.length);
+
+  const weakRoles = new Set<RoleKey>();
+  roleConfidences.forEach((c, k) => {
+    if (1 - c.confidence >= WEAK_THRESHOLD) weakRoles.add(k);
+  });
+
+  const remaining = pool.map(sentence => ({
+    sentence,
+    score: computeSentenceScore(sentence, roleConfidences, usageStore, now),
+    focus: weakRolesIn(sentence, weakRoles),
+  }));
+
+  // Variatie-ondergrens: nooit meer focuszinnen dan het maximum van
+  // MAX_FOCUS_SHARE en wat de pool van nature al zou geven.
+  const poolFocusShare = remaining.filter(r => r.focus).length / pool.length;
+  const focusCap = n < 2
+    ? n
+    : Math.max(Math.min(n - 1, Math.ceil(n * MAX_FOCUS_SHARE)), Math.round(n * poolFocusShare));
+
+  const selected: Sentence[] = [];
+  let focusPicked = 0;
+
+  for (let i = 0; i < n; i++) {
+    let candidates = remaining.filter(r => !r.focus || focusPicked < focusCap);
+    if (candidates.length === 0) candidates = remaining; // pool dwingt het af
+
+    const total = candidates.reduce((sum, r) => sum + r.score, 0);
+    let r = random() * total;
+    let picked = candidates[candidates.length - 1];
+    for (const c of candidates) {
+      r -= c.score;
+      if (r <= 0) { picked = c; break; }
+    }
+
+    selected.push(picked.sentence);
+    if (picked.focus) focusPicked++;
+    remaining.splice(remaining.indexOf(picked), 1);
+  }
+
+  // Volgorde husselen zodat de zwaarste zin niet altijd eerst komt
+  for (let i = selected.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [selected[i], selected[j]] = [selected[j], selected[i]];
+  }
+
+  return selected;
 }
