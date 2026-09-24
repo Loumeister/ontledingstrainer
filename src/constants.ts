@@ -291,6 +291,11 @@ export const FEEDBACK_BIJZIN_FUNCTIE = {
   WRONG: (_expected: string) => "Bekijk de bijzin als één geheel. Welke vraag beantwoordt dit deel in de hoofdzin?"
 };
 
+export const FEEDBACK_PREDICATE_TYPE = {
+  MISSING: "Goed, dit is de persoonsvorm! Hoort ze bij een werkwoordelijk (WG) of een naamwoordelijk (NG) gezegde?",
+  WRONG: (_expected: string) => "Drukt het gezegde een handeling uit (WG), of zegt het wat het onderwerp is, wordt of blijft (NG)?"
+};
+
 export const HINTS = {
   MISSING_PV: "Tip: Pas de tijd van de zin aan. Welk werkwoord verandert?",
   MISSING_OW: "Tip: Denk na over wie of wat er in deze zin iets doet of is.",
@@ -304,6 +309,7 @@ export const HINTS = {
   MISSING_BIJZIN: "Tip: Zoek een zinsdeel met een eigen onderwerp en persoonsvorm.",
   MISSING_BIJST: "Tip: Zoek een extra naam voor iets wat al genoemd is.",
   MISSING_BIJZIN_FUNCTIE: "Tip: Welke vraag beantwoordt de volledige bijzin in de hoofdzin?",
+  MISSING_PREDICATE_TYPE: "Tip: Is dit een werkwoordelijk gezegde (WG, een handeling) of een naamwoordelijk gezegde (NG, een eigenschap of toestand)?",
   SUBLABEL_NEEDS_MAIN_ROLE: "Tip: Geef dit deel eerst een hoofdlabel (bijv. WG of NG) voordat je een deelrol op een woord plaatst.",
   generic: (_roleLabel: string) => "Tip: Loop je ontleding nog eens rustig stap voor stap door.",
   ALL_PLACED: "Alles staat op een plek. Kijk nog één keer of het echt klopt.",

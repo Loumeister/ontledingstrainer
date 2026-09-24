@@ -14,7 +14,7 @@ Lees niet standaard alle docs of skills.
 
 ## Productinvarianten
 
-- Op de gewone URL wijst de leerling alle toepasselijke rollen tegelijk aan.
+- Op de gewone URL wijst de leerling alle toepasselijke rollen tegelijk aan. Uitzondering: de persoonsvorm moet als eerste worden gevonden (korte melding, geen popup) en krijgt vanaf niveau 1 verplicht een WG/NG-subrol (genest onder de PV-chunk) voordat gecontroleerd kan worden — zie `requiresPredicateChoice` in `src/logic/validation.ts`.
 - De Rollenladder is alleen actief via `#/rollenladder`; alleen trede en scores mogen blijven staan.
 - Een verkeerd label bewijst geen precieze denkfout. Feedback geeft één controleerbare herstelstap en laat opnieuw proberen.
 - Lokale `RoleKey`-waarden en tokenannotaties blijven productlokaal.

@@ -11,10 +11,11 @@ import { FeedbackPanel, FeedbackItem } from '../components/FeedbackPanel';
 import { TrainerState } from '../hooks/useTrainer';
 import { shouldShowSessionNextButton } from '../logic/sessionFlow';
 import { getLadderStage } from '../logic/rollenladder';
+import { requiresPredicateChoice } from '../logic/validation';
 
 type TrainerScreenProps = Pick<TrainerState,
   | 'currentSentence' | 'step' | 'mode'
-  | 'splitIndices' | 'chunkLabels' | 'subLabels' | 'bijzinFunctieLabels'
+  | 'splitIndices' | 'chunkLabels' | 'subLabels' | 'bijzinFunctieLabels' | 'predicateTypeLabels'
   | 'bijvBepLinks' | 'linkingBijvBepId'
   | 'wordBijvBepLinks' | 'linkingWordTokenId'
   | 'validationResult' | 'showAnswerMode' | 'hintMessage'
@@ -33,6 +34,7 @@ type TrainerScreenProps = Pick<TrainerState,
   | 'isDragging' | 'handleDragStart' | 'handleDragEnd' | 'handleDropChunk' | 'handleDropWord'
   | 'removeLabel' | 'removeSubLabel'
   | 'handleDropBijzinFunctie' | 'removeBijzinFunctieLabel'
+  | 'handleDropPredicateType' | 'removePredicateTypeLabel'
   | 'startBijvBepLinking' | 'completeBijvBepLink' | 'cancelBijvBepLinking' | 'removeBijvBepLink'
   | 'completeWordBijvBepLink' | 'cancelWordBijvBepLinking'
   | 'handleHint' | 'handleCheck'
@@ -49,7 +51,7 @@ type TrainerScreenProps = Pick<TrainerState,
 
 export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   currentSentence, step, mode,
-  splitIndices, chunkLabels, subLabels, bijzinFunctieLabels,
+  splitIndices, chunkLabels, subLabels, bijzinFunctieLabels, predicateTypeLabels,
   bijvBepLinks, linkingBijvBepId,
   wordBijvBepLinks, linkingWordTokenId,
   validationResult, showAnswerMode, hintMessage,
@@ -68,6 +70,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   isDragging, handleDragStart, handleDragEnd, handleDropChunk, handleDropWord,
   removeLabel, removeSubLabel,
   handleDropBijzinFunctie, removeBijzinFunctieLabel,
+  handleDropPredicateType, removePredicateTypeLabel,
   startBijvBepLinking, completeBijvBepLink, cancelBijvBepLinking, removeBijvBepLink,
   completeWordBijvBepLink, cancelWordBijvBepLinking,
   handleHint, handleCheck,
@@ -272,7 +275,13 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
           {step === 'label' && (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 flex flex-col">
               {!showAnswerMode && !validationResult && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 text-center">Sleep een label naar elk blokje, of tik eerst op een label en dan op een blokje.</p>
+                !ladderEnabled && !Object.values(chunkLabels).includes('pv') ? (
+                  <p className="text-xs font-bold text-red-600 dark:text-red-400 text-center animate-in fade-in duration-300">
+                    Vind eerst de persoonsvorm.
+                  </p>
+                ) : (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 text-center">Sleep een label naar elk blokje, of tik eerst op een label en dan op een blokje.</p>
+                )
               )}
               {!showAnswerMode && (
                 <RoleToolbar
@@ -325,6 +334,9 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   const roleDef = assignedRoleKey ? ROLES.find(r => r.key === assignedRoleKey) || null : null;
                   const bijzinFunctieKey = bijzinFunctieLabels[startTokenId];
                   const bijzinFunctieDef = bijzinFunctieKey ? ROLES.find(r => r.key === bijzinFunctieKey) || null : null;
+                  const predicateTypeKey = predicateTypeLabels[startTokenId];
+                  const predicateTypeDef = predicateTypeKey ? ROLES.find(r => r.key === predicateTypeKey) || null : null;
+                  const showPredicateTypeRow = !ladderEnabled && assignedRoleKey === 'pv' && requiresPredicateChoice(currentSentence);
                   const rawFunctie = chunk.tokens[0].bijzinFunctie;
                   // Gate bijv_bep function behind includeBB
                   const hasBijzinFunctie = !!rawFunctie && (rawFunctie !== 'bijv_bep' || includeBB);
@@ -351,11 +363,15 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                         assignedBijzinFunctie={bijzinFunctieDef}
                         bijvBepTargetText={bijvBepTargetText}
                         subRoles={chunkSubRoles}
+                        assignedPredicateType={predicateTypeDef}
+                        showPredicateTypeRow={showPredicateTypeRow}
                         onDropChunk={handleDropChunk}
                         onDropBijzinFunctie={handleDropBijzinFunctie}
+                        onDropPredicateType={handleDropPredicateType}
                         onDropWord={handleDropWord}
                         onRemoveRole={removeLabel}
                         onRemoveBijzinFunctie={removeBijzinFunctieLabel}
+                        onRemovePredicateType={removePredicateTypeLabel}
                         onRemoveSubRole={removeSubLabel}
                         onToggleSplit={toggleSplit}
                         onStartBijvBepLinking={startBijvBepLinking}

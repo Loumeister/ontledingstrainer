@@ -1,4 +1,4 @@
-import { ROLES, FEEDBACK_STRUCTURE, FEEDBACK_SWAP, FEEDBACK_BIJZIN_FUNCTIE, HINTS } from '../constants';
+import { ROLES, ROLES_PER_LEVEL, FEEDBACK_STRUCTURE, FEEDBACK_SWAP, FEEDBACK_BIJZIN_FUNCTIE, FEEDBACK_PREDICATE_TYPE, HINTS } from '../constants';
 import { getEffectiveFeedback } from './feedbackLookup';
 import { Sentence, PlacementMap, RoleKey, Token, ValidationState, FeedbackEntry, RichFeedbackEntry } from '../types';
 
@@ -98,6 +98,49 @@ export function getConsistentRole(tokens: Token[]): RoleKey | null {
 }
 
 /**
+ * Whether this sentence's gezegde needs an explicit WG/NG classification on the PV chunk.
+ * Mirrors ROLES_PER_LEVEL: WG/NG are only taught from level 1 onward, so level 0 (where the
+ * gezegde is always just the PV) never requires it.
+ */
+export function requiresPredicateChoice(sentence: Sentence): boolean {
+  return ROLES_PER_LEVEL[sentence.level].includes('wg');
+}
+
+/**
+ * Splits a sentence's tokens into nevenschikkend-gecoördineerde clauses (on vw_neven tokens,
+ * e.g. "en"/"maar"/"of"). Each clause carries its own gezegde and can have its own WG/NG type —
+ * e.g. "De bel gaat (WG) maar de klas blijft stil (NG)" has one WG clause and one NG clause.
+ */
+function splitByNevenschikking(tokens: Token[]): Token[][] {
+  const clauses: Token[][] = [];
+  let current: Token[] = [];
+  tokens.forEach(t => {
+    if (t.role === 'vw_neven') {
+      if (current.length) clauses.push(current);
+      current = [];
+    } else {
+      current.push(t);
+    }
+  });
+  if (current.length) clauses.push(current);
+  return clauses;
+}
+
+/**
+ * The correct WG/NG gezegdetype for a specific PV token, derived from its own clause rather
+ * than sentence.predicateType — that field only reflects the sentence's first clause, which is
+ * wrong for nevenschikkende zinnen met een gemengd gezegde (zie splitByNevenschikking hierboven).
+ * A clause's type is NG whenever it contains an 'ng'-role token (the naamwoordelijk deel), WG
+ * otherwise. Bijzinnen are tagged uniformly as role 'bijzin' and never carry their own PV chunk,
+ * so they don't need their own clause split here.
+ */
+export function getExpectedPredicateType(sentence: Sentence, pvTokenId: string): 'wg' | 'ng' {
+  const clauses = splitByNevenschikking(sentence.tokens);
+  const clause = clauses.find(c => c.some(t => t.id === pvTokenId)) ?? sentence.tokens;
+  return clause.some(t => t.role === 'ng') ? 'ng' : 'wg';
+}
+
+/**
  * Main validation function: checks user's splits and labels against the sentence data.
  * Supports bijzin function validation and bijvBep link validation.
  */
@@ -110,6 +153,7 @@ export function validateAnswer(
   bijzinFunctieLabels?: PlacementMap,
   bijvBepLinks?: Record<string, string>,
   wordBijvBepLinks?: Record<string, string>,
+  predicateTypeLabels?: PlacementMap,
 ): { result: ValidationResult; mistakes: Record<string, number> } {
   const userChunks = buildUserChunks(sentence.tokens, splitIndices);
   const chunkStatus: Record<number, ValidationState> = {};
@@ -314,6 +358,28 @@ export function validateAnswer(
     });
   }
 
+  // --- Predicate type (WG/NG) validation on the PV chunk ---
+  // The PV word is always part of a larger gezegde. From the level where WG/NG are
+  // taught, the student must classify the PV chunk as WG or NG, not just find PV.
+  let predicateTypeMismatch = false;
+  if (predicateTypeLabels && requiresPredicateChoice(sentence)) {
+    userChunks.forEach((chunk, idx) => {
+      const consistentRole = getConsistentRole(chunk.tokens);
+      if (consistentRole !== 'pv') return;
+      if (chunkStatus[idx] !== 'correct') return; // grade this only once PV itself is right
+      const firstTokenId = chunk.tokens[0].id;
+      const expectedType = getExpectedPredicateType(sentence, firstTokenId);
+      const userType = predicateTypeLabels[firstTokenId];
+      if (userType === expectedType) return;
+      predicateTypeMismatch = true;
+      correctChunksCount--; // this chunk was counted as correct above; the missing/wrong gezegdetype revokes that
+      chunkStatus[idx] = 'warning';
+      chunkFeedback[idx] = userType
+        ? FEEDBACK_PREDICATE_TYPE.WRONG(expectedType)
+        : FEEDBACK_PREDICATE_TYPE.MISSING;
+    });
+  }
+
   let subRoleMismatch = false;
   sentence.tokens.forEach(t => {
     const userSub = subLabels[t.id];
@@ -346,7 +412,7 @@ export function validateAnswer(
 
   const isSplitPerfect = correctChunksCount === userChunks.length;
   const realChunkCount = countRealChunks(sentence.tokens);
-  const isPerfect = isSplitPerfect && userChunks.length === realChunkCount && !subRoleMismatch && !bijzinFunctieMismatch && !bijvBepLinkMismatch && !wordBijvBepLinkMismatch;
+  const isPerfect = isSplitPerfect && userChunks.length === realChunkCount && !subRoleMismatch && !bijzinFunctieMismatch && !bijvBepLinkMismatch && !wordBijvBepLinkMismatch && !predicateTypeMismatch;
 
   return {
     result: {
