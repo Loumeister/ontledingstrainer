@@ -1238,7 +1238,7 @@ export function useTrainer(): TrainerState {
         });
         setMistakeStats(newMistakeStats);
         // Rollenladder blijft buiten het adaptieve profiel
-        if (!ladderEnabled) addRoleTally(roleTallyRef.current, tallySentenceRoles(chunks, vResult.chunkStatus));
+        if (!ladderEnabled) addRoleTally(roleTallyRef.current, tallySentenceRoles(chunks, vResult.chunkStatus, chunkLabels));
 
         // Track consecutive perfect sentences
         setConsecutivePerfect(prev => vResult.isPerfect ? prev + 1 : 0);
@@ -1370,7 +1370,7 @@ export function useTrainer(): TrainerState {
         });
         setMistakeStats(newMistakeStats);
         if (!ladderEnabled) {
-          addRoleTally(roleTallyRef.current, tallySentenceRoles(buildUserChunks(currentSentence.tokens, splitIndices), vResult.chunkStatus));
+          addRoleTally(roleTallyRef.current, tallySentenceRoles(buildUserChunks(currentSentence.tokens, splitIndices), vResult.chunkStatus, chunkLabels));
         }
         setSessionSentenceResults(prev => [...prev, {
           sentence: currentSentence,

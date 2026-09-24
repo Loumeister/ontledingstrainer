@@ -12,7 +12,8 @@
  *    MAX_FOCUS_SHARE van de sessie, tenzij de pool niets anders biedt.
  */
 
-import { Sentence, RoleKey, SentenceUsageData, SessionHistoryEntry, Token, ValidationState } from '../types';
+import { Sentence, RoleKey, SentenceUsageData, SessionHistoryEntry, Token, ValidationState, PlacementMap } from '../types';
+import { roleMatchesToken } from './validation';
 import { loadUsageData } from '../services/usageData';
 import { loadSessionHistory } from '../services/sessionHistory';
 import { getOrCreateStudent, getStudents } from '../services/studentStore';
@@ -56,11 +57,13 @@ const LABEL_TO_KEY = new Map<string, RoleKey>(ROLES.map(r => [r.label, r.key]));
  * daarvan goed waren, uit de chunkstatus van validateAnswer.
  * Alleen goed verdeelde zinsdelen tellen: bij een verdelingsfout (of een
  * zinsdeel buiten de actieve trede, status null) is de rol niet beoordeeld.
- * Een waarschuwing telt als gezien maar niet als goed.
+ * Een waarschuwing telt als goed als het hoofdlabel klopt (de waarschuwing
+ * gaat dan over bijzinfunctie of verwijzing), anders als gezien maar fout.
  */
 export function tallySentenceRoles(
   chunks: { tokens: Token[] }[],
   chunkStatus: Record<number, ValidationState>,
+  chunkLabels: PlacementMap = {},
 ): RoleTally {
   const seen: Partial<Record<RoleKey, number>> = {};
   const correct: Partial<Record<RoleKey, number>> = {};
@@ -69,7 +72,9 @@ export function tallySentenceRoles(
     if (status !== 'correct' && status !== 'incorrect-role' && status !== 'warning') return;
     const role = chunk.tokens[0].role;
     seen[role] = (seen[role] ?? 0) + 1;
-    if (status === 'correct') correct[role] = (correct[role] ?? 0) + 1;
+    const label = chunkLabels[chunk.tokens[0].id] as RoleKey | undefined;
+    const mainLabelOk = status === 'warning' && !!label && chunk.tokens.every(t => roleMatchesToken(label, t));
+    if (status === 'correct' || mainLabelOk) correct[role] = (correct[role] ?? 0) + 1;
   });
   return { seen, correct };
 }
@@ -152,10 +157,15 @@ export function computeRoleConfidences(
 /**
  * Stabiel student-id voor het labelen van sessiegeschiedenis, of null voor een
  * anonieme leerling (die krijgt anders elke keer een nieuw, niet-opgeslagen id).
+ * studentStore matcht alleen op naam + klas; de initiaal komt erbij zodat
+ * "Sam B." en "Sam K." uit dezelfde klas elk een eigen profiel houden.
  */
 export function resolveHistoryStudentId(name: string, initiaal: string, klas: string): string | null {
   if (!name.trim()) return null;
-  try { return getOrCreateStudent(name, initiaal, klas).id; } catch { return null; }
+  try {
+    const { id } = getOrCreateStudent(name, initiaal, klas);
+    return `${id}:${initiaal.trim().toUpperCase()}`;
+  } catch { return null; }
 }
 
 /**
@@ -250,9 +260,10 @@ export function selectAdaptiveQueue(
   // Variatie-ondergrens: nooit meer focuszinnen dan het maximum van
   // MAX_FOCUS_SHARE en wat de pool van nature al zou geven.
   const poolFocusShare = remaining.filter(r => r.focus).length / pool.length;
+  // Altijd minstens één andere zin als de pool die heeft (fallback hieronder).
   const focusCap = n < 2
     ? n
-    : Math.max(Math.min(n - 1, Math.ceil(n * MAX_FOCUS_SHARE)), Math.round(n * poolFocusShare));
+    : Math.min(n - 1, Math.max(Math.ceil(n * MAX_FOCUS_SHARE), Math.round(n * poolFocusShare)));
 
   const selected: Sentence[] = [];
   let focusPicked = 0;

@@ -139,6 +139,12 @@ describe('tallySentenceRoles', () => {
     expect(correct).toEqual({ ow: 1, pv: 1 });
   });
 
+  it('telt een waarschuwing als goed als het hoofdlabel klopt', () => {
+    const labels = { [s.tokens[4].id]: 'lv' as RoleKey };
+    const { correct } = tallySentenceRoles([chunk(4, 6)], { 0: 'warning' }, labels);
+    expect(correct).toEqual({ lv: 1 });
+  });
+
   it('telt niets bij een verdelingsfout of een zinsdeel buiten de trede', () => {
     const { seen, correct } = tallySentenceRoles([chunk(0, 6)], { 0: 'incorrect-split' });
     expect(seen).toEqual({});
@@ -207,6 +213,18 @@ describe('selectAdaptiveQueue', () => {
         const selected = selectAdaptiveQueue(mvPool, size, c, random, {});
         expect(selected.every(isMV)).toBe(false);
       }
+    }
+  });
+
+  it('laat altijd ruimte voor een andere zin als de pool die heeft', () => {
+    const pool = [
+      ...Array.from({ length: 9 }, (_, i) => makeSentence(i + 1, ['ow', 'pv', 'mv'])),
+      makeSentence(10, ['ow', 'pv', 'lv']),
+    ];
+    const c = conf([['mv', 0.05]]);
+    const random = seededRandom(5);
+    for (let run = 0; run < 100; run++) {
+      expect(selectAdaptiveQueue(pool, 5, c, random, {}).every(isMV)).toBe(false);
     }
   });
 
