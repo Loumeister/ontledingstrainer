@@ -236,9 +236,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     if (!file) return;
     try {
       const text = await file.text();
-      const imported = importCustomSentences(text);
+      const before = getCustomSentences().length;
+      // importCustomSentences geeft de hele samengevoegde voorraad terug, niet alleen het bestand.
+      const total = importCustomSentences(text).length;
+      const added = total - before;
       refreshCustomSentences();
-      setImportMsg(`${imported.length} zinnen toegevoegd aan je zinvoorraad.`);
+      setImportMsg(added > 0
+        ? `${added} ${added === 1 ? 'zin' : 'zinnen'} toegevoegd aan je zinvoorraad.`
+        : 'Deze zinnen stonden al in je zinvoorraad en zijn bijgewerkt.');
       setTimeout(() => setImportMsg(null), 3000);
     } catch (err) {
       setImportMsg(`Fout: ${err instanceof Error ? err.message : 'Ongeldig bestand'}`);
