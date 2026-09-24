@@ -7,9 +7,12 @@ import { recordAttempt, recordShowAnswer } from '../services/usageData';
 import { logInteraction } from '../services/interactionLog';
 import { saveSessionToHistory } from '../services/sessionHistory';
 import {
-  computeRoleConfidences,
-  saveRoleConfidences,
+  loadAdaptiveProfileFor,
+  resolveHistoryStudentId,
   selectAdaptiveQueue,
+  tallySentenceRoles,
+  addRoleTally,
+  type RoleTally,
 } from '../logic/adaptiveSelection';
 import { buildReport, encodeReport } from '../services/sessionReport';
 import { postReport, getScriptUrl, shouldAutoSendReport } from '../services/googleDriveSync';
@@ -314,6 +317,8 @@ export function useTrainer(): TrainerState {
   const [sessionIndex, setSessionIndex] = useState(0);
   const [sessionStats, setSessionStats] = useState({ correct: 0, total: 0 });
   const [mistakeStats, setMistakeStats] = useState<Record<string, number>>({});
+  // Per-rol gezien/goed voor adaptieve selectie; geen re-render nodig
+  const roleTallyRef = useRef<RoleTally>({ seen: {}, correct: {} });
   const [sessionSentenceResults, setSessionSentenceResults] = useState<SentenceResult[]>([]);
   const [isSessionFinished, setIsSessionFinished] = useState(false);
   const [consecutivePerfect, setConsecutivePerfect] = useState(0);
@@ -475,8 +480,8 @@ export function useTrainer(): TrainerState {
 
     let selected: Sentence[];
     if (adaptiveMode) {
-      const confidences = computeRoleConfidences();
-      selected = selectAdaptiveQueue(pool, count, confidences);
+      const { confidences, recentSentences } = loadAdaptiveProfileFor(studentName, studentInitiaal, studentKlas);
+      selected = selectAdaptiveQueue(pool, count, confidences, Math.random, recentSentences);
     } else {
       const shuffled = [...pool].sort(() => 0.5 - Math.random());
       selected = shuffled.slice(0, count);
@@ -486,6 +491,7 @@ export function useTrainer(): TrainerState {
     setSessionIndex(0);
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
+    roleTallyRef.current = { seen: {}, correct: {} };
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -532,6 +538,7 @@ export function useTrainer(): TrainerState {
     setSessionIndex(0);
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
+    roleTallyRef.current = { seen: {}, correct: {} };
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -589,6 +596,7 @@ export function useTrainer(): TrainerState {
     setSessionIndex(0);
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
+    roleTallyRef.current = { seen: {}, correct: {} };
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -635,6 +643,7 @@ export function useTrainer(): TrainerState {
     setSessionIndex(0);
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
+    roleTallyRef.current = { seen: {}, correct: {} };
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -701,10 +710,15 @@ export function useTrainer(): TrainerState {
           total: finalTotal,
           mistakeStats: { ...mistakeStats },
           sentenceCount: sessionQueue.length,
+          // Rollenladder: alleen trede en scores bewaren, geen identiteit of rolprofiel
+          ...(ladderEnabled ? {} : {
+            studentId: resolveHistoryStudentId(studentName, studentInitiaal, studentKlas) ?? undefined,
+            roleSeen: { ...roleTallyRef.current.seen },
+            roleCorrect: { ...roleTallyRef.current.correct },
+            sentenceIds: sessionQueue.map(q => q.id),
+          }),
+          ...(ladderEnabled ? { adaptiveExcluded: true } : {}),
         });
-        // Update role confidence scores for adaptive selection
-        const updatedConfidences = computeRoleConfidences();
-        saveRoleConfidences(updatedConfidences);
       } catch {
         // Persistence failure must not prevent the score screen from showing
       }
@@ -1295,6 +1309,8 @@ export function useTrainer(): TrainerState {
            newMistakeStats[role] = (newMistakeStats[role] || 0) + count;
         });
         setMistakeStats(newMistakeStats);
+        // Rollenladder blijft buiten het adaptieve profiel
+        if (!ladderEnabled) addRoleTally(roleTallyRef.current, tallySentenceRoles(chunks, vResult.chunkStatus, chunkLabels));
 
         // Track consecutive perfect sentences
         setConsecutivePerfect(prev => vResult.isPerfect ? prev + 1 : 0);
@@ -1436,6 +1452,9 @@ export function useTrainer(): TrainerState {
           newMistakeStats[role] = (newMistakeStats[role] || 0) + count;
         });
         setMistakeStats(newMistakeStats);
+        if (!ladderEnabled) {
+          addRoleTally(roleTallyRef.current, tallySentenceRoles(buildUserChunks(currentSentence.tokens, splitIndices), vResult.chunkStatus, chunkLabels));
+        }
         setSessionSentenceResults(prev => [...prev, {
           sentence: currentSentence,
           score: vResult.score,

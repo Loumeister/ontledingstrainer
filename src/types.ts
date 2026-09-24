@@ -84,6 +84,16 @@ export interface SessionHistoryEntry {
   total: number;
   mistakeStats: Record<string, number>;
   sentenceCount: number;
+  /** Sinds adaptieve selectie v2; ontbreekt in oudere sessies. */
+  studentId?: string;
+  /** Aantal beoordeelde zinsdelen per rol in deze sessie. */
+  roleSeen?: Partial<Record<RoleKey, number>>;
+  /** Waarvan goed benoemd. */
+  roleCorrect?: Partial<Record<RoleKey, number>>;
+  /** Zin-id's uit deze sessie, voor versheid in adaptieve selectie. */
+  sentenceIds?: number[];
+  /** Rollenladder-sessie: telt niet mee voor adaptieve selectie. */
+  adaptiveExcluded?: boolean;
 }
 
 export interface RichFeedbackEntry {
