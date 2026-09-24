@@ -75,6 +75,8 @@ export interface TrainerState {
   setIncludeBB: (v: boolean) => void;
   includeGezegdeDelen: boolean;
   setIncludeGezegdeDelen: (v: boolean) => void;
+  includeBijzinAnalyse: boolean;
+  setIncludeBijzinAnalyse: (v: boolean) => void;
   includeVV: boolean;
 
   // Session
@@ -253,6 +255,8 @@ export function useTrainer(): TrainerState {
   const [includeBB, setIncludeBB] = useState(false);
   // Opt-in: also name werkwoordelijk and naamwoordelijk deel inside an NG. Off by default.
   const [includeGezegdeDelen, setIncludeGezegdeDelen] = useState(false);
+  // Opt-in: analyse a found bijzin as a sentence of its own. Only offered on #/bijzinontleding for now.
+  const [includeBijzinAnalyse, setIncludeBijzinAnalyse] = useState(false);
   const [includeVV] = useState(false);
 
   // Level & Count
@@ -1492,6 +1496,7 @@ export function useTrainer(): TrainerState {
     includeBijst, setIncludeBijst,
     includeBB, setIncludeBB,
     includeGezegdeDelen, setIncludeGezegdeDelen,
+    includeBijzinAnalyse, setIncludeBijzinAnalyse,
     includeVV,
 
     // Session

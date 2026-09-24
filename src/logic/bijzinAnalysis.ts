@@ -1,5 +1,5 @@
 import { PlacementMap, Sentence, Token } from '../types';
-import { buildUserChunks, computeCorrectSplits, isBijzinFunctieAsked } from './validation';
+import { BETREKKELIJKE_BIJZIN_LEVEL, buildUserChunks, computeCorrectSplits, isBijzinFunctieAsked } from './validation';
 
 /** The bijzinnen of a sentence as token groups, following the same chunk rules as the main analysis. */
 export function getBijzinTokenGroups(sentence: Sentence): Token[][] {
@@ -28,6 +28,11 @@ export function buildBijzinSentence(sentence: Sentence, bijzinTokens: Token[]): 
     predicateType: tokens.some(t => t.role === 'ng') ? 'NG' : 'WG',
     tokens,
   };
+}
+
+/** A betrekkelijke (bijvoeglijke) bijzin is only analysed on the highest level, like its function. */
+export function isBijzinAnalyseAsked(sentence: Sentence, bijzinTokens: Token[]): boolean {
+  return bijzinTokens[0]?.bijzinFunctie !== 'bijv_bep' || sentence.level >= BETREKKELIJKE_BIJZIN_LEVEL;
 }
 
 /**

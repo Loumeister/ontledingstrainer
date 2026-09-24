@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildBijzinSentence, getBijzinTokenGroups, isBijzinUnlocked } from './bijzinAnalysis';
+import { buildBijzinSentence, getBijzinTokenGroups, isBijzinAnalyseAsked, isBijzinUnlocked } from './bijzinAnalysis';
 import { validateAnswer, computeCorrectSplits } from './validation';
 import type { Sentence, Token } from '../types';
 
@@ -51,5 +51,14 @@ describe('isBijzinUnlocked', () => {
 
   it('laat een fout elders in de hoofdzin de bijzin niet blokkeren', () => {
     expect(isBijzinUnlocked(sentence, bijzin, splits, { t1: 'lv', t2: 'pv', t3: 'bijzin' }, { t3: 'lv' }, false)).toBe(true);
+  });
+});
+
+describe('isBijzinAnalyseAsked', () => {
+  it('ontleedt een betrekkelijke bijzin alleen op het hoogste niveau', () => {
+    const rel: Token[] = [{ id: 'r1', text: 'die', role: 'bijzin', bijzinFunctie: 'bijv_bep' }];
+    expect(isBijzinAnalyseAsked({ ...sentence, level: 4 }, rel)).toBe(true);
+    expect(isBijzinAnalyseAsked({ ...sentence, level: 3 }, rel)).toBe(false);
+    expect(isBijzinAnalyseAsked({ ...sentence, level: 3 }, bijzin)).toBe(true);
   });
 });

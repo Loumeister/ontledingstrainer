@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  isBijzinOntledingRoute,
   isRollenladderRoute,
   shouldClearSelectedLevelOnLadderToggle,
   shouldResetTrainerOnRouteChange,
@@ -31,5 +32,13 @@ describe('shouldClearSelectedLevelOnLadderToggle', () => {
   it('wist niet bij routes zonder laddertoggle', () => {
     expect(shouldClearSelectedLevelOnLadderToggle(false, false)).toBe(false);
     expect(shouldClearSelectedLevelOnLadderToggle(true, true)).toBe(false);
+  });
+});
+
+describe('isBijzinOntledingRoute', () => {
+  it('is alleen actief op de verborgen route', () => {
+    expect(isBijzinOntledingRoute('#/bijzinontleding')).toBe(true);
+    expect(isBijzinOntledingRoute('')).toBe(false);
+    expect(isBijzinOntledingRoute('#/rollenladder')).toBe(false);
   });
 });

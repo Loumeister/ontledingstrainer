@@ -11,6 +11,8 @@ import { FeedbackPanel, FeedbackItem } from '../components/FeedbackPanel';
 import { TrainerState } from '../hooks/useTrainer';
 import { shouldShowSessionNextButton } from '../logic/sessionFlow';
 import { isBijzinFunctieAsked } from '../logic/validation';
+import { buildBijzinSentence, getBijzinTokenGroups, isBijzinAnalyseAsked, isBijzinUnlocked } from '../logic/bijzinAnalysis';
+import { BijzinAnalysePanel } from '../components/BijzinAnalysePanel';
 import { getLadderStage } from '../logic/rollenladder';
 
 type TrainerScreenProps = Pick<TrainerState,
@@ -46,7 +48,10 @@ type TrainerScreenProps = Pick<TrainerState,
   | 'handleTouchDrop'
   | 'ladderEnabled' | 'ladderStage' | 'ladderActiveRoles' | 'ladderPromotion'
   | 'handleSkipSplitStep'
->;
+> & {
+  /** Bijzin analysis: only on the hidden #/bijzinontleding route and when the student opted in. */
+  bijzinAnalyseEnabled: boolean;
+};
 
 export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   currentSentence, step, mode,
@@ -61,6 +66,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   largeFont, setLargeFont,
   dyslexiaMode, setDyslexiaMode,
   includeVV, includeBB, includeGezegdeDelen,
+  bijzinAnalyseEnabled,
   focusVV, focusBijzin,
   selectedLevel,
   sessionIndex, sessionQueue,
@@ -126,6 +132,30 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
     const t = setTimeout(() => setStreakToast(null), 3000);
     return () => clearTimeout(t);
   }, [consecutivePerfect]);
+
+  // Bijzin analysis: a bijzin opens after a check in which it was found correctly, and stays open
+  // for the rest of this sentence so later edits in the main sentence do not wipe the student's work.
+  const sentenceKey = currentSentence ? `${currentSentence.id}-${sessionIndex}` : '';
+  const [openBijzinnen, setOpenBijzinnen] = useState<{ key: string; ids: string[] }>({ key: '', ids: [] });
+  const bijzinGroups = currentSentence && bijzinAnalyseEnabled
+    ? getBijzinTokenGroups(currentSentence).filter(g => isBijzinAnalyseAsked(currentSentence, g) && buildBijzinSentence(currentSentence, g))
+    : [];
+  useEffect(() => {
+    if (!currentSentence || !validationResult || showAnswerMode || bijzinGroups.length === 0) return;
+    const unlocked = bijzinGroups
+      .filter(g => isBijzinUnlocked(currentSentence, g, splitIndices, chunkLabels, bijzinFunctieLabels, includeBB))
+      .map(g => g[0].id);
+    if (unlocked.length === 0) return;
+    setOpenBijzinnen(prev => {
+      const base = prev.key === sentenceKey ? prev.ids : [];
+      const ids = Array.from(new Set([...base, ...unlocked]));
+      return ids.length === base.length && prev.key === sentenceKey ? prev : { key: sentenceKey, ids };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validationResult]);
+  const openBijzinGroups = openBijzinnen.key === sentenceKey
+    ? bijzinGroups.filter(g => openBijzinnen.ids.includes(g[0].id))
+    : [];
 
   // Build feedback items for consolidated panel
   const feedbackItems: FeedbackItem[] = validationResult && !validationResult.isPerfect
@@ -320,7 +350,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                 );
               })()}
 
-              <div className="flex flex-wrap gap-y-3 gap-x-2 justify-center items-start pt-2 px-1 flex-1 content-start">
+              <div className={`flex flex-wrap gap-y-3 gap-x-2 justify-center items-start pt-2 px-1 content-start ${openBijzinGroups.length > 0 ? '' : 'flex-1'}`}>
                 {userChunks.map((chunk, idx) => {
                   const startTokenId = chunk.tokens[0].id;
                   const assignedRoleKey = chunkLabels[startTokenId];
@@ -386,6 +416,15 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   );
                 })}
               </div>
+
+              {openBijzinGroups.map(group => (
+                <BijzinAnalysePanel
+                  key={`${sentenceKey}-${group[0].id}`}
+                  bijzin={buildBijzinSentence(currentSentence, group)!}
+                  allTokens={group}
+                  isLargeFont={largeFont}
+                />
+              ))}
             </div>
           )}
         </div>

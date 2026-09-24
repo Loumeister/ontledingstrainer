@@ -26,7 +26,9 @@ export type InteractionType =
   | 'lab_construction_submit'
   | 'lab_parse_complete'
   | 'lab_exercise_complete'
-  | 'split_skip';
+  | 'split_skip'
+  | 'bijzin_analyse_check'
+  | 'bijzin_analyse_show_answer';
 
 export interface InteractionEntry {
   timestamp: string;

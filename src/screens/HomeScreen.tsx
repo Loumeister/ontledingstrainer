@@ -19,6 +19,7 @@ type HomeScreenProps = Pick<TrainerState,
   | 'includeBijst' | 'setIncludeBijst'
   | 'includeBB' | 'setIncludeBB'
   | 'includeGezegdeDelen' | 'setIncludeGezegdeDelen'
+  | 'includeBijzinAnalyse' | 'setIncludeBijzinAnalyse'
   | 'showHelp' | 'setShowHelp'
   | 'darkMode' | 'setDarkMode'
   | 'largeFont' | 'setLargeFont'
@@ -40,6 +41,8 @@ type HomeScreenProps = Pick<TrainerState,
 > & {
   sharedSentences: Sentence[];
   openSecretDocentRoute: () => void;
+  /** Only true on the hidden #/bijzinontleding route while the feature is not released. */
+  bijzinOntledingAvailable: boolean;
 };
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -53,6 +56,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   includeBijst, setIncludeBijst,
   includeBB, setIncludeBB,
   includeGezegdeDelen, setIncludeGezegdeDelen,
+  includeBijzinAnalyse, setIncludeBijzinAnalyse,
+  bijzinOntledingAvailable,
   showHelp, setShowHelp,
   darkMode, setDarkMode,
   largeFont, setLargeFont,
@@ -420,6 +425,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   <span className="font-bold text-slate-700 dark:text-slate-300 block text-sm">Werkwoordelijk en naamwoordelijk deel (NG)</span>
                   <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-gray-100 border-slate-300" checked={includeGezegdeDelen} onChange={(e) => setIncludeGezegdeDelen(e.target.checked)} />
                 </label>
+                {bijzinOntledingAvailable && (
+                  <label className="flex items-center justify-between p-3 rounded-lg border border-purple-200 dark:border-fuchsia-800 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors">
+                    <span className="font-bold text-slate-700 dark:text-slate-300 block text-sm">Bijzinnen ontleden <span className="font-normal text-xs text-purple-600 dark:text-fuchsia-300">(experiment)</span></span>
+                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded bg-gray-100 border-slate-300" checked={includeBijzinAnalyse} onChange={(e) => setIncludeBijzinAnalyse(e.target.checked)} />
+                  </label>
+                )}
               </div>
             </div>
           </div>
