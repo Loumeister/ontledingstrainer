@@ -1063,6 +1063,12 @@ export function useTrainer(): TrainerState {
     if (roleKey === 'wg' || roleKey === 'ng') {
       logInteraction('predicate_type_drop', currentSentence?.id, `chunk=${chunkId},role=${roleKey}`);
       setPredicateTypeLabels(prev => ({ ...prev, [chunkId]: roleKey }));
+      // If dragged from another chunk's role badge (e.g. an existing WG/NG chunk elsewhere
+      // in a compound sentence), remove it from the source instead of leaving a copy behind.
+      const moveFromChunk = e.dataTransfer.getData("text/move-from-chunk");
+      if (moveFromChunk && moveFromChunk !== chunkId) {
+        setChunkLabels(prev => { const n = { ...prev }; delete n[moveFromChunk]; return n; });
+      }
       setValidationResult(null);
       setHintMessage(null);
     }
@@ -1526,9 +1532,16 @@ export function useTrainer(): TrainerState {
     setStep('label');
   };
 
+  // "Vind eerst de persoonsvorm" is only a real requirement if it also blocks Controleer:
+  // without this, a sentence where every chunk got some *other* label (PV never assigned)
+  // would still satisfy the per-chunk checks below and let the student check anyway.
+  // Ladder mode has its own PV-first staging (stage 1 = PV only), so this only applies
+  // on the standard route.
+  const hasPvLabel = ladderEnabled || Object.values(chunkLabels).includes('pv');
+
   // Compute whether ALL labels are placed (chunk labels + bijzin functions for bijzin chunks)
   // In ladder mode, only active-stage chunks require labels.
-  const allLabeled = userChunks.length > 0 &&
+  const allLabeled = userChunks.length > 0 && hasPvLabel &&
     userChunks.every(c => {
       const firstToken = c.tokens[0];
       // Ladder mode: skip labeling requirement for out-of-stage chunks
