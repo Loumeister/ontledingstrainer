@@ -19,6 +19,7 @@ Je ontleedt elke zin in twee stappen:
     *   **Methode 1 — Slepen:** Sleep de gekleurde kaartjes (zoals 'Onderwerp' of 'Persoonsvorm') naar het juiste zinsdeel.
     *   **Methode 2 — Tikken:** Tik eerst op een kaartje, tik dan op het zinsdeel waar het bij hoort. *(Handig op een tablet!)*
     *   Je kunt ook kaartjes op specifieke woorden slepen (zoals 'Onderschikkend VW' in een bijzin).
+    *   **Begin met de persoonsvorm (PV).** Zolang die nog niet gelabeld is, zie je de melding "Vind eerst de persoonsvorm." Zodra je een zinsdeel als PV benoemt, verschijnt daarboven een extra vakje "Sleep WG of NG hier" — sleep daar het kaartje 'Werkwoordelijk Gezegde' of 'Naamwoordelijk Gezegde' naartoe. Dat hoort bij elkaar: de PV maakt altijd deel uit van een WG- of NG-gezegde.
     *   Klaar? Klik op **Controleren**.
 
 ---
@@ -100,9 +101,9 @@ De editor vraagt om een pincode. De standaard pincode is **1234**. Vraag je scho
 ### Gebruik de Ontleedhulp (Beslisboom)
 Ontleden gaat altijd in dezelfde volgorde. Gebruik dit stappenplan bij elke zin:
 
-1.  🔍 **Zoek de persoonsvorm** → Verander de zin van tijd. Welk woord verandert mee? Dat is de PV.
+1.  🔍 **Zoek de persoonsvorm** → Verander de zin van tijd. Welk woord verandert mee? Dat is de PV. Dit moet je altijd als eerste labelen.
 2.  👤 **Zoek het onderwerp** → Vraag: *Wie of wat + persoonsvorm?*
-3.  📝 **Bepaal het gezegde** → Is het een koppelwerkwoord (zijn, worden, blijven)? → Naamwoordelijk gezegde. Anders → Werkwoordelijk gezegde.
+3.  📝 **Bepaal het gezegde** → Is het een koppelwerkwoord (zijn, worden, blijven)? → Naamwoordelijk gezegde. Anders → Werkwoordelijk gezegde. Sleep WG of NG in het vakje boven je PV — de app vraagt hier altijd om.
 4.  🎯 **Zoek de rest**:
     *   **Lijdend voorwerp:** *Wie of wat + gezegde + onderwerp?*
     *   **Meewerkend voorwerp:** *Aan/voor wie + gezegde + onderwerp?*
@@ -116,6 +117,7 @@ Ontleden gaat altijd in dezelfde volgorde. Gebruik dit stappenplan bij elke zin:
 | BWB en VV verwisseld | Bij een VV staat er vaak een voorzetsel (aan, met, over). Vraag: aan/over wie of wat? |
 | PV niet herkend bij inversie | In een vraagzin of als de zin niet met het OW begint, staat de PV vaak op de tweede plek. |
 | Bijzin niet herkend | Let op onderschikkende voegwoorden: dat, omdat, als, toen, terwijl, hoewel, zodat. |
+| Vergeten WG/NG te kiezen | Na het labelen van de PV blijft **Controleren** uit tot je ook het vakje "Sleep WG of NG hier" hebt ingevuld. |
 
 ---
 
