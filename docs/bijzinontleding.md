@@ -13,6 +13,9 @@ Een leerling die een bijzin goed heeft gevonden, ontleedt die bijzin daarna als 
 - **Onderschikkend voegwoord:** wordt benoemd, als eigen zinsdeel `vw_onder` binnen de bijzin.
 - **Betrekkelijk voornaamwoord:** wordt voorlopig niet gevraagd. Hetzelfde geldt voor andere betrekkelijke of vragende verbindingswoorden: *die, dat, waar, waardoor, waarom*. De leerling ziet ze in de opdracht, maar benoemt ze niet.
 - **Betrekkelijke (bijvoeglijke) bijzin:** is moeilijker dan de andere bijzinnen. Ze wordt alleen op het hoogste niveau (4) als zodanig benoemd en ontleed. De functievraag geldt daarnaast alleen als bijvoeglijke bepalingen aanstaan.
+  - Deze regel geldt voor **alle** zinnen, ook voor docentzinnen uit de zinseditor en uit `?zinnen=`.
+  - Dat is een gedragswijziging. Vroeger vroeg de app de functie van een betrekkelijke bijzin bij elke docentzin, als bijvoeglijke bepalingen aanstonden. Nu gebeurt dat alleen nog bij een docentzin op niveau 4. Bij een lager niveau benoemt de leerling de bijzin wel, maar krijgt geen functievraag.
+  - De zinseditor moet de docent hierop wijzen (zie `TODO.md`).
 - **Verplicht wederkerend voornaamwoord:** hoort ook in een bijzin bij het werkwoordelijk gezegde (zin 464: *zich versliep*).
 
 ## Datamodel
@@ -63,4 +66,5 @@ In het paneel knipt de leerling met knopjes tussen de woorden en kiest per deel 
 1. Docent test alle 23 bijzinzinnen via `#/bijzinontleding`.
 2. Besluit of de bijzinscore meetelt, en zo ja hoe.
 3. Zinseditor aangepast (TODO).
-4. Vinkje zonder route tonen: verwijder de `bijzinOntledingAvailable`-voorwaarde in `HomeScreen.tsx` en `App.tsx`.
+4. Besluit of het paneel ook WWD/NWD en bijvoeglijke bepalingen binnen de bijzin moet nakijken als die opties aanstaan. Nu roept het paneel `validateAnswer` aan zonder woordlabels.
+5. Vinkje zonder route tonen: verwijder de `bijzinOntledingAvailable`-voorwaarde in `HomeScreen.tsx` en `App.tsx`.

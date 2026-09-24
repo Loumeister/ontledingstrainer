@@ -13,7 +13,7 @@ _Alleen open werk. Afgerond werk staat in git._
 - [ ] Test expliciet dat de standaardroute alle toepasselijke rollen tegelijk vraagt en het ladderexperiment niet lekt.
 - [ ] Bepaal op basis van pilotdata of de Rollenladder leerwinst geeft; verwijder hem als dat niet aantoonbaar is.
 
-- [ ] Pas de zinseditor aan zodat een docent de ontleding van een bijzin (`bijzinAnalyse`, inclusief `notAsked`) kan invoeren en controleren. Voorwaarde voor live zetten van bijzinontleding, zie `docs/bijzinontleding.md`.
+- [ ] Pas de zinseditor aan zodat een docent de ontleding van een bijzin (`bijzinAnalyse`, inclusief `notAsked`) kan invoeren en controleren. Waarschuw ook bij een betrekkelijke bijzin onder niveau 4: daar vraagt de app de functie niet. Voorwaarde voor live zetten van bijzinontleding, zie `docs/bijzinontleding.md`.
 - [ ] Test bijzinontleding (`#/bijzinontleding`) met alle bijzinzinnen en besluit of de bijzinscore meetelt; zet daarna live.
 
 ## P2: pas na bewijs

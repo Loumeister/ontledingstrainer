@@ -135,7 +135,9 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
 
   // Bijzin analysis: a bijzin opens after a check in which it was found correctly, and stays open
   // for the rest of this sentence so later edits in the main sentence do not wipe the student's work.
-  const sentenceKey = currentSentence ? `${currentSentence.id}-${sessionIndex}` : '';
+  // A retry is a deliberate restart, so it also closes and resets opened bijzinnen.
+  const [retryCount, setRetryCount] = useState(0);
+  const sentenceKey = currentSentence ? `${currentSentence.id}-${sessionIndex}-${retryCount}` : '';
   const [openBijzinnen, setOpenBijzinnen] = useState<{ key: string; ids: string[] }>({ key: '', ids: [] });
   const bijzinGroups = currentSentence && bijzinAnalyseEnabled
     ? getBijzinTokenGroups(currentSentence).filter(g => isBijzinAnalyseAsked(currentSentence, g) && buildBijzinSentence(currentSentence, g))
@@ -502,7 +504,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   )}
 
                   {showAnswerMode && (
-                    <button onClick={handleRetry} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors text-sm">
+                    <button onClick={() => { setRetryCount(c => c + 1); handleRetry(); }} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors text-sm">
                       Opnieuw proberen
                     </button>
                   )}

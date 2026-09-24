@@ -133,6 +133,17 @@ export function getExpectedSubLabel(token: Token, includeBB: boolean, includeGez
 }
 
 /**
+ * First word of an NG whose expected WWD/NWD label is still missing, for the Hint button.
+ * Follows getExpectedSubLabel, so a word that should get BB is not asked as WWD/NWD.
+ */
+export function findMissingGezegdeDeel(tokens: Token[], subLabels: PlacementMap, includeBB: boolean): Token | undefined {
+  return tokens.find(t => {
+    const expected = getExpectedSubLabel(t, includeBB, true);
+    return (expected === 'wwd' || expected === 'nwd') && !subLabels[t.id];
+  });
+}
+
+/**
  * Main validation function: checks user's splits and labels against the sentence data.
  * Supports bijzin function validation and bijvBep link validation.
  */
@@ -357,17 +368,25 @@ export function validateAnswer(
     subRoleMismatch = true;
 
     // Gezegdedelen: give one repair step on an otherwise correct chunk, without naming the answer.
-    const isGezegdeDeelIssue = userSub === 'wwd' || userSub === 'nwd' || expectedSub === 'wwd' || expectedSub === 'nwd';
-    if (!includeGezegdeDelen || !isGezegdeDeelIssue) return;
+    if (!includeGezegdeDelen) return;
+    const userGezegde = userSub === 'wwd' || userSub === 'nwd';
+    const expectsGezegde = expectedSub === 'wwd' || expectedSub === 'nwd';
+    // One word label per word: a BB inside the naamwoordelijk deel keeps its BB label.
+    const bbInsideNwd = expectedSub === 'bijv_bep' && userGezegde && !!getGezegdeDeel(t);
+    const strayGezegde = !expectedSub && userGezegde;
+    if (!expectsGezegde && !bbInsideNwd && !strayGezegde) return;
     const chunkIdx = userChunks.findIndex(c => c.tokens.some(ct => ct.id === t.id));
     if (chunkIdx < 0 || chunkStatus[chunkIdx] !== 'correct') return;
-    chunkFeedback[chunkIdx] = !userSub
-      ? HINTS.GEZEGDE_DEEL_MISSING(t.text)
-      : !expectedSub
+    chunkFeedback[chunkIdx] = bbInsideNwd
+      ? HINTS.GEZEGDE_DEEL_BIJV_BEP(t.text)
+      : strayGezegde
         ? HINTS.GEZEGDE_DEEL_NOT_NG(t.text)
-        : HINTS.GEZEGDE_DEEL_WRONG(t.text);
+        : userGezegde
+          ? HINTS.GEZEGDE_DEEL_WRONG(t.text)
+          : HINTS.GEZEGDE_DEEL_MISSING(t.text);
     chunkStatus[chunkIdx] = 'warning';
-    currentMistakes[userSub || expectedSub!] = (currentMistakes[userSub || expectedSub!] || 0) + 1;
+    const mistakeKey = expectedSub || userSub!;
+    currentMistakes[mistakeKey] = (currentMistakes[mistakeKey] || 0) + 1;
   });
 
   // --- Word-level bijv_bep link validation ---

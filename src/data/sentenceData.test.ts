@@ -56,11 +56,10 @@ describe('zinnendata — docentcorrecties', () => {
 });
 
 describe('zinnendata — bijzinontleding', () => {
-  it('annoteert een bijzin volledig of helemaal niet, en een geannoteerde bijzin heeft een PV', () => {
+  it('annoteert elke bijzin volledig, en elke bijzin heeft een PV', () => {
     for (const s of all) {
       for (const group of getBijzinTokenGroups(s)) {
         const annotated = group.filter(t => t.bijzinAnalyse).length;
-        if (annotated === 0) continue;
         expect(annotated, `zin ${s.id}`).toBe(group.length);
         expect(buildBijzinSentence(s, group)?.tokens.some(t => t.role === 'pv'), `zin ${s.id}`).toBe(true);
       }

@@ -24,6 +24,7 @@ import {
   computeCorrectSplits,
   validateAnswer,
   getGezegdeDeel,
+  findMissingGezegdeDeel,
   isBijzinFunctieAsked,
   getConsistentRole,
   ChunkData,
@@ -1186,7 +1187,7 @@ export function useTrainer(): TrainerState {
     }
 
     if (includeGezegdeDelen) {
-      const missing = currentSentence.tokens.find(t => getGezegdeDeel(t) && !subLabels[t.id]);
+      const missing = findMissingGezegdeDeel(currentSentence.tokens, subLabels, includeBB);
       if (missing) { setHintMessage(HINTS.GEZEGDE_DEEL_MISSING(missing.text)); return; }
     }
 

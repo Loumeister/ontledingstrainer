@@ -94,7 +94,7 @@ export const BijzinAnalysePanel: React.FC<BijzinAnalysePanelProps> = ({ bijzin, 
         <p className={`${wordClass} font-medium text-slate-800 dark:text-slate-100 mt-1`}>"{allTokens.map(t => t.text).join(' ')}"</p>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
           Knip de bijzin in zinsdelen en benoem elk deel, net als bij een gewone zin.
-          {notAsked.length > 0 && <> Het woord <strong>'{notAsked.map(t => t.text).join(' ')}'</strong> hoef je niet te benoemen.</>}
+          {notAsked.length > 0 && <> {notAsked.length > 1 ? 'De woorden' : 'Het woord'} <strong>'{notAsked.map(t => t.text).join(' ')}'</strong> hoef je niet te benoemen.</>}
         </p>
       </div>
 

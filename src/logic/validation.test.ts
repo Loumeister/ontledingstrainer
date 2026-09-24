@@ -7,7 +7,9 @@ import {
   getConsistentRole,
   validateAnswer,
   isBijzinFunctieAsked,
+  findMissingGezegdeDeel,
 } from './validation';
+import { HINTS } from '../constants';
 import type { Token, Sentence, PlacementMap } from '../types';
 
 // --- Helper factories ---
@@ -729,6 +731,31 @@ describe('validateAnswer — gezegdedelen', () => {
     const swapped = run({ t2: 'wwd', t3: 'wwd', t4: 'nwd' }, true);
     expect(swapped.isPerfect).toBe(false);
     expect(swapped.chunkStatus[2]).toBe('warning');
+  });
+
+  describe('bijvoeglijke bepaling binnen het naamwoordelijk deel', () => {
+    const bbTokens: Token[] = [
+      makeToken({ id: 'b1', text: 'Hij', role: 'ow' }),
+      makeToken({ id: 'b2', text: 'is', role: 'pv', subRole: 'wwd' }),
+      makeToken({ id: 'b3', text: 'een', role: 'ng', subRole: 'nwd' }),
+      makeToken({ id: 'b4', text: 'goede', role: 'ng', subRole: 'bijv_bep', bijvBepTarget: 'b5' }),
+      makeToken({ id: 'b5', text: 'vader.', role: 'ng', subRole: 'nwd' }),
+    ];
+    const bb = makeSentence(bbTokens, { predicateType: 'NG' });
+
+    it('geeft BB-feedback, geen werkwoordvraag, als de leerling NWD zet op een BB', () => {
+      const sub: PlacementMap = { b2: 'wwd', b3: 'nwd', b4: 'nwd', b5: 'nwd' };
+      const { result, mistakes } = validateAnswer(bb, new Set([0, 1]), { b1: 'ow', b2: 'pv', b3: 'ng' }, sub, true, {}, {}, {}, true);
+      expect(result.isPerfect).toBe(false);
+      expect(result.chunkFeedback[2]).toBe(HINTS.GEZEGDE_DEEL_BIJV_BEP('goede'));
+      expect(mistakes).toEqual({ bijv_bep: 1 });
+    });
+
+    it('laat de Hint-knop een verwachte BB niet als WWD/NWD vragen', () => {
+      const sub: PlacementMap = { b2: 'wwd', b3: 'nwd', b5: 'nwd' };
+      expect(findMissingGezegdeDeel(bbTokens, sub, true)).toBeUndefined();
+      expect(findMissingGezegdeDeel(bbTokens, sub, false)?.text).toBe('goede');
+    });
   });
 
   it('laat een bijvoeglijke bepaling in het naamwoordelijk deel voorgaan', () => {
