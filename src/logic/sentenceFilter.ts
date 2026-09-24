@@ -23,7 +23,8 @@ export function defaultIncludeVV(level: DifficultyLevel | null): boolean {
 export function filterSentences(sentences: Sentence[], cfg: SentenceFilterConfig): Sentence[] {
   return sentences.filter(s => {
     const isCompound = s.level === 4;
-    if (isCompound && !cfg.focusBijzin && cfg.selectedLevel !== 4) return false;
+    // Samengestelde zinnen alleen bij niveau Samengesteld; de Rollenladder (trede 8) beslist zelf.
+    if (isCompound && !cfg.focusBijzin && cfg.selectedLevel !== 4 && !cfg.ladderFilter) return false;
 
     if (cfg.predicateMode === 'WG' && s.predicateType !== 'WG') return false;
     if (cfg.predicateMode === 'NG' && s.predicateType !== 'NG') return false;

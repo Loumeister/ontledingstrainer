@@ -15,6 +15,7 @@ import type { Sentence, Token, DifficultyLevel } from '../types';
 import level0 from '../data/sentences-level-0.json';
 import level1 from '../data/sentences-level-1.json';
 import level2 from '../data/sentences-level-2.json';
+import { getLadderSentenceFilter } from '../logic/rollenladder';
 import { filterSentences, defaultIncludeVV, type SentenceFilterConfig } from '../logic/sentenceFilter';
 
 // ── localStorage mock ─────────────────────────────────────────────────────────
@@ -299,6 +300,12 @@ describe('filterSentences — bijst en vv', () => {
 
   it('vv-zinnen worden toegelaten bij focusVV', () => {
     expect(filterSentences([metVV], { ...defaultCfg, selectedLevel: 2, focusVV: true })).toContain(metVV);
+  });
+
+  it('de Rollenladder laat samengestelde zinnen toe als de trede dat doet', () => {
+    const samengesteld = makeSentence({ level: 4, predicateType: 'WG' });
+    expect(filterSentences([samengesteld], { ...defaultCfg, ladderFilter: getLadderSentenceFilter(8) })).toContain(samengesteld);
+    expect(filterSentences([samengesteld], { ...defaultCfg, ladderFilter: getLadderSentenceFilter(1) })).toHaveLength(0);
   });
 
   it('de Rollenladder negeert de vz.vw-schakelaar', () => {

@@ -273,6 +273,10 @@ export function useTrainer(): TrainerState {
       return;
     }
     setSelectedLevelRaw(level);
+    // Snel Starten gebruikt het laatst gekozen niveau.
+    if (level !== null) {
+      try { localStorage.setItem('lastLevel', String(level)); } catch { /* ignore */ }
+    }
     // Elke niveaukeuze zet de vz.vw-schakelaar terug naar de standaard van dat niveau.
     setIncludeVV(defaultIncludeVV(level));
   };
