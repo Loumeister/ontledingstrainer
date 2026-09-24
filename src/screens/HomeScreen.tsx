@@ -6,6 +6,7 @@ import { TrainerState } from '../hooks/useTrainer';
 import { importCustomSentences, getCustomSentences, parseAndValidateSentences } from '../data/customSentenceStore';
 import { LEVEL_NAMES, LEVEL_SUMMARIES, LEVEL_TOOLTIPS, ROLES } from '../constants';
 import { PredicateMode } from '../logic/sentenceFilter';
+import { nextRadioIndex } from '../logic/radioKeys';
 import { getPreviousScore, getStreak } from '../services/sessionHistory';
 import { getLadderStage, LADDER_STAGES } from '../logic/rollenladder';
 
@@ -49,6 +50,15 @@ const PREDICATE_OPTIONS: { mode: PredicateMode; title: string; short: string; hi
   { mode: 'NG', title: 'Naamwoordelijk (NG)', short: 'Naamwoordelijk', hint: 'Alleen zinnen met een NG', activeClass: 'bg-yellow-50 border-yellow-500 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-100' },
   { mode: 'ALL', title: 'Allebei', short: 'WG en NG', hint: 'WG en NG door elkaar', activeClass: 'bg-indigo-50 border-indigo-500 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-100' },
 ];
+
+/** Pijltjesbediening voor een radiogroep van knoppen: kiest en focust de nieuwe optie. */
+function handleRadioKeyDown<T>(e: React.KeyboardEvent<HTMLButtonElement>, options: T[], index: number, select: (v: T) => void) {
+  const next = nextRadioIndex(e.key, index, options.length);
+  if (next === null) return;
+  e.preventDefault();
+  select(options[next]);
+  (e.currentTarget.parentElement?.children[next] as HTMLElement | undefined)?.focus();
+}
 
 const StepHeading: React.FC<{ id: string; number: number; title: string; hint?: string }> = ({ id, number, title, hint }) => (
   <div className="mb-3">
@@ -424,8 +434,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                       key={lvl ?? 'all'}
                       role="radio"
                       aria-checked={active}
+                      tabIndex={active ? 0 : -1}
                       aria-describedby="niveau-uitleg"
                       onClick={() => setSelectedLevel(lvl)}
+                      onKeyDown={(e) => handleRadioKeyDown(e, LEVEL_OPTIONS, i, setSelectedLevel)}
                       className={`group relative py-2.5 text-sm font-bold rounded-lg border transition-all ${active ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-slate-700'}`}
                     >
                       {levelName(lvl)}
@@ -449,14 +461,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <section aria-labelledby="stap-gezegde">
               <StepHeading id="stap-gezegde" number={2} title="Welk gezegde?" />
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2" role="radiogroup" aria-labelledby="stap-gezegde">
-                {PREDICATE_OPTIONS.map(opt => {
+                {PREDICATE_OPTIONS.map((opt, i) => {
                   const active = predicateMode === opt.mode;
                   return (
                     <button
                       key={opt.mode}
                       role="radio"
                       aria-checked={active}
+                      tabIndex={active ? 0 : -1}
                       onClick={() => setPredicateMode(opt.mode)}
+                      onKeyDown={(e) => handleRadioKeyDown(e, PREDICATE_OPTIONS.map(o => o.mode), i, setPredicateMode)}
                       className={`text-left px-4 py-3 rounded-lg border-2 transition-all ${active ? opt.activeClass : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
                     >
                       <span className="block font-bold text-sm">{opt.title}</span>

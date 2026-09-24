@@ -135,7 +135,7 @@ export const LEVEL_SUMMARIES: Record<DifficultyLevel, string> = {
   0: 'Korte zinnen (4-7 woorden), alleen werkwoordelijk gezegde.',
   1: 'Werkwoordelijk én naamwoordelijk gezegde.',
   2: 'Langere zinnen met meer variatie.',
-  3: 'Meer zinsdelen, bijstelling en voorzetselvoorwerp.',
+  3: 'Meer zinsdelen, bijstelling, vz.vw en soms een bijzin.',
   4: 'Zinnen met een hoofdzin en een bijzin.',
 };
 
@@ -143,7 +143,7 @@ export const LEVEL_TOOLTIPS: Record<DifficultyLevel, string> = {
   0: 'Alleen zinnen met een werkwoordelijk gezegde (WG). Korte, eenvoudige zinnen (4-7 woorden) met: persoonsvorm, onderwerp, lijdend voorwerp, meewerkend voorwerp en bijwoordelijke bepaling.',
   1: 'Zinnen met zowel werkwoordelijk (WG) als naamwoordelijk gezegde (NG). Je leert het verschil herkennen en oefent met samengestelde gezegdes (WG/NG + werkwoordelijk deel).',
   2: 'Langere zinnen met meer variatie en meer bijwoordelijke bepalingen. Heb je het voorzetselvoorwerp al gehad? Zet het dan aan bij "Moeilijke onderdelen".',
-  3: 'Het voorzetselvoorwerp doet standaard mee. Bijstellingen en nevenschikking (en, maar, of) komen erbij. Meer zinsdelen per zin en lastiger woordvolgorde.',
+  3: 'Het voorzetselvoorwerp doet standaard mee. Bijstellingen en nevenschikking (en, maar, of) komen erbij. Meer zinsdelen per zin en lastiger woordvolgorde. Sommige zinnen bevatten een bijzin.',
   4: 'Samengestelde zinnen met bijzinnen en onderschikking. Je herkent hoofd- en bijzinnen, benoemt hun functie en ontleedt complexe zinsstructuren.',
 };
 
