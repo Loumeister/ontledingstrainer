@@ -868,7 +868,15 @@ describe('validateAnswer — gezegdedelen', () => {
       const { result, mistakes } = validateAnswer(bb, new Set([0, 1]), { b1: 'ow', b2: 'pv', b3: 'ng' }, sub, true, {}, {}, {}, undefined, true);
       expect(result.isPerfect).toBe(false);
       expect(result.chunkFeedback[2]).toBe(HINTS.GEZEGDE_DEEL_BIJV_BEP('goede'));
-      expect(mistakes).toEqual({ bijv_bep: 1 });
+      expect(mistakes).toEqual({ 'Bijvoeglijke Bepaling': 1 });
+    });
+
+    it('geeft geen "label ontbreekt"-melding als de leerling BB zet op een woord dat NWD moet zijn', () => {
+      const sub: PlacementMap = { b2: 'wwd', b3: 'bijv_bep', b4: 'bijv_bep', b5: 'nwd' };
+      const { result, mistakes } = validateAnswer(bb, new Set([0, 1]), { b1: 'ow', b2: 'pv', b3: 'ng' }, sub, true, {}, {}, { b4: 'b5' }, undefined, true);
+      expect(result.isPerfect).toBe(false);
+      expect(result.chunkFeedback[2]).toBe(HINTS.GEZEGDE_DEEL_NOT_BIJV_BEP('een'));
+      expect(mistakes).toEqual({ 'Naamwoordelijk Deel': 1 });
     });
 
     it('laat de Hint-knop een verwachte BB niet als WWD/NWD vragen', () => {

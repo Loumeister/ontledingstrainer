@@ -314,6 +314,7 @@ export const HINTS = {
   GEZEGDE_DEEL_MISSING: (word: string) => `Benoem elk woord van het naamwoordelijk gezegde, ook de PV. Is '${word}' een werkwoord (WWD) of zegt het iets over het onderwerp (NWD)?`,
   GEZEGDE_DEEL_WRONG: (word: string) => `Is '${word}' een werkwoord? Alle werkwoorden van het naamwoordelijk gezegde, ook de PV, vormen samen het werkwoordelijk deel; de rest is het naamwoordelijk deel.`,
   GEZEGDE_DEEL_BIJV_BEP: (word: string) => `Bepaalt '${word}' één ander woord nader? Zo'n woord hoort wel bij het naamwoordelijk deel, maar je geeft het het label bijvoeglijke bepaling (BB) en niet NWD.`,
+  GEZEGDE_DEEL_NOT_BIJV_BEP: (word: string) => `Bepaalt '${word}' één ander woord nader? Zo niet, dan hoort het gewoon bij het naamwoordelijk deel (NWD).`,
   GEZEGDE_DEEL_NOT_NG: (word: string) => `Hoort '${word}' bij een naamwoordelijk gezegde? Alleen daarin benoem je een werkwoordelijk en een naamwoordelijk deel.`,
   generic: (_roleLabel: string) => "Tip: Loop je ontleding nog eens rustig stap voor stap door.",
   ALL_PLACED: "Alles staat op een plek. Kijk nog één keer of het echt klopt.",

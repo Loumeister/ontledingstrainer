@@ -449,10 +449,14 @@ export function validateAnswer(
         ? HINTS.GEZEGDE_DEEL_NOT_NG(t.text)
         : userGezegde
           ? HINTS.GEZEGDE_DEEL_WRONG(t.text)
-          : HINTS.GEZEGDE_DEEL_MISSING(t.text);
+          : userSub === 'bijv_bep'
+            ? HINTS.GEZEGDE_DEEL_NOT_BIJV_BEP(t.text)
+            : HINTS.GEZEGDE_DEEL_MISSING(t.text);
     chunkStatus[chunkIdx] = 'warning';
+    // Count under the role's display name, like the rest of validateAnswer
     const mistakeKey = expectedSub || userSub!;
-    currentMistakes[mistakeKey] = (currentMistakes[mistakeKey] || 0) + 1;
+    const mistakeName = ROLES.find(r => r.key === mistakeKey)?.label || mistakeKey;
+    currentMistakes[mistakeName] = (currentMistakes[mistakeName] || 0) + 1;
   });
 
   // --- Word-level bijv_bep link validation ---
