@@ -484,14 +484,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <section aria-labelledby="stap-onderdelen">
               <StepHeading id="stap-onderdelen" number={3} title="Moeilijke onderdelen" hint="Kies wat je al in de les hebt gehad." />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <ToggleCard
-                  title="Voorzetselvoorwerp"
-                  checked={includeVV}
-                  onChange={setIncludeVV}
-                  onText="Zit in je zinnen: altijd benoemen."
-                  offText="Zinnen met een voorzetselvoorwerp worden overgeslagen."
-                  note="Staat vanaf Hoog vanzelf aan."
-                />
+                {/* De Rollenladder bepaalt zelf welke rollen meedoen; de vz.vw-schakelaar geldt daar niet. */}
+                {!ladderEnabled && (
+                  <ToggleCard
+                    title="Voorzetselvoorwerp"
+                    checked={includeVV}
+                    onChange={setIncludeVV}
+                    onText="Zit in je zinnen: altijd benoemen."
+                    offText="Zinnen met een voorzetselvoorwerp worden overgeslagen."
+                    note="Staat vanaf Hoog vanzelf aan."
+                  />
+                )}
                 <ToggleCard
                   title="Bijvoeglijke bepaling"
                   checked={includeBB}
