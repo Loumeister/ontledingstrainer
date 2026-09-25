@@ -134,12 +134,33 @@ export function getVerbindingswoordWarnings(sentence: Sentence): string[] {
     .map(t => `'${t.text}' is een verbindingswoord en daarom geen onderschikkend voegwoord. Geef het in de bijzin zijn eigen functie (bijv. OW of LV) en haal in de hoofdzin het label onderschikkend voegwoord weg.`);
 }
 
+/** Map word indices of `a` to indices of `b` along a longest common subsequence of the words. */
+function alignWords(a: string[], b: string[]): Map<number, number> {
+  const lcs = a.map(() => new Array<number>(b.length + 1).fill(0));
+  lcs.push(new Array<number>(b.length + 1).fill(0));
+  for (let i = a.length - 1; i >= 0; i--) {
+    for (let j = b.length - 1; j >= 0; j--) {
+      lcs[i][j] = a[i] === b[j] ? lcs[i + 1][j + 1] + 1 : Math.max(lcs[i + 1][j], lcs[i][j + 1]);
+    }
+  }
+  const map = new Map<number, number>();
+  let i = 0;
+  let j = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) map.set(i++, j++);
+    else if (lcs[i + 1][j] >= lcs[i][j + 1]) i++;
+    else j++;
+  }
+  return map;
+}
+
 /**
  * Bijzinnen of the source sentence whose analysis is gone from the sentence that will be saved.
  * A source bijzin counts as kept when an analysed bijzin with the same words is still there (also
- * when it moved), or when an analysed bijzin now overlaps its old words (the teacher entered it
- * again after a change). Otherwise it is listed: a changed bijzin, a removed bijzin label or a
- * wiped analysis.
+ * when it moved), or when an analysed bijzin now covers one of its words that is still in the
+ * sentence (the teacher entered it again after a change). Words are aligned between both
+ * sentences first, so inserted or removed words elsewhere do not matter. Otherwise it is listed:
+ * a changed bijzin, a removed bijzin label or a wiped analysis.
  */
 export function getLostBijzinAnalyses(source: Sentence | null, sentence: Sentence): string[] {
   if (!source) return [];
@@ -150,14 +171,12 @@ export function getLostBijzinAnalyses(source: Sentence | null, sentence: Sentenc
     if (same >= 0) annotated.splice(same, 1);
     return same < 0;
   });
+  const toNew = alignWords(source.tokens.map(t => t.text), sentence.tokens.map(t => t.text));
+  const annotatedIdx = new Set(annotated.flatMap(g => g.map(t => sentence.tokens.indexOf(t))));
   return remaining
-    .filter(group => {
-      const start = source.tokens.indexOf(group[0]);
-      const end = start + group.length;
-      return !annotated.some(g => {
-        const gStart = sentence.tokens.indexOf(g[0]);
-        return gStart < end && gStart + g.length > start;
-      });
-    })
+    .filter(group => !group.some(t => {
+      const newIdx = toNew.get(source.tokens.indexOf(t));
+      return newIdx !== undefined && annotatedIdx.has(newIdx);
+    }))
     .map(textOf);
 }

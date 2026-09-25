@@ -117,6 +117,24 @@ describe('bijzineditor', () => {
       expect(getLostBijzinAnalyses(zin330, zonderBijzin)).toEqual(['omdat het hard regende.']);
     });
 
+    it('meldt de bijzin niet als hij verschoven én opnieuw ontleed is', () => {
+      const beide = opslaan(a => {
+        // "Gisteren na de les bleven wij binnen omdat het zacht regende."
+        a.words = ['Gisteren', 'na', 'de', 'les', 'bleven', 'wij', 'binnen', 'omdat', 'het', 'zacht', 'regende.'];
+        a.splitIndices = new Set([0, 3, 4, 5, 6]);
+        a.chunkLabels = { 0: 'bwb', 1: 'bwb', 2: 'pv', 3: 'ow', 4: 'bwb', 5: 'bijzin' };
+        a.bijzinFunctieLabels = { 5: 'bwb' };
+      });
+      const group = getBijzinTokenGroups(beide)[0];
+      expect(group.map(t => t.text)).toEqual(['omdat', 'het', 'zacht', 'regende.']);
+      let state = bijzinEditStateFromTokens(group);
+      for (const i of [0, 1, 2]) state = toggleBijzinEditSplit(state, i, group.length);
+      (['vw_onder', 'ow', 'bwb', 'pv'] as const).forEach((role, idx) => { state = setBijzinEditLabel(state, idx, role); });
+      expect(getLostBijzinAnalyses(zin330, beide)).toEqual(['omdat het hard regende.']);
+      const opnieuw = applyBijzinEdits(beide, { [bijzinKey(beide.tokens, group)]: state });
+      expect(getLostBijzinAnalyses(zin330, opnieuw)).toEqual([]);
+    });
+
     it('meldt de bijzin niet meer als de docent hem opnieuw heeft ontleed', () => {
       const gewijzigd = opslaan(a => { a.words[5] = 'zacht'; });
       const group = getBijzinTokenGroups(gewijzigd)[0];
