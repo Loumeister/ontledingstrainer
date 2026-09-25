@@ -976,7 +976,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
 
           {lostBijzinnen.length > 0 && (
             <p className="text-sm text-red-700 dark:text-red-300">
-              De vorige ontleding van {lostBijzinnen.map(b => `'${b}'`).join(', ')} is vervallen. Voer die hieronder opnieuw in als de bijzin ontleed moet worden.
+              De vorige ontleding van {lostBijzinnen.map(b => `'${b}'`).join(', ')} is vervallen. Is het nog een bijzin, voer de ontleding dan hieronder opnieuw in.
             </p>
           )}
 
