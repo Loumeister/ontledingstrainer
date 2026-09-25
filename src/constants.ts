@@ -122,11 +122,28 @@ export const ROLES_PER_LEVEL: Record<DifficultyLevel, RoleKey[]> = {
   4: ['pv', 'ow', 'lv', 'mv', 'bwb', 'vv', 'bijst', 'bijzin', 'vw_neven', 'wg', 'ng'],
 };
 
+export const LEVEL_NAMES: Record<DifficultyLevel, string> = {
+  0: 'Instap',
+  1: 'Basis',
+  2: 'Middel',
+  3: 'Hoog',
+  4: 'Samengesteld',
+};
+
+/** Eén regel per niveau: wat kan de leerling verwachten? */
+export const LEVEL_SUMMARIES: Record<DifficultyLevel, string> = {
+  0: 'Korte zinnen (4-7 woorden), alleen werkwoordelijk gezegde.',
+  1: 'Werkwoordelijk én naamwoordelijk gezegde.',
+  2: 'Langere zinnen met meer variatie.',
+  3: 'Meer zinsdelen, bijstelling, vz.vw en soms een bijzin.',
+  4: 'Zinnen met een hoofdzin en een bijzin.',
+};
+
 export const LEVEL_TOOLTIPS: Record<DifficultyLevel, string> = {
   0: 'Alleen zinnen met een werkwoordelijk gezegde (WG). Korte, eenvoudige zinnen (4-7 woorden) met: persoonsvorm, onderwerp, lijdend voorwerp, meewerkend voorwerp en bijwoordelijke bepaling.',
   1: 'Zinnen met zowel werkwoordelijk (WG) als naamwoordelijk gezegde (NG). Je leert het verschil herkennen en oefent met samengestelde gezegdes (WG/NG + werkwoordelijk deel).',
-  2: 'Het voorzetselvoorwerp (VZV) komt erbij. Je leert het verschil tussen een bijwoordelijke bepaling en een voorzetselvoorwerp. Langere zinnen met meer variatie.',
-  3: 'Bijstellingen en nevenschikking (en, maar, of) komen erbij. Meer zinsdelen per zin en lastiger woordvolgorde. Sommige zinnen bevatten een bijzin.',
+  2: 'Langere zinnen met meer variatie en meer bijwoordelijke bepalingen. Heb je het voorzetselvoorwerp al gehad? Zet het dan aan bij "Moeilijke onderdelen".',
+  3: 'Het voorzetselvoorwerp doet standaard mee. Bijstellingen en nevenschikking (en, maar, of) komen erbij. Meer zinsdelen per zin en lastiger woordvolgorde. Sommige zinnen bevatten een bijzin.',
   4: 'Samengestelde zinnen met bijzinnen en onderschikking. Je herkent hoofd- en bijzinnen, benoemt hun functie en ontleedt complexe zinsstructuren.',
 };
 

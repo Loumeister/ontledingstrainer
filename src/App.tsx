@@ -174,9 +174,7 @@ export default function App() {
         customSessionCount={trainer.customSessionCount} setCustomSessionCount={trainer.setCustomSessionCount}
         focusLV={trainer.focusLV} setFocusLV={trainer.setFocusLV}
         focusMV={trainer.focusMV} setFocusMV={trainer.setFocusMV}
-        focusVV={trainer.focusVV} setFocusVV={trainer.setFocusVV}
-        focusBijzin={trainer.focusBijzin} setFocusBijzin={trainer.setFocusBijzin}
-        includeBijst={trainer.includeBijst} setIncludeBijst={trainer.setIncludeBijst}
+        includeVV={trainer.includeVV} setIncludeVV={trainer.setIncludeVV}
         includeBB={trainer.includeBB} setIncludeBB={trainer.setIncludeBB}
         includeGezegdeDelen={trainer.includeGezegdeDelen} setIncludeGezegdeDelen={trainer.setIncludeGezegdeDelen}
         bijzinOntledingAvailable={bijzinOntledingAvailable}

@@ -1,6 +1,6 @@
 # Werkwoordelijk en naamwoordelijk deel (werkdocument)
 
-_Status: live als optie "Werkwoordelijk en naamwoordelijk deel (NG)", standaard uit._
+_Status: live als schakelaar "Werkwoordelijk en naamwoordelijk deel" onder "Moeilijke onderdelen", standaard uit._
 
 ## Wat de leerling doet
 

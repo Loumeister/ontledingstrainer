@@ -33,27 +33,35 @@ Kom je er niet uit?
 
 ## Het Startscherm: Wat kies ik?
 
-Je kunt de training helemaal aanpassen aan jouw niveau.
+Met **Snel Starten** oefen je meteen 3 zinnen op het niveau dat je het laatst koos. Wil je zelf kiezen, dan doorloop je vier stappen. Rechts zie je in **Jouw training** wat je kunt verwachten: niveau, gezegde, welke zinsdelen je kunt tegenkomen en hoeveel zinnen bij je keuzes passen.
 
-### 1. Moeilijkheidsgraad
-*   **Basis:** Korte zinnen, geen ingewikkelde bijzinnen.
-*   **Middel:** Langere zinnen, soms met voorzetselvoorwerp.
-*   **Hoog:** Moeilijke zinnen met bijvoorbeeld bijstellingen.
-*   **Alles:** Een mix van alle niveaus door elkaar (behalve samengesteld).
+### 1. Kies je niveau
+Ga met je muis over een niveau om te zien wat erin zit. Onder de knoppen staat altijd de uitleg van het gekozen niveau.
+*   **Instap:** Korte zinnen met alleen een werkwoordelijk gezegde.
+*   **Basis:** Werkwoordelijk én naamwoordelijk gezegde.
+*   **Middel:** Langere zinnen met meer variatie.
+*   **Hoog:** Meer zinsdelen, bijstelling, voorzetselvoorwerp en soms een bijzin.
+*   **Samengesteld:** Zinnen met een hoofdzin en een bijzin.
+*   **Alles:** Instap tot en met Hoog door elkaar (zonder samengestelde zinnen).
 
-### 2. Soort Zinnen
+### 2. Welk gezegde?
 *   **Werkwoordelijk (WG):** Zinnen met "normale" werkwoorden (lopen, fietsen, slapen).
 *   **Naamwoordelijk (NG):** Zinnen met koppelwerkwoorden (zijn, worden, blijven, blijken, lijken, heten, dunken, voorkomen).
-*   **Samengestelde zinnen:** Vink dit aan om te oefenen met hoofdzinnen en bijzinnen.
+*   **Allebei:** WG en NG door elkaar.
 
-### 3. Specifiek Oefenen (Focus)
-Wil je extra trainen op één onderdeel? Vink deze dan aan. De app zoekt dan alleen zinnen uit waarin dat specifieke onderdeel zit.
-*   *Bijvoorbeeld:* Vink **Lijdend Voorwerp** aan als je dat lastig vindt. Je krijgt dan alleen zinnen die een LV hebben.
+### 3. Moeilijke onderdelen
+Zet alleen aan wat je al in de les hebt gehad. Bij elke schakelaar staat wat er gebeurt als hij aan of uit staat.
+*   **Voorzetselvoorwerp:** Aan = zinnen met een voorzetselvoorwerp doen mee en je moet het benoemen. Uit = die zinnen worden overgeslagen. Staat vanzelf aan bij Hoog en Samengesteld.
+*   **Bijvoeglijke bepaling:** Aan = je benoemt ook de bijvoeglijke bepalingen binnen een zinsdeel (de *rode* auto). Uit = dat hoeft niet; de zinnen blijven hetzelfde.
+*   **Werkwoordelijk en naamwoordelijk deel:** Aan = bij een naamwoordelijk gezegde benoem je ook het ww. deel en het nw. deel.
 
-### 4. Onderdelen (Moeilijkheid)
-Hiermee kun je bepaalde lastige onderdelen "uitzetten" als je ze nog niet hebt gehad in de les.
-*   **Bijstelling:** (Jan, *mijn broer*, komt langs).
-*   **Bijvoeglijke bepaling:** (De *rode* auto).
+Bijstellingen (Jan, *mijn broer*, komt langs) komen alleen voor op Hoog en Samengesteld.
+
+### 4. Extra oefenen met
+Wil je extra trainen op het **lijdend voorwerp** of **meewerkend voorwerp**? Kies het hier. Je krijgt dan alleen zinnen waarin dat zinsdeel zit.
+
+### Slim kiezen
+Staat **Slim kiezen** aan, dan krijg je vaker zinnen met zinsdelen waar je eerder fouten mee maakte.
 
 ---
 
@@ -86,7 +94,7 @@ De editor vraagt om een pincode. De standaard pincode is **1234**. Vraag je scho
 3.  Klik op **Kopieer deellink** (of exporteer het `.json`-bestand).
 4.  Stuur de link (of het bestand) naar je leerlingen:
     *   **Via link:** Leerlingen openen de link in de browser en zien bovenaan een gele banner "Zinnen van je docent". Ze klikken op **Oefenen met docentzinnen**.
-    *   **Via bestand:** Leerlingen klikken op **Importeer zinnen (.json)** op het startscherm en laden het bestand in.
+    *   **Via bestand:** Leerlingen klikken op het startscherm onder "Bestand van je docent gekregen?" op **Oefenzinnen toevoegen** en kiezen het bestand. Met **Toets openen** starten ze meteen precies de zinnen uit het bestand.
 
 ### Technische details
 
