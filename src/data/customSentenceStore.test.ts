@@ -154,6 +154,16 @@ describe('importCustomSentences', () => {
     expect(result).toHaveLength(2);
   });
 
+  it('accepteert zinnen van niveau Instap (level 0)', () => {
+    const result = importCustomSentences(JSON.stringify([makeSentence(10003, 0)]));
+    expect(result.map(z => z.level)).toEqual([0]);
+  });
+
+  it('weigert een zin zonder niveau', () => {
+    const { level: _level, ...zonderNiveau } = makeSentence(10004);
+    expect(() => importCustomSentences(JSON.stringify([zonderNiveau]))).toThrow();
+  });
+
   it('gooit een fout bij ongeldig formaat (geen array)', () => {
     expect(() => importCustomSentences(JSON.stringify({ id: 1 }))).toThrow();
   });

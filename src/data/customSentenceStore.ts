@@ -59,7 +59,7 @@ export function importCustomSentences(json: string): Sentence[] {
   const parsed = JSON.parse(json);
   if (!Array.isArray(parsed)) throw new Error('Ongeldig formaat');
   parsed.forEach((s: Record<string, unknown>) => {
-    if (!s.id || !s.label || !s.tokens || !s.predicateType || !s.level) {
+    if (!s.id || !s.label || !s.tokens || !s.predicateType || typeof s.level !== 'number') {
       throw new Error(`Ongeldige zin: ${s.id || 'onbekend'}`);
     }
   });
