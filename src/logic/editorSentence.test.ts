@@ -16,11 +16,6 @@ function reopen(s: Sentence, change?: (a: ReturnType<typeof editorAnnotationFrom
 }
 
 describe('zinseditor — bijzinontleding bij opslaan', () => {
-  it('bouwt zonder overdracht de tokens opnieuw op en verliest zo de bijzinontleding (zin 330)', () => {
-    const tokens = buildEditorTokens(330, editorAnnotationFromSentence(byId(330)));
-    expect(tokens.some(t => t.bijzinAnalyse)).toBe(false);
-  });
-
   it('behoudt de bijzinontleding van zin 330 als er niets verandert', () => {
     const { tokens, lostBijzinnen } = reopen(byId(330));
     expect(tokens.map(t => t.bijzinAnalyse)).toEqual(byId(330).tokens.map(t => t.bijzinAnalyse));
@@ -101,18 +96,19 @@ describe('zinseditor — bijzinontleding bij opslaan', () => {
 });
 
 describe('zinseditor — betrekkelijke bijzin onder het hoogste niveau', () => {
+  const functies = (id: number) => byId(id).tokens.filter(t => t.role === 'bijzin').map(t => t.bijzinFunctie);
   const tokens = byId(410).tokens;
 
   it('waarschuwt onder niveau 4', () => {
     expect(tokens.some(t => t.bijzinFunctie === 'bijv_bep')).toBe(true);
-    expect(getBetrekkelijkeBijzinLevelWarning(tokens, 3)).toContain('geen functie van de betrekkelijke bijzin');
+    expect(getBetrekkelijkeBijzinLevelWarning(functies(410), 3)).toContain('geen functie van de betrekkelijke bijzin');
   });
 
   it('waarschuwt niet op niveau 4', () => {
-    expect(getBetrekkelijkeBijzinLevelWarning(tokens, 4)).toBeNull();
+    expect(getBetrekkelijkeBijzinLevelWarning(functies(410), 4)).toBeNull();
   });
 
   it('waarschuwt niet bij een andere bijzin', () => {
-    expect(getBetrekkelijkeBijzinLevelWarning(byId(330).tokens, 1)).toBeNull();
+    expect(getBetrekkelijkeBijzinLevelWarning(functies(330), 1)).toBeNull();
   });
 });

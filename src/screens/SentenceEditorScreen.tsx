@@ -171,6 +171,8 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
   // Build chunks from words + splits
   const getChunks = () => getEditorChunks(words, splitIndices);
   const getChunksFromSplits = (splits: Set<number>) => getEditorChunks(words, splits);
+  /** Function per chunk, only for chunks labelled bijzin (what buildEditorTokens stores as bijzinFunctie). */
+  const getBijzinFuncties = () => getChunks().map((_, i) => (chunkLabels[i] === 'bijzin' ? bijzinFunctieLabels[i] : undefined));
 
   const toggleSplit = (idx: number) => {
     const oldChunks = getChunks();
@@ -333,7 +335,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
       }
     });
 
-    const levelWarning = getBetrekkelijkeBijzinLevelWarning(buildSentence().sentence.tokens, level);
+    const levelWarning = getBetrekkelijkeBijzinLevelWarning(getBijzinFuncties(), level);
     if (levelWarning) errors.push(levelWarning);
     errors.push(...getVerbindingswoordWarnings(buildSentence().sentence));
 
@@ -889,7 +891,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
               ))}
             </div>
             {(() => {
-              const levelWarning = getBetrekkelijkeBijzinLevelWarning(buildSentence().sentence.tokens, level);
+              const levelWarning = getBetrekkelijkeBijzinLevelWarning(getBijzinFuncties(), level);
               return levelWarning && (
                 <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">{levelWarning}</p>
               );

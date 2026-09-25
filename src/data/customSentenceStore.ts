@@ -140,7 +140,9 @@ export function parseAndValidateSentences(json: string): Sentence[] {
 
     const bijzinProblems = getBijzinAnalyseProblems(raw as Sentence);
     if (bijzinProblems.length > 0) {
-      throw new Error(`${label}: ${bijzinProblems[0]}`);
+      const shown = bijzinProblems.slice(0, 3).join(' ');
+      const more = bijzinProblems.length > 3 ? ` En nog ${bijzinProblems.length - 3} meer.` : '';
+      throw new Error(`${label}: ${shown}${more}`);
     }
 
     return raw as Sentence;

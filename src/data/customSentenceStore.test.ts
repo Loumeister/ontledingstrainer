@@ -251,6 +251,11 @@ describe('parseAndValidateSentences — bijzinontleding', () => {
     expect(() => parseAndValidateSentences(bad)).toThrow('geen zinsdeel');
   });
 
+  it('noemt alle problemen, niet alleen het eerste', () => {
+    const bad = zin([{ ...hoofdzin[0], bijzinAnalyse: { role: 'ow' } }, hoofdzin[1], ...bijzin([{ role: 'vw_onder' }, { role: 'bijzin' }, { role: 'wg' }])]);
+    expect(() => parseAndValidateSentences(bad)).toThrow(/hoort niet bij een bijzin.*geen zinsdeel.*geen persoonsvorm/);
+  });
+
   it('weigert een bijzinontleding zonder rol', () => {
     const bad = zin([...hoofdzin, ...bijzin([{ role: 'vw_onder' }, { verbindingswoord: true }, { role: 'pv' }])]);
     expect(() => parseAndValidateSentences(bad)).toThrow("'bijzinAnalyse' moet een object");
