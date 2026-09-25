@@ -11,7 +11,7 @@
  */
 
 import { ROLES } from '../constants';
-import type { RoleKey } from '../types';
+import type { RoleKey, SessionHistoryEntry } from '../types';
 
 const STORAGE_PREFIX = 'zinsontleding_role_mastery_v2:';
 /**
@@ -121,4 +121,30 @@ export function updateRoleMastery(
 
   saveRoleMastery(studentKey, store);
   return { store, newlyMastered };
+}
+
+/** Vorige eigen sessie van deze leerling (geen Rollenladder), uit de geschiedenis van vóór deze sessie. */
+export function previousOwnSession(
+  priorHistory: SessionHistoryEntry[],
+  studentKey: string | null,
+): SessionHistoryEntry | null {
+  if (!studentKey) return null;
+  for (let i = priorHistory.length - 1; i >= 0; i--) {
+    const s = priorHistory[i];
+    if (!s.adaptiveExcluded && s.studentId === studentKey) return s;
+  }
+  return null;
+}
+
+/**
+ * Rollabels die in de vorige eigen sessie fout gingen en deze sessie geoefend
+ * én foutloos waren ("onder de knie"-badge).
+ */
+export function improvedRoles(
+  outcomes: Map<string, { clean: boolean }>,
+  previousMistakeStats: Record<string, number>,
+): string[] {
+  return Object.entries(previousMistakeStats)
+    .filter(([label, n]) => n > 0 && outcomes.get(label)?.clean === true)
+    .map(([label]) => label);
 }

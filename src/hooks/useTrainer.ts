@@ -5,8 +5,11 @@ import { useSentences } from './useSentences';
 import { getCustomSentences } from '../data/customSentenceStore';
 import { recordAttempt, recordShowAnswer } from '../services/usageData';
 import { logInteraction } from '../services/interactionLog';
-import { saveSessionToHistory } from '../services/sessionHistory';
-import { updateRoleMastery, type RoleMasteryStore } from '../services/rolemastery';
+import { saveSessionToHistory, loadSessionHistory } from '../services/sessionHistory';
+import {
+  updateRoleMastery, practicedRoleOutcomes, previousOwnSession, improvedRoles,
+  type RoleMasteryStore,
+} from '../services/rolemastery';
 import {
   loadAdaptiveProfileFor,
   resolveHistoryStudentId,
@@ -88,8 +91,11 @@ export interface TrainerState {
   mistakeStats: Record<string, number>;
   /** Gezien/goed per rol van de afgeronde sessie; null bij Rollenladder of lopende sessie. */
   sessionRoleTally: RoleTally | null;
-  /** Rolbeheersing na de afgeronde sessie; null bij Rollenladder of lopende sessie. */
-  sessionMastery: { store: RoleMasteryStore; newlyMastered: string[] } | null;
+  /**
+   * Rolbeheersing na de afgeronde sessie; null bij Rollenladder of lopende sessie.
+   * `improved`: rollen die de vorige eigen sessie fout gingen en nu foutloos geoefend zijn.
+   */
+  sessionMastery: { store: RoleMasteryStore; newlyMastered: string[]; improved: string[] } | null;
   sessionSentenceResults: SentenceResult[];
   isSessionFinished: boolean;
   consecutivePerfect: number;
@@ -723,7 +729,12 @@ export function useTrainer(): TrainerState {
       let mastery: TrainerState['sessionMastery'] = null;
       if (!ladderEnabled) {
         try {
-          mastery = updateRoleMastery(historyStudentId, roleTallyRef.current, mistakeStats);
+          const previous = previousOwnSession(loadSessionHistory(), historyStudentId);
+          const outcomes = practicedRoleOutcomes(roleTallyRef.current, mistakeStats);
+          mastery = {
+            ...updateRoleMastery(historyStudentId, roleTallyRef.current, mistakeStats),
+            improved: previous ? improvedRoles(outcomes, previous.mistakeStats ?? {}) : [],
+          };
         } catch {
           // Beheersing is een extraatje; het scorescherm moet altijd verschijnen
         }

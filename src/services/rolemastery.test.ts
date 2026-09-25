@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   loadRoleMastery, updateRoleMastery, practicedRoleOutcomes,
+  previousOwnSession, improvedRoles,
   LEGACY_STORAGE_KEY, type SessionRoleEvidence,
 } from './rolemastery';
+import type { SessionHistoryEntry } from '../types';
 
 const store: Record<string, string> = {};
 const localStorageMock = {
@@ -150,3 +152,38 @@ describe('updateRoleMastery', () => {
   });
 });
 
+describe('improvedRoles', () => {
+  it('geeft rollen die vorige keer fout gingen en nu foutloos geoefend zijn', () => {
+    const outcomes = practicedRoleOutcomes(CLEAN_OW_PV_LV, {});
+    expect(improvedRoles(outcomes, { Onderwerp: 2, Persoonsvorm: 1 })).toEqual(['Onderwerp', 'Persoonsvorm']);
+  });
+
+  // Regressie: de "onder de knie"-badge verscheen ook voor rollen die niet in de sessie zaten.
+  it('negeert rollen die deze sessie niet geoefend zijn', () => {
+    const outcomes = practicedRoleOutcomes({ seen: { ow: 1 }, correct: { ow: 1 } }, {});
+    expect(improvedRoles(outcomes, { 'Lijdend Voorwerp': 1 })).toEqual([]);
+  });
+
+  it('negeert rollen die nu weer fout gingen', () => {
+    const outcomes = practicedRoleOutcomes(CLEAN_OW_PV_LV, { Onderwerp: 1 });
+    expect(improvedRoles(outcomes, { Onderwerp: 1 })).toEqual([]);
+  });
+});
+
+describe('previousOwnSession', () => {
+  const entry = (studentId: string | undefined, extra: Partial<SessionHistoryEntry> = {}): SessionHistoryEntry => ({
+    date: '2026-09-01T10:00:00.000Z', scorePercentage: 50, correct: 1, total: 2,
+    mistakeStats: {}, sentenceCount: 1, studentId, ...extra,
+  });
+
+  it('slaat sessies van andere leerlingen en de Rollenladder over', () => {
+    const own = entry(SAM, { mistakeStats: { Onderwerp: 1 } });
+    const history = [own, entry(KIM), entry(SAM, { adaptiveExcluded: true }), entry(undefined)];
+    expect(previousOwnSession(history, SAM)).toBe(own);
+  });
+
+  it('geeft null voor een anonieme leerling of zonder eigen sessie', () => {
+    expect(previousOwnSession([entry(KIM)], SAM)).toBeNull();
+    expect(previousOwnSession([entry(SAM)], null)).toBeNull();
+  });
+});

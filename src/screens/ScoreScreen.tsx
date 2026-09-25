@@ -108,20 +108,11 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
   const totalSentences = sessionSentenceResults.length;
   const isImproved = previousScore !== null && scorePercentage > previousScore;
 
-  // Mastered roles: roles that had errors in previous sessions but none now (session-diff badge)
-  const previousMistakeRoles = useMemo(() => {
-    if (history.length < 2) return new Set<string>();
-    const prev = history[history.length - 2];
-    return new Set(Object.keys(prev.mistakeStats));
-  }, [history]);
-  const masteredRoles = useMemo(() => {
-    const currentErrorRoles = new Set(Object.keys(mistakeStats));
-    return [...previousMistakeRoles].filter(r => !currentErrorRoles.has(r));
-  }, [previousMistakeRoles, mistakeStats]);
-
   // Persistente rolbeheersing: bijgewerkt bij het afronden van de sessie (useTrainer)
   const roleMasteryStore = sessionMastery?.store ?? {};
   const newlyMasteredRoles = sessionMastery?.newlyMastered ?? [];
+  // Sessie-diff badge: vorige eigen sessie fout, nu geoefend en foutloos
+  const masteredRoles = sessionMastery?.improved ?? [];
 
   useEffect(() => {
     if (scorePercentage === 100) {
@@ -543,8 +534,8 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
             );
           })()}
 
-          {/* Rollenkas – mastery trophy wall */}
-          <RollenKas mistakeStats={mistakeStats} roleTally={sessionRoleTally} masteryStore={roleMasteryStore} student={{ name: studentNameProp, initiaal: studentInitiaalProp, klas: studentKlasProp }} />
+          {/* Rollenkas – mastery trophy wall; niet bij de Rollenladder (geen rolprofiel) */}
+          {!ladderEnabled && <RollenKas mistakeStats={mistakeStats} roleTally={sessionRoleTally} masteryStore={roleMasteryStore} student={{ name: studentNameProp, initiaal: studentInitiaalProp, klas: studentKlasProp }} />}
         </section>
 
         {/* === Section 2: Per-sentence overview === */}
