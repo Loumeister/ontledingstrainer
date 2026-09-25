@@ -10,6 +10,7 @@ import {
   loadAdaptiveProfileFor,
   resolveHistoryStudentId,
   selectAdaptiveQueue,
+  sentenceRecencyKey,
   tallySentenceRoles,
   addRoleTally,
   type RoleTally,
@@ -715,7 +716,7 @@ export function useTrainer(): TrainerState {
             studentId: resolveHistoryStudentId(studentName, studentInitiaal, studentKlas) ?? undefined,
             roleSeen: { ...roleTallyRef.current.seen },
             roleCorrect: { ...roleTallyRef.current.correct },
-            sentenceIds: sessionQueue.map(q => q.id),
+            sentenceKeys: sessionQueue.map(sentenceRecencyKey),
           }),
           ...(ladderEnabled ? { adaptiveExcluded: true } : {}),
         });
