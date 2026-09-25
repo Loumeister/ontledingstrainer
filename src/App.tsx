@@ -215,6 +215,7 @@ export default function App() {
         sessionStats={trainer.sessionStats}
         mistakeStats={trainer.mistakeStats}
         sessionRoleTally={trainer.sessionRoleTally}
+        sessionMastery={trainer.sessionMastery}
         sessionSentenceResults={trainer.sessionSentenceResults}
         resetToHome={trainer.resetToHome}
         startSession={trainer.startSession}

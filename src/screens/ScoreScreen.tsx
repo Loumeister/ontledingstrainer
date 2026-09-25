@@ -11,8 +11,8 @@ import {
   getConsistencyStreak,
   getPerfectSessionCount, incrementPerfectSessionCount,
 } from '../services/sessionHistory';
-import { updateRoleMastery, practicedRoleOutcomes, RoleMasteryStore } from '../services/rolemastery';
-import { loadRoleConfidencesFor, resolveHistoryStudentId, type RoleTally } from '../logic/adaptiveSelection';
+import { practicedRoleOutcomes, RoleMasteryStore } from '../services/rolemastery';
+import { loadRoleConfidencesFor, type RoleTally } from '../logic/adaptiveSelection';
 import { buildReport, encodeReport } from '../services/sessionReport';
 import { getScriptUrl } from '../services/googleDriveSync';
 import { getLadderStage } from '../logic/rollenladder';
@@ -21,6 +21,7 @@ type ScoreScreenProps = Pick<TrainerState,
   | 'sessionStats'
   | 'mistakeStats'
   | 'sessionRoleTally'
+  | 'sessionMastery'
   | 'sessionSentenceResults'
   | 'resetToHome'
   | 'startSession'
@@ -49,6 +50,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
   sessionStats,
   mistakeStats,
   sessionRoleTally,
+  sessionMastery,
   sessionSentenceResults,
   resetToHome,
   startSession,
@@ -117,15 +119,9 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
     return [...previousMistakeRoles].filter(r => !currentErrorRoles.has(r));
   }, [previousMistakeRoles, mistakeStats]);
 
-  // Persistente rolbeheersing: update once on mount, per leerling en alleen
-  // voor rollen die echt geoefend zijn. Rollenladder houdt geen rolprofiel bij.
-  const { roleMasteryStore, newlyMasteredRoles } = useMemo(() => {
-    if (ladderEnabled || !sessionRoleTally) return { roleMasteryStore: {}, newlyMasteredRoles: [] as string[] };
-    const studentKey = resolveHistoryStudentId(studentNameProp, studentInitiaalProp, studentKlasProp);
-    const { store, newlyMastered } = updateRoleMastery(studentKey, sessionRoleTally, mistakeStats);
-    return { roleMasteryStore: store, newlyMasteredRoles: newlyMastered };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Persistente rolbeheersing: bijgewerkt bij het afronden van de sessie (useTrainer)
+  const roleMasteryStore = sessionMastery?.store ?? {};
+  const newlyMasteredRoles = sessionMastery?.newlyMastered ?? [];
 
   useEffect(() => {
     if (scorePercentage === 100) {

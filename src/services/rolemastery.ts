@@ -11,10 +11,13 @@
  */
 
 import { ROLES } from '../constants';
-import type { RoleKey } from '../types';
+import type { RoleKey, SessionHistoryEntry } from '../types';
 
 const STORAGE_PREFIX = 'zinsontleding_role_mastery_v2:';
-/** Oude, browserbrede opslag; bewust niet meer gelezen (niet per leerling, telde ongeoefende rollen mee). */
+/**
+ * Oude, browserbrede opslag; bewust niet meer gelezen (niet per leerling, telde
+ * ongeoefende rollen mee). In plaats daarvan: rebuildRoleMastery.
+ */
 export const LEGACY_STORAGE_KEY = 'zinsontleding_role_mastery_v1';
 export const MASTERY_SESSIONS = 3;
 
@@ -38,14 +41,18 @@ function storageKey(studentKey: string): string {
   return STORAGE_PREFIX + studentKey;
 }
 
-export function loadRoleMastery(studentKey: string | null): RoleMasteryStore {
-  if (!studentKey) return {};
+/** Opgeslagen beheersing van deze leerling, of null als er nog niets is opgeslagen. */
+function readStoredMastery(studentKey: string): RoleMasteryStore | null {
   try {
     const raw = localStorage.getItem(storageKey(studentKey));
-    return raw ? (JSON.parse(raw) as RoleMasteryStore) : {};
+    return raw ? (JSON.parse(raw) as RoleMasteryStore) : null;
   } catch {
-    return {};
+    return null;
   }
+}
+
+export function loadRoleMastery(studentKey: string | null): RoleMasteryStore {
+  return (studentKey && readStoredMastery(studentKey)) || {};
 }
 
 function saveRoleMastery(studentKey: string, store: RoleMasteryStore): void {
@@ -75,36 +82,66 @@ export function practicedRoleOutcomes(
   return outcomes;
 }
 
-/**
- * Werk de beheersing van deze leerling bij na een sessie.
- *
- * @param studentKey    Stabiel leerling-id (resolveHistoryStudentId); null = anoniem, niets opslaan
- * @param evidence      Gezien/goed per rol uit deze sessie
- * @param mistakeStats  Fouten per rollabel uit deze sessie
- * @returns Bijgewerkte store + rollabels die deze sessie voor het eerst beheerst zijn
- */
-export function updateRoleMastery(
-  studentKey: string | null,
-  evidence: SessionRoleEvidence,
-  mistakeStats: Record<string, number>,
-): { store: RoleMasteryStore; newlyMastered: string[] } {
-  if (!studentKey) return { store: {}, newlyMastered: [] };
-
-  const store = loadRoleMastery(studentKey);
+/** Pas één sessie toe op de store (muteert); geeft de nieuw beheerste rollabels terug. */
+function applySession(
+  store: RoleMasteryStore,
+  outcomes: Map<string, { clean: boolean }>,
+  date: string,
+): string[] {
   const newlyMastered: string[] = [];
-  const today = new Date().toISOString().slice(0, 10);
-
-  for (const [label, { clean }] of practicedRoleOutcomes(evidence, mistakeStats)) {
+  for (const [label, { clean }] of outcomes) {
     const prev = store[label] ?? { consecutiveClean: 0, mastered: false };
     const consecutiveClean = clean ? prev.consecutiveClean + 1 : 0;
     const justMastered = !prev.mastered && consecutiveClean >= MASTERY_SESSIONS;
     store[label] = {
       consecutiveClean,
       mastered: prev.mastered || consecutiveClean >= MASTERY_SESSIONS,
-      achievedAt: justMastered ? today : prev.achievedAt,
+      achievedAt: justMastered ? date : prev.achievedAt,
     };
     if (justMastered) newlyMastered.push(label);
   }
+  return newlyMastered;
+}
+
+/**
+ * Reconstrueer de beheersing uit de eigen sessiegeschiedenis (oud → nieuw),
+ * voor leerlingen die nog geen opgeslagen beheersing per leerling hebben.
+ *
+ * Alleen sessies met dit leerling-id tellen. Sessies zonder telling per rol
+ * (van vóór adaptieve selectie v2) kunnen een reeks alleen breken via een
+ * fout, nooit verlengen: zonder telling is niet te zien of een rol geoefend is.
+ * Rollenladder-sessies tellen niet mee.
+ */
+export function rebuildRoleMastery(history: SessionHistoryEntry[], studentKey: string): RoleMasteryStore {
+  const store: RoleMasteryStore = {};
+  for (const session of history) {
+    if (session.adaptiveExcluded || session.studentId !== studentKey) continue;
+    const evidence = { seen: session.roleSeen ?? {}, correct: session.roleCorrect ?? {} };
+    applySession(store, practicedRoleOutcomes(evidence, session.mistakeStats ?? {}), session.date.slice(0, 10));
+  }
+  return store;
+}
+
+/**
+ * Werk de beheersing van deze leerling bij na een sessie.
+ *
+ * @param studentKey    Stabiel leerling-id (resolveHistoryStudentId); null = anoniem, niets opslaan
+ * @param evidence      Gezien/goed per rol uit deze sessie
+ * @param mistakeStats  Fouten per rollabel uit deze sessie
+ * @param priorHistory  Sessiegeschiedenis van vóór deze sessie; startpunt als er nog niets is opgeslagen
+ * @returns Bijgewerkte store + rollabels die deze sessie voor het eerst beheerst zijn
+ */
+export function updateRoleMastery(
+  studentKey: string | null,
+  evidence: SessionRoleEvidence,
+  mistakeStats: Record<string, number>,
+  priorHistory: SessionHistoryEntry[] = [],
+): { store: RoleMasteryStore; newlyMastered: string[] } {
+  if (!studentKey) return { store: {}, newlyMastered: [] };
+
+  const store = readStoredMastery(studentKey) ?? rebuildRoleMastery(priorHistory, studentKey);
+  const today = new Date().toISOString().slice(0, 10);
+  const newlyMastered = applySession(store, practicedRoleOutcomes(evidence, mistakeStats), today);
 
   saveRoleMastery(studentKey, store);
   return { store, newlyMastered };
