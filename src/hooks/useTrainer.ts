@@ -5,7 +5,7 @@ import { useSentences } from './useSentences';
 import { getCustomSentences } from '../data/customSentenceStore';
 import { recordAttempt, recordShowAnswer } from '../services/usageData';
 import { logInteraction } from '../services/interactionLog';
-import { saveSessionToHistory, loadSessionHistory } from '../services/sessionHistory';
+import { saveSessionToHistory } from '../services/sessionHistory';
 import { updateRoleMastery, type RoleMasteryStore } from '../services/rolemastery';
 import {
   loadAdaptiveProfileFor,
@@ -718,12 +718,12 @@ export function useTrainer(): TrainerState {
       const finalTotal = sessionStats.total;
       const pct = finalTotal > 0 ? Math.round((finalCorrect / finalTotal) * 100) : 0;
       const historyStudentId = ladderEnabled ? null : resolveHistoryStudentId(studentName, studentInitiaal, studentKlas);
-      // Rolbeheersing vóór het opslaan bijwerken: bij de eerste keer per leerling
-      // wordt die uit de eerdere sessies herberekend, zonder deze sessie dubbel te tellen.
+      // Rolbeheersing hier bijwerken, niet bij het renderen van het scorescherm:
+      // dat zou onder React StrictMode twee keer lopen.
       let mastery: TrainerState['sessionMastery'] = null;
       if (!ladderEnabled) {
         try {
-          mastery = updateRoleMastery(historyStudentId, roleTallyRef.current, mistakeStats, loadSessionHistory());
+          mastery = updateRoleMastery(historyStudentId, roleTallyRef.current, mistakeStats);
         } catch {
           // Beheersing is een extraatje; het scorescherm moet altijd verschijnen
         }

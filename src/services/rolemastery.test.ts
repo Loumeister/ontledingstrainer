@@ -1,9 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
-  loadRoleMastery, updateRoleMastery, practicedRoleOutcomes, rebuildRoleMastery,
+  loadRoleMastery, updateRoleMastery, practicedRoleOutcomes,
   LEGACY_STORAGE_KEY, type SessionRoleEvidence,
 } from './rolemastery';
-import type { SessionHistoryEntry } from '../types';
 
 const store: Record<string, string> = {};
 const localStorageMock = {
@@ -151,72 +150,3 @@ describe('updateRoleMastery', () => {
   });
 });
 
-/** Sessie uit de geschiedenis in het huidige formaat (met telling per rol). */
-function session(
-  date: string,
-  studentId: string | undefined,
-  evidence: SessionRoleEvidence,
-  mistakeStats: Record<string, number> = {},
-  extra: Partial<SessionHistoryEntry> = {},
-): SessionHistoryEntry {
-  return {
-    date: `${date}T10:00:00.000Z`, scorePercentage: 100, correct: 1, total: 1,
-    mistakeStats, sentenceCount: 1, studentId,
-    roleSeen: evidence.seen, roleCorrect: evidence.correct, ...extra,
-  };
-}
-
-const ONLY_OW: SessionRoleEvidence = { seen: { ow: 1 }, correct: { ow: 1 } };
-
-describe('rebuildRoleMastery', () => {
-  it('herleidt beheersing uit 3 foutloze eigen sessies, met de datum van de derde', () => {
-    const s = rebuildRoleMastery([
-      session('2026-09-01', SAM, ONLY_OW),
-      session('2026-09-02', SAM, ONLY_OW),
-      session('2026-09-03', SAM, ONLY_OW),
-    ], SAM);
-    expect(s['Onderwerp']).toEqual({ consecutiveClean: 3, mastered: true, achievedAt: '2026-09-03' });
-    expect(s['Persoonsvorm']).toBeUndefined();
-  });
-
-  it('negeert sessies van andere leerlingen en van de Rollenladder', () => {
-    const s = rebuildRoleMastery([
-      session('2026-09-01', SAM, ONLY_OW),
-      session('2026-09-02', KIM, ONLY_OW),
-      session('2026-09-03', SAM, ONLY_OW, {}, { adaptiveExcluded: true }),
-    ], SAM);
-    expect(s['Onderwerp']).toEqual({ consecutiveClean: 1, mastered: false, achievedAt: undefined });
-  });
-
-  it('laat een oude sessie zonder telling de reeks alleen breken via een fout', () => {
-    const legacy = (date: string, mistakes: Record<string, number>) =>
-      session(date, SAM, ONLY_OW, mistakes, { roleSeen: undefined, roleCorrect: undefined });
-    const s = rebuildRoleMastery([
-      session('2026-09-01', SAM, ONLY_OW),
-      legacy('2026-09-02', {}),                 // verlengt niet
-      session('2026-09-03', SAM, ONLY_OW),
-      legacy('2026-09-04', { Onderwerp: 1 }),   // breekt wel
-    ], SAM);
-    expect(s['Onderwerp'].consecutiveClean).toBe(0);
-    expect(s['Onderwerp'].mastered).toBe(false);
-  });
-});
-
-describe('updateRoleMastery met eerdere geschiedenis', () => {
-  const prior = [
-    session('2026-09-01', SAM, ONLY_OW),
-    session('2026-09-02', SAM, ONLY_OW),
-  ];
-
-  it('bouwt bij de eerste keer voort op de herberekende reeks', () => {
-    const { store: s, newlyMastered } = updateRoleMastery(SAM, ONLY_OW, {}, prior);
-    expect(s['Onderwerp'].mastered).toBe(true);
-    expect(newlyMastered).toEqual(['Onderwerp']);
-  });
-
-  it('herberekent niet opnieuw als er al opgeslagen beheersing is', () => {
-    store[keyFor(SAM)] = JSON.stringify({});
-    const { store: s } = updateRoleMastery(SAM, ONLY_OW, {}, prior);
-    expect(s['Onderwerp'].consecutiveClean).toBe(1);
-  });
-});
