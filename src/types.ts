@@ -13,6 +13,25 @@ export interface Token {
   alternativeRole?: RoleKey; // An acceptable alternative role for ambiguous sentences
   bijzinFunctie?: RoleKey; // The grammatical function of a bijzin in the sentence (e.g. lv, bwb, ow)
   bijvBepTarget?: string; // Token ID of the word this bijv_bep modifies (for bvb sub-roles and bijzin bvb functions)
+  bijzinAnalyse?: BijzinTokenAnalyse; // Only on tokens with role 'bijzin': the analysis of the bijzin as a sentence of its own
+}
+
+/**
+ * Annotation of one word inside a bijzin, used when the bijzin is analysed as a sentence of its own.
+ * Same semantics as the Token fields, but scoped to the bijzin: chunk boundaries follow role changes
+ * and newChunk within the bijzin. The onderschikkend voegwoord gets role 'vw_onder' as its own chunk.
+ */
+export interface BijzinTokenAnalyse {
+  role: RoleKey;
+  subRole?: RoleKey;
+  newChunk?: boolean;
+  alternativeRole?: RoleKey;
+  bijvBepTarget?: string;
+  /**
+   * Betrekkelijk of vragend verbindingswoord (die, dat, waar, waardoor, waarom): it links the bijzin
+   * and also has a function in it (role). Only asked as a zinsdeel on the highest level.
+   */
+  verbindingswoord?: boolean;
 }
 
 export interface Sentence {
@@ -71,6 +90,8 @@ export interface SentenceResult {
   showAnswerUsed: boolean;
   /** User's chunk labels keyed by first token ID */
   userLabels: PlacementMap;
+  /** User's WG/NG gezegdetype choice on PV chunks, keyed by the PV chunk's first token ID */
+  predicateTypeLabels: PlacementMap;
   /** User's split indices */
   splitIndices: number[];
 }
@@ -82,6 +103,16 @@ export interface SessionHistoryEntry {
   total: number;
   mistakeStats: Record<string, number>;
   sentenceCount: number;
+  /** Sinds adaptieve selectie v2; ontbreekt in oudere sessies. */
+  studentId?: string;
+  /** Aantal beoordeelde zinsdelen per rol in deze sessie. */
+  roleSeen?: Partial<Record<RoleKey, number>>;
+  /** Waarvan goed benoemd. */
+  roleCorrect?: Partial<Record<RoleKey, number>>;
+  /** Zin-id's uit deze sessie, voor versheid in adaptieve selectie. */
+  sentenceIds?: number[];
+  /** Rollenladder-sessie: telt niet mee voor adaptieve selectie. */
+  adaptiveExcluded?: boolean;
 }
 
 export interface RichFeedbackEntry {
@@ -277,7 +308,7 @@ export interface TrainerAssignment {
  */
 export interface TrainerSubmission {
   domain: 'trainer';            // discriminator voor cross-domain aggregatie
-  id: string;                   // 'tsub-{ISO-nocolon}-{4random}'
+  id: string;                   // 'tsub-{ISO-nocolon}-{uuid}'
   studentId: string;            // Student.id
   studentName: string;          // gedenormaliseerd voor weergave
   studentKlas: string;          // gedenormaliseerd voor weergave
@@ -298,7 +329,7 @@ export interface TrainerSubmission {
  * Bewaart splitposities en labels zodat docenten de studentoplossing kunnen zien.
  */
 export interface TrainerAttempt {
-  id: string;           // 'tatt-{ISO-nocolon}-{4random}'
+  id: string;           // 'tatt-{ISO-nocolon}-{uuid}'
   submissionId: string;
   sentenceId: number;
   startedAt: string;    // ISO-8601
@@ -308,6 +339,7 @@ export interface TrainerAttempt {
   showAnswerUsed: boolean;
   splitIndices: number[];
   userLabels: Record<string, string>; // PlacementMap (tokenId → roleKey)
+  predicateTypeLabels?: Record<string, string>; // WG/NG-keuze op PV-chunks; optioneel, ontbreekt op pogingen van vóór dit veld
 }
 
 /**

@@ -5,14 +5,14 @@ Client-side oefenapp voor Nederlandse zinsontleding. Leerlingen knippen een voll
 ## Huidige productkern
 
 - niveaus 0–4 met lokale JSON-zinnen
-- werkwoordelijk en naamwoordelijk gezegde
+- werkwoordelijk en naamwoordelijk gezegde, verplicht als subrol op de persoonsvorm vanaf niveau 1
 - zinsdeelgrenzen, hoofdrollen, deelrollen en bijzinfuncties
 - directe controle met een korte herstelvraag en een nieuwe poging
 - lokale voortgang, sessierapporten en eigen zinnen
 - verborgen experimentele Rollenladder via `#/rollenladder`
 - verborgen Zinsdeellab via `#/zinnenlab`
 
-De standaardflow vraagt altijd alle toepasselijke rollen tegelijk. Ladderactivatie wordt niet opgeslagen; alleen de experimentele trede en recente scores blijven lokaal bewaard.
+De standaardflow vraagt altijd alle toepasselijke rollen tegelijk, met één uitzondering: de persoonsvorm moet als eerste gelabeld worden en krijgt vanaf niveau 1 een verplichte WG/NG-subrol (gezegdetype) voordat gecontroleerd kan worden. Ladderactivatie wordt niet opgeslagen; alleen de experimentele trede en recente scores blijven lokaal bewaard.
 
 ## Ontwikkelen
 

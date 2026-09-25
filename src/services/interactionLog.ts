@@ -10,6 +10,8 @@ export type InteractionType =
   | 'sub_label_remove'
   | 'bijzin_functie_drop'
   | 'bijzin_functie_remove'
+  | 'predicate_type_drop'
+  | 'predicate_type_remove'
   | 'bijvbep_link'
   | 'bijvbep_unlink'
   | 'word_bijvbep_link'
@@ -26,7 +28,9 @@ export type InteractionType =
   | 'lab_construction_submit'
   | 'lab_parse_complete'
   | 'lab_exercise_complete'
-  | 'split_skip';
+  | 'split_skip'
+  | 'bijzin_analyse_check'
+  | 'bijzin_analyse_show_answer';
 
 export interface InteractionEntry {
   timestamp: string;

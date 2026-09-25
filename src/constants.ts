@@ -308,6 +308,11 @@ export const FEEDBACK_BIJZIN_FUNCTIE = {
   WRONG: (_expected: string) => "Bekijk de bijzin als één geheel. Welke vraag beantwoordt dit deel in de hoofdzin?"
 };
 
+export const FEEDBACK_PREDICATE_TYPE = {
+  MISSING: "Goed, dit is de persoonsvorm! Hoort ze bij een werkwoordelijk (WG) of een naamwoordelijk (NG) gezegde?",
+  WRONG: (_expected: string) => "Drukt het gezegde een handeling uit (WG), of zegt het wat het onderwerp is, wordt of blijft (NG)?"
+};
+
 export const HINTS = {
   MISSING_PV: "Tip: Pas de tijd van de zin aan. Welk werkwoord verandert?",
   MISSING_OW: "Tip: Denk na over wie of wat er in deze zin iets doet of is.",
@@ -321,7 +326,14 @@ export const HINTS = {
   MISSING_BIJZIN: "Tip: Zoek een zinsdeel met een eigen onderwerp en persoonsvorm.",
   MISSING_BIJST: "Tip: Zoek een extra naam voor iets wat al genoemd is.",
   MISSING_BIJZIN_FUNCTIE: "Tip: Welke vraag beantwoordt de volledige bijzin in de hoofdzin?",
+  MISSING_PREDICATE_TYPE: "Tip: Is dit een werkwoordelijk gezegde (WG, een handeling) of een naamwoordelijk gezegde (NG, een eigenschap of toestand)?",
   SUBLABEL_NEEDS_MAIN_ROLE: "Tip: Geef dit deel eerst een hoofdlabel (bijv. WG of NG) voordat je een deelrol op een woord plaatst.",
+  GEZEGDE_DEEL_MISSING: (word: string) => `Benoem elk woord van het naamwoordelijk gezegde, ook de PV. Is '${word}' een werkwoord (WWD) of zegt het iets over het onderwerp (NWD)?`,
+  GEZEGDE_DEEL_WRONG: (word: string) => `Is '${word}' een werkwoord? Alle werkwoorden van het naamwoordelijk gezegde, ook de PV, vormen samen het werkwoordelijk deel; de rest is het naamwoordelijk deel.`,
+  GEZEGDE_DEEL_BIJV_BEP: (word: string) => `Bepaalt '${word}' één ander woord nader? Zo'n woord hoort wel bij het naamwoordelijk deel, maar je geeft het het label bijvoeglijke bepaling (BB) en niet NWD.`,
+  GEZEGDE_DEEL_NOT_BIJV_BEP: (word: string) => `Bepaalt '${word}' één ander woord nader? Zo niet, dan hoort het gewoon bij het naamwoordelijk deel (NWD).`,
+  VERBINDINGSWOORD_HAS_FUNCTIE: (word: string) => `Verbindt '${word}' alleen de bijzin met de hoofdzin, of doet het ook mee in de bijzin? Vervang '${word}' door het woord waarnaar het verwijst en stel dan de vraag voor het zinsdeel.`,
+  GEZEGDE_DEEL_NOT_NG: (word: string) => `Hoort '${word}' bij een naamwoordelijk gezegde? Alleen daarin benoem je een werkwoordelijk en een naamwoordelijk deel.`,
   generic: (_roleLabel: string) => "Tip: Loop je ontleding nog eens rustig stap voor stap door.",
   ALL_PLACED: "Alles staat op een plek. Kijk nog één keer of het echt klopt.",
 };

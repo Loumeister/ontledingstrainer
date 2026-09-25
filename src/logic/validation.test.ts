@@ -6,7 +6,12 @@ import {
   roleMatchesToken,
   getConsistentRole,
   validateAnswer,
+  isBijzinFunctieAsked,
+  findMissingGezegdeDeel,
+  requiresPredicateChoice,
+  getExpectedPredicateType,
 } from './validation';
+import { HINTS } from '../constants';
 import type { Token, Sentence, PlacementMap } from '../types';
 
 // --- Helper factories ---
@@ -347,6 +352,107 @@ describe('validateAnswer – label checking', () => {
 });
 
 // ──────────────────────────────────────────────
+// requiresPredicateChoice / predicate type (WG/NG) on the PV chunk
+// ──────────────────────────────────────────────
+describe('validateAnswer – predicate type on the PV chunk', () => {
+  const sentence = makeSentence([
+    makeToken({ id: 't1', text: 'De', role: 'ow' }),
+    makeToken({ id: 't2', text: 'kat', role: 'ow' }),
+    makeToken({ id: 't3', text: 'slaapt', role: 'pv' }),
+    makeToken({ id: 't4', text: 'lekker', role: 'bwb' }),
+  ], { level: 1, predicateType: 'WG' });
+  const correctSplits = new Set([1, 2]);
+
+  it('is not required at level 0, where WG/NG are not yet taught', () => {
+    const level0Sentence = makeSentence(sentence.tokens, { level: 0, predicateType: 'WG' });
+    expect(requiresPredicateChoice(level0Sentence)).toBe(false);
+    const labels: PlacementMap = { t1: 'ow', t3: 'pv', t4: 'bwb' };
+    const { result } = validateAnswer(level0Sentence, correctSplits, labels, {}, false, {}, {}, {}, {});
+    expect(result.isPerfect).toBe(true);
+  });
+
+  it('is required from level 1 onward', () => {
+    expect(requiresPredicateChoice(sentence)).toBe(true);
+  });
+
+  it('keeps a correctly found PV imperfect when the gezegdetype is missing, and does not count it toward the score', () => {
+    const labels: PlacementMap = { t1: 'ow', t3: 'pv', t4: 'bwb' };
+    const { result } = validateAnswer(sentence, correctSplits, labels, {}, false, {}, {}, {}, {});
+    expect(result.chunkStatus[1]).toBe('warning');
+    expect(result.isPerfect).toBe(false);
+    expect(result.score).toBe(2); // ow + bwb correct, pv chunk revoked by the missing gezegdetype
+  });
+
+  it('marks the gezegdetype wrong when it does not match predicateType, and does not count it toward the score', () => {
+    const labels: PlacementMap = { t1: 'ow', t3: 'pv', t4: 'bwb' };
+    const predicateTypeLabels: PlacementMap = { t3: 'ng' }; // sentence is WG
+    const { result } = validateAnswer(sentence, correctSplits, labels, {}, false, {}, {}, {}, predicateTypeLabels);
+    expect(result.chunkStatus[1]).toBe('warning');
+    expect(result.isPerfect).toBe(false);
+    expect(result.score).toBe(2);
+  });
+
+  it('is perfect once PV and its matching gezegdetype are both correct', () => {
+    const labels: PlacementMap = { t1: 'ow', t3: 'pv', t4: 'bwb' };
+    const predicateTypeLabels: PlacementMap = { t3: 'wg' };
+    const { result } = validateAnswer(sentence, correctSplits, labels, {}, false, {}, {}, {}, predicateTypeLabels);
+    expect(result.chunkStatus[1]).toBe('correct');
+    expect(result.isPerfect).toBe(true);
+  });
+
+  it('does not require a gezegdetype when the PV itself was not found', () => {
+    const labels: PlacementMap = { t1: 'ow', t3: 'ow', t4: 'bwb' }; // PV mislabeled as OW
+    const { result } = validateAnswer(sentence, correctSplits, labels, {}, false, {}, {}, {}, {});
+    expect(result.chunkStatus[1]).toBe('incorrect-role');
+  });
+});
+
+// ──────────────────────────────────────────────
+// getExpectedPredicateType — per-clause gezegdetype in nevenschikkende zinnen
+// ──────────────────────────────────────────────
+describe('getExpectedPredicateType – nevenschikking met gemengd gezegde', () => {
+  // "De bel gaat (WG) maar de klas blijft stil (NG)" — real dataset sentence (id 341):
+  // sentence.predicateType is a single 'WG', but the second clause is actually NG.
+  const sentence = makeSentence([
+    makeToken({ id: 't1', text: 'De', role: 'ow' }),
+    makeToken({ id: 't2', text: 'bel', role: 'ow' }),
+    makeToken({ id: 't3', text: 'gaat,', role: 'pv' }),
+    makeToken({ id: 't4', text: 'maar', role: 'vw_neven' }),
+    makeToken({ id: 't5', text: 'de', role: 'ow' }),
+    makeToken({ id: 't6', text: 'klas', role: 'ow' }),
+    makeToken({ id: 't7', text: 'blijft', role: 'pv' }),
+    makeToken({ id: 't8', text: 'stil.', role: 'ng', subRole: 'nwd' }),
+  ], { level: 3, predicateType: 'WG' });
+  const correctSplits = computeCorrectSplits(sentence.tokens);
+
+  it("derives WG for the first clause's PV and NG for the second clause's PV", () => {
+    expect(getExpectedPredicateType(sentence, 't3')).toBe('wg');
+    expect(getExpectedPredicateType(sentence, 't7')).toBe('ng');
+  });
+
+  it('lets a student get both PV chunks perfect even though they need different gezegdetypes', () => {
+    const labels: PlacementMap = {
+      t1: 'ow', t3: 'pv', t4: 'vw_neven', t5: 'ow', t7: 'pv', t8: 'ng',
+    };
+    const predicateTypeLabels: PlacementMap = { t3: 'wg', t7: 'ng' };
+    const { result } = validateAnswer(sentence, correctSplits, labels, {}, false, {}, {}, {}, predicateTypeLabels);
+    expect(result.chunkStatus[1]).toBe('correct'); // t3 chunk (gaat,)
+    expect(result.chunkStatus[4]).toBe('correct'); // t7 chunk (blijft)
+    expect(result.isPerfect).toBe(true);
+  });
+
+  it('flags the second PV as wrong when forced to the first clause\'s type (the old bug)', () => {
+    const labels: PlacementMap = {
+      t1: 'ow', t3: 'pv', t4: 'vw_neven', t5: 'ow', t7: 'pv', t8: 'ng',
+    };
+    const predicateTypeLabels: PlacementMap = { t3: 'wg', t7: 'wg' }; // forced to sentence.predicateType
+    const { result } = validateAnswer(sentence, correctSplits, labels, {}, false, {}, {}, {}, predicateTypeLabels);
+    expect(result.chunkStatus[4]).toBe('warning');
+    expect(result.isPerfect).toBe(false);
+  });
+});
+
+// ──────────────────────────────────────────────
 // validateAnswer – SubRole validation
 // ──────────────────────────────────────────────
 describe('validateAnswer – subRole checking', () => {
@@ -541,6 +647,23 @@ describe('sentence data integrity', () => {
       expect(hasPv).toBe(true);
     }
   });
+
+  it('derives the same gezegdetype as sentence.predicateType for every single-PV sentence', async () => {
+    // Sanity check: sentence.predicateType is only wrong for sentences with multiple,
+    // nevenschikkend-gecoördineerde PV's carrying different gezegdes (see the dedicated
+    // "nevenschikking met gemengd gezegde" tests above for that case). For the common,
+    // single-PV sentence it must still agree with the per-clause derivation.
+    const level1 = (await import('../data/sentences-level-1.json')).default as unknown as Sentence[];
+    const level2 = (await import('../data/sentences-level-2.json')).default as unknown as Sentence[];
+    const level3 = (await import('../data/sentences-level-3.json')).default as unknown as Sentence[];
+    const level4 = (await import('../data/sentences-level-4.json')).default as unknown as Sentence[];
+    for (const s of [...level1, ...level2, ...level3, ...level4]) {
+      if (!requiresPredicateChoice(s)) continue;
+      const pvTokens = s.tokens.filter(t => t.role === 'pv');
+      if (pvTokens.length !== 1) continue;
+      expect(getExpectedPredicateType(s, pvTokens[0].id)).toBe(s.predicateType.toLowerCase());
+    }
+  });
 });
 
 // ──────────────────────────────────────────────
@@ -696,5 +819,94 @@ describe('validateAnswer – incorrect-split label-aware feedback', () => {
     expect(fb2Text).toContain('teveel geknipt');
     // Combined feedback is longer than the bare split message
     expect(fb2Text.length).toBeGreaterThan('Hier is teveel geknipt.'.length);
+  });
+});
+
+// ──────────────────────────────────────────────
+// Werkwoordelijk en naamwoordelijk deel (opt-in)
+// ──────────────────────────────────────────────
+describe('validateAnswer — gezegdedelen', () => {
+  // "Hij is ziek geworden": PV + NG-blok met een tweede werkwoord
+  const tokens: Token[] = [
+    makeToken({ id: 't1', text: 'Hij', role: 'ow' }),
+    makeToken({ id: 't2', text: 'is', role: 'pv', subRole: 'wwd' }),
+    makeToken({ id: 't3', text: 'ziek', role: 'ng', subRole: 'nwd' }),
+    makeToken({ id: 't4', text: 'geworden.', role: 'ng', subRole: 'wwd' }),
+  ];
+  const sentence = makeSentence(tokens, { predicateType: 'NG' });
+  const splits = new Set([0, 1]);
+  const labels: PlacementMap = { t1: 'ow', t2: 'pv', t3: 'ng' };
+  const run = (subLabels: PlacementMap, includeGezegdeDelen: boolean) =>
+    validateAnswer(sentence, splits, labels, subLabels, false, {}, {}, {}, undefined, includeGezegdeDelen).result;
+
+  it('vraagt standaard geen gezegdedelen', () => {
+    expect(run({}, false).isPerfect).toBe(true);
+  });
+
+  it('eist WWD op elk werkwoord (ook de PV) en NWD op de rest als de optie aan staat', () => {
+    expect(run({ t2: 'wwd', t3: 'nwd', t4: 'wwd' }, true).isPerfect).toBe(true);
+    const missing = run({ t3: 'nwd', t4: 'wwd' }, true);
+    expect(missing.isPerfect).toBe(false);
+    expect(missing.chunkStatus[1]).toBe('warning');
+    const swapped = run({ t2: 'wwd', t3: 'wwd', t4: 'nwd' }, true);
+    expect(swapped.isPerfect).toBe(false);
+    expect(swapped.chunkStatus[2]).toBe('warning');
+  });
+
+  describe('bijvoeglijke bepaling binnen het naamwoordelijk deel', () => {
+    const bbTokens: Token[] = [
+      makeToken({ id: 'b1', text: 'Hij', role: 'ow' }),
+      makeToken({ id: 'b2', text: 'is', role: 'pv', subRole: 'wwd' }),
+      makeToken({ id: 'b3', text: 'een', role: 'ng', subRole: 'nwd' }),
+      makeToken({ id: 'b4', text: 'goede', role: 'ng', subRole: 'bijv_bep', bijvBepTarget: 'b5' }),
+      makeToken({ id: 'b5', text: 'vader.', role: 'ng', subRole: 'nwd' }),
+    ];
+    const bb = makeSentence(bbTokens, { predicateType: 'NG' });
+
+    it('geeft BB-feedback, geen werkwoordvraag, als de leerling NWD zet op een BB', () => {
+      const sub: PlacementMap = { b2: 'wwd', b3: 'nwd', b4: 'nwd', b5: 'nwd' };
+      const { result, mistakes } = validateAnswer(bb, new Set([0, 1]), { b1: 'ow', b2: 'pv', b3: 'ng' }, sub, true, {}, {}, {}, undefined, true);
+      expect(result.isPerfect).toBe(false);
+      expect(result.chunkFeedback[2]).toBe(HINTS.GEZEGDE_DEEL_BIJV_BEP('goede'));
+      expect(mistakes).toEqual({ 'Bijvoeglijke Bepaling': 1 });
+    });
+
+    it('geeft geen "label ontbreekt"-melding als de leerling BB zet op een woord dat NWD moet zijn', () => {
+      const sub: PlacementMap = { b2: 'wwd', b3: 'bijv_bep', b4: 'bijv_bep', b5: 'nwd' };
+      const { result, mistakes } = validateAnswer(bb, new Set([0, 1]), { b1: 'ow', b2: 'pv', b3: 'ng' }, sub, true, {}, {}, { b4: 'b5' }, undefined, true);
+      expect(result.isPerfect).toBe(false);
+      expect(result.chunkFeedback[2]).toBe(HINTS.GEZEGDE_DEEL_NOT_BIJV_BEP('een'));
+      expect(mistakes).toEqual({ 'Naamwoordelijk Deel': 1 });
+    });
+
+    it('laat de Hint-knop een verwachte BB niet als WWD/NWD vragen', () => {
+      const sub: PlacementMap = { b2: 'wwd', b3: 'nwd', b5: 'nwd' };
+      expect(findMissingGezegdeDeel(bbTokens, sub, true)).toBeUndefined();
+      expect(findMissingGezegdeDeel(bbTokens, sub, false)?.text).toBe('goede');
+    });
+  });
+
+  it('laat een bijvoeglijke bepaling in het naamwoordelijk deel voorgaan', () => {
+    const bbTokens: Token[] = [
+      makeToken({ id: 'b1', text: 'Hij', role: 'ow' }),
+      makeToken({ id: 'b2', text: 'is', role: 'pv', subRole: 'wwd' }),
+      makeToken({ id: 'b3', text: 'een', role: 'ng', subRole: 'nwd' }),
+      makeToken({ id: 'b4', text: 'goede', role: 'ng', subRole: 'bijv_bep', bijvBepTarget: 'b5' }),
+      makeToken({ id: 'b5', text: 'vader.', role: 'ng', subRole: 'nwd' }),
+    ];
+    const bb = makeSentence(bbTokens, { predicateType: 'NG' });
+    const sub: PlacementMap = { b2: 'wwd', b3: 'nwd', b4: 'bijv_bep', b5: 'nwd' };
+    const { result } = validateAnswer(bb, new Set([0, 1]), { b1: 'ow', b2: 'pv', b3: 'ng' }, sub, true, {}, {}, { b4: 'b5' }, undefined, true);
+    expect(result.isPerfect).toBe(true);
+  });
+});
+
+describe('isBijzinFunctieAsked', () => {
+  it('vraagt een betrekkelijke bijzin alleen op het hoogste niveau en met BB aan', () => {
+    expect(isBijzinFunctieAsked('bijv_bep', true, 4)).toBe(true);
+    expect(isBijzinFunctieAsked('bijv_bep', true, 3)).toBe(false);
+    expect(isBijzinFunctieAsked('bijv_bep', false, 4)).toBe(false);
+    expect(isBijzinFunctieAsked('lv', false, 3)).toBe(true);
+    expect(isBijzinFunctieAsked(undefined, true, 4)).toBe(false);
   });
 });

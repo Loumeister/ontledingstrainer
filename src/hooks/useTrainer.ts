@@ -7,9 +7,12 @@ import { recordAttempt, recordShowAnswer } from '../services/usageData';
 import { logInteraction } from '../services/interactionLog';
 import { saveSessionToHistory } from '../services/sessionHistory';
 import {
-  computeRoleConfidences,
-  saveRoleConfidences,
+  loadAdaptiveProfileFor,
+  resolveHistoryStudentId,
   selectAdaptiveQueue,
+  tallySentenceRoles,
+  addRoleTally,
+  type RoleTally,
 } from '../logic/adaptiveSelection';
 import { buildReport, encodeReport } from '../services/sessionReport';
 import { postReport, getScriptUrl, shouldAutoSendReport } from '../services/googleDriveSync';
@@ -23,7 +26,12 @@ import {
   countRealChunks,
   computeCorrectSplits,
   validateAnswer,
+  getGezegdeDeel,
+  findMissingGezegdeDeel,
+  isBijzinFunctieAsked,
   getConsistentRole,
+  requiresPredicateChoice,
+  getExpectedPredicateType,
   ChunkData,
   ValidationResult,
 } from '../logic/validation';
@@ -70,6 +78,10 @@ export interface TrainerState {
   // Complexity filters
   includeBB: boolean;
   setIncludeBB: (v: boolean) => void;
+  includeGezegdeDelen: boolean;
+  setIncludeGezegdeDelen: (v: boolean) => void;
+  includeBijzinAnalyse: boolean;
+  setIncludeBijzinAnalyse: (v: boolean) => void;
   includeVV: boolean;
   setIncludeVV: (v: boolean) => void;
 
@@ -91,6 +103,7 @@ export interface TrainerState {
   chunkLabels: PlacementMap;
   subLabels: PlacementMap;
   bijzinFunctieLabels: PlacementMap;
+  predicateTypeLabels: PlacementMap; // PV chunk id -> 'wg' | 'ng' (het gezegdetype van de persoonsvorm)
   bijvBepLinks: Record<string, string>; // sourceId -> targetTokenId (for bvb reference tracking)
   linkingBijvBepId: string | null; // chunk/token ID currently in "linking mode"
   wordBijvBepLinks: Record<string, string>; // word-level bijv_bep: tokenId -> targetTokenId
@@ -141,6 +154,8 @@ export interface TrainerState {
   removeSubLabel: (tokenId: string) => void;
   handleDropBijzinFunctie: (e: React.DragEvent<HTMLDivElement>, chunkId: string) => void;
   removeBijzinFunctieLabel: (chunkId: string) => void;
+  handleDropPredicateType: (e: React.DragEvent<HTMLDivElement>, chunkId: string) => void;
+  removePredicateTypeLabel: (chunkId: string) => void;
   startBijvBepLinking: (sourceId: string) => void;
   completeBijvBepLink: (targetTokenId: string) => void;
   cancelBijvBepLinking: () => void;
@@ -197,6 +212,7 @@ interface PreAnswerSnapshot {
   chunkLabels: PlacementMap;
   subLabels: PlacementMap;
   bijzinFunctieLabels: PlacementMap;
+  predicateTypeLabels: PlacementMap;
   bijvBepLinks: Record<string, string>;
   wordBijvBepLinks: Record<string, string>;
 }
@@ -246,6 +262,10 @@ export function useTrainer(): TrainerState {
 
   // Complexity Filters
   const [includeBB, setIncludeBB] = useState(false);
+  // Opt-in: also name werkwoordelijk and naamwoordelijk deel inside an NG. Off by default.
+  const [includeGezegdeDelen, setIncludeGezegdeDelen] = useState(false);
+  // Opt-in: analyse a found bijzin as a sentence of its own. Only offered on #/bijzinontleding for now.
+  const [includeBijzinAnalyse, setIncludeBijzinAnalyse] = useState(false);
   const [includeVV, setIncludeVV] = useState(() => defaultIncludeVV(null));
 
   // Level & Count
@@ -313,6 +333,8 @@ export function useTrainer(): TrainerState {
   const [sessionIndex, setSessionIndex] = useState(0);
   const [sessionStats, setSessionStats] = useState({ correct: 0, total: 0 });
   const [mistakeStats, setMistakeStats] = useState<Record<string, number>>({});
+  // Per-rol gezien/goed voor adaptieve selectie; geen re-render nodig
+  const roleTallyRef = useRef<RoleTally>({ seen: {}, correct: {} });
   const [sessionSentenceResults, setSessionSentenceResults] = useState<SentenceResult[]>([]);
   const [isSessionFinished, setIsSessionFinished] = useState(false);
   const [consecutivePerfect, setConsecutivePerfect] = useState(0);
@@ -342,6 +364,7 @@ export function useTrainer(): TrainerState {
   const [chunkLabels, setChunkLabels] = useState<PlacementMap>({});
   const [subLabels, setSubLabels] = useState<PlacementMap>({});
   const [bijzinFunctieLabels, setBijzinFunctieLabels] = useState<PlacementMap>({});
+  const [predicateTypeLabels, setPredicateTypeLabels] = useState<PlacementMap>({});
   const [bijvBepLinks, setBijvBepLinks] = useState<Record<string, string>>({});
   const [linkingBijvBepId, setLinkingBijvBepId] = useState<string | null>(null);
   const [wordBijvBepLinks, setWordBijvBepLinks] = useState<Record<string, string>>({});
@@ -407,6 +430,7 @@ export function useTrainer(): TrainerState {
     setChunkLabels({});
     setSubLabels({});
     setBijzinFunctieLabels({});
+    setPredicateTypeLabels({});
     setBijvBepLinks({});
     setLinkingBijvBepId(null);
     setWordBijvBepLinks({});
@@ -430,8 +454,8 @@ export function useTrainer(): TrainerState {
 
     let selected: Sentence[];
     if (adaptiveMode) {
-      const confidences = computeRoleConfidences();
-      selected = selectAdaptiveQueue(pool, count, confidences);
+      const { confidences, recentSentences } = loadAdaptiveProfileFor(studentName, studentInitiaal, studentKlas);
+      selected = selectAdaptiveQueue(pool, count, confidences, Math.random, recentSentences);
     } else {
       const shuffled = [...pool].sort(() => 0.5 - Math.random());
       selected = shuffled.slice(0, count);
@@ -441,6 +465,7 @@ export function useTrainer(): TrainerState {
     setSessionIndex(0);
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
+    roleTallyRef.current = { seen: {}, correct: {} };
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -487,6 +512,7 @@ export function useTrainer(): TrainerState {
     setSessionIndex(0);
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
+    roleTallyRef.current = { seen: {}, correct: {} };
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -544,6 +570,7 @@ export function useTrainer(): TrainerState {
     setSessionIndex(0);
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
+    roleTallyRef.current = { seen: {}, correct: {} };
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -590,6 +617,7 @@ export function useTrainer(): TrainerState {
     setSessionIndex(0);
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
+    roleTallyRef.current = { seen: {}, correct: {} };
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -656,10 +684,15 @@ export function useTrainer(): TrainerState {
           total: finalTotal,
           mistakeStats: { ...mistakeStats },
           sentenceCount: sessionQueue.length,
+          // Rollenladder: alleen trede en scores bewaren, geen identiteit of rolprofiel
+          ...(ladderEnabled ? {} : {
+            studentId: resolveHistoryStudentId(studentName, studentInitiaal, studentKlas) ?? undefined,
+            roleSeen: { ...roleTallyRef.current.seen },
+            roleCorrect: { ...roleTallyRef.current.correct },
+            sentenceIds: sessionQueue.map(q => q.id),
+          }),
+          ...(ladderEnabled ? { adaptiveExcluded: true } : {}),
         });
-        // Update role confidence scores for adaptive selection
-        const updatedConfidences = computeRoleConfidences();
-        saveRoleConfidences(updatedConfidences);
       } catch {
         // Persistence failure must not prevent the score screen from showing
       }
@@ -727,6 +760,7 @@ export function useTrainer(): TrainerState {
               showAnswerUsed: r.showAnswerUsed,
               splitIndices: r.splitIndices,
               userLabels: r.userLabels as Record<string, string>,
+              predicateTypeLabels: r.predicateTypeLabels as Record<string, string>,
             });
           }
           logTrainerEvent({ submissionId: subId, studentId: studentIdRef.current ?? '', type: 'session_finish', timestamp: completedAt });
@@ -839,23 +873,49 @@ export function useTrainer(): TrainerState {
 
   const handleDragEnd = () => setIsDragging(false);
 
+  // Drops any WG/NG gezegdetype choice recorded for this chunk. Used whenever the chunk's
+  // main label is removed, moved away, or overwritten with something else, so a stale
+  // choice never reappears if the chunk gets labeled PV again later.
+  const clearPredicateType = (chunkId: string) => {
+    setPredicateTypeLabels(prev => {
+      if (!(chunkId in prev)) return prev;
+      const n = { ...prev };
+      delete n[chunkId];
+      return n;
+    });
+  };
+
   // Smart routing: if main role is already 'bijzin' and the chunk expects a bijzin function
   // that hasn't been filled yet, route the drop to bijzinFunctieLabels instead of chunkLabels.
+  // Same idea for 'pv': once a chunk is labeled PV, a WG/NG drop routes to predicateTypeLabels
+  // instead of overwriting the PV label — the gezegdetype is a sub-choice on the PV chunk.
   const routeChunkDrop = (chunkId: string, roleKey: RoleKey) => {
     if (!currentSentence) return;
     const token = currentSentence.tokens.find(t => t.id === chunkId);
     const bijzinFunctie = token?.bijzinFunctie;
-    const hasBijzinFunctie = !!bijzinFunctie && (bijzinFunctie !== 'bijv_bep' || includeBB);
+    const hasBijzinFunctie = isBijzinFunctieAsked(bijzinFunctie, includeBB, currentSentence.level);
+    // Note: this stays true even once a predicateType is already set, so a WG/NG drop
+    // always updates predicateTypeLabels — including changing an earlier WG choice to NG —
+    // instead of falling through to chunkLabels and silently overwriting the PV label.
+    const pvNeedsPredicateType = !ladderEnabled && chunkLabels[chunkId] === 'pv'
+      && requiresPredicateChoice(currentSentence);
 
     if (chunkLabels[chunkId] === 'bijzin' && hasBijzinFunctie && !bijzinFunctieLabels[chunkId]) {
       // Bijzin function slot — any role is valid here (bijv_bep is a legitimate function)
       logInteraction('bijzin_functie_drop', currentSentence.id, `chunk=${chunkId},role=${roleKey}`);
       setBijzinFunctieLabels(prev => ({ ...prev, [chunkId]: roleKey }));
+    } else if (pvNeedsPredicateType && (roleKey === 'wg' || roleKey === 'ng')) {
+      logInteraction('predicate_type_drop', currentSentence.id, `chunk=${chunkId},role=${roleKey}`);
+      setPredicateTypeLabels(prev => ({ ...prev, [chunkId]: roleKey }));
     } else {
       // Chunk label slot — sub-only roles must never become chunk labels
       if (ROLES.find(r => r.key === roleKey)?.isSubOnly) return;
       logInteraction('label_drop', currentSentence.id, `chunk=${chunkId},role=${roleKey}`);
       setChunkLabels(prev => ({ ...prev, [chunkId]: roleKey }));
+      // This chunk's label is changing to something this branch doesn't set a
+      // gezegdetype for (it may no longer even be PV) — drop any stale WG/NG choice
+      // so a later re-labeling as PV never inherits an answer the student didn't give.
+      clearPredicateType(chunkId);
     }
     setValidationResult(null);
     setHintMessage(null);
@@ -871,6 +931,7 @@ export function useTrainer(): TrainerState {
       const moveFromChunk = e.dataTransfer.getData("text/move-from-chunk");
       if (moveFromChunk && moveFromChunk !== chunkId) {
         setChunkLabels(prev => { const n = { ...prev }; delete n[moveFromChunk]; return n; });
+        clearPredicateType(moveFromChunk);
       }
     }
   };
@@ -937,6 +998,7 @@ export function useTrainer(): TrainerState {
     const newLabels = { ...chunkLabels };
     delete newLabels[chunkId];
     setChunkLabels(newLabels);
+    clearPredicateType(chunkId);
     setValidationResult(null);
     setHintMessage(null);
   };
@@ -978,6 +1040,34 @@ export function useTrainer(): TrainerState {
     const newLinks = { ...bijvBepLinks };
     delete newLinks[chunkId];
     setBijvBepLinks(newLinks);
+    setValidationResult(null);
+    setHintMessage(null);
+  };
+
+  const handleDropPredicateType = (e: React.DragEvent<HTMLDivElement>, chunkId: string) => {
+    e.preventDefault();
+    if (showAnswerMode) return;
+    const roleKey = e.dataTransfer.getData("text/role") as RoleKey;
+    if (roleKey === 'wg' || roleKey === 'ng') {
+      logInteraction('predicate_type_drop', currentSentence?.id, `chunk=${chunkId},role=${roleKey}`);
+      setPredicateTypeLabels(prev => ({ ...prev, [chunkId]: roleKey }));
+      // If dragged from another chunk's role badge (e.g. an existing WG/NG chunk elsewhere
+      // in a compound sentence), remove it from the source instead of leaving a copy behind.
+      const moveFromChunk = e.dataTransfer.getData("text/move-from-chunk");
+      if (moveFromChunk && moveFromChunk !== chunkId) {
+        setChunkLabels(prev => { const n = { ...prev }; delete n[moveFromChunk]; return n; });
+      }
+      setValidationResult(null);
+      setHintMessage(null);
+    }
+  };
+
+  const removePredicateTypeLabel = (chunkId: string) => {
+    if (showAnswerMode) return;
+    logInteraction('predicate_type_remove', currentSentence?.id, `chunk=${chunkId}`);
+    const newLabels = { ...predicateTypeLabels };
+    delete newLabels[chunkId];
+    setPredicateTypeLabels(newLabels);
     setValidationResult(null);
     setHintMessage(null);
   };
@@ -1130,13 +1220,22 @@ export function useTrainer(): TrainerState {
       const firstToken = chunk.tokens[0];
       const userLabel = chunkLabels[firstToken.id];
       const functie = firstToken.bijzinFunctie;
-      // Skip bijv_bep function requirement when includeBB is off
-      if (functie === 'bijv_bep' && !includeBB) continue;
+      if (!isBijzinFunctieAsked(functie, includeBB, currentSentence.level)) continue;
       if (userLabel === 'bijzin' && functie && !bijzinFunctieLabels[firstToken.id]) {
         const bijzinWords = chunk.tokens.map(t => t.text).join(' ');
         setHintMessage(`Kijk naar de bijzin "${bijzinWords}". ${HINTS.MISSING_BIJZIN_FUNCTIE}`);
         return;
       }
+      if (userLabel === 'pv' && !ladderEnabled && requiresPredicateChoice(currentSentence)
+        && !predicateTypeLabels[firstToken.id]) {
+        setHintMessage(HINTS.MISSING_PREDICATE_TYPE);
+        return;
+      }
+    }
+
+    if (includeGezegdeDelen) {
+      const missing = findMissingGezegdeDeel(currentSentence.tokens, subLabels, includeBB);
+      if (missing) { setHintMessage(HINTS.GEZEGDE_DEEL_MISSING(missing.text)); return; }
     }
 
     setHintMessage(HINTS.ALL_PLACED);
@@ -1148,7 +1247,9 @@ export function useTrainer(): TrainerState {
 
     const { result: rawResult, mistakes: rawMistakes } = validateAnswer(
       currentSentence, splitIndices, chunkLabels, subLabels, includeBB,
-      bijzinFunctieLabels, bijvBepLinks, wordBijvBepLinks
+      bijzinFunctieLabels, bijvBepLinks, wordBijvBepLinks,
+      ladderEnabled ? undefined : predicateTypeLabels,
+      includeGezegdeDelen
     );
 
     // In ladder mode, neutralise out-of-stage chunks before displaying and scoring
@@ -1187,6 +1288,8 @@ export function useTrainer(): TrainerState {
            newMistakeStats[role] = (newMistakeStats[role] || 0) + count;
         });
         setMistakeStats(newMistakeStats);
+        // Rollenladder blijft buiten het adaptieve profiel
+        if (!ladderEnabled) addRoleTally(roleTallyRef.current, tallySentenceRoles(chunks, vResult.chunkStatus, chunkLabels));
 
         // Track consecutive perfect sentences
         setConsecutivePerfect(prev => vResult.isPerfect ? prev + 1 : 0);
@@ -1202,6 +1305,7 @@ export function useTrainer(): TrainerState {
           mistakes: currentMistakes,
           showAnswerUsed: false,
           userLabels: { ...chunkLabels },
+          predicateTypeLabels: { ...predicateTypeLabels },
           splitIndices: Array.from(splitIndices),
         }]);
 
@@ -1252,6 +1356,7 @@ export function useTrainer(): TrainerState {
       chunkLabels: { ...chunkLabels },
       subLabels: { ...subLabels },
       bijzinFunctieLabels: { ...bijzinFunctieLabels },
+      predicateTypeLabels: { ...predicateTypeLabels },
       bijvBepLinks: { ...bijvBepLinks },
       wordBijvBepLinks: { ...wordBijvBepLinks },
     });
@@ -1262,17 +1367,22 @@ export function useTrainer(): TrainerState {
     const correctChunkLabels: PlacementMap = {};
     const correctSubLabels: PlacementMap = {};
     const correctBijzinFunctieLabels: PlacementMap = {};
+    const correctPredicateTypeLabels: PlacementMap = {};
     const correctBijvBepLinks: Record<string, string> = {};
     const correctWordBijvBepLinks: Record<string, string> = {};
+    const needsPredicateChoice = requiresPredicateChoice(currentSentence);
     let currentChunkStartId = currentSentence.tokens[0].id;
     correctChunkLabels[currentChunkStartId] = currentSentence.tokens[0].role;
     if (currentSentence.tokens[0].bijzinFunctie) {
-      if (currentSentence.tokens[0].bijzinFunctie !== 'bijv_bep' || includeBB) {
+      if (isBijzinFunctieAsked(currentSentence.tokens[0].bijzinFunctie, includeBB, currentSentence.level)) {
         correctBijzinFunctieLabels[currentChunkStartId] = currentSentence.tokens[0].bijzinFunctie;
         if (currentSentence.tokens[0].bijvBepTarget) {
           correctBijvBepLinks[currentChunkStartId] = currentSentence.tokens[0].bijvBepTarget;
         }
       }
+    }
+    if (currentSentence.tokens[0].role === 'pv' && needsPredicateChoice) {
+      correctPredicateTypeLabels[currentChunkStartId] = getExpectedPredicateType(currentSentence, currentChunkStartId);
     }
 
     currentSentence.tokens.forEach((t, i) => {
@@ -1285,17 +1395,21 @@ export function useTrainer(): TrainerState {
           }
         }
       }
+      const gezegdeDeel = includeGezegdeDelen ? getGezegdeDeel(t) : undefined;
+      if (gezegdeDeel && correctSubLabels[t.id] !== 'bijv_bep') correctSubLabels[t.id] = gezegdeDeel;
       if (correctSplits.has(i - 1)) {
          currentChunkStartId = t.id;
          correctChunkLabels[currentChunkStartId] = t.role;
          if (t.bijzinFunctie) {
-           // Skip bijv_bep function when includeBB is off
-           if (t.bijzinFunctie !== 'bijv_bep' || includeBB) {
+           if (isBijzinFunctieAsked(t.bijzinFunctie, includeBB, currentSentence.level)) {
              correctBijzinFunctieLabels[currentChunkStartId] = t.bijzinFunctie;
              if (t.bijvBepTarget) {
                correctBijvBepLinks[currentChunkStartId] = t.bijvBepTarget;
              }
            }
+         }
+         if (t.role === 'pv' && needsPredicateChoice) {
+           correctPredicateTypeLabels[currentChunkStartId] = getExpectedPredicateType(currentSentence, currentChunkStartId);
          }
       }
     });
@@ -1305,7 +1419,9 @@ export function useTrainer(): TrainerState {
       setHasBeenScored(true);
       const { result: vResult, mistakes: currentMistakes } = validateAnswer(
         currentSentence, splitIndices, chunkLabels, subLabels, includeBB,
-        bijzinFunctieLabels, bijvBepLinks, wordBijvBepLinks
+        bijzinFunctieLabels, bijvBepLinks, wordBijvBepLinks,
+        ladderEnabled ? undefined : predicateTypeLabels,
+        includeGezegdeDelen
       );
       const realChunkCount = countRealChunks(currentSentence.tokens);
       if (mode === 'session') {
@@ -1317,6 +1433,9 @@ export function useTrainer(): TrainerState {
           newMistakeStats[role] = (newMistakeStats[role] || 0) + count;
         });
         setMistakeStats(newMistakeStats);
+        if (!ladderEnabled) {
+          addRoleTally(roleTallyRef.current, tallySentenceRoles(buildUserChunks(currentSentence.tokens, splitIndices), vResult.chunkStatus, chunkLabels));
+        }
         setSessionSentenceResults(prev => [...prev, {
           sentence: currentSentence,
           score: vResult.score,
@@ -1327,6 +1446,7 @@ export function useTrainer(): TrainerState {
           mistakes: currentMistakes,
           showAnswerUsed: true,
           userLabels: { ...chunkLabels },
+          predicateTypeLabels: { ...predicateTypeLabels },
           splitIndices: Array.from(splitIndices),
         }]);
       }
@@ -1350,6 +1470,7 @@ export function useTrainer(): TrainerState {
     setChunkLabels(correctChunkLabels);
     setSubLabels(correctSubLabels);
     setBijzinFunctieLabels(correctBijzinFunctieLabels);
+    setPredicateTypeLabels(correctPredicateTypeLabels);
     setBijvBepLinks(correctBijvBepLinks);
     setLinkingBijvBepId(null);
     setWordBijvBepLinks(correctWordBijvBepLinks);
@@ -1366,12 +1487,14 @@ export function useTrainer(): TrainerState {
       setChunkLabels(preAnswerSnapshot.chunkLabels);
       setSubLabels(preAnswerSnapshot.subLabels);
       setBijzinFunctieLabels(preAnswerSnapshot.bijzinFunctieLabels);
+      setPredicateTypeLabels(preAnswerSnapshot.predicateTypeLabels);
       setBijvBepLinks(preAnswerSnapshot.bijvBepLinks);
       setWordBijvBepLinks(preAnswerSnapshot.wordBijvBepLinks);
     } else {
       setChunkLabels({});
       setSubLabels({});
       setBijzinFunctieLabels({});
+      setPredicateTypeLabels({});
       setBijvBepLinks({});
       setWordBijvBepLinks({});
     }
@@ -1409,9 +1532,16 @@ export function useTrainer(): TrainerState {
     setStep('label');
   };
 
+  // "Vind eerst de persoonsvorm" is only a real requirement if it also blocks Controleer:
+  // without this, a sentence where every chunk got some *other* label (PV never assigned)
+  // would still satisfy the per-chunk checks below and let the student check anyway.
+  // Ladder mode has its own PV-first staging (stage 1 = PV only), so this only applies
+  // on the standard route.
+  const hasPvLabel = ladderEnabled || Object.values(chunkLabels).includes('pv');
+
   // Compute whether ALL labels are placed (chunk labels + bijzin functions for bijzin chunks)
   // In ladder mode, only active-stage chunks require labels.
-  const allLabeled = userChunks.length > 0 &&
+  const allLabeled = userChunks.length > 0 && hasPvLabel &&
     userChunks.every(c => {
       const firstToken = c.tokens[0];
       // Ladder mode: skip labeling requirement for out-of-stage chunks
@@ -1422,8 +1552,13 @@ export function useTrainer(): TrainerState {
       if (!chunkLabels[firstToken.id]) return false;
       // If chunk is labeled bijzin and has a function, require function label too
       if (chunkLabels[firstToken.id] === 'bijzin' && firstToken.bijzinFunctie) {
-        if (firstToken.bijzinFunctie === 'bijv_bep' && !includeBB) return true;
+        if (!isBijzinFunctieAsked(firstToken.bijzinFunctie, includeBB, currentSentence?.level ?? 0)) return true;
         if (!bijzinFunctieLabels[firstToken.id]) return false;
+      }
+      // PV is always part of a WG or NG gezegde: require that choice too, once taught
+      if (!ladderEnabled && chunkLabels[firstToken.id] === 'pv' && currentSentence
+        && requiresPredicateChoice(currentSentence) && !predicateTypeLabels[firstToken.id]) {
+        return false;
       }
       return true;
     });
@@ -1442,6 +1577,8 @@ export function useTrainer(): TrainerState {
 
     // Complexity filters
     includeBB, setIncludeBB,
+    includeGezegdeDelen, setIncludeGezegdeDelen,
+    includeBijzinAnalyse, setIncludeBijzinAnalyse,
     includeVV, setIncludeVV,
 
     // Session
@@ -1455,7 +1592,7 @@ export function useTrainer(): TrainerState {
 
     // Trainer
     currentSentence, step,
-    splitIndices, chunkLabels, subLabels, bijzinFunctieLabels,
+    splitIndices, chunkLabels, subLabels, bijzinFunctieLabels, predicateTypeLabels,
     bijvBepLinks, linkingBijvBepId,
     wordBijvBepLinks, linkingWordTokenId,
     validationResult, showAnswerMode,
@@ -1482,6 +1619,7 @@ export function useTrainer(): TrainerState {
     isDragging, handleDragStart, handleDragEnd, handleDropChunk, handleDropWord,
     removeLabel, removeSubLabel,
     handleDropBijzinFunctie, removeBijzinFunctieLabel,
+    handleDropPredicateType, removePredicateTypeLabel,
     startBijvBepLinking, completeBijvBepLink, cancelBijvBepLinking, removeBijvBepLink,
     completeWordBijvBepLink, cancelWordBijvBepLinking, removeWordBijvBepLink,
     handleHint, handleCheck,

@@ -1,6 +1,6 @@
 # Productspecificatie Ontleedlab
 
-_Actueel op 2026-09-12._
+_Actueel op 2026-09-24._
 
 ## Doel
 
@@ -32,9 +32,15 @@ Het juiste antwoord wordt pas getoond wanneer de leerling daar expliciet voor ki
 
 Alle toepasselijke rollen zijn tegelijk beschikbaar. Dit is de productnorm en wordt met regressietests beschermd.
 
+Eén afgeleide eis binnen deze norm: de persoonsvorm hoort altijd bij een werkwoordelijk of naamwoordelijk gezegde, nooit op zichzelf. Zodra een leerling een zinsdeel als PV labelt, moet die vanaf niveau 1 (waar WG/NG onderwezen wordt) ook het gezegdetype (WG/NG) op die PV-chunk kiezen voordat gecontroleerd kan worden. Dit is een subrol-eis op de PV zelf, geen extra hoofdrol en geen afgedwongen volgorde voor de overige rollen — die blijven tegelijk beschikbaar. Zie `requiresPredicateChoice`/`getExpectedPredicateType` in `src/logic/validation.ts`.
+
 ### Rollenladder
 
 Een verborgen experiment via `#/rollenladder`. De acht treden mogen rollen beperken binnen die route. Activatie wordt nooit opgeslagen en mag de standaardroute niet veranderen. Alleen trede en recente scores mogen lokaal blijven staan.
+
+### Bijzinontleding
+
+Een nog niet vrijgegeven optie via `#/bijzinontleding`. Een goed gevonden bijzin klapt na controle open en wordt als eigen zin ontleed, met dezelfde evaluator. Zie `docs/bijzinontleding.md`.
 
 ### Zinsdeellab
 

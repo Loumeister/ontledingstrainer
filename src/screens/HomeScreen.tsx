@@ -18,6 +18,8 @@ type HomeScreenProps = Pick<TrainerState,
   | 'focusMV' | 'setFocusMV'
   | 'includeVV' | 'setIncludeVV'
   | 'includeBB' | 'setIncludeBB'
+  | 'includeGezegdeDelen' | 'setIncludeGezegdeDelen'
+  | 'includeBijzinAnalyse' | 'setIncludeBijzinAnalyse'
   | 'showHelp' | 'setShowHelp'
   | 'darkMode' | 'setDarkMode'
   | 'largeFont' | 'setLargeFont'
@@ -39,6 +41,8 @@ type HomeScreenProps = Pick<TrainerState,
 > & {
   sharedSentences: Sentence[];
   openSecretDocentRoute: () => void;
+  /** Only true on the hidden #/bijzinontleding route while the feature is not released. */
+  bijzinOntledingAvailable: boolean;
 };
 
 const LEVEL_OPTIONS: (DifficultyLevel | null)[] = [null, 0, 1, 2, 3, 4];
@@ -114,6 +118,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   focusMV, setFocusMV,
   includeVV, setIncludeVV,
   includeBB, setIncludeBB,
+  includeGezegdeDelen, setIncludeGezegdeDelen,
+  includeBijzinAnalyse, setIncludeBijzinAnalyse,
+  bijzinOntledingAvailable,
   showHelp, setShowHelp,
   darkMode, setDarkMode,
   largeFont, setLargeFont,
@@ -507,6 +514,23 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   onText="Je benoemt ook de bijvoeglijke bepalingen binnen een zinsdeel."
                   offText="Hoef je niet te benoemen. De zinnen blijven hetzelfde."
                 />
+                <ToggleCard
+                  title="Werkwoordelijk en naamwoordelijk deel"
+                  checked={includeGezegdeDelen}
+                  onChange={setIncludeGezegdeDelen}
+                  onText="Bij een naamwoordelijk gezegde benoem je ook het ww. deel en het nw. deel."
+                  offText="Je benoemt het naamwoordelijk gezegde als geheel."
+                />
+                {bijzinOntledingAvailable && (
+                  <ToggleCard
+                    title="Bijzinnen ontleden"
+                    checked={includeBijzinAnalyse}
+                    onChange={setIncludeBijzinAnalyse}
+                    onText="Je ontleedt een gevonden bijzin ook als eigen zin."
+                    offText="Je benoemt de bijzin alleen als zinsdeel."
+                    note="Experiment"
+                  />
+                )}
               </div>
             </section>
 
