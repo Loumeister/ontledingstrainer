@@ -37,10 +37,14 @@ Elk woord met `role: 'bijzin'` krijgt een `bijzinAnalyse`:
 | `alternativeRole` | alleen voor bewust gemodelleerde dubbellezingen |
 | `verbindingswoord` | betrekkelijk of vragend verbindingswoord. `role` legt de functie in de bijzin vast. Alleen op niveau 4 gevraagd (`isVerbindingswoordAsked`). |
 
-Regels, bewaakt door `src/data/sentenceData.test.ts`:
+Regels, vastgelegd in `getBijzinAnalyseProblems` (`src/logic/bijzinAnalysis.ts`). Die functie bewaakt de ingebouwde zinnen via `src/data/sentenceData.test.ts` en weigert bij een JSON-toets (`parseAndValidateSentences`) een zin die er niet aan voldoet:
 
-- Een bijzin is volledig of helemaal niet geannoteerd.
+- `bijzinAnalyse` staat alleen op woorden met rol `bijzin`, met een rol uit de keuzelijst van het bijzinpaneel (`BIJZIN_ROLE_KEYS`).
+- Een bijzin is volledig of helemaal niet geannoteerd. Elke ingebouwde bijzin is geannoteerd.
 - Een geannoteerde bijzin heeft een PV.
+
+Daarnaast, alleen bewaakt door `src/data/sentenceData.test.ts`:
+
 - Een betrekkelijke bijzin staat op niveau 4.
 - Bijzinnen in bijzinnen worden niet ondersteund.
 
@@ -54,6 +58,7 @@ Regels, bewaakt door `src/data/sentenceData.test.ts`:
 | Nakijken | de bestaande `validateAnswer`, dus dezelfde feedback als bij de hoofdzin |
 | Scherm | `src/components/BijzinAnalysePanel.tsx`, geopend vanuit `TrainerScreen.tsx` |
 | Verborgen route | `isBijzinOntledingRoute` in `src/logic/appRoute.ts` |
+| Zinseditor: ontleding behouden bij opslaan, niveauwaarschuwing | `src/logic/editorSentence.ts` |
 
 In het paneel knipt de leerling met knopjes tussen de woorden en kiest per deel een zinsdeel uit een keuzelijst. **Controleer bijzin** kijkt na. Na een foute poging kan de leerling kiezen voor **Toon antwoord bijzin**.
 
@@ -62,7 +67,9 @@ In het paneel knipt de leerling met knopjes tussen de woorden en kiest per deel 
 - De score van de bijzin telt niet mee in sessiescore, voortgang of rapportage. Alleen de interactielog registreert `bijzin_analyse_check` en `bijzin_analyse_show_answer`.
 - WWD/NWD en bijvoeglijke bepalingen worden binnen de bijzin niet gevraagd, ook als die opties aanstaan.
 - Hints (**Hint**-knop) kijken nog niet naar de bijzin.
-- De zinseditor kan `bijzinAnalyse` nog niet invoeren of tonen. Zie `TODO.md`.
+- De zinseditor kan `bijzinAnalyse` nog niet invoeren of tonen. Zie `TODO.md`. Wel:
+  - Bewerkt en bewaart een docent een zin, dan blijft de bijzinontleding per woord staan zolang de bijzingrenzen en de woorden van de bijzin gelijk blijven (`carryOverBijzinAnalyse` in `src/logic/editorSentence.ts`). Veranderen die wel, dan meldt het voorbeeldscherm dat de bijzinontleding vervalt en opnieuw moet worden ingevoerd.
+  - Heeft een bijzin functie bijvoeglijke bepaling op een niveau onder 4, dan waarschuwt de editor dat de app daar geen functie vraagt en de bijzin niet laat ontleden. Opslaan blijft mogelijk.
 
 ## Live zetten: checklist
 

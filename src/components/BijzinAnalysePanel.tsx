@@ -2,12 +2,11 @@ import React, { useMemo, useState } from 'react';
 import { ROLES } from '../constants';
 import { PlacementMap, RoleKey, Sentence, Token } from '../types';
 import { buildUserChunks, computeCorrectSplits, ValidationResult } from '../logic/validation';
-import { checkBijzinAnalyse } from '../logic/bijzinAnalysis';
+import { BIJZIN_ROLE_KEYS, checkBijzinAnalyse } from '../logic/bijzinAnalysis';
 import { logInteraction } from '../services/interactionLog';
 import { FeedbackPanel, FeedbackItem } from './FeedbackPanel';
 
 /** Roles a student can choose inside a bijzin. The onderschikkend voegwoord is its own zinsdeel here. */
-const BIJZIN_ROLE_KEYS: RoleKey[] = ['vw_onder', 'pv', 'ow', 'lv', 'mv', 'vv', 'bwb', 'wg', 'ng'];
 const BIJZIN_ROLES = BIJZIN_ROLE_KEYS.map(key => ROLES.find(r => r.key === key)!).filter(Boolean);
 
 interface BijzinAnalysePanelProps {

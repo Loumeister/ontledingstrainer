@@ -1,4 +1,5 @@
 import { Sentence } from '../types';
+import { getBijzinAnalyseProblems } from '../logic/bijzinAnalysis';
 
 const STORAGE_KEY = 'custom-sentences';
 
@@ -129,7 +130,20 @@ export function parseAndValidateSentences(json: string): Sentence[] {
       if (typeof t.role !== 'string' || t.role.trim() === '') {
         throw new Error(`${label}, token ${ti}: 'role' moet een niet-lege string zijn`);
       }
+      if (t.bijzinAnalyse !== undefined) {
+        const a = t.bijzinAnalyse as Record<string, unknown> | null;
+        if (typeof a !== 'object' || a === null || typeof a.role !== 'string') {
+          throw new Error(`${label}, token ${ti}: 'bijzinAnalyse' moet een object met een 'role' zijn`);
+        }
+      }
     });
+
+    const bijzinProblems = getBijzinAnalyseProblems(raw as Sentence);
+    if (bijzinProblems.length > 0) {
+      const shown = bijzinProblems.slice(0, 3).join(' ');
+      const more = bijzinProblems.length > 3 ? ` En nog ${bijzinProblems.length - 3} meer.` : '';
+      throw new Error(`${label}: ${shown}${more}`);
+    }
 
     return raw as Sentence;
   });
