@@ -214,6 +214,7 @@ export default function App() {
       <ScoreScreen
         sessionStats={trainer.sessionStats}
         mistakeStats={trainer.mistakeStats}
+        sessionRoleTally={trainer.sessionRoleTally}
         sessionSentenceResults={trainer.sessionSentenceResults}
         resetToHome={trainer.resetToHome}
         startSession={trainer.startSession}

@@ -85,6 +85,8 @@ export interface TrainerState {
   sessionIndex: number;
   sessionStats: { correct: number; total: number };
   mistakeStats: Record<string, number>;
+  /** Gezien/goed per rol van de afgeronde sessie; null bij Rollenladder of lopende sessie. */
+  sessionRoleTally: RoleTally | null;
   sessionSentenceResults: SentenceResult[];
   isSessionFinished: boolean;
   consecutivePerfect: number;
@@ -319,6 +321,7 @@ export function useTrainer(): TrainerState {
   const [mistakeStats, setMistakeStats] = useState<Record<string, number>>({});
   // Per-rol gezien/goed voor adaptieve selectie; geen re-render nodig
   const roleTallyRef = useRef<RoleTally>({ seen: {}, correct: {} });
+  const [sessionRoleTally, setSessionRoleTally] = useState<RoleTally | null>(null);
   const [sessionSentenceResults, setSessionSentenceResults] = useState<SentenceResult[]>([]);
   const [isSessionFinished, setIsSessionFinished] = useState(false);
   const [consecutivePerfect, setConsecutivePerfect] = useState(0);
@@ -492,6 +495,7 @@ export function useTrainer(): TrainerState {
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
     roleTallyRef.current = { seen: {}, correct: {} };
+    setSessionRoleTally(null);
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -539,6 +543,7 @@ export function useTrainer(): TrainerState {
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
     roleTallyRef.current = { seen: {}, correct: {} };
+    setSessionRoleTally(null);
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -597,6 +602,7 @@ export function useTrainer(): TrainerState {
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
     roleTallyRef.current = { seen: {}, correct: {} };
+    setSessionRoleTally(null);
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -644,6 +650,7 @@ export function useTrainer(): TrainerState {
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
     roleTallyRef.current = { seen: {}, correct: {} };
+    setSessionRoleTally(null);
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -722,6 +729,10 @@ export function useTrainer(): TrainerState {
       } catch {
         // Persistence failure must not prevent the score screen from showing
       }
+      setSessionRoleTally(ladderEnabled ? null : {
+        seen: { ...roleTallyRef.current.seen },
+        correct: { ...roleTallyRef.current.correct },
+      });
       setIsSessionFinished(true);
       setCurrentSentence(null);
       setSelectedRole(null);
@@ -1604,6 +1615,7 @@ export function useTrainer(): TrainerState {
     sessionSource,
     sessionQueue, sessionIndex,
     sessionStats, mistakeStats,
+    sessionRoleTally,
     sessionSentenceResults,
     isSessionFinished,
     consecutivePerfect,
