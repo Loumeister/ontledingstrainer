@@ -1,7 +1,7 @@
 import type { BijzinTokenAnalyse, RoleKey, Sentence, Token } from '../types';
 import { getBijzinTokenGroups } from './bijzinAnalysis';
 import { computeCorrectSplits } from './validation';
-import { alignWords } from './editorSentence';
+import { alignWords } from './wordAlignment';
 
 /**
  * Editor state for the analysis of one bijzin, following the same pattern as the main editor:

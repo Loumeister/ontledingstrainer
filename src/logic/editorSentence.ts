@@ -1,6 +1,8 @@
-import type { RoleKey, Sentence, Token } from '../types';
+import type { DifficultyLevel, PredicateType, RoleKey, Sentence, Token } from '../types';
 import { getBijzinTokenGroups } from './bijzinAnalysis';
 import { BETREKKELIJKE_BIJZIN_LEVEL, isBijzinFunctieAsked } from './validation';
+import { alignWords } from './wordAlignment';
+import { applyBijzinEdits, type BijzinEditState } from './bijzinEditor';
 
 /**
  * The sentence editor keeps its own state: words, split points and labels per chunk or word.
@@ -148,30 +150,13 @@ export function getBetrekkelijkeBijzinLevelWarning(bijzinFuncties: (RoleKey | un
   return `Betrekkelijke bijzin op niveau ${level}: de app vraagt hier geen functie van de betrekkelijke bijzin en laat de bijzin niet ontleden. Dat gebeurt pas vanaf niveau ${BETREKKELIJKE_BIJZIN_LEVEL}. De leerling benoemt de bijzin alleen als bijzin.`;
 }
 
-/** Map word indices of `a` to indices of `b` along a longest common subsequence of the words. */
-export function alignWords(a: string[], b: string[]): Map<number, number> {
-  const lcs = a.map(() => new Array<number>(b.length + 1).fill(0));
-  lcs.push(new Array<number>(b.length + 1).fill(0));
-  for (let i = a.length - 1; i >= 0; i--) {
-    for (let j = b.length - 1; j >= 0; j--) {
-      lcs[i][j] = a[i] === b[j] ? lcs[i + 1][j + 1] + 1 : Math.max(lcs[i + 1][j], lcs[i][j + 1]);
-    }
-  }
-  const map = new Map<number, number>();
-  let i = 0;
-  let j = 0;
-  while (i < a.length && j < b.length) {
-    if (a[i] === b[j]) map.set(i++, j++);
-    else if (lcs[i + 1][j] >= lcs[i][j + 1]) i++;
-    else j++;
-  }
-  return map;
-}
-
 /** Token fields the editor sets itself: when one is missing after saving, the teacher removed it. */
 const EDITOR_TOKEN_FIELDS = new Set(['id', 'text', 'role', 'subRole', 'newChunk', 'bijzinFunctie', 'bijzinAnalyse']);
-/** Sentence fields buildSentence keeps. */
-const EDITOR_SENTENCE_FIELDS = new Set(['id', 'label', 'tokens', 'predicateType', 'level', 'owNumber', 'pvTense']);
+/**
+ * Sentence fields the teacher manages in the editor. owNumber and pvTense belong here even when
+ * they are left out: "Automatisch" (null) is the teacher's choice to let the heuristic decide.
+ */
+const TEACHER_SENTENCE_FIELDS = new Set(['id', 'label', 'tokens', 'predicateType', 'level', 'owNumber', 'pvTense']);
 
 const FIELD_LABELS: Record<string, string> = {
   bijvBepTarget: 'koppeling van een bijvoeglijke bepaling aan haar kernwoord',
@@ -214,8 +199,60 @@ export function getDroppedFields(source: Sentence | null, sentence: Sentence): D
     }
   });
   for (const field of Object.keys(source)) {
-    if (!EDITOR_SENTENCE_FIELDS.has(field) && !(field in sentence)) add(field);
+    if (!TEACHER_SENTENCE_FIELDS.has(field) && !(field in sentence)) add(field);
   }
 
-  return [...words].map(([field, list]) => ({ field, label: FIELD_LABELS[field] ?? field, words: list }));
+  return [...words].map(([field, list]) => ({ field, label: FIELD_LABELS[field] ?? `ander veld (${field})`, words: list }));
+}
+
+const sortedEntries = (r: Record<string, unknown>) =>
+  Object.entries(r).map(([k, v]) => [String(k), v] as const).sort(([a], [b]) => a.localeCompare(b));
+
+/** Whether the editor state describes exactly the words, chunks and labels of the source sentence. */
+export function isAnnotationUnchanged(source: Sentence, a: EditorAnnotation): boolean {
+  const key = (x: EditorAnnotation) => JSON.stringify([
+    x.words,
+    [...x.splitIndices].sort((p, q) => p - q),
+    sortedEntries(x.chunkLabels),
+    sortedEntries(x.subLabels),
+    sortedEntries(x.bijzinFunctieLabels),
+    sortedEntries(x.bijvBepLinks),
+  ]);
+  return key(a) === key(editorAnnotationFromSentence(source));
+}
+
+export interface EditorSentenceInput {
+  id: number;
+  label: string;
+  predicateType: PredicateType;
+  level: DifficultyLevel;
+  /** null = "Automatisch": left out, so the heuristic decides. */
+  owNumber: 'sg' | 'pl' | null;
+  pvTense: 'present' | 'past' | null;
+  annotation: EditorAnnotation;
+  /** The stored sentence being edited, or null for a new sentence. */
+  source: Sentence | null;
+  bijzinEdits: Record<string, BijzinEditState>;
+}
+
+/**
+ * The sentence the editor saves. When the words, chunks and labels are those of the source, the
+ * source tokens and its other sentence fields are kept as they are, so nothing the editor cannot
+ * show gets lost and token IDs stay the same. Otherwise the tokens are rebuilt from the editor
+ * state and only the bijzinAnalyse is carried over; getDroppedFields reports what else falls away.
+ */
+export function buildEditorSentence(input: EditorSentenceInput): Sentence {
+  const { id, source, annotation } = input;
+  const unchanged = source !== null && isAnnotationUnchanged(source, annotation);
+  const tokens = unchanged
+    ? source.tokens.map(t => ({ ...t }))
+    : carryOverBijzinAnalyse(source, buildEditorTokens(id, annotation));
+  const kept = unchanged
+    ? Object.fromEntries(Object.entries(source).filter(([field]) => !TEACHER_SENTENCE_FIELDS.has(field)))
+    : {};
+
+  const sentence: Sentence = { ...kept, id, label: input.label, predicateType: input.predicateType, level: input.level, tokens };
+  if (input.owNumber !== null) sentence.owNumber = input.owNumber;
+  if (input.pvTense !== null) sentence.pvTense = input.pvTense;
+  return applyBijzinEdits(sentence, input.bijzinEdits);
 }
