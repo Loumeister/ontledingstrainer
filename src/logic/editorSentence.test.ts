@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import type { Sentence } from '../types';
 import { buildEditorTokens, carryOverBijzinAnalyse, editorAnnotationFromSentence, getBetrekkelijkeBijzinLevelWarning } from './editorSentence';
 import { buildBijzinSentence, getBijzinTokenGroups } from './bijzinAnalysis';
+import { getLostBijzinAnalyses } from './bijzinEditor';
 import level3 from '../data/sentences-level-3.json';
 import level4 from '../data/sentences-level-4.json';
 
@@ -12,7 +13,8 @@ const byId = (id: number) => all.find(s => s.id === id)!;
 function reopen(s: Sentence, change?: (a: ReturnType<typeof editorAnnotationFromSentence>) => void) {
   const annotation = editorAnnotationFromSentence(s);
   change?.(annotation);
-  return carryOverBijzinAnalyse(s, buildEditorTokens(s.id, annotation));
+  const tokens = carryOverBijzinAnalyse(s, buildEditorTokens(s.id, annotation));
+  return { tokens, lostBijzinnen: getLostBijzinAnalyses(s, { ...s, tokens }) };
 }
 
 describe('zinseditor — bijzinontleding bij opslaan', () => {
@@ -91,7 +93,7 @@ describe('zinseditor — bijzinontleding bij opslaan', () => {
 
   it('doet niets voor een nieuwe zin', () => {
     const tokens = buildEditorTokens(1, editorAnnotationFromSentence(byId(330)));
-    expect(carryOverBijzinAnalyse(null, tokens)).toEqual({ tokens, lostBijzinnen: [] });
+    expect(carryOverBijzinAnalyse(null, tokens)).toBe(tokens);
   });
 });
 

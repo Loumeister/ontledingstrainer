@@ -11,7 +11,7 @@ import { FeedbackPanel, FeedbackItem } from '../components/FeedbackPanel';
 import { TrainerState } from '../hooks/useTrainer';
 import { shouldShowSessionNextButton } from '../logic/sessionFlow';
 import { isBijzinFunctieAsked } from '../logic/validation';
-import { buildBijzinSentence, getBijzinTokenGroups, isBijzinAnalyseAsked, isBijzinUnlocked } from '../logic/bijzinAnalysis';
+import { buildBijzinSentence, getBijzinTokenGroups, getLeerlingBijzin, isBijzinUnlocked } from '../logic/bijzinAnalysis';
 import { BijzinAnalysePanel } from '../components/BijzinAnalysePanel';
 import { getLadderStage } from '../logic/rollenladder';
 import { requiresPredicateChoice } from '../logic/validation';
@@ -143,7 +143,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   const sentenceKey = currentSentence ? `${currentSentence.id}-${sessionIndex}-${retryCount}` : '';
   const [openBijzinnen, setOpenBijzinnen] = useState<{ key: string; ids: string[] }>({ key: '', ids: [] });
   const bijzinGroups = currentSentence && bijzinAnalyseEnabled
-    ? getBijzinTokenGroups(currentSentence).filter(g => isBijzinAnalyseAsked(currentSentence, g) && buildBijzinSentence(currentSentence, g))
+    ? getBijzinTokenGroups(currentSentence).filter(g => getLeerlingBijzin(currentSentence, g))
     : [];
   useEffect(() => {
     if (!currentSentence || !validationResult || showAnswerMode || bijzinGroups.length === 0) return;

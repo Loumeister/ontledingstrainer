@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildBijzinSentence, checkBijzinAnalyse, getBijzinTokenGroups, isBijzinAnalyseAsked, isBijzinUnlocked } from './bijzinAnalysis';
+import { buildBijzinSentence, checkBijzinAnalyse, getBijzinTokenGroups, getLeerlingBijzin, isBijzinAnalyseAsked, isBijzinUnlocked } from './bijzinAnalysis';
 import { HINTS } from '../constants';
 import { validateAnswer, computeCorrectSplits } from './validation';
 import type { Sentence, Token } from '../types';
@@ -78,5 +78,24 @@ describe('isBijzinAnalyseAsked', () => {
     expect(isBijzinAnalyseAsked({ ...sentence, level: 4 }, rel)).toBe(true);
     expect(isBijzinAnalyseAsked({ ...sentence, level: 3 }, rel)).toBe(false);
     expect(isBijzinAnalyseAsked({ ...sentence, level: 3 }, bijzin)).toBe(true);
+  });
+});
+
+describe('getLeerlingBijzin', () => {
+  const rel: Token[] = [
+    { id: 'r1', text: 'die', role: 'bijzin', bijzinFunctie: 'bijv_bep', bijzinAnalyse: { role: 'ow', verbindingswoord: true } },
+    { id: 'r2', text: 'slaapt', role: 'bijzin', bijzinAnalyse: { role: 'pv' } },
+  ];
+
+  it('geeft geen bijzin voor een betrekkelijke bijzin onder het hoogste niveau', () => {
+    expect(getLeerlingBijzin({ ...sentence, level: 3 }, rel)).toBeNull();
+  });
+
+  it('geeft de bijzin op het hoogste niveau', () => {
+    expect(getLeerlingBijzin({ ...sentence, level: 4 }, rel)?.tokens.map(t => t.role)).toEqual(['ow', 'pv']);
+  });
+
+  it('geeft een andere bijzin op elk niveau', () => {
+    expect(getLeerlingBijzin(sentence, bijzin)).toEqual(buildBijzinSentence(sentence, bijzin));
   });
 });

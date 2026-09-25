@@ -48,6 +48,16 @@ Daarnaast, alleen bewaakt door `src/data/sentenceData.test.ts`:
 - Een betrekkelijke bijzin staat op niveau 4.
 - Bijzinnen in bijzinnen worden niet ondersteund.
 
+## Zinseditor
+
+Heeft een zin een bijzin, dan volgt na **Eigenschappen** de stap **Bijzin ontleden** (`BijzinAnalyseEditor`, logica in `src/logic/bijzinEditor.ts`):
+
+- De docent knipt de bijzin met knopjes tussen de woorden en kiest per deel een zinsdeel uit dezelfde lijst als het leerlingpaneel (`BIJZIN_ROLE_KEYS`). Per woord kan een vinkje `verbindingswoord` aan.
+- Een voorbeeld toont wat de leerling op het gekozen niveau ontleedt, afgeleid met `buildBijzinSentence`. Een woord dat de leerling niet hoeft te benoemen staat erbij.
+- Het voorbeeldscherm controleert met `getBijzinAnalyseProblems`. Voldoet de ontleding niet, dan kan de docent niet opslaan. Een bijzin zonder ontleding mag wel. Een verbindingswoord met label onderschikkend voegwoord geeft een waarschuwing.
+- Bewerkt de docent een bestaande zin, dan blijft de bijzinontleding per woord staan zolang de bijzingrenzen en de woorden gelijk blijven (`carryOverBijzinAnalyse` in `src/logic/editorSentence.ts`). Veranderen die wel, dan meldt de editor dat de ontleding vervalt en opnieuw moet worden ingevoerd.
+- Heeft een bijzin functie bijvoeglijke bepaling op een niveau onder 4, dan waarschuwt de editor dat de app daar geen functie vraagt en de bijzin niet laat ontleden. Opslaan blijft mogelijk.
+
 ## Code
 
 | Onderdeel | Bestand |
@@ -59,6 +69,7 @@ Daarnaast, alleen bewaakt door `src/data/sentenceData.test.ts`:
 | Scherm | `src/components/BijzinAnalysePanel.tsx`, geopend vanuit `TrainerScreen.tsx` |
 | Verborgen route | `isBijzinOntledingRoute` in `src/logic/appRoute.ts` |
 | Zinseditor: ontleding behouden bij opslaan, niveauwaarschuwing | `src/logic/editorSentence.ts` |
+| Zinseditor: bijzinontleding invoeren | `src/components/BijzinAnalyseEditor.tsx`, `src/logic/bijzinEditor.ts` |
 
 In het paneel knipt de leerling met knopjes tussen de woorden en kiest per deel een zinsdeel uit een keuzelijst. **Controleer bijzin** kijkt na. Na een foute poging kan de leerling kiezen voor **Toon antwoord bijzin**.
 
@@ -67,14 +78,12 @@ In het paneel knipt de leerling met knopjes tussen de woorden en kiest per deel 
 - De score van de bijzin telt niet mee in sessiescore, voortgang of rapportage. Alleen de interactielog registreert `bijzin_analyse_check` en `bijzin_analyse_show_answer`.
 - WWD/NWD en bijvoeglijke bepalingen worden binnen de bijzin niet gevraagd, ook als die opties aanstaan.
 - Hints (**Hint**-knop) kijken nog niet naar de bijzin.
-- De zinseditor kan `bijzinAnalyse` nog niet invoeren of tonen. Zie `TODO.md`. Wel:
-  - Bewerkt en bewaart een docent een zin, dan blijft de bijzinontleding per woord staan zolang de bijzingrenzen en de woorden van de bijzin gelijk blijven (`carryOverBijzinAnalyse` in `src/logic/editorSentence.ts`). Veranderen die wel, dan meldt het voorbeeldscherm dat de bijzinontleding vervalt en opnieuw moet worden ingevoerd.
-  - Heeft een bijzin functie bijvoeglijke bepaling op een niveau onder 4, dan waarschuwt de editor dat de app daar geen functie vraagt en de bijzin niet laat ontleden. Opslaan blijft mogelijk.
+- De zinseditor heeft binnen de bijzin geen knoppen voor `subRole`, `bijvBepTarget` en `alternativeRole`. Een bestaande waarde blijft staan zolang het woord zijn rol houdt. Verandert die rol, dan vervalt de waarde.
 
 ## Live zetten: checklist
 
 1. Docent test alle 23 bijzinzinnen via `#/bijzinontleding`.
 2. Besluit of de bijzinscore meetelt, en zo ja hoe.
-3. Zinseditor aangepast (TODO).
+3. ~~Zinseditor aangepast.~~ Klaar: de docent kan de bijzinontleding invoeren en controleren.
 4. Besluit of het paneel ook WWD/NWD en bijvoeglijke bepalingen binnen de bijzin moet nakijken als die opties aanstaan. Nu roept het paneel `validateAnswer` aan zonder woordlabels. Zo vraagt het binnen de bijzin ook nog geen WG/NG-keuze op de PV, zoals de hoofdzin sinds #155 wel doet.
 5. Vinkje zonder route tonen: verwijder de `bijzinOntledingAvailable`-voorwaarde in `HomeScreen.tsx` en `App.tsx`.

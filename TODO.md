@@ -13,7 +13,6 @@ _Alleen open werk. Afgerond werk staat in git._
 - [ ] Test expliciet dat de standaardroute alle toepasselijke rollen tegelijk vraagt en het ladderexperiment niet lekt.
 - [ ] Bepaal op basis van pilotdata of de Rollenladder leerwinst geeft; verwijder hem als dat niet aantoonbaar is.
 
-- [ ] Pas de zinseditor aan zodat een docent de ontleding van een bijzin (`bijzinAnalyse`, inclusief `verbindingswoord`) kan invoeren en controleren. Voorwaarde voor live zetten van bijzinontleding, zie `docs/bijzinontleding.md`. De editor behoudt al een bestaande bijzinontleding bij opslaan, waarschuwt als die vervalt en waarschuwt bij een betrekkelijke bijzin onder niveau 4.
 - [ ] De zinseditor bouwt bij opslaan alle tokens opnieuw op. Daarbij vallen nog weg: woordniveau-`bijvBepTarget` (bijvoeglijke bepalingen op woordniveau, in veel ingebouwde zinnen), `alternativeRole` en `structuralTags`. Behoud of waarschuw, zoals bij `bijzinAnalyse` (`carryOverBijzinAnalyse`), voordat een docent het corpus per niveau exporteert.
 - [ ] Test bijzinontleding (`#/bijzinontleding`) met alle bijzinzinnen en besluit of de bijzinscore meetelt; zet daarna live.
 
