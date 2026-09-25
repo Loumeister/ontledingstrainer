@@ -277,10 +277,10 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     setBijvBepLinks(next);
   };
 
-  // Build sentence object from editor state. lostBijzinnen lists the bijzinnen whose analysis could not be kept.
-  const buildSentence = (): { sentence: Sentence; lostBijzinnen: string[] } => {
+  // Build sentence object from editor state
+  const buildSentence = (): Sentence => {
     const id = editingId ?? getNextCustomId();
-    const { tokens, lostBijzinnen } = carryOverBijzinAnalyse(
+    const tokens = carryOverBijzinAnalyse(
       sourceSentence,
       buildEditorTokens(id, { words, splitIndices, chunkLabels, subLabels, bijzinFunctieLabels, bijvBepLinks }),
     );
@@ -299,7 +299,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     if (owNumber !== null) sentence.owNumber = owNumber;
     if (pvTense !== null) sentence.pvTense = pvTense;
 
-    return { sentence: applyBijzinEdits(sentence, bijzinEdits), lostBijzinnen };
+    return applyBijzinEdits(sentence, bijzinEdits);
   };
 
   // Validation
@@ -343,7 +343,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
   };
 
   const handleSave = () => {
-    const { sentence } = buildSentence();
+    const sentence = buildSentence();
     saveCustomSentence(sentence);
     refreshList();
     setStatusMsg('Zin opgeslagen!');
@@ -959,7 +959,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
 
   // BIJZIN phase — enter the analysis of each bijzin
   if (phase === 'bijzin') {
-    const { sentence } = buildSentence();
+    const sentence = buildSentence();
     const lostBijzinnen = getLostBijzinAnalyses(sourceSentence, sentence);
     const groups = getBijzinTokenGroups(sentence);
     const problems = [...getBijzinAnalyseProblems(sentence), ...getVerbindingswoordWarnings(sentence)];
@@ -1012,7 +1012,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
 
   // PREVIEW phase
   if (phase === 'preview') {
-    const { sentence } = buildSentence();
+    const sentence = buildSentence();
     const errors = getValidationErrors(sentence);
     const bijzinProblems = getBijzinAnalyseProblems(sentence);
     const lostBijzinnen = getLostBijzinAnalyses(sourceSentence, sentence);

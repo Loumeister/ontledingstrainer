@@ -94,7 +94,7 @@ describe('bijzineditor', () => {
     const opslaan = (change: (a: ReturnType<typeof editorAnnotationFromSentence>) => void) => {
       const a = editorAnnotationFromSentence(zin330);
       change(a);
-      return { ...zin330, tokens: carryOverBijzinAnalyse(zin330, buildEditorTokens(330, a)).tokens };
+      return { ...zin330, tokens: carryOverBijzinAnalyse(zin330, buildEditorTokens(330, a)) };
     };
 
     it('meldt niets als de ontleding blijft staan', () => {

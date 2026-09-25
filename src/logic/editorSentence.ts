@@ -104,40 +104,29 @@ export function buildEditorTokens(id: number, a: EditorAnnotation): Token[] {
   return tokens;
 }
 
-export interface CarryOverResult {
-  tokens: Token[];
-  /** Text of each annotated bijzin whose bijzinAnalyse could not be kept. */
-  lostBijzinnen: string[];
-}
-
 /**
  * The editor rebuilds every token from words, splits and labels, so fields it has no controls for
  * would disappear on save. This carries the bijzinAnalyse of the source sentence over to the
  * rebuilt tokens, per word, as long as the bijzin keeps the same boundaries and the same words.
  * The bijzin is found by its words, not its position, so an edit elsewhere in the sentence keeps
  * the analysis. A bijvBepTarget must point inside the bijzin and is remapped to the new token ID.
- * A bijzin that cannot be kept is reported in lostBijzinnen, so the editor can warn instead of
- * dropping it silently.
+ * Which analyses could not be kept is answered by getLostBijzinAnalyses (bijzinEditor.ts).
  */
-export function carryOverBijzinAnalyse(source: Sentence | null, tokens: Token[]): CarryOverResult {
-  if (!source) return { tokens, lostBijzinnen: [] };
+export function carryOverBijzinAnalyse(source: Sentence | null, tokens: Token[]): Token[] {
+  if (!source) return tokens;
 
   const textOf = (group: Token[]) => group.map(t => t.text).join(' ');
   const rebuiltIdx = new Map(tokens.map((t, i) => [t.id, i]));
   const unmatched = getBijzinTokenGroups({ ...source, tokens });
 
   const result = tokens.map(t => ({ ...t }));
-  const lostBijzinnen: string[] = [];
 
   for (const group of getBijzinTokenGroups(source)) {
     if (!group.some(t => t.bijzinAnalyse)) continue;
     const offsetOf = new Map(group.map((t, i) => [t.id, i]));
     const targetsInside = group.every(t => !t.bijzinAnalyse?.bijvBepTarget || offsetOf.has(t.bijzinAnalyse.bijvBepTarget));
     const matchAt = unmatched.findIndex(g => textOf(g) === textOf(group));
-    if (!targetsInside || matchAt < 0) {
-      lostBijzinnen.push(textOf(group));
-      continue;
-    }
+    if (!targetsInside || matchAt < 0) continue;
     const start = rebuiltIdx.get(unmatched.splice(matchAt, 1)[0][0].id)!;
     group.forEach((t, i) => {
       if (!t.bijzinAnalyse) return;
@@ -147,7 +136,7 @@ export function carryOverBijzinAnalyse(source: Sentence | null, tokens: Token[])
     });
   }
 
-  return { tokens: result, lostBijzinnen };
+  return result;
 }
 
 /**
