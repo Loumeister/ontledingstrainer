@@ -51,14 +51,14 @@ Ga met je muis over een niveau om te zien wat erin zit. Onder de knoppen staat a
 
 ### 3. Moeilijke onderdelen
 Zet alleen aan wat je al in de les hebt gehad. Bij elke schakelaar staat wat er gebeurt als hij aan of uit staat.
-*   **Voorzetselvoorwerp:** Aan = zinnen met een voorzetselvoorwerp doen mee en je moet het benoemen. Uit = die zinnen worden overgeslagen. Staat vanzelf aan bij Hoog en Samengesteld.
+*   **Voorzetselvoorwerp:** Aan = zinnen met een voorzetselvoorwerp doen mee en je moet het benoemen. Uit = die zinnen worden overgeslagen; zet hem aan om te oefenen. Staat vanzelf aan bij Hoog en Samengesteld.
 *   **Bijvoeglijke bepaling:** Aan = je benoemt ook de bijvoeglijke bepalingen binnen een zinsdeel (de *rode* auto). Uit = dat hoeft niet; de zinnen blijven hetzelfde.
 *   **Werkwoordelijk en naamwoordelijk deel:** Aan = bij een naamwoordelijk gezegde benoem je ook het ww. deel en het nw. deel.
 
 Bijstellingen (Jan, *mijn broer*, komt langs) komen alleen voor op Hoog en Samengesteld.
 
 ### 4. Extra oefenen met
-Wil je extra trainen op het **lijdend voorwerp** of **meewerkend voorwerp**? Kies het hier. Je krijgt dan alleen zinnen waarin dat zinsdeel zit.
+Wil je gericht één zinsdeel oefenen? Kies hier het **lijdend voorwerp**, **meewerkend voorwerp**, **voorzetselvoorwerp**, **naamwoordelijk gezegde** of de **bijvoeglijke bepaling**. Je krijgt dan alleen zinnen waarin een gekozen zinsdeel zit. Kies je het voorzetselvoorwerp of de bijvoeglijke bepaling, dan gaat de schakelaar in stap 3 vanzelf aan: je moet dat zinsdeel dan ook benoemen.
 
 ### Slim kiezen
 Staat **Slim kiezen** aan, dan krijg je vaker zinnen met zinsdelen waar je eerder fouten mee maakte.

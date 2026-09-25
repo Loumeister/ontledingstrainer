@@ -74,6 +74,10 @@ export interface TrainerState {
   focusVV: boolean;
   setFocusVV: (v: boolean) => void;
   focusBijzin: boolean;
+  focusNG: boolean;
+  setFocusNG: (v: boolean) => void;
+  focusBB: boolean;
+  setFocusBB: (v: boolean) => void;
   setFocusBijzin: (v: boolean) => void;
 
   // Complexity filters
@@ -260,6 +264,8 @@ export function useTrainer(): TrainerState {
   const [focusMV, setFocusMV] = useState(false);
   const [focusVV, setFocusVV] = useState(false);
   const [focusBijzin, setFocusBijzin] = useState(false);
+  const [focusNG, setFocusNG] = useState(false);
+  const [focusBB, setFocusBB] = useState(false);
 
   // Complexity Filters
   const [includeBB, setIncludeBB] = useState(false);
@@ -419,9 +425,9 @@ export function useTrainer(): TrainerState {
   // --- Logic ---
 
   const filteredSentences = useMemo((): Sentence[] => filterSentences(allSentences, {
-    predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, includeVV,
+    predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, focusNG, focusBB, includeVV,
     ladderFilter: ladderEnabled ? getLadderSentenceFilter(ladderStage) : undefined,
-  }), [allSentences, predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, includeVV, ladderEnabled, ladderStage]);
+  }), [allSentences, predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, focusNG, focusBB, includeVV, ladderEnabled, ladderStage]);
 
   const loadSentence = (sentence: Sentence) => {
     logInteraction('sentence_start', sentence.id);
@@ -1185,6 +1191,8 @@ export function useTrainer(): TrainerState {
     setFocusMV(false);
     setFocusVV(false);
     setFocusBijzin(false);
+    setFocusNG(false);
+    setFocusBB(false);
     setQuickStartPending(true);
   };
 
@@ -1575,6 +1583,8 @@ export function useTrainer(): TrainerState {
     focusMV, setFocusMV,
     focusVV, setFocusVV,
     focusBijzin, setFocusBijzin,
+    focusNG, setFocusNG,
+    focusBB, setFocusBB,
 
     // Complexity filters
     includeBB, setIncludeBB,

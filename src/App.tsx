@@ -173,6 +173,9 @@ export default function App() {
         selectedLevel={trainer.selectedLevel} setSelectedLevel={trainer.setSelectedLevel}
         customSessionCount={trainer.customSessionCount} setCustomSessionCount={trainer.setCustomSessionCount}
         focusLV={trainer.focusLV} setFocusLV={trainer.setFocusLV}
+        focusVV={trainer.focusVV} setFocusVV={trainer.setFocusVV}
+        focusNG={trainer.focusNG} setFocusNG={trainer.setFocusNG}
+        focusBB={trainer.focusBB} setFocusBB={trainer.setFocusBB}
         focusMV={trainer.focusMV} setFocusMV={trainer.setFocusMV}
         includeVV={trainer.includeVV} setIncludeVV={trainer.setIncludeVV}
         includeBB={trainer.includeBB} setIncludeBB={trainer.setIncludeBB}

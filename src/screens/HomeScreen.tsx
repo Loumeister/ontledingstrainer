@@ -16,6 +16,9 @@ type HomeScreenProps = Pick<TrainerState,
   | 'customSessionCount' | 'setCustomSessionCount'
   | 'focusLV' | 'setFocusLV'
   | 'focusMV' | 'setFocusMV'
+  | 'focusVV' | 'setFocusVV'
+  | 'focusNG' | 'setFocusNG'
+  | 'focusBB' | 'setFocusBB'
   | 'includeVV' | 'setIncludeVV'
   | 'includeBB' | 'setIncludeBB'
   | 'includeGezegdeDelen' | 'setIncludeGezegdeDelen'
@@ -44,6 +47,15 @@ type HomeScreenProps = Pick<TrainerState,
   /** Only true on the hidden #/bijzinontleding route while the feature is not released. */
   bijzinOntledingAvailable: boolean;
 };
+
+/** Zinsdelen in 'Extra oefenen met': alleen zinnen die dit zinsdeel bevatten. */
+const FOCUS_OPTIONS = [
+  { key: 'lv', role: 'lv' },
+  { key: 'mv', role: 'mv' },
+  { key: 'vv', role: 'vv' },
+  { key: 'ng', role: 'ng' },
+  { key: 'bb', role: 'bijv_bep' },
+] as const;
 
 const LEVEL_OPTIONS: (DifficultyLevel | null)[] = [null, 0, 1, 2, 3, 4];
 const ALL_LEVELS_SUMMARY = 'Instap tot en met Hoog door elkaar. Samengestelde zinnen zitten er niet bij.';
@@ -116,6 +128,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   customSessionCount, setCustomSessionCount,
   focusLV, setFocusLV,
   focusMV, setFocusMV,
+  focusVV, setFocusVV,
+  focusNG, setFocusNG,
+  focusBB, setFocusBB,
   includeVV, setIncludeVV,
   includeBB, setIncludeBB,
   includeGezegdeDelen, setIncludeGezegdeDelen,
@@ -500,17 +515,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 {!ladderEnabled && (
                   <ToggleCard
                     title="Voorzetselvoorwerp"
-                    checked={includeVV}
-                    onChange={setIncludeVV}
-                    onText="Zit in je zinnen: altijd benoemen."
-                    offText="Zinnen met een voorzetselvoorwerp worden overgeslagen."
+                    checked={includeVV || focusVV}
+                    onChange={(v) => { setIncludeVV(v); if (!v) setFocusVV(false); }}
+                    onText="Zinnen met een voorzetselvoorwerp doen mee."
+                    offText="Zet aan om te oefenen."
                     note="Staat vanaf Hoog vanzelf aan."
                   />
                 )}
                 <ToggleCard
                   title="Bijvoeglijke bepaling"
                   checked={includeBB}
-                  onChange={setIncludeBB}
+                  onChange={(v) => { setIncludeBB(v); if (!v) setFocusBB(false); }}
                   onText="Je benoemt ook de bijvoeglijke bepalingen binnen een zinsdeel."
                   offText="Hoef je niet te benoemen. De zinnen blijven hetzelfde."
                 />
@@ -535,16 +550,23 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </section>
 
             <section aria-labelledby="stap-extra">
-              <StepHeading id="stap-extra" number={4} title="Extra oefenen met" hint="Niet verplicht. Je krijgt dan alleen zinnen met dit zinsdeel." />
+              <StepHeading id="stap-extra" number={4} title="Extra oefenen met" hint="Niet verplicht. Je krijgt dan alleen zinnen waarin een gekozen zinsdeel zit." />
               <div className="flex flex-wrap gap-2">
-                {(['lv', 'mv'] as const).map(key => {
-                  const role = ROLES.find(r => r.key === key);
-                  const active = key === 'lv' ? focusLV : focusMV;
+                {FOCUS_OPTIONS.map(({ key, role: roleKey }) => {
+                  const role = ROLES.find(r => r.key === roleKey);
+                  const focus = { lv: [focusLV, setFocusLV], mv: [focusMV, setFocusMV], vv: [focusVV, setFocusVV], ng: [focusNG, setFocusNG], bb: [focusBB, setFocusBB] } as const;
+                  const [active, setActive] = focus[key];
+                  const toggle = () => {
+                    setActive(!active);
+                    // Oefenen met de bijv. bepaling betekent ook: benoemen.
+                    if (key === 'bb' && !active) setIncludeBB(true);
+                    if (key === 'vv' && !active) setIncludeVV(true);
+                  };
                   return (
                     <button
                       key={key}
                       aria-pressed={active}
-                      onClick={() => (key === 'lv' ? setFocusLV(!focusLV) : setFocusMV(!focusMV))}
+                      onClick={toggle}
                       className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 text-sm font-bold transition-all ${active ? `${role?.colorClass} ${role?.borderColorClass} shadow-sm` : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-slate-300'}`}
                     >
                       <span className={`w-4 h-4 rounded border-2 flex items-center justify-center text-[10px] ${active ? 'border-current' : 'border-slate-300 dark:border-slate-500'}`} aria-hidden="true">{active ? '✓' : ''}</span>

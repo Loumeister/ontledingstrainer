@@ -257,6 +257,18 @@ describe('filterSentences — focusfilters', () => {
     expect(result).not.toContain(metLV);
   });
 
+  it('focusNG laat alleen zinnen met een naamwoordelijk gezegde door', () => {
+    const ng = makeSentence({ level: 1, predicateType: 'NG' });
+    const result = filterSentences([...sentences, ng], { ...defaultCfg, selectedLevel: 1, focusNG: true });
+    expect(result).toEqual([ng]);
+  });
+
+  it('focusBB laat alleen zinnen met een bijvoeglijke bepaling door', () => {
+    const metBB = makeSentence({ level: 1, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('ow', { subRole: 'bijv_bep' })] });
+    const result = filterSentences([...sentences, metBB], { ...defaultCfg, selectedLevel: 1, focusBB: true });
+    expect(result).toEqual([metBB]);
+  });
+
   it('meerdere focusfilters actief: OR-logica', () => {
     const result = filterSentences(sentences, { ...defaultCfg, selectedLevel: 1, focusLV: true, focusMV: true });
     expect(result).toContain(metLV);
