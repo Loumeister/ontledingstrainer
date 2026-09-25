@@ -5,6 +5,7 @@ import {
   applyBijzinEdits,
   bijzinEditStateFromTokens,
   bijzinKey,
+  getVerbindingswoordWarnings,
   setBijzinEditLabel,
   toggleBijzinEditSplit,
   toggleBijzinEditVerbindingswoord,
@@ -77,5 +78,12 @@ describe('bijzineditor', () => {
     const chunkIdx = [...state.splits, group.length].findIndex(end => idx <= end);
     const changed = setBijzinEditLabel(state, chunkIdx, 'mv');
     expect(analysesFromBijzinEditState(changed, group.length)[idx]).not.toHaveProperty('bijvBepTarget');
+  });
+
+  it('waarschuwt als een verbindingswoord onderschikkend voegwoord heet', () => {
+    const s = byId(410);
+    expect(getVerbindingswoordWarnings(s)).toEqual([]);
+    const fout = { ...s, tokens: s.tokens.map(t => t.bijzinAnalyse?.verbindingswoord ? { ...t, subRole: 'vw_onder' as const } : t) };
+    expect(getVerbindingswoordWarnings(fout)).toHaveLength(1);
   });
 });
