@@ -22,6 +22,9 @@ import {
   getBetrekkelijkeBijzinLevelWarning,
   getEditorChunks,
 } from '../logic/editorSentence';
+import { applyBijzinEdits, BijzinEditState, bijzinEditStateFromTokens, bijzinKey, getVerbindingswoordWarnings } from '../logic/bijzinEditor';
+import { getBijzinAnalyseProblems, getBijzinTokenGroups } from '../logic/bijzinAnalysis';
+import { BijzinAnalyseEditor } from '../components/BijzinAnalyseEditor';
 import {
   getAssignmentById,
   createAssignment as createTrainerAssignment,
@@ -34,7 +37,7 @@ type ListFilter = 'all' | 'builtin' | 'custom';
 
 const PIN_SESSION_KEY = EDITOR_SESSION_KEY;
 
-type EditorPhase = 'list' | 'input' | 'edit' | 'meta' | 'preview';
+type EditorPhase = 'list' | 'input' | 'edit' | 'meta' | 'bijzin' | 'preview';
 type EditorTab = 'zinnen' | 'zinsdeellab';
 
 interface SentenceEditorScreenProps {
@@ -67,6 +70,8 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
   const [customLabel, setCustomLabel] = useState('');
   /** The stored sentence being edited: its bijzinAnalyse is carried over on save (see carryOverBijzinAnalyse). */
   const [sourceSentence, setSourceSentence] = useState<Sentence | null>(null);
+  /** Bijzinontleding entered by the teacher, keyed by bijzinKey (position and words of the bijzin). */
+  const [bijzinEdits, setBijzinEdits] = useState<Record<string, BijzinEditState>>({});
 
   /**
    * Zinnenlab-annotaties (optioneel).
@@ -137,6 +142,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     setEditingId(null);
     setCustomLabel('');
     setSourceSentence(null);
+    setBijzinEdits({});
     // Zinnenlab-annotaties resetten naar "auto" (null)
     setOwNumber(null);
     setPvTense(null);
@@ -158,6 +164,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     setBijzinFunctieLabels({});
     setBijvBepLinks({});
     setLinkingBijvBepIdx(null);
+    setBijzinEdits({});
     setPhase('edit');
   };
 
@@ -290,7 +297,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     if (owNumber !== null) sentence.owNumber = owNumber;
     if (pvTense !== null) sentence.pvTense = pvTense;
 
-    return { sentence, lostBijzinnen };
+    return { sentence: applyBijzinEdits(sentence, bijzinEdits), lostBijzinnen };
   };
 
   // Validation
@@ -328,6 +335,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
 
     const levelWarning = getBetrekkelijkeBijzinLevelWarning(buildSentence().sentence.tokens, level);
     if (levelWarning) errors.push(levelWarning);
+    errors.push(...getVerbindingswoordWarnings(buildSentence().sentence));
 
     return errors;
   };
@@ -362,6 +370,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     setBijzinFunctieLabels(annotation.bijzinFunctieLabels);
     setBijvBepLinks(annotation.bijvBepLinks);
     setSourceSentence(s);
+    setBijzinEdits({});
     setPhase('edit');
   };
 
@@ -390,6 +399,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     setBijzinFunctieLabels(annotation.bijzinFunctieLabels);
     setBijvBepLinks(annotation.bijvBepLinks);
     setSourceSentence(s);
+    setBijzinEdits({});
 
     // Ga direct naar meta — splits/labels hoeven niet opnieuw ingesteld te worden
     setPhase('meta');
@@ -696,6 +706,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
   }
 
   const chunks = getChunks();
+  const hasBijzin = Object.values(chunkLabels).includes('bijzin');
 
   // EDIT phase — combined split + label
   if (phase === 'edit') {
@@ -937,6 +948,58 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
 
           <div className="flex gap-3">
             <button onClick={() => setPhase('edit')} className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">← Terug</button>
+            <button onClick={() => setPhase(hasBijzin ? 'bijzin' : 'preview')} className="flex-1 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors">{hasBijzin ? 'Bijzin ontleden →' : 'Voorbeeld bekijken'}</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // BIJZIN phase — enter the analysis of each bijzin
+  if (phase === 'bijzin') {
+    const { sentence, lostBijzinnen } = buildSentence();
+    const groups = getBijzinTokenGroups(sentence);
+    const problems = [...getBijzinAnalyseProblems(sentence), ...getVerbindingswoordWarnings(sentence)];
+
+    return (
+      <div className={`${pageClass} flex items-center justify-center`}>
+        <div className="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 max-w-3xl w-full space-y-4">
+          <div>
+            <h2 className="text-xl font-bold text-slate-800 dark:text-white">Bijzin ontleden</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Ontleed elke bijzin als een eigen zin: knip tussen de woorden en kies per deel een zinsdeel. Het onderschikkend voegwoord is hier een eigen deel. Dit is optioneel: een bijzin zonder ontleding kan de leerling niet ontleden.
+            </p>
+          </div>
+
+          {lostBijzinnen.length > 0 && (
+            <p className="text-sm text-red-700 dark:text-red-300">
+              De vorige ontleding van {lostBijzinnen.map(b => `'${b}'`).join(', ')} is vervallen, omdat de woorden of de grenzen zijn veranderd.
+            </p>
+          )}
+
+          {groups.map(group => {
+            const key = bijzinKey(sentence.tokens, group);
+            return (
+              <BijzinAnalyseEditor
+                key={key}
+                sentence={sentence}
+                group={group}
+                state={bijzinEdits[key] ?? bijzinEditStateFromTokens(group)}
+                onChange={next => setBijzinEdits(prev => ({ ...prev, [key]: next }))}
+              />
+            );
+          })}
+
+          {problems.length > 0 && (
+            <div role="status" className="p-3 bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-700 rounded-lg">
+              <ul className="text-sm text-orange-700 dark:text-orange-300 list-disc list-inside">
+                {problems.map((p, i) => <li key={i}>{p}</li>)}
+              </ul>
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <button onClick={() => setPhase('meta')} className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">← Terug</button>
             <button onClick={() => setPhase('preview')} className="flex-1 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors">Voorbeeld bekijken</button>
           </div>
         </div>
@@ -948,6 +1011,8 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
   if (phase === 'preview') {
     const errors = getValidationErrors();
     const { sentence, lostBijzinnen } = buildSentence();
+    const bijzinProblems = getBijzinAnalyseProblems(sentence);
+    const showLost = lostBijzinnen.length > 0 && getBijzinTokenGroups(sentence).some(g => !g.some(t => t.bijzinAnalyse));
 
     return (
       <div className={`${pageClass} flex items-center justify-center`}>
@@ -971,19 +1036,33 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
                   {t.bijzinFunctie && <span className="opacity-50 ml-0.5">[fn:{ROLES.find(r => r.key === t.bijzinFunctie)?.shortLabel}]</span>}
                   {t.bijvBepTarget && <span className="opacity-50 ml-0.5">[→{t.bijvBepTarget}]</span>}
                   {t.newChunk && <span className="opacity-50 ml-0.5">[NC]</span>}
+                  {t.bijzinAnalyse && (
+                    <span className="opacity-50 ml-0.5" title="Rol in de bijzinontleding">
+                      [bz:{ROLES.find(r => r.key === t.bijzinAnalyse!.role)?.shortLabel}{t.bijzinAnalyse.newChunk ? ' NC' : ''}{t.bijzinAnalyse.verbindingswoord ? ' vbw' : ''}]
+                    </span>
+                  )}
                 </span>
               );
             })}
           </div>
 
-          {lostBijzinnen.length > 0 && (
+          {showLost && (
             <div role="alert" className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg">
               <p className="font-bold text-red-800 dark:text-red-200 text-sm mb-1">Bijzinontleding vervalt bij opslaan</p>
               <p className="text-sm text-red-700 dark:text-red-300 mb-1">
-                De woorden of de grenzen van deze {lostBijzinnen.length === 1 ? 'bijzin zijn' : 'bijzinnen zijn'} veranderd. Daardoor past de bestaande bijzinontleding niet meer en moet die opnieuw worden ingevoerd:
+                De woorden of de grenzen van deze {lostBijzinnen.length === 1 ? 'bijzin zijn' : 'bijzinnen zijn'} veranderd. Daardoor past de bestaande bijzinontleding niet meer. Voer die opnieuw in bij de stap Bijzin ontleden:
               </p>
               <ul className="text-sm text-red-700 dark:text-red-300 list-disc list-inside">
                 {lostBijzinnen.map((b, i) => <li key={i}>{b}</li>)}
+              </ul>
+            </div>
+          )}
+
+          {bijzinProblems.length > 0 && (
+            <div role="alert" className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg">
+              <p className="font-bold text-red-800 dark:text-red-200 text-sm mb-1">Bijzinontleding klopt niet, opslaan kan nog niet:</p>
+              <ul className="text-sm text-red-700 dark:text-red-300 list-disc list-inside">
+                {bijzinProblems.map((p, i) => <li key={i}>{p}</li>)}
               </ul>
             </div>
           )}
@@ -998,8 +1077,8 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
           )}
 
           <div className="flex gap-3">
-            <button onClick={() => setPhase('meta')} className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">← Terug</button>
-            <button onClick={handleSave} className="flex-1 py-2 rounded-lg bg-green-600 text-white font-bold hover:bg-green-700 transition-colors">
+            <button onClick={() => setPhase(hasBijzin ? 'bijzin' : 'meta')} className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">← Terug</button>
+            <button onClick={handleSave} disabled={bijzinProblems.length > 0} className="flex-1 py-2 rounded-lg bg-green-600 text-white font-bold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               {editingId ? 'Bijwerken' : 'Opslaan'}
             </button>
           </div>
