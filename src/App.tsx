@@ -173,6 +173,9 @@ export default function App() {
         selectedLevel={trainer.selectedLevel} setSelectedLevel={trainer.setSelectedLevel}
         customSessionCount={trainer.customSessionCount} setCustomSessionCount={trainer.setCustomSessionCount}
         focusLV={trainer.focusLV} setFocusLV={trainer.setFocusLV}
+        focusVV={trainer.focusVV} setFocusVV={trainer.setFocusVV}
+        focusNG={trainer.focusNG} setFocusNG={trainer.setFocusNG}
+        focusBB={trainer.focusBB} setFocusBB={trainer.setFocusBB}
         focusMV={trainer.focusMV} setFocusMV={trainer.setFocusMV}
         includeVV={trainer.includeVV} setIncludeVV={trainer.setIncludeVV}
         includeBB={trainer.includeBB} setIncludeBB={trainer.setIncludeBB}
@@ -184,6 +187,7 @@ export default function App() {
         largeFont={trainer.largeFont} setLargeFont={trainer.setLargeFont}
         dyslexiaMode={trainer.dyslexiaMode} setDyslexiaMode={trainer.setDyslexiaMode}
         availableSentences={trainer.availableSentences}
+        focusAvailability={trainer.focusAvailability}
         isLoadingSentences={trainer.isLoadingSentences}
         sentenceLoadError={trainer.sentenceLoadError}
         refreshCustomSentences={trainer.refreshCustomSentences}

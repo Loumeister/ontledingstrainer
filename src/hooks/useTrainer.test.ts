@@ -16,7 +16,7 @@ import level0 from '../data/sentences-level-0.json';
 import level1 from '../data/sentences-level-1.json';
 import level2 from '../data/sentences-level-2.json';
 import { getLadderSentenceFilter } from '../logic/rollenladder';
-import { filterSentences, defaultIncludeVV, type SentenceFilterConfig } from '../logic/sentenceFilter';
+import { filterSentences, defaultIncludeVV, getFocusAvailability, type SentenceFilterConfig } from '../logic/sentenceFilter';
 
 // ── localStorage mock ─────────────────────────────────────────────────────────
 
@@ -257,6 +257,25 @@ describe('filterSentences — focusfilters', () => {
     expect(result).not.toContain(metLV);
   });
 
+  it('focusNG laat alleen zinnen met een naamwoordelijk gezegde door', () => {
+    const ng = makeSentence({ level: 1, predicateType: 'NG' });
+    const result = filterSentences([...sentences, ng], { ...defaultCfg, selectedLevel: 1, focusNG: true });
+    expect(result).toEqual([ng]);
+  });
+
+  it('focusBB laat alleen zinnen met een bijvoeglijke bepaling door', () => {
+    const metBB = makeSentence({ level: 1, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('ow', { subRole: 'bijv_bep' })] });
+    const result = filterSentences([...sentences, metBB], { ...defaultCfg, selectedLevel: 1, focusBB: true });
+    expect(result).toEqual([metBB]);
+  });
+
+  it('focusBB telt een bijzin als bijv. bepaling alleen waar die functie gevraagd wordt', () => {
+    const laag = makeSentence({ level: 3, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('bijzin', { bijzinFunctie: 'bijv_bep' })] });
+    const hoog = makeSentence({ level: 4, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('bijzin', { bijzinFunctie: 'bijv_bep' })] });
+    expect(filterSentences([laag], { ...defaultCfg, selectedLevel: 3, focusBB: true })).toHaveLength(0);
+    expect(filterSentences([hoog], { ...defaultCfg, selectedLevel: 4, focusBB: true })).toContain(hoog);
+  });
+
   it('meerdere focusfilters actief: OR-logica', () => {
     const result = filterSentences(sentences, { ...defaultCfg, selectedLevel: 1, focusLV: true, focusMV: true });
     expect(result).toContain(metLV);
@@ -308,6 +327,12 @@ describe('filterSentences — bijst en vv', () => {
     expect(filterSentences([samengesteld], { ...defaultCfg, ladderFilter: getLadderSentenceFilter(1) })).toHaveLength(0);
   });
 
+  it('de Rollenladder negeert de oefenmodus', () => {
+    const wg = makeSentence({ level: 0, predicateType: 'WG' });
+    const result = filterSentences([wg], { ...defaultCfg, focusNG: true, focusLV: true, ladderFilter: getLadderSentenceFilter(1) });
+    expect(result).toContain(wg);
+  });
+
   it('de Rollenladder negeert de vz.vw-schakelaar', () => {
     const result = filterSentences([metVV], { ...defaultCfg, ladderFilter: () => true });
     expect(result).toContain(metVV);
@@ -316,6 +341,25 @@ describe('filterSentences — bijst en vv', () => {
   it('vz.vw staat standaard alleen aan bij Hoog en Samengesteld', () => {
     expect([null, 0, 1, 2, 3, 4].map(l => defaultIncludeVV(l as DifficultyLevel | null)))
       .toEqual([false, false, false, false, true, true]);
+  });
+});
+
+// ── Tests: getFocusAvailability ──────────────────────────────────────────────
+
+describe('getFocusAvailability', () => {
+  const basisWG = makeSentence({ level: 1, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('lv')] });
+  const basisNG = makeSentence({ level: 1, predicateType: 'NG', tokens: [makeToken('pv'), makeToken('ow')] });
+  const middelVV = makeSentence({ level: 2, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('vv')] });
+  const zinnen = [basisWG, basisNG, middelVV];
+
+  it('vz.vw is niet beschikbaar op Basis, wel op Middel (ook met de vz.vw-schakelaar uit)', () => {
+    expect(getFocusAvailability(zinnen, { predicateMode: 'ALL', selectedLevel: 1, includeVV: false }).vv.count).toBe(0);
+    expect(getFocusAvailability(zinnen, { predicateMode: 'ALL', selectedLevel: 2, includeVV: false }).vv.count).toBe(1);
+  });
+
+  it('NG telt 0 bij Alleen WG, maar wel mee ongeacht het gezegde', () => {
+    const ng = getFocusAvailability(zinnen, { predicateMode: 'WG', selectedLevel: 1, includeVV: false }).ng;
+    expect(ng).toEqual({ count: 0, countAnyPredicate: 1 });
   });
 });
 

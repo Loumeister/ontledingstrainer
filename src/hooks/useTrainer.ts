@@ -56,7 +56,7 @@ import {
 export type { ChunkData, ValidationResult };
 export type AppStep = 'split' | 'label';
 export type Mode = 'free' | 'session';
-import { PredicateMode, filterSentences, defaultIncludeVV } from '../logic/sentenceFilter';
+import { PredicateMode, filterSentences, defaultIncludeVV, getFocusAvailability, FocusKey, FocusAvailability } from '../logic/sentenceFilter';
 export type { PredicateMode };
 /** Tracks how a session was started so results can be labelled accordingly. */
 export type SessionSource = 'pool' | 'json' | 'selected' | 'shared';
@@ -78,6 +78,10 @@ export interface TrainerState {
   focusVV: boolean;
   setFocusVV: (v: boolean) => void;
   focusBijzin: boolean;
+  focusNG: boolean;
+  setFocusNG: (v: boolean) => void;
+  focusBB: boolean;
+  setFocusBB: (v: boolean) => void;
   setFocusBijzin: (v: boolean) => void;
 
   // Complexity filters
@@ -145,6 +149,8 @@ export interface TrainerState {
   // Derived
   userChunks: ChunkData[];
   availableSentences: Sentence[];
+  /** Per keuze in 'Extra oefenen met': hoeveel zinnen erbij passen. */
+  focusAvailability: Record<FocusKey, FocusAvailability>;
 
   // Actions
   refreshCustomSentences: () => void;
@@ -271,6 +277,8 @@ export function useTrainer(): TrainerState {
   const [focusMV, setFocusMV] = useState(false);
   const [focusVV, setFocusVV] = useState(false);
   const [focusBijzin, setFocusBijzin] = useState(false);
+  const [focusNG, setFocusNG] = useState(false);
+  const [focusBB, setFocusBB] = useState(false);
 
   // Complexity Filters
   const [includeBB, setIncludeBB] = useState(false);
@@ -432,9 +440,9 @@ export function useTrainer(): TrainerState {
   // --- Logic ---
 
   const filteredSentences = useMemo((): Sentence[] => filterSentences(allSentences, {
-    predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, includeVV,
+    predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, focusNG, focusBB, includeVV,
     ladderFilter: ladderEnabled ? getLadderSentenceFilter(ladderStage) : undefined,
-  }), [allSentences, predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, includeVV, ladderEnabled, ladderStage]);
+  }), [allSentences, predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, focusNG, focusBB, includeVV, ladderEnabled, ladderStage]);
 
   const loadSentence = (sentence: Sentence) => {
     logInteraction('sentence_start', sentence.id);
@@ -1227,6 +1235,8 @@ export function useTrainer(): TrainerState {
     setFocusMV(false);
     setFocusVV(false);
     setFocusBijzin(false);
+    setFocusNG(false);
+    setFocusBB(false);
     setQuickStartPending(true);
   };
 
@@ -1566,6 +1576,10 @@ export function useTrainer(): TrainerState {
 
   const userChunks = getUserChunks();
   const availableSentences = filteredSentences;
+  const focusAvailability = useMemo(
+    () => getFocusAvailability(allSentences, { predicateMode, selectedLevel, includeVV }),
+    [allSentences, predicateMode, selectedLevel, includeVV],
+  );
 
   const handleSkipSplitStep = () => {
     if (!currentSentence || step !== 'split') return;
@@ -1617,6 +1631,8 @@ export function useTrainer(): TrainerState {
     focusMV, setFocusMV,
     focusVV, setFocusVV,
     focusBijzin, setFocusBijzin,
+    focusNG, setFocusNG,
+    focusBB, setFocusBB,
 
     // Complexity filters
     includeBB, setIncludeBB,
@@ -1654,7 +1670,7 @@ export function useTrainer(): TrainerState {
     dyslexiaMode, setDyslexiaMode,
 
     // Derived
-    userChunks, availableSentences,
+    userChunks, availableSentences, focusAvailability,
 
     // Actions
     refreshCustomSentences,
