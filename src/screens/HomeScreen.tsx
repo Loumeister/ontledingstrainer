@@ -191,8 +191,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const focusState: Record<FocusKey, [boolean, (v: boolean) => void]> = {
     lv: [focusLV, setFocusLV], mv: [focusMV, setFocusMV], vv: [focusVV, setFocusVV], ng: [focusNG, setFocusNG], bb: [focusBB, setFocusBB],
   };
+  // Tijdens het laden van een ander niveau zijn de aantallen nog niet betrouwbaar.
   const focusReasons = Object.fromEntries(
-    FOCUS_OPTIONS.map(({ key }) => [key, focusUnavailableReason(key, focusAvailability[key], predicateMode, levelName(selectedLevel))]),
+    FOCUS_OPTIONS.map(({ key }) => [key, isLoadingSentences ? null : focusUnavailableReason(key, focusAvailability[key], predicateMode, levelName(selectedLevel))]),
   ) as Record<FocusKey, string | null>;
 
   // Een keuze die door een ander niveau of gezegde onmogelijk wordt, gaat vanzelf uit.
