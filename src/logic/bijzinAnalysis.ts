@@ -1,6 +1,9 @@
 import { HINTS } from '../constants';
-import { PlacementMap, Sentence, Token } from '../types';
+import { PlacementMap, RoleKey, Sentence, Token } from '../types';
 import { BETREKKELIJKE_BIJZIN_LEVEL, buildUserChunks, computeCorrectSplits, isBijzinFunctieAsked, validateAnswer } from './validation';
+
+/** The zinsdelen a word inside a bijzin can have, in the order the bijzin panel offers them. */
+export const BIJZIN_ROLE_KEYS: RoleKey[] = ['vw_onder', 'pv', 'ow', 'lv', 'mv', 'vv', 'bwb', 'wg', 'ng'];
 
 /** The bijzinnen of a sentence as token groups, following the same chunk rules as the main analysis. */
 export function getBijzinTokenGroups(sentence: Sentence): Token[][] {
@@ -86,4 +89,33 @@ export function isBijzinUnlocked(
 
   const functie = bijzinTokens[0].bijzinFunctie;
   return !isBijzinFunctieAsked(functie, includeBB, sentence.level) || bijzinFunctieLabels[ids[0]] === functie;
+}
+
+/**
+ * Problems with the bijzinAnalyse annotation of a sentence, as Dutch messages for the teacher.
+ * Empty when the annotation is valid. Rules: bijzinAnalyse only on tokens with role 'bijzin',
+ * with a role from BIJZIN_ROLE_KEYS; a bijzin is annotated fully or not at all; an annotated
+ * bijzin has a PV.
+ */
+export function getBijzinAnalyseProblems(sentence: Sentence): string[] {
+  const problems: string[] = [];
+  sentence.tokens.forEach(t => {
+    if (!t.bijzinAnalyse) return;
+    if (t.role !== 'bijzin') {
+      problems.push(`'${t.text}' heeft een bijzinontleding, maar hoort niet bij een bijzin.`);
+    } else if (!BIJZIN_ROLE_KEYS.includes(t.bijzinAnalyse.role)) {
+      problems.push(`'${t.text}': '${t.bijzinAnalyse.role}' is geen zinsdeel dat in een bijzin gekozen kan worden.`);
+    }
+  });
+  for (const group of getBijzinTokenGroups(sentence)) {
+    const annotated = group.filter(t => t.bijzinAnalyse).length;
+    if (annotated === 0) continue;
+    const text = group.map(t => t.text).join(' ');
+    if (annotated < group.length) {
+      problems.push(`De bijzin '${text}' is maar voor een deel ontleed. Ontleed alle woorden of geen enkel woord.`);
+    } else if (!buildBijzinSentence(sentence, group)?.tokens.some(t => t.role === 'pv')) {
+      problems.push(`De ontleding van de bijzin '${text}' heeft geen persoonsvorm.`);
+    }
+  }
+  return problems;
 }

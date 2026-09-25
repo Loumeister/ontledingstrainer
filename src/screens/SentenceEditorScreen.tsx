@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { EDITOR_SESSION_KEY } from '../components/LoginScreen';
-import { Token, RoleKey, PredicateType, DifficultyLevel, RoleDefinition } from '../types';
+import { RoleKey, PredicateType, DifficultyLevel, RoleDefinition } from '../types';
 import { ROLES } from '../constants';
 import { DraggableRole } from '../components/WordChip';
 import { detectWordOrder, detectWordOrderFromRoles, wordOrderBadgeClass, wordOrderTooltip } from '../logic/wordOrderLabel';
@@ -15,6 +15,13 @@ import {
 import { loadAllSentences } from '../data/sentenceLoader';
 import type { Sentence, TrainerAssignment } from '../types';
 import LabEditorTab from '../components/LabEditorTab';
+import {
+  buildEditorTokens,
+  carryOverBijzinAnalyse,
+  editorAnnotationFromSentence,
+  getBetrekkelijkeBijzinLevelWarning,
+  getEditorChunks,
+} from '../logic/editorSentence';
 import {
   getAssignmentById,
   createAssignment as createTrainerAssignment,
@@ -58,6 +65,8 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
   const [level, setLevel] = useState<DifficultyLevel>(1);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [customLabel, setCustomLabel] = useState('');
+  /** The stored sentence being edited: its bijzinAnalyse is carried over on save (see carryOverBijzinAnalyse). */
+  const [sourceSentence, setSourceSentence] = useState<Sentence | null>(null);
 
   /**
    * Zinnenlab-annotaties (optioneel).
@@ -127,6 +136,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     setLevel(1);
     setEditingId(null);
     setCustomLabel('');
+    setSourceSentence(null);
     // Zinnenlab-annotaties resetten naar "auto" (null)
     setOwNumber(null);
     setPvTense(null);
@@ -152,33 +162,8 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
   };
 
   // Build chunks from words + splits
-  const getChunks = (): { words: string[]; indices: number[] }[] => {
-    const chunks: { words: string[]; indices: number[] }[] = [];
-    let current: { words: string[]; indices: number[] } = { words: [], indices: [] };
-    words.forEach((w, i) => {
-      current.words.push(w);
-      current.indices.push(i);
-      if (splitIndices.has(i) || i === words.length - 1) {
-        chunks.push(current);
-        current = { words: [], indices: [] };
-      }
-    });
-    return chunks;
-  };
-
-  const getChunksFromSplits = (splits: Set<number>): { words: string[]; indices: number[] }[] => {
-    const chunks: { words: string[]; indices: number[] }[] = [];
-    let current: { words: string[]; indices: number[] } = { words: [], indices: [] };
-    words.forEach((w, i) => {
-      current.words.push(w);
-      current.indices.push(i);
-      if (splits.has(i) || i === words.length - 1) {
-        chunks.push(current);
-        current = { words: [], indices: [] };
-      }
-    });
-    return chunks;
-  };
+  const getChunks = () => getEditorChunks(words, splitIndices);
+  const getChunksFromSplits = (splits: Set<number>) => getEditorChunks(words, splits);
 
   const toggleSplit = (idx: number) => {
     const oldChunks = getChunks();
@@ -283,35 +268,13 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     setBijvBepLinks(next);
   };
 
-  // Build sentence object from editor state
-  const buildSentence = (): Sentence => {
-    const chunks = getChunks();
+  // Build sentence object from editor state. lostBijzinnen lists the bijzinnen whose analysis could not be kept.
+  const buildSentence = (): { sentence: Sentence; lostBijzinnen: string[] } => {
     const id = editingId ?? getNextCustomId();
-    const tokens: Token[] = [];
-    let prevRole: RoleKey | null = null;
-
-    chunks.forEach((chunk, chunkIdx) => {
-      const role = chunkLabels[chunkIdx];
-      const bijzinFunc = bijzinFunctieLabels[chunkIdx];
-      chunk.indices.forEach((wordIdx, i) => {
-        const token: Token = {
-          id: `c${id}t${wordIdx + 1}`,
-          text: words[wordIdx],
-          role: role,
-        };
-        const sub = subLabels[`w${wordIdx}`];
-        if (sub) token.subRole = sub;
-        if (i === 0 && bijzinFunc && role === 'bijzin') token.bijzinFunctie = bijzinFunc;
-        if (i === 0 && role === 'bijzin' && bijzinFunc === 'bijv_bep' && bijvBepLinks[chunkIdx] !== undefined) {
-          token.bijvBepTarget = `c${id}t${bijvBepLinks[chunkIdx] + 1}`;
-        }
-        if (i === 0 && prevRole === role && chunkIdx > 0) {
-          token.newChunk = true;
-        }
-        tokens.push(token);
-        prevRole = role;
-      });
-    });
+    const { tokens, lostBijzinnen } = carryOverBijzinAnalyse(
+      sourceSentence,
+      buildEditorTokens(id, { words, splitIndices, chunkLabels, subLabels, bijzinFunctieLabels, bijvBepLinks }),
+    );
 
     const labelText = customLabel || `Zin ${id}: ${sentenceText.substring(0, 30)}${sentenceText.length > 30 ? '...' : ''}`;
 
@@ -327,7 +290,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     if (owNumber !== null) sentence.owNumber = owNumber;
     if (pvTense !== null) sentence.pvTense = pvTense;
 
-    return sentence;
+    return { sentence, lostBijzinnen };
   };
 
   // Validation
@@ -363,11 +326,14 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
       }
     });
 
+    const levelWarning = getBetrekkelijkeBijzinLevelWarning(buildSentence().sentence.tokens, level);
+    if (levelWarning) errors.push(levelWarning);
+
     return errors;
   };
 
   const handleSave = () => {
-    const sentence = buildSentence();
+    const { sentence } = buildSentence();
     saveCustomSentence(sentence);
     refreshList();
     setStatusMsg('Zin opgeslagen!');
@@ -389,42 +355,13 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     setPvTense(s.pvTense ?? null);
 
     // Reconstruct splits and labels from tokens
-    const newSplits = new Set<number>();
-    const newChunkLabels: Record<string, RoleKey> = {};
-    const newSubLabels: Record<string, RoleKey> = {};
-    const newBijzinFunctieLabels: Record<string, RoleKey> = {};
-    const newBijvBepLinks: Record<string, number> = {};
-    let chunkIdx = 0;
-    newChunkLabels[0] = s.tokens[0].role;
-    if (s.tokens[0].bijzinFunctie) newBijzinFunctieLabels[0] = s.tokens[0].bijzinFunctie;
-    if (s.tokens[0].bijvBepTarget) {
-      // Extract wordIdx from token ID pattern c{id}t{wordIdx+1}
-      const match = s.tokens[0].bijvBepTarget.match(/t(\d+)$/);
-      if (match) newBijvBepLinks[0] = parseInt(match[1], 10) - 1;
-    }
-
-    s.tokens.forEach((t, i) => {
-      if (t.subRole) newSubLabels[`w${i}`] = t.subRole;
-      if (i > 0) {
-        const prevToken = s.tokens[i - 1];
-        if (prevToken.role !== t.role || t.newChunk) {
-          newSplits.add(i - 1);
-          chunkIdx++;
-          newChunkLabels[chunkIdx] = t.role;
-          if (t.bijzinFunctie) newBijzinFunctieLabels[chunkIdx] = t.bijzinFunctie;
-          if (t.bijvBepTarget) {
-            const match = t.bijvBepTarget.match(/t(\d+)$/);
-            if (match) newBijvBepLinks[chunkIdx] = parseInt(match[1], 10) - 1;
-          }
-        }
-      }
-    });
-
-    setSplitIndices(newSplits);
-    setChunkLabels(newChunkLabels);
-    setSubLabels(newSubLabels);
-    setBijzinFunctieLabels(newBijzinFunctieLabels);
-    setBijvBepLinks(newBijvBepLinks);
+    const annotation = editorAnnotationFromSentence(s);
+    setSplitIndices(annotation.splitIndices);
+    setChunkLabels(annotation.chunkLabels);
+    setSubLabels(annotation.subLabels);
+    setBijzinFunctieLabels(annotation.bijzinFunctieLabels);
+    setBijvBepLinks(annotation.bijvBepLinks);
+    setSourceSentence(s);
     setPhase('edit');
   };
 
@@ -445,41 +382,14 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     setOwNumber(s.owNumber ?? null);
     setPvTense(s.pvTense ?? null);
 
-    // Reconstrueer splits/labels zodat buildSentence() exact dezelfde tokens
-    // teruggeeft als de originele ingebouwde zin (plus de nieuwe annotaties).
-    const newSplits = new Set<number>();
-    const newChunkLabels: Record<string, RoleKey> = {};
-    const newSubLabels: Record<string, RoleKey> = {};
-    const newBijzinFunctieLabels: Record<string, RoleKey> = {};
-    const newBijvBepLinks: Record<string, number> = {};
-    let chunkIdx = 0;
-    newChunkLabels[0] = s.tokens[0].role;
-    if (s.tokens[0].bijzinFunctie) newBijzinFunctieLabels[0] = s.tokens[0].bijzinFunctie;
-    if (s.tokens[0].bijvBepTarget) {
-      const match = s.tokens[0].bijvBepTarget.match(/t(\d+)$/);
-      if (match) newBijvBepLinks[0] = parseInt(match[1], 10) - 1;
-    }
-    s.tokens.forEach((t, i) => {
-      if (t.subRole) newSubLabels[`w${i}`] = t.subRole;
-      if (i > 0) {
-        const prevToken = s.tokens[i - 1];
-        if (prevToken.role !== t.role || t.newChunk) {
-          newSplits.add(i - 1);
-          chunkIdx++;
-          newChunkLabels[chunkIdx] = t.role;
-          if (t.bijzinFunctie) newBijzinFunctieLabels[chunkIdx] = t.bijzinFunctie;
-          if (t.bijvBepTarget) {
-            const match = t.bijvBepTarget.match(/t(\d+)$/);
-            if (match) newBijvBepLinks[chunkIdx] = parseInt(match[1], 10) - 1;
-          }
-        }
-      }
-    });
-    setSplitIndices(newSplits);
-    setChunkLabels(newChunkLabels);
-    setSubLabels(newSubLabels);
-    setBijzinFunctieLabels(newBijzinFunctieLabels);
-    setBijvBepLinks(newBijvBepLinks);
+    // Reconstruct splits and labels from tokens
+    const annotation = editorAnnotationFromSentence(s);
+    setSplitIndices(annotation.splitIndices);
+    setChunkLabels(annotation.chunkLabels);
+    setSubLabels(annotation.subLabels);
+    setBijzinFunctieLabels(annotation.bijzinFunctieLabels);
+    setBijvBepLinks(annotation.bijvBepLinks);
+    setSourceSentence(s);
 
     // Ga direct naar meta — splits/labels hoeven niet opnieuw ingesteld te worden
     setPhase('meta');
@@ -967,6 +877,12 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
                 </button>
               ))}
             </div>
+            {(() => {
+              const levelWarning = getBetrekkelijkeBijzinLevelWarning(buildSentence().sentence.tokens, level);
+              return levelWarning && (
+                <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">{levelWarning}</p>
+              );
+            })()}
           </div>
 
           {/* ── Zinnenlab-annotaties (optioneel) ──────────────────────────────
@@ -1031,7 +947,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
   // PREVIEW phase
   if (phase === 'preview') {
     const errors = getValidationErrors();
-    const sentence = buildSentence();
+    const { sentence, lostBijzinnen } = buildSentence();
 
     return (
       <div className={`${pageClass} flex items-center justify-center`}>
@@ -1059,6 +975,18 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
               );
             })}
           </div>
+
+          {lostBijzinnen.length > 0 && (
+            <div role="alert" className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg">
+              <p className="font-bold text-red-800 dark:text-red-200 text-sm mb-1">Bijzinontleding vervalt bij opslaan</p>
+              <p className="text-sm text-red-700 dark:text-red-300 mb-1">
+                De woorden of de grenzen van deze {lostBijzinnen.length === 1 ? 'bijzin zijn' : 'bijzinnen zijn'} veranderd. Daardoor past de bestaande bijzinontleding niet meer en moet die opnieuw worden ingevoerd:
+              </p>
+              <ul className="text-sm text-red-700 dark:text-red-300 list-disc list-inside">
+                {lostBijzinnen.map((b, i) => <li key={i}>{b}</li>)}
+              </ul>
+            </div>
+          )}
 
           {errors.length > 0 && (
             <div className="p-3 bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-700 rounded-lg">

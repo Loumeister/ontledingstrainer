@@ -211,6 +211,52 @@ describe('parseAndValidateSentences', () => {
   });
 });
 
+describe('parseAndValidateSentences — bijzinontleding', () => {
+  const zin = (tokens: object[]) => JSON.stringify([{ id: 1, label: 'Test', predicateType: 'WG', level: 3, tokens }]);
+  const hoofdzin = [
+    { id: 't1', text: 'Ik', role: 'ow' },
+    { id: 't2', text: 'weet', role: 'pv' },
+  ];
+  const bijzin = (analyses: (object | undefined)[]) => ['dat', 'hij', 'komt.'].map((text, i) => ({
+    id: `t${i + 3}`, text, role: 'bijzin', ...(i === 0 ? { bijzinFunctie: 'lv' } : {}),
+    ...(analyses[i] ? { bijzinAnalyse: analyses[i] } : {}),
+  }));
+
+  it('accepteert een volledig ontlede bijzin met PV', () => {
+    const ok = zin([...hoofdzin, ...bijzin([{ role: 'vw_onder' }, { role: 'ow' }, { role: 'pv' }])]);
+    expect(parseAndValidateSentences(ok)).toHaveLength(1);
+  });
+
+  it('accepteert een bijzin zonder ontleding', () => {
+    expect(parseAndValidateSentences(zin([...hoofdzin, ...bijzin([])]))).toHaveLength(1);
+  });
+
+  it('weigert een bijzinontleding op een woord buiten de bijzin', () => {
+    const bad = zin([{ ...hoofdzin[0], bijzinAnalyse: { role: 'ow' } }, hoofdzin[1], ...bijzin([])]);
+    expect(() => parseAndValidateSentences(bad)).toThrow('hoort niet bij een bijzin');
+  });
+
+  it('weigert een bijzin die maar voor een deel ontleed is', () => {
+    const bad = zin([...hoofdzin, ...bijzin([{ role: 'vw_onder' }, undefined, { role: 'pv' }])]);
+    expect(() => parseAndValidateSentences(bad)).toThrow('voor een deel ontleed');
+  });
+
+  it('weigert een ontleding zonder PV', () => {
+    const bad = zin([...hoofdzin, ...bijzin([{ role: 'vw_onder' }, { role: 'ow' }, { role: 'wg' }])]);
+    expect(() => parseAndValidateSentences(bad)).toThrow('geen persoonsvorm');
+  });
+
+  it('weigert een ongeldige rol in de bijzin', () => {
+    const bad = zin([...hoofdzin, ...bijzin([{ role: 'vw_onder' }, { role: 'bijzin' }, { role: 'pv' }])]);
+    expect(() => parseAndValidateSentences(bad)).toThrow('geen zinsdeel');
+  });
+
+  it('weigert een bijzinontleding zonder rol', () => {
+    const bad = zin([...hoofdzin, ...bijzin([{ role: 'vw_onder' }, { verbindingswoord: true }, { role: 'pv' }])]);
+    expect(() => parseAndValidateSentences(bad)).toThrow("'bijzinAnalyse' moet een object");
+  });
+});
+
 // ── getNextCustomId ────────────────────────────────────────────────────────────
 
 describe('getNextCustomId', () => {

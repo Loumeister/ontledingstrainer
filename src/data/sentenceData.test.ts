@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { Sentence } from '../types';
-import { buildBijzinSentence, getBijzinTokenGroups } from '../logic/bijzinAnalysis';
+import { getBijzinAnalyseProblems, getBijzinTokenGroups } from '../logic/bijzinAnalysis';
 import { BETREKKELIJKE_BIJZIN_LEVEL } from '../logic/validation';
 import level0 from './sentences-level-0.json';
 import level1 from './sentences-level-1.json';
@@ -63,14 +63,16 @@ describe('zinnendata — bijzinontleding', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('annoteert elke bijzin volledig, en elke bijzin heeft een PV', () => {
-    for (const s of all) {
-      for (const group of getBijzinTokenGroups(s)) {
-        const annotated = group.filter(t => t.bijzinAnalyse).length;
-        expect(annotated, `zin ${s.id}`).toBe(group.length);
-        expect(buildBijzinSentence(s, group)?.tokens.some(t => t.role === 'pv'), `zin ${s.id}`).toBe(true);
-      }
-    }
+  it('annoteert elke bijzin volledig of niet, met een PV en alleen rollen uit de bijzinkeuzelijst', () => {
+    const problems = all.flatMap(s => getBijzinAnalyseProblems(s).map(p => `zin ${s.id}: ${p}`));
+    expect(problems).toEqual([]);
+  });
+
+  it('heeft voor elke ingebouwde bijzin een bijzinontleding', () => {
+    const missing = all.flatMap(s => getBijzinTokenGroups(s)
+      .filter(group => !group.some(t => t.bijzinAnalyse))
+      .map(group => `${s.id}:${group[0].text}`));
+    expect(missing).toEqual([]);
   });
 });
 
