@@ -269,6 +269,13 @@ describe('filterSentences — focusfilters', () => {
     expect(result).toEqual([metBB]);
   });
 
+  it('focusBB telt een bijzin als bijv. bepaling alleen waar die functie gevraagd wordt', () => {
+    const laag = makeSentence({ level: 3, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('bijzin', { bijzinFunctie: 'bijv_bep' })] });
+    const hoog = makeSentence({ level: 4, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('bijzin', { bijzinFunctie: 'bijv_bep' })] });
+    expect(filterSentences([laag], { ...defaultCfg, selectedLevel: 3, focusBB: true })).toHaveLength(0);
+    expect(filterSentences([hoog], { ...defaultCfg, selectedLevel: 4, focusBB: true })).toContain(hoog);
+  });
+
   it('meerdere focusfilters actief: OR-logica', () => {
     const result = filterSentences(sentences, { ...defaultCfg, selectedLevel: 1, focusLV: true, focusMV: true });
     expect(result).toContain(metLV);

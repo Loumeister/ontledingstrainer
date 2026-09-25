@@ -1,4 +1,5 @@
 import { DifficultyLevel, Sentence } from '../types';
+import { isBijzinFunctieAsked } from './validation';
 
 export type PredicateMode = 'ALL' | 'WG' | 'NG';
 
@@ -43,7 +44,8 @@ export function filterSentences(sentences: Sentence[], cfg: SentenceFilterConfig
         (cfg.focusMV && hasRole('mv')) ||
         (cfg.focusVV && hasRole('vv')) ||
         (cfg.focusNG && s.predicateType === 'NG') ||
-        (cfg.focusBB && s.tokens.some(t => t.subRole === 'bijv_bep' || t.bijzinFunctie === 'bijv_bep')) ||
+        // Een bijzin als bijv. bepaling telt alleen waar die functie ook gevraagd wordt (focusBB zet benoemen aan).
+        (cfg.focusBB && s.tokens.some(t => t.subRole === 'bijv_bep' || (t.bijzinFunctie === 'bijv_bep' && isBijzinFunctieAsked(t.bijzinFunctie, true, s.level)))) ||
         (cfg.focusBijzin && isCompound);
       if (!matchesFocus) return false;
     } else if (cfg.focusBijzin && !isCompound) {
