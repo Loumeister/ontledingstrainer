@@ -50,6 +50,34 @@ describe('zinseditor — bijzinontleding bij opslaan', () => {
     expect(tokens.filter(t => t.bijzinAnalyse)).toHaveLength(4);
   });
 
+  it('behoudt de bijzinontleding als er vóór de bijzin een woord bijkomt', () => {
+    const { tokens, lostBijzinnen } = reopen(byId(330), a => {
+      // "Wij bleven lekker binnen omdat het hard regende."
+      a.words.splice(2, 0, 'lekker');
+      a.splitIndices = new Set([0, 1, 3]);
+      a.chunkLabels = { 0: 'ow', 1: 'pv', 2: 'bwb', 3: 'bijzin' };
+      a.bijzinFunctieLabels = { 3: 'bwb' };
+    });
+    expect(lostBijzinnen).toEqual([]);
+    expect(tokens.map(t => t.bijzinAnalyse?.role)).toEqual([undefined, undefined, undefined, undefined, 'vw_onder', 'ow', 'bwb', 'pv']);
+  });
+
+  it('zet bijvBepTarget om als de bijzin verschuift (zin 405)', () => {
+    const { tokens, lostBijzinnen } = reopen(byId(405), a => {
+      a.words.unshift('Gisteren,');
+      const shift = <T,>(r: Record<string, T>) => Object.fromEntries(Object.entries(r).map(([k, v]) => [Number(k) + 1, v]));
+      a.splitIndices = new Set([0, ...[...a.splitIndices].map(i => i + 1)]);
+      a.chunkLabels = { 0: 'bwb', ...shift(a.chunkLabels) };
+      a.bijzinFunctieLabels = shift(a.bijzinFunctieLabels);
+      a.subLabels = Object.fromEntries(Object.entries(a.subLabels).map(([k, v]) => [`w${Number(k.slice(1)) + 1}`, v]));
+    });
+    expect(lostBijzinnen).toEqual([]);
+    const withTarget = tokens.find(t => t.bijzinAnalyse?.bijvBepTarget)!;
+    const target = tokens.find(t => t.id === withTarget.bijzinAnalyse!.bijvBepTarget)!;
+    const original = byId(405).tokens.find(t => t.bijzinAnalyse?.bijvBepTarget)!;
+    expect(target.text).toBe(byId(405).tokens.find(t => t.id === original.bijzinAnalyse!.bijvBepTarget)!.text);
+  });
+
   it('meldt de bijzin als een woord in de bijzin verandert', () => {
     const { tokens, lostBijzinnen } = reopen(byId(330), a => { a.words[5] = 'zacht'; });
     expect(lostBijzinnen).toEqual(['omdat het hard regende.']);

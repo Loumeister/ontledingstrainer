@@ -113,42 +113,36 @@ export interface CarryOverResult {
 /**
  * The editor rebuilds every token from words, splits and labels, so fields it has no controls for
  * would disappear on save. This carries the bijzinAnalyse of the source sentence over to the
- * rebuilt tokens, per word, as long as the bijzin keeps the same boundaries and the same words
- * (and every word its analysis points to via bijvBepTarget is unchanged). Otherwise the bijzin is
- * reported in lostBijzinnen, so the editor can warn instead of dropping it silently.
+ * rebuilt tokens, per word, as long as the bijzin keeps the same boundaries and the same words.
+ * The bijzin is found by its words, not its position, so an edit elsewhere in the sentence keeps
+ * the analysis. A bijvBepTarget must point inside the bijzin and is remapped to the new token ID.
+ * A bijzin that cannot be kept is reported in lostBijzinnen, so the editor can warn instead of
+ * dropping it silently.
  */
 export function carryOverBijzinAnalyse(source: Sentence | null, tokens: Token[]): CarryOverResult {
   if (!source) return { tokens, lostBijzinnen: [] };
 
-  const sourceIdx = new Map(source.tokens.map((t, i) => [t.id, i]));
-  const sameWordAt = (i: number) => tokens[i]?.text === source.tokens[i].text;
-  const remapId = (id: string): string | undefined => {
-    const i = sourceIdx.get(id);
-    return i !== undefined && sameWordAt(i) ? tokens[i].id : undefined;
-  };
-
+  const textOf = (group: Token[]) => group.map(t => t.text).join(' ');
   const rebuiltIdx = new Map(tokens.map((t, i) => [t.id, i]));
-  const rebuiltGroups = new Set(
-    getBijzinTokenGroups({ ...source, tokens }).map(g => `${rebuiltIdx.get(g[0].id)}:${g.length}`),
-  );
+  const unmatched = getBijzinTokenGroups({ ...source, tokens });
 
   const result = tokens.map(t => ({ ...t }));
   const lostBijzinnen: string[] = [];
 
   for (const group of getBijzinTokenGroups(source)) {
     if (!group.some(t => t.bijzinAnalyse)) continue;
-    const start = sourceIdx.get(group[0].id)!;
-    const keeps = rebuiltGroups.has(`${start}:${group.length}`)
-      && group.every((_, i) => sameWordAt(start + i))
-      && group.every(t => !t.bijzinAnalyse?.bijvBepTarget || remapId(t.bijzinAnalyse.bijvBepTarget));
-    if (!keeps) {
-      lostBijzinnen.push(group.map(t => t.text).join(' '));
+    const offsetOf = new Map(group.map((t, i) => [t.id, i]));
+    const targetsInside = group.every(t => !t.bijzinAnalyse?.bijvBepTarget || offsetOf.has(t.bijzinAnalyse.bijvBepTarget));
+    const matchAt = unmatched.findIndex(g => textOf(g) === textOf(group));
+    if (!targetsInside || matchAt < 0) {
+      lostBijzinnen.push(textOf(group));
       continue;
     }
+    const start = rebuiltIdx.get(unmatched.splice(matchAt, 1)[0][0].id)!;
     group.forEach((t, i) => {
       if (!t.bijzinAnalyse) return;
       const analyse = { ...t.bijzinAnalyse };
-      if (analyse.bijvBepTarget) analyse.bijvBepTarget = remapId(analyse.bijvBepTarget);
+      if (analyse.bijvBepTarget) analyse.bijvBepTarget = result[start + offsetOf.get(analyse.bijvBepTarget)!].id;
       result[start + i].bijzinAnalyse = analyse;
     });
   }
