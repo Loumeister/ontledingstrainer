@@ -11,8 +11,8 @@ import {
   getConsistencyStreak,
   getPerfectSessionCount, incrementPerfectSessionCount,
 } from '../services/sessionHistory';
-import { updateRoleMastery, RoleMasteryStore } from '../services/rolemastery';
-import { loadRoleConfidencesFor } from '../logic/adaptiveSelection';
+import { practicedRoleOutcomes, RoleMasteryStore } from '../services/rolemastery';
+import { loadRoleConfidencesFor, type RoleTally } from '../logic/adaptiveSelection';
 import { buildReport, encodeReport } from '../services/sessionReport';
 import { getScriptUrl } from '../services/googleDriveSync';
 import { getLadderStage } from '../logic/rollenladder';
@@ -20,6 +20,8 @@ import { getLadderStage } from '../logic/rollenladder';
 type ScoreScreenProps = Pick<TrainerState,
   | 'sessionStats'
   | 'mistakeStats'
+  | 'sessionRoleTally'
+  | 'sessionMastery'
   | 'sessionSentenceResults'
   | 'resetToHome'
   | 'startSession'
@@ -47,6 +49,8 @@ const SCORE_THRESHOLDS: Record<number, [number, number, number]> = {
 export const ScoreScreen: React.FC<ScoreScreenProps> = ({
   sessionStats,
   mistakeStats,
+  sessionRoleTally,
+  sessionMastery,
   sessionSentenceResults,
   resetToHome,
   startSession,
@@ -104,24 +108,11 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
   const totalSentences = sessionSentenceResults.length;
   const isImproved = previousScore !== null && scorePercentage > previousScore;
 
-  // Mastered roles: roles that had errors in previous sessions but none now (session-diff badge)
-  const previousMistakeRoles = useMemo(() => {
-    if (history.length < 2) return new Set<string>();
-    const prev = history[history.length - 2];
-    return new Set(Object.keys(prev.mistakeStats));
-  }, [history]);
-  const masteredRoles = useMemo(() => {
-    const currentErrorRoles = new Set(Object.keys(mistakeStats));
-    return [...previousMistakeRoles].filter(r => !currentErrorRoles.has(r));
-  }, [previousMistakeRoles, mistakeStats]);
-
-  // Persistente rolbeheersing: update once on mount
-  const { roleMasteryStore, newlyMasteredRoles } = useMemo(() => {
-    const allLabels = ROLES.map(r => r.label);
-    const { store, newlyMastered } = updateRoleMastery(allLabels, mistakeStats);
-    return { roleMasteryStore: store, newlyMasteredRoles: newlyMastered };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Persistente rolbeheersing: bijgewerkt bij het afronden van de sessie (useTrainer)
+  const roleMasteryStore = sessionMastery?.store ?? {};
+  const newlyMasteredRoles = sessionMastery?.newlyMastered ?? [];
+  // Sessie-diff badge: vorige eigen sessie fout, nu geoefend en foutloos
+  const masteredRoles = sessionMastery?.improved ?? [];
 
   useEffect(() => {
     if (scorePercentage === 100) {
@@ -543,8 +534,8 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
             );
           })()}
 
-          {/* Rollenkas – mastery trophy wall */}
-          <RollenKas mistakeStats={mistakeStats} masteryStore={roleMasteryStore} student={{ name: studentNameProp, initiaal: studentInitiaalProp, klas: studentKlasProp }} />
+          {/* Rollenkas – mastery trophy wall; niet bij de Rollenladder (geen rolprofiel) */}
+          {!ladderEnabled && <RollenKas mistakeStats={mistakeStats} roleTally={sessionRoleTally} masteryStore={roleMasteryStore} student={{ name: studentNameProp, initiaal: studentInitiaalProp, klas: studentKlasProp }} />}
         </section>
 
         {/* === Section 2: Per-sentence overview === */}
@@ -682,9 +673,12 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
 
 // --- Helper sub-components ---
 
-function RollenKas({ mistakeStats, masteryStore, student }: { mistakeStats: Record<string, number>; masteryStore: RoleMasteryStore; student: { name: string; initiaal: string; klas: string } }) {
+function RollenKas({ mistakeStats, roleTally, masteryStore, student }: { mistakeStats: Record<string, number>; roleTally: RoleTally | null; masteryStore: RoleMasteryStore; student: { name: string; initiaal: string; klas: string } }) {
   const [open, setOpen] = React.useState(false);
-  const errorRoles = new Set(Object.keys(mistakeStats));
+  const outcomes = React.useMemo(
+    () => practicedRoleOutcomes(roleTally ?? { seen: {}, correct: {} }, mistakeStats),
+    [roleTally, mistakeStats],
+  );
 
   // Load role confidence for visual indicators
   const confidences = React.useMemo(
@@ -703,14 +697,15 @@ function RollenKas({ mistakeStats, masteryStore, student }: { mistakeStats: Reco
       {open && (
         <div className="mt-3 grid grid-cols-4 gap-2 animate-in fade-in slide-in-from-top duration-200">
           {ROLES.map(role => {
-            const cleanThisSession = !errorRoles.has(role.label);
+            const outcome = outcomes.get(role.label);
+            const cleanThisSession = outcome?.clean ?? false;
             const mastery = masteryStore[role.label];
             const isPersistentMaster = mastery?.mastered ?? false;
             const consecutive = mastery?.consecutiveClean ?? 0;
             return (
               <div
                 key={role.key}
-                title={isPersistentMaster ? `${role.label} — beheerst` : consecutive > 0 ? `${consecutive}/3 sessies foutloos` : role.label}
+                title={isPersistentMaster ? `${role.label} — beheerst` : !outcome ? `${role.label} — niet geoefend in deze sessie` : consecutive > 0 ? `${consecutive}/3 sessies foutloos` : role.label}
                 className={`relative flex flex-col items-center p-2 rounded-xl border text-xs font-medium transition-all ${
                   cleanThisSession
                     ? isPersistentMaster
@@ -720,7 +715,7 @@ function RollenKas({ mistakeStats, masteryStore, student }: { mistakeStats: Reco
                 }`}
               >
                 <span className="text-lg leading-none">
-                  {isPersistentMaster ? '★' : cleanThisSession ? '✓' : '○'}
+                  {isPersistentMaster ? '★' : cleanThisSession ? '✓' : outcome ? '○' : '–'}
                 </span>
                 <span className="mt-1 text-center leading-tight">{role.shortLabel}</span>
                 {/* Confidence bar */}

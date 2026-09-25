@@ -5,7 +5,11 @@ import { useSentences } from './useSentences';
 import { getCustomSentences } from '../data/customSentenceStore';
 import { recordAttempt, recordShowAnswer } from '../services/usageData';
 import { logInteraction } from '../services/interactionLog';
-import { saveSessionToHistory } from '../services/sessionHistory';
+import { saveSessionToHistory, loadSessionHistory } from '../services/sessionHistory';
+import {
+  updateRoleMastery, practicedRoleOutcomes, previousOwnSession, improvedRoles,
+  type RoleMasteryStore,
+} from '../services/rolemastery';
 import {
   loadAdaptiveProfileFor,
   resolveHistoryStudentId,
@@ -52,7 +56,7 @@ import {
 export type { ChunkData, ValidationResult };
 export type AppStep = 'split' | 'label';
 export type Mode = 'free' | 'session';
-import { PredicateMode, filterSentences, defaultIncludeVV } from '../logic/sentenceFilter';
+import { PredicateMode, filterSentences, defaultIncludeVV, getFocusAvailability, FocusKey, FocusAvailability } from '../logic/sentenceFilter';
 export type { PredicateMode };
 /** Tracks how a session was started so results can be labelled accordingly. */
 export type SessionSource = 'pool' | 'json' | 'selected' | 'shared';
@@ -74,6 +78,10 @@ export interface TrainerState {
   focusVV: boolean;
   setFocusVV: (v: boolean) => void;
   focusBijzin: boolean;
+  focusNG: boolean;
+  setFocusNG: (v: boolean) => void;
+  focusBB: boolean;
+  setFocusBB: (v: boolean) => void;
   setFocusBijzin: (v: boolean) => void;
 
   // Complexity filters
@@ -93,6 +101,13 @@ export interface TrainerState {
   sessionIndex: number;
   sessionStats: { correct: number; total: number };
   mistakeStats: Record<string, number>;
+  /** Gezien/goed per rol van de afgeronde sessie; null bij Rollenladder of lopende sessie. */
+  sessionRoleTally: RoleTally | null;
+  /**
+   * Rolbeheersing na de afgeronde sessie; null bij Rollenladder of lopende sessie.
+   * `improved`: rollen die de vorige eigen sessie fout gingen en nu foutloos geoefend zijn.
+   */
+  sessionMastery: { store: RoleMasteryStore; newlyMastered: string[]; improved: string[] } | null;
   sessionSentenceResults: SentenceResult[];
   isSessionFinished: boolean;
   consecutivePerfect: number;
@@ -134,6 +149,8 @@ export interface TrainerState {
   // Derived
   userChunks: ChunkData[];
   availableSentences: Sentence[];
+  /** Per keuze in 'Extra oefenen met': hoeveel zinnen erbij passen. */
+  focusAvailability: Record<FocusKey, FocusAvailability>;
 
   // Actions
   refreshCustomSentences: () => void;
@@ -260,6 +277,8 @@ export function useTrainer(): TrainerState {
   const [focusMV, setFocusMV] = useState(false);
   const [focusVV, setFocusVV] = useState(false);
   const [focusBijzin, setFocusBijzin] = useState(false);
+  const [focusNG, setFocusNG] = useState(false);
+  const [focusBB, setFocusBB] = useState(false);
 
   // Complexity Filters
   const [includeBB, setIncludeBB] = useState(false);
@@ -336,6 +355,8 @@ export function useTrainer(): TrainerState {
   const [mistakeStats, setMistakeStats] = useState<Record<string, number>>({});
   // Per-rol gezien/goed voor adaptieve selectie; geen re-render nodig
   const roleTallyRef = useRef<RoleTally>({ seen: {}, correct: {} });
+  const [sessionRoleTally, setSessionRoleTally] = useState<RoleTally | null>(null);
+  const [sessionMastery, setSessionMastery] = useState<TrainerState['sessionMastery']>(null);
   const [sessionSentenceResults, setSessionSentenceResults] = useState<SentenceResult[]>([]);
   const [isSessionFinished, setIsSessionFinished] = useState(false);
   const [consecutivePerfect, setConsecutivePerfect] = useState(0);
@@ -419,9 +440,9 @@ export function useTrainer(): TrainerState {
   // --- Logic ---
 
   const filteredSentences = useMemo((): Sentence[] => filterSentences(allSentences, {
-    predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, includeVV,
+    predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, focusNG, focusBB, includeVV,
     ladderFilter: ladderEnabled ? getLadderSentenceFilter(ladderStage) : undefined,
-  }), [allSentences, predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, includeVV, ladderEnabled, ladderStage]);
+  }), [allSentences, predicateMode, selectedLevel, focusLV, focusMV, focusVV, focusBijzin, focusNG, focusBB, includeVV, ladderEnabled, ladderStage]);
 
   const loadSentence = (sentence: Sentence) => {
     logInteraction('sentence_start', sentence.id);
@@ -467,6 +488,8 @@ export function useTrainer(): TrainerState {
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
     roleTallyRef.current = { seen: {}, correct: {} };
+    setSessionRoleTally(null);
+    setSessionMastery(null);
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -514,6 +537,8 @@ export function useTrainer(): TrainerState {
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
     roleTallyRef.current = { seen: {}, correct: {} };
+    setSessionRoleTally(null);
+    setSessionMastery(null);
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -572,6 +597,8 @@ export function useTrainer(): TrainerState {
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
     roleTallyRef.current = { seen: {}, correct: {} };
+    setSessionRoleTally(null);
+    setSessionMastery(null);
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -619,6 +646,8 @@ export function useTrainer(): TrainerState {
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
     roleTallyRef.current = { seen: {}, correct: {} };
+    setSessionRoleTally(null);
+    setSessionMastery(null);
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -677,6 +706,22 @@ export function useTrainer(): TrainerState {
       const finalCorrect = sessionStats.correct;
       const finalTotal = sessionStats.total;
       const pct = finalTotal > 0 ? Math.round((finalCorrect / finalTotal) * 100) : 0;
+      const historyStudentId = ladderEnabled ? null : resolveHistoryStudentId(studentName, studentInitiaal, studentKlas);
+      // Rolbeheersing hier bijwerken, niet bij het renderen van het scorescherm:
+      // dat zou onder React StrictMode twee keer lopen.
+      let mastery: TrainerState['sessionMastery'] = null;
+      if (!ladderEnabled) {
+        try {
+          const previous = previousOwnSession(loadSessionHistory(), historyStudentId);
+          const outcomes = practicedRoleOutcomes(roleTallyRef.current, mistakeStats);
+          mastery = {
+            ...updateRoleMastery(historyStudentId, roleTallyRef.current, mistakeStats),
+            improved: previous ? improvedRoles(outcomes, previous.mistakeStats ?? {}) : [],
+          };
+        } catch {
+          // Beheersing is een extraatje; het scorescherm moet altijd verschijnen
+        }
+      }
       try {
         saveSessionToHistory({
           date: new Date().toISOString(),
@@ -687,7 +732,7 @@ export function useTrainer(): TrainerState {
           sentenceCount: sessionQueue.length,
           // Rollenladder: alleen trede en scores bewaren, geen identiteit of rolprofiel
           ...(ladderEnabled ? {} : {
-            studentId: resolveHistoryStudentId(studentName, studentInitiaal, studentKlas) ?? undefined,
+            studentId: historyStudentId ?? undefined,
             roleSeen: { ...roleTallyRef.current.seen },
             roleCorrect: { ...roleTallyRef.current.correct },
             sentenceKeys: sessionQueue.map(sentenceRecencyKey),
@@ -697,6 +742,11 @@ export function useTrainer(): TrainerState {
       } catch {
         // Persistence failure must not prevent the score screen from showing
       }
+      setSessionMastery(mastery);
+      setSessionRoleTally(ladderEnabled ? null : {
+        seen: { ...roleTallyRef.current.seen },
+        correct: { ...roleTallyRef.current.correct },
+      });
       setIsSessionFinished(true);
       setCurrentSentence(null);
       setSelectedRole(null);
@@ -1185,6 +1235,8 @@ export function useTrainer(): TrainerState {
     setFocusMV(false);
     setFocusVV(false);
     setFocusBijzin(false);
+    setFocusNG(false);
+    setFocusBB(false);
     setQuickStartPending(true);
   };
 
@@ -1524,6 +1576,10 @@ export function useTrainer(): TrainerState {
 
   const userChunks = getUserChunks();
   const availableSentences = filteredSentences;
+  const focusAvailability = useMemo(
+    () => getFocusAvailability(allSentences, { predicateMode, selectedLevel, includeVV }),
+    [allSentences, predicateMode, selectedLevel, includeVV],
+  );
 
   const handleSkipSplitStep = () => {
     if (!currentSentence || step !== 'split') return;
@@ -1575,6 +1631,8 @@ export function useTrainer(): TrainerState {
     focusMV, setFocusMV,
     focusVV, setFocusVV,
     focusBijzin, setFocusBijzin,
+    focusNG, setFocusNG,
+    focusBB, setFocusBB,
 
     // Complexity filters
     includeBB, setIncludeBB,
@@ -1587,6 +1645,8 @@ export function useTrainer(): TrainerState {
     sessionSource,
     sessionQueue, sessionIndex,
     sessionStats, mistakeStats,
+    sessionRoleTally,
+    sessionMastery,
     sessionSentenceResults,
     isSessionFinished,
     consecutivePerfect,
@@ -1610,7 +1670,7 @@ export function useTrainer(): TrainerState {
     dyslexiaMode, setDyslexiaMode,
 
     // Derived
-    userChunks, availableSentences,
+    userChunks, availableSentences, focusAvailability,
 
     // Actions
     refreshCustomSentences,
