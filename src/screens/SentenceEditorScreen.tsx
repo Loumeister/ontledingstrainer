@@ -303,7 +303,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
   };
 
   // Validation
-  const getValidationErrors = (): string[] => {
+  const getValidationErrors = (sentence: Sentence): string[] => {
     const chunks = getChunks();
     const errors: string[] = [];
 
@@ -337,7 +337,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
 
     const levelWarning = getBetrekkelijkeBijzinLevelWarning(getBijzinFuncties(), level);
     if (levelWarning) errors.push(levelWarning);
-    errors.push(...getVerbindingswoordWarnings(buildSentence().sentence));
+    errors.push(...getVerbindingswoordWarnings(sentence));
 
     return errors;
   };
@@ -1012,8 +1012,8 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
 
   // PREVIEW phase
   if (phase === 'preview') {
-    const errors = getValidationErrors();
     const { sentence } = buildSentence();
+    const errors = getValidationErrors(sentence);
     const bijzinProblems = getBijzinAnalyseProblems(sentence);
     const lostBijzinnen = getLostBijzinAnalyses(sourceSentence, sentence);
 
