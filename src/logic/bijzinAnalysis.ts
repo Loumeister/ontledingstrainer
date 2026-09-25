@@ -68,6 +68,14 @@ export function isBijzinAnalyseAsked(sentence: Sentence, bijzinTokens: Token[]):
 }
 
 /**
+ * The bijzin as the student gets to analyse it, or null when the student gets no analysis: the
+ * bijzin is not (fully) annotated, or it is a betrekkelijke bijzin below the highest level.
+ */
+export function getLeerlingBijzin(sentence: Sentence, bijzinTokens: Token[]): Sentence | null {
+  return isBijzinAnalyseAsked(sentence, bijzinTokens) ? buildBijzinSentence(sentence, bijzinTokens) : null;
+}
+
+/**
  * The bijzin opens for its own analysis once the student has labelled every chunk of the main
  * sentence and has this bijzin itself right: exact boundaries, the label 'bijzin' and — when it is
  * asked — its function. Errors elsewhere in the main sentence do not block it.

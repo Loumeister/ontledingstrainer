@@ -1,7 +1,7 @@
 import React from 'react';
 import { ROLES } from '../constants';
 import type { RoleKey, Sentence, Token } from '../types';
-import { BIJZIN_ROLE_KEYS, buildBijzinSentence, isBijzinAnalyseAsked, isVerbindingswoordAsked } from '../logic/bijzinAnalysis';
+import { BIJZIN_ROLE_KEYS, getLeerlingBijzin, isBijzinAnalyseAsked, isVerbindingswoordAsked } from '../logic/bijzinAnalysis';
 import {
   BijzinEditState,
   bijzinEditChunks,
@@ -33,7 +33,7 @@ export const BijzinAnalyseEditor: React.FC<BijzinAnalyseEditorProps> = ({ senten
   const functie = group[0].bijzinFunctie ? ROLES.find(r => r.key === group[0].bijzinFunctie) : undefined;
   const text = group.map(t => t.text).join(' ');
   const analyseAsked = isBijzinAnalyseAsked(sentence, group);
-  const leerling = buildBijzinSentence(sentence, group);
+  const leerling = getLeerlingBijzin(sentence, group);
   const leerlingIds = new Set(leerling?.tokens.map(t => t.id));
   const nietGevraagd = leerling ? group.filter(t => !leerlingIds.has(t.id)) : [];
   const hasAnalyse = chunks.some((_, idx) => state.labels[idx]);
@@ -139,7 +139,11 @@ export const BijzinAnalyseEditor: React.FC<BijzinAnalyseEditorProps> = ({ senten
             )}
           </>
         ) : (
-          <p className="text-xs text-slate-500 dark:text-slate-400 italic">Nog niet (volledig) ontleed. Zonder ontleding krijgt de leerling deze bijzin niet te ontleden.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 italic">
+            {analyseAsked
+              ? 'Nog niet (volledig) ontleed. Zonder ontleding krijgt de leerling deze bijzin niet te ontleden.'
+              : 'De leerling krijgt deze bijzin op dit niveau niet te ontleden.'}
+          </p>
         )}
       </div>
     </section>
