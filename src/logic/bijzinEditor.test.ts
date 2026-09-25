@@ -5,11 +5,13 @@ import {
   applyBijzinEdits,
   bijzinEditStateFromTokens,
   bijzinKey,
+  getLostBijzinAnalyses,
   getVerbindingswoordWarnings,
   setBijzinEditLabel,
   toggleBijzinEditSplit,
   toggleBijzinEditVerbindingswoord,
 } from './bijzinEditor';
+import { buildEditorTokens, carryOverBijzinAnalyse, editorAnnotationFromSentence } from './editorSentence';
 import { buildBijzinSentence, getBijzinAnalyseProblems, getBijzinTokenGroups } from './bijzinAnalysis';
 import level3 from '../data/sentences-level-3.json';
 import level4 from '../data/sentences-level-4.json';
@@ -85,5 +87,35 @@ describe('bijzineditor', () => {
     expect(getVerbindingswoordWarnings(s)).toEqual([]);
     const fout = { ...s, tokens: s.tokens.map(t => t.bijzinAnalyse?.verbindingswoord ? { ...t, subRole: 'vw_onder' as const } : t) };
     expect(getVerbindingswoordWarnings(fout)).toHaveLength(1);
+  });
+
+  describe('vervallen bijzinontleding', () => {
+    const zin330 = byId(330);
+    const opslaan = (change: (a: ReturnType<typeof editorAnnotationFromSentence>) => void) => {
+      const a = editorAnnotationFromSentence(zin330);
+      change(a);
+      return { ...zin330, tokens: carryOverBijzinAnalyse(zin330, buildEditorTokens(330, a)).tokens };
+    };
+
+    it('meldt niets als de ontleding blijft staan', () => {
+      expect(getLostBijzinAnalyses(zin330, opslaan(() => {}))).toEqual([]);
+    });
+
+    it('meldt de bijzin als het bijzinlabel wordt weggehaald, ook zonder andere bijzin in de zin', () => {
+      const zonderBijzin = opslaan(a => { a.chunkLabels[3] = 'bwb'; delete a.bijzinFunctieLabels[3]; });
+      expect(getBijzinTokenGroups(zonderBijzin)).toEqual([]);
+      expect(getLostBijzinAnalyses(zin330, zonderBijzin)).toEqual(['omdat het hard regende.']);
+    });
+
+    it('meldt de bijzin niet meer als de docent hem opnieuw heeft ontleed', () => {
+      const gewijzigd = opslaan(a => { a.words[5] = 'zacht'; });
+      const group = getBijzinTokenGroups(gewijzigd)[0];
+      let state = bijzinEditStateFromTokens(group);
+      for (const i of [0, 1, 2]) state = toggleBijzinEditSplit(state, i, group.length);
+      (['vw_onder', 'ow', 'bwb', 'pv'] as const).forEach((role, idx) => { state = setBijzinEditLabel(state, idx, role); });
+      expect(getLostBijzinAnalyses(zin330, gewijzigd)).toEqual(['omdat het hard regende.']);
+      const opnieuw = applyBijzinEdits(gewijzigd, { [bijzinKey(gewijzigd.tokens, group)]: state });
+      expect(getLostBijzinAnalyses(zin330, opnieuw)).toEqual([]);
+    });
   });
 });

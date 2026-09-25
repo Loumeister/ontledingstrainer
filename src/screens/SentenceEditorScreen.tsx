@@ -22,7 +22,7 @@ import {
   getBetrekkelijkeBijzinLevelWarning,
   getEditorChunks,
 } from '../logic/editorSentence';
-import { applyBijzinEdits, BijzinEditState, bijzinEditStateFromTokens, bijzinKey, getVerbindingswoordWarnings } from '../logic/bijzinEditor';
+import { applyBijzinEdits, BijzinEditState, bijzinEditStateFromTokens, bijzinKey, getLostBijzinAnalyses, getVerbindingswoordWarnings } from '../logic/bijzinEditor';
 import { getBijzinAnalyseProblems, getBijzinTokenGroups } from '../logic/bijzinAnalysis';
 import { BijzinAnalyseEditor } from '../components/BijzinAnalyseEditor';
 import {
@@ -957,7 +957,8 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
 
   // BIJZIN phase — enter the analysis of each bijzin
   if (phase === 'bijzin') {
-    const { sentence, lostBijzinnen } = buildSentence();
+    const { sentence } = buildSentence();
+    const lostBijzinnen = getLostBijzinAnalyses(sourceSentence, sentence);
     const groups = getBijzinTokenGroups(sentence);
     const problems = [...getBijzinAnalyseProblems(sentence), ...getVerbindingswoordWarnings(sentence)];
 
@@ -973,7 +974,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
 
           {lostBijzinnen.length > 0 && (
             <p className="text-sm text-red-700 dark:text-red-300">
-              De vorige ontleding van {lostBijzinnen.map(b => `'${b}'`).join(', ')} is vervallen, omdat de woorden of de grenzen zijn veranderd.
+              De vorige ontleding van {lostBijzinnen.map(b => `'${b}'`).join(', ')} is vervallen. Voer die hieronder opnieuw in als de bijzin ontleed moet worden.
             </p>
           )}
 
@@ -1010,9 +1011,9 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
   // PREVIEW phase
   if (phase === 'preview') {
     const errors = getValidationErrors();
-    const { sentence, lostBijzinnen } = buildSentence();
+    const { sentence } = buildSentence();
     const bijzinProblems = getBijzinAnalyseProblems(sentence);
-    const showLost = lostBijzinnen.length > 0 && getBijzinTokenGroups(sentence).some(g => !g.some(t => t.bijzinAnalyse));
+    const lostBijzinnen = getLostBijzinAnalyses(sourceSentence, sentence);
 
     return (
       <div className={`${pageClass} flex items-center justify-center`}>
@@ -1046,11 +1047,11 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
             })}
           </div>
 
-          {showLost && (
+          {lostBijzinnen.length > 0 && (
             <div role="alert" className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg">
               <p className="font-bold text-red-800 dark:text-red-200 text-sm mb-1">Bijzinontleding vervalt bij opslaan</p>
               <p className="text-sm text-red-700 dark:text-red-300 mb-1">
-                De woorden of de grenzen van deze {lostBijzinnen.length === 1 ? 'bijzin zijn' : 'bijzinnen zijn'} veranderd. Daardoor past de bestaande bijzinontleding niet meer. Voer die opnieuw in bij de stap Bijzin ontleden:
+                De bestaande ontleding van {lostBijzinnen.length === 1 ? 'deze bijzin' : 'deze bijzinnen'} gaat verloren: de bijzin, de grenzen of de woorden zijn veranderd, of de ontleding is gewist. Voer die zo nodig opnieuw in bij de stap Bijzin ontleden:
               </p>
               <ul className="text-sm text-red-700 dark:text-red-300 list-disc list-inside">
                 {lostBijzinnen.map((b, i) => <li key={i}>{b}</li>)}

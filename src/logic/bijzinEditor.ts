@@ -133,3 +133,19 @@ export function getVerbindingswoordWarnings(sentence: Sentence): string[] {
     .filter(t => t.bijzinAnalyse?.verbindingswoord && (t.subRole === 'vw_onder' || t.bijzinAnalyse.role === 'vw_onder'))
     .map(t => `'${t.text}' is een verbindingswoord en daarom geen onderschikkend voegwoord. Geef het in de bijzin zijn eigen functie (bijv. OW of LV) en haal in de hoofdzin het label onderschikkend voegwoord weg.`);
 }
+
+/**
+ * Bijzinnen of the source sentence whose analysis is gone from the sentence that will be saved:
+ * none of their word positions carries a bijzinAnalyse any more. That covers a changed bijzin, a
+ * removed bijzin label and a wiped analysis; a bijzin whose analysis was entered again is not listed.
+ */
+export function getLostBijzinAnalyses(source: Sentence | null, sentence: Sentence): string[] {
+  if (!source) return [];
+  return getBijzinTokenGroups(source)
+    .filter(group => group.some(t => t.bijzinAnalyse))
+    .filter(group => {
+      const start = source.tokens.indexOf(group[0]);
+      return !group.some((_, i) => sentence.tokens[start + i]?.bijzinAnalyse);
+    })
+    .map(group => group.map(t => t.text).join(' '));
+}
