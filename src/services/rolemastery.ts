@@ -1,63 +1,150 @@
 /**
- * Persistente rolbeheersing: bijhoudt hoe lang een rol foutloos is bijgehouden.
- * Een rol is "beheerst" als hij 3 sessies achter elkaar geen fouten heeft opgeleverd.
+ * Persistente rolbeheersing (Rollenkas): hoe vaak een rol achter elkaar
+ * foutloos is geoefend. Een rol is "beheerst" na 3 sessies achter elkaar
+ * waarin de leerling de rol echt benoemde en daarbij geen fouten maakte.
+ *
+ * - Alleen rollen die in de sessie beoordeeld zijn (of een fout kregen) tellen;
+ *   een rol die niet voorkwam laat de reeks ongemoeid.
+ * - Opslag is per leerling (zelfde id als de sessiegeschiedenis). Anonieme
+ *   leerlingen krijgen geen persistente beheersing: op een gedeelde laptop
+ *   is dan niet te zeggen van wie de reeks is.
  */
 
-const STORAGE_KEY = 'zinsontleding_role_mastery_v1';
+import { ROLES } from '../constants';
+import type { RoleKey, SessionHistoryEntry } from '../types';
+
+const STORAGE_PREFIX = 'zinsontleding_role_mastery_v2:';
+/**
+ * Oude, browserbrede opslag; bewust niet meer gelezen (niet per leerling, telde
+ * ongeoefende rollen mee). De app is sindsdien nauwelijks gebruikt, dus er valt
+ * geen echt verdiende beheersing over te nemen.
+ */
+export const LEGACY_STORAGE_KEY = 'zinsontleding_role_mastery_v1';
+export const MASTERY_SESSIONS = 3;
 
 export interface RoleMasteryEntry {
-  consecutiveClean: number; // sessies achter elkaar zonder fouten
-  mastered: boolean;        // true zodra consecutiveClean >= 3
+  consecutiveClean: number; // sessies achter elkaar geoefend zonder fouten
+  mastered: boolean;        // true zodra consecutiveClean >= MASTERY_SESSIONS
   achievedAt?: string;      // ISO-datum van eerste keer mastered
 }
 
 export type RoleMasteryStore = Record<string, RoleMasteryEntry>;
 
-export function loadRoleMastery(): RoleMasteryStore {
+/** Wat de leerling in één sessie per rol liet zien. */
+export interface SessionRoleEvidence {
+  /** Aantal beoordeelde zinsdelen per rol. */
+  seen: Partial<Record<RoleKey, number>>;
+  /** Waarvan goed benoemd. */
+  correct: Partial<Record<RoleKey, number>>;
+}
+
+function storageKey(studentKey: string): string {
+  return STORAGE_PREFIX + studentKey;
+}
+
+export function loadRoleMastery(studentKey: string | null): RoleMasteryStore {
+  if (!studentKey) return {};
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey(studentKey));
     return raw ? (JSON.parse(raw) as RoleMasteryStore) : {};
   } catch {
     return {};
   }
 }
 
-function saveRoleMastery(store: RoleMasteryStore): void {
+function saveRoleMastery(studentKey: string, store: RoleMasteryStore): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+    localStorage.setItem(storageKey(studentKey), JSON.stringify(store));
   } catch {
     // localStorage may be unavailable
   }
 }
 
 /**
- * Updates role mastery after a session.
- *
- * @param allRoleLabels  All role labels that exist in the app (from ROLES constant)
- * @param mistakeStats   Error counts per role label for the current session
- * @returns Updated store + list of role labels newly mastered this session
+ * Per rollabel: is de rol deze sessie geoefend, en zo ja, foutloos?
+ * Rollen die niet voorkwamen ontbreken in het resultaat.
  */
-export function updateRoleMastery(
-  allRoleLabels: string[],
+export function practicedRoleOutcomes(
+  evidence: SessionRoleEvidence,
   mistakeStats: Record<string, number>,
-): { store: RoleMasteryStore; newlyMastered: string[] } {
-  const store = loadRoleMastery();
-  const newlyMastered: string[] = [];
-  const today = new Date().toISOString().slice(0, 10);
+): Map<string, { clean: boolean }> {
+  const outcomes = new Map<string, { clean: boolean }>();
+  for (const { key, label } of ROLES) {
+    const seen = evidence.seen[key] ?? 0;
+    const hadError = (mistakeStats[label] ?? 0) > 0;
+    if (seen <= 0 && !hadError) continue;
+    const allCorrect = (evidence.correct[key] ?? 0) >= seen;
+    outcomes.set(label, { clean: !hadError && allCorrect });
+  }
+  return outcomes;
+}
 
-  for (const label of allRoleLabels) {
-    const hadError = label in mistakeStats && mistakeStats[label] > 0;
+/** Pas één sessie toe op de store (muteert); geeft de nieuw beheerste rollabels terug. */
+function applySession(
+  store: RoleMasteryStore,
+  outcomes: Map<string, { clean: boolean }>,
+  date: string,
+): string[] {
+  const newlyMastered: string[] = [];
+  for (const [label, { clean }] of outcomes) {
     const prev = store[label] ?? { consecutiveClean: 0, mastered: false };
-    const consecutiveClean = hadError ? 0 : prev.consecutiveClean + 1;
-    const justMastered = !prev.mastered && consecutiveClean >= 3;
+    const consecutiveClean = clean ? prev.consecutiveClean + 1 : 0;
+    const justMastered = !prev.mastered && consecutiveClean >= MASTERY_SESSIONS;
     store[label] = {
       consecutiveClean,
-      mastered: prev.mastered || consecutiveClean >= 3,
-      achievedAt: justMastered ? today : prev.achievedAt,
+      mastered: prev.mastered || consecutiveClean >= MASTERY_SESSIONS,
+      achievedAt: justMastered ? date : prev.achievedAt,
     };
     if (justMastered) newlyMastered.push(label);
   }
+  return newlyMastered;
+}
 
-  saveRoleMastery(store);
+/**
+ * Werk de beheersing van deze leerling bij na een sessie.
+ *
+ * @param studentKey    Stabiel leerling-id (resolveHistoryStudentId); null = anoniem, niets opslaan
+ * @param evidence      Gezien/goed per rol uit deze sessie
+ * @param mistakeStats  Fouten per rollabel uit deze sessie
+ * @returns Bijgewerkte store + rollabels die deze sessie voor het eerst beheerst zijn
+ */
+export function updateRoleMastery(
+  studentKey: string | null,
+  evidence: SessionRoleEvidence,
+  mistakeStats: Record<string, number>,
+): { store: RoleMasteryStore; newlyMastered: string[] } {
+  if (!studentKey) return { store: {}, newlyMastered: [] };
+
+  const store = loadRoleMastery(studentKey);
+  const today = new Date().toISOString().slice(0, 10);
+  const newlyMastered = applySession(store, practicedRoleOutcomes(evidence, mistakeStats), today);
+
+  saveRoleMastery(studentKey, store);
   return { store, newlyMastered };
+}
+
+/** Vorige eigen sessie van deze leerling (geen Rollenladder), uit de geschiedenis van vóór deze sessie. */
+export function previousOwnSession(
+  priorHistory: SessionHistoryEntry[],
+  studentKey: string | null,
+): SessionHistoryEntry | null {
+  if (!studentKey) return null;
+  for (let i = priorHistory.length - 1; i >= 0; i--) {
+    const s = priorHistory[i];
+    if (!s.adaptiveExcluded && s.studentId === studentKey) return s;
+  }
+  return null;
+}
+
+/**
+ * Rollabels die in de vorige eigen sessie fout gingen en deze sessie geoefend
+ * én foutloos waren ("onder de knie"-badge).
+ */
+export function improvedRoles(
+  outcomes: Map<string, { clean: boolean }>,
+  previousMistakeStats: Record<string, number>,
+): string[] {
+  return Object.entries(previousMistakeStats)
+    .filter(([label, n]) => n > 0 && outcomes.get(label)?.clean === true)
+    .map(([label]) => label);
 }

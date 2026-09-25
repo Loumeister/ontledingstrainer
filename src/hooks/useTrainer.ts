@@ -5,7 +5,11 @@ import { useSentences } from './useSentences';
 import { getCustomSentences } from '../data/customSentenceStore';
 import { recordAttempt, recordShowAnswer } from '../services/usageData';
 import { logInteraction } from '../services/interactionLog';
-import { saveSessionToHistory } from '../services/sessionHistory';
+import { saveSessionToHistory, loadSessionHistory } from '../services/sessionHistory';
+import {
+  updateRoleMastery, practicedRoleOutcomes, previousOwnSession, improvedRoles,
+  type RoleMasteryStore,
+} from '../services/rolemastery';
 import {
   loadAdaptiveProfileFor,
   resolveHistoryStudentId,
@@ -93,6 +97,13 @@ export interface TrainerState {
   sessionIndex: number;
   sessionStats: { correct: number; total: number };
   mistakeStats: Record<string, number>;
+  /** Gezien/goed per rol van de afgeronde sessie; null bij Rollenladder of lopende sessie. */
+  sessionRoleTally: RoleTally | null;
+  /**
+   * Rolbeheersing na de afgeronde sessie; null bij Rollenladder of lopende sessie.
+   * `improved`: rollen die de vorige eigen sessie fout gingen en nu foutloos geoefend zijn.
+   */
+  sessionMastery: { store: RoleMasteryStore; newlyMastered: string[]; improved: string[] } | null;
   sessionSentenceResults: SentenceResult[];
   isSessionFinished: boolean;
   consecutivePerfect: number;
@@ -336,6 +347,8 @@ export function useTrainer(): TrainerState {
   const [mistakeStats, setMistakeStats] = useState<Record<string, number>>({});
   // Per-rol gezien/goed voor adaptieve selectie; geen re-render nodig
   const roleTallyRef = useRef<RoleTally>({ seen: {}, correct: {} });
+  const [sessionRoleTally, setSessionRoleTally] = useState<RoleTally | null>(null);
+  const [sessionMastery, setSessionMastery] = useState<TrainerState['sessionMastery']>(null);
   const [sessionSentenceResults, setSessionSentenceResults] = useState<SentenceResult[]>([]);
   const [isSessionFinished, setIsSessionFinished] = useState(false);
   const [consecutivePerfect, setConsecutivePerfect] = useState(0);
@@ -467,6 +480,8 @@ export function useTrainer(): TrainerState {
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
     roleTallyRef.current = { seen: {}, correct: {} };
+    setSessionRoleTally(null);
+    setSessionMastery(null);
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -514,6 +529,8 @@ export function useTrainer(): TrainerState {
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
     roleTallyRef.current = { seen: {}, correct: {} };
+    setSessionRoleTally(null);
+    setSessionMastery(null);
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -572,6 +589,8 @@ export function useTrainer(): TrainerState {
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
     roleTallyRef.current = { seen: {}, correct: {} };
+    setSessionRoleTally(null);
+    setSessionMastery(null);
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -619,6 +638,8 @@ export function useTrainer(): TrainerState {
     setSessionStats({ correct: 0, total: 0 });
     setMistakeStats({});
     roleTallyRef.current = { seen: {}, correct: {} };
+    setSessionRoleTally(null);
+    setSessionMastery(null);
     setSessionSentenceResults([]);
     setIsSessionFinished(false);
     setConsecutivePerfect(0);
@@ -677,6 +698,22 @@ export function useTrainer(): TrainerState {
       const finalCorrect = sessionStats.correct;
       const finalTotal = sessionStats.total;
       const pct = finalTotal > 0 ? Math.round((finalCorrect / finalTotal) * 100) : 0;
+      const historyStudentId = ladderEnabled ? null : resolveHistoryStudentId(studentName, studentInitiaal, studentKlas);
+      // Rolbeheersing hier bijwerken, niet bij het renderen van het scorescherm:
+      // dat zou onder React StrictMode twee keer lopen.
+      let mastery: TrainerState['sessionMastery'] = null;
+      if (!ladderEnabled) {
+        try {
+          const previous = previousOwnSession(loadSessionHistory(), historyStudentId);
+          const outcomes = practicedRoleOutcomes(roleTallyRef.current, mistakeStats);
+          mastery = {
+            ...updateRoleMastery(historyStudentId, roleTallyRef.current, mistakeStats),
+            improved: previous ? improvedRoles(outcomes, previous.mistakeStats ?? {}) : [],
+          };
+        } catch {
+          // Beheersing is een extraatje; het scorescherm moet altijd verschijnen
+        }
+      }
       try {
         saveSessionToHistory({
           date: new Date().toISOString(),
@@ -687,7 +724,7 @@ export function useTrainer(): TrainerState {
           sentenceCount: sessionQueue.length,
           // Rollenladder: alleen trede en scores bewaren, geen identiteit of rolprofiel
           ...(ladderEnabled ? {} : {
-            studentId: resolveHistoryStudentId(studentName, studentInitiaal, studentKlas) ?? undefined,
+            studentId: historyStudentId ?? undefined,
             roleSeen: { ...roleTallyRef.current.seen },
             roleCorrect: { ...roleTallyRef.current.correct },
             sentenceKeys: sessionQueue.map(sentenceRecencyKey),
@@ -697,6 +734,11 @@ export function useTrainer(): TrainerState {
       } catch {
         // Persistence failure must not prevent the score screen from showing
       }
+      setSessionMastery(mastery);
+      setSessionRoleTally(ladderEnabled ? null : {
+        seen: { ...roleTallyRef.current.seen },
+        correct: { ...roleTallyRef.current.correct },
+      });
       setIsSessionFinished(true);
       setCurrentSentence(null);
       setSelectedRole(null);
@@ -1587,6 +1629,8 @@ export function useTrainer(): TrainerState {
     sessionSource,
     sessionQueue, sessionIndex,
     sessionStats, mistakeStats,
+    sessionRoleTally,
+    sessionMastery,
     sessionSentenceResults,
     isSessionFinished,
     consecutivePerfect,

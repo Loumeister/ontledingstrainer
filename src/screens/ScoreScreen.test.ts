@@ -9,7 +9,6 @@
  *   - scoreColor: kleurcode op basis van drempel
  *   - recommendation: actie-aanbeveling op basis van score
  *   - encouragement tier: selectie van aanmoedigingstekst
- *   - masteredRoles: rollen die in vorige sessie fout waren maar nu goed
  *
  * Geen DOM of React-rendering nodig.
  */
@@ -77,14 +76,6 @@ function computeRecommendation(
 function computeEncouragementTier(scorePercentage: number, thresholds: [number, number, number]): number {
   const [g, y, o] = thresholds;
   return scorePercentage >= g ? 3 : scorePercentage >= y ? 2 : scorePercentage >= o ? 1 : 0;
-}
-
-function computeMasteredRoles(
-  previousMistakeRoles: Set<string>,
-  currentMistakeStats: Record<string, number>,
-): string[] {
-  const currentErrorRoles = new Set(Object.keys(currentMistakeStats));
-  return [...previousMistakeRoles].filter(r => !currentErrorRoles.has(r));
 }
 
 // ── Hulpfunctie ───────────────────────────────────────────────────────────────
@@ -254,36 +245,5 @@ describe('computeEncouragementTier', () => {
   it('tier 0 bij score onder oranje drempel', () => {
     expect(computeEncouragementTier(40, thresholds)).toBe(0);
     expect(computeEncouragementTier(0, thresholds)).toBe(0);
-  });
-});
-
-// ── Tests: computeMasteredRoles ───────────────────────────────────────────────
-
-describe('computeMasteredRoles', () => {
-  it('retourneert rollen die vorige sessie fout waren maar nu goed zijn', () => {
-    const prev = new Set(['PV', 'OW', 'LV']);
-    const current = { OW: 1 }; // OW nog steeds fout
-    const mastered = computeMasteredRoles(prev, current);
-    expect(mastered).toContain('PV');
-    expect(mastered).toContain('LV');
-    expect(mastered).not.toContain('OW');
-  });
-
-  it('retourneert lege array als geen nieuwe rollen beheerst', () => {
-    const prev = new Set(['PV', 'OW']);
-    const current = { PV: 2, OW: 1 };
-    expect(computeMasteredRoles(prev, current)).toHaveLength(0);
-  });
-
-  it('retourneert lege array als er geen vorige fouten waren', () => {
-    expect(computeMasteredRoles(new Set(), { PV: 1 })).toHaveLength(0);
-  });
-
-  it('retourneert alle vorige fout-rollen als current leeg is', () => {
-    const prev = new Set(['PV', 'LV']);
-    const mastered = computeMasteredRoles(prev, {});
-    expect(mastered).toContain('PV');
-    expect(mastered).toContain('LV');
-    expect(mastered).toHaveLength(2);
   });
 });
