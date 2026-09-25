@@ -127,10 +127,9 @@
         "text": "waarom",
         "role": "bijzin",
         "bijzinFunctie": "lv",
-        "subRole": "vw_onder",
         "bijzinAnalyse": {
           "role": "bwb",
-          "notAsked": true
+          "verbindingswoord": true
         }
       },
       {

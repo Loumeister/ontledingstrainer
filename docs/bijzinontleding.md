@@ -11,7 +11,10 @@ Een leerling die een bijzin goed heeft gevonden, ontleedt die bijzin daarna als 
 - **Optioneel:** de leerling zet "Bijzinnen ontleden" aan op het startscherm. Standaard staat het uit.
 - **Openklappen:** de bijzin opent na **Controleer**, als de hele hoofdzin gelabeld is en de bijzin zelf klopt: goede grenzen, label "bijzin" en, als die gevraagd wordt, de goede functie. Fouten elders in de hoofdzin blokkeren niet. Een geopende bijzin blijft open tot de volgende zin.
 - **Onderschikkend voegwoord:** wordt benoemd, als eigen zinsdeel `vw_onder` binnen de bijzin.
-- **Betrekkelijk voornaamwoord:** wordt voorlopig niet gevraagd. Hetzelfde geldt voor andere betrekkelijke of vragende verbindingswoorden: *die, dat, waar, waardoor, waarom*. De leerling ziet ze in de opdracht, maar benoemt ze niet.
+- **Betrekkelijk of vragend verbindingswoord** (*die, dat, waar, waardoor, waarom*): dit woord verbindt de bijzin met de hoofdzin en heeft ook een eigen functie in de bijzin (*die* = OW, *dat* = LV, *waar* = BWB).
+  - **Op het hoogste niveau (4):** de leerling benoemt het als eigen zinsdeel met die functie. Kiest de leerling "onderschikkend voegwoord", dan vraagt de feedback of het woord ook meedoet in de bijzin (`HINTS.VERBINDINGSWOORD_HAS_FUNCTIE`).
+  - **Daaronder:** de leerling ziet het woord in de opdracht, maar benoemt het niet.
+  - **In de hoofdzin:** het woord krijgt geen label onderschikkend voegwoord, want dat is het niet. Een datatest bewaakt dit.
 - **Betrekkelijke (bijvoeglijke) bijzin:** is moeilijker dan de andere bijzinnen. Ze wordt alleen op het hoogste niveau (4) als zodanig benoemd en ontleed. De functievraag geldt daarnaast alleen als bijvoeglijke bepalingen aanstaan.
   - Deze regel geldt voor **alle** zinnen, ook voor docentzinnen uit de zinseditor en uit `?zinnen=`.
   - Dat is een gedragswijziging. Vroeger vroeg de app de functie van een betrekkelijke bijzin bij elke docentzin, als bijvoeglijke bepalingen aanstonden. Nu gebeurt dat alleen nog bij een docentzin op niveau 4. Bij een lager niveau benoemt de leerling de bijzin wel, maar krijgt geen functievraag.
@@ -32,7 +35,7 @@ Elk woord met `role: 'bijzin'` krijgt een `bijzinAnalyse`:
 | `subRole`, `bijvBepTarget` | zoals bij een gewoon token (bijv. `nwd`/`wwd`, `bijv_bep`) |
 | `newChunk` | nieuw zinsdeel bij twee opeenvolgende delen met dezelfde rol (zin 412: *altijd* \| *op het dak*) |
 | `alternativeRole` | alleen voor bewust gemodelleerde dubbellezingen |
-| `notAsked` | woord hoort bij de bijzin, maar de leerling benoemt het niet. `role` legt de functie toch vast, zodat het later aan kan. |
+| `verbindingswoord` | betrekkelijk of vragend verbindingswoord. `role` legt de functie in de bijzin vast. Alleen op niveau 4 gevraagd (`isVerbindingswoordAsked`). |
 
 Regels, bewaakt door `src/data/sentenceData.test.ts`:
 

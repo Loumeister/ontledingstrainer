@@ -361,11 +361,10 @@
         "id": "s404t6",
         "text": "waardoor",
         "role": "bijzin",
-        "subRole": "vw_onder",
         "bijzinFunctie": "bwb",
         "bijzinAnalyse": {
           "role": "bwb",
-          "notAsked": true
+          "verbindingswoord": true
         }
       },
       {
@@ -556,11 +555,10 @@
         "id": "s406t11",
         "text": "waardoor",
         "role": "bijzin",
-        "subRole": "vw_onder",
         "bijzinFunctie": "bwb",
         "bijzinAnalyse": {
           "role": "bwb",
-          "notAsked": true
+          "verbindingswoord": true
         }
       },
       {
@@ -845,10 +843,9 @@
         "role": "bijzin",
         "bijzinFunctie": "bijv_bep",
         "bijvBepTarget": "s410t2",
-        "subRole": "vw_onder",
         "bijzinAnalyse": {
           "role": "ow",
-          "notAsked": true
+          "verbindingswoord": true
         }
       },
       {
@@ -910,10 +907,9 @@
         "role": "bijzin",
         "bijzinFunctie": "bijv_bep",
         "bijvBepTarget": "s411t2",
-        "subRole": "vw_onder",
         "bijzinAnalyse": {
           "role": "lv",
-          "notAsked": true
+          "verbindingswoord": true
         }
       },
       {
@@ -981,12 +977,11 @@
         "id": "s412t4",
         "text": "die",
         "role": "bijzin",
-        "subRole": "vw_onder",
         "bijzinFunctie": "bijv_bep",
         "bijvBepTarget": "s412t3",
         "bijzinAnalyse": {
           "role": "ow",
-          "notAsked": true
+          "verbindingswoord": true
         }
       },
       {
@@ -1106,12 +1101,11 @@
         "id": "s413t6",
         "text": "die",
         "role": "bijzin",
-        "subRole": "vw_onder",
         "bijzinFunctie": "bijv_bep",
         "bijvBepTarget": "s413t2",
         "bijzinAnalyse": {
           "role": "ow",
-          "notAsked": true
+          "verbindingswoord": true
         }
       },
       {
@@ -1183,12 +1177,11 @@
         "id": "s420t3",
         "text": "dat",
         "role": "bijzin",
-        "subRole": "vw_onder",
         "bijzinFunctie": "bijv_bep",
         "bijvBepTarget": "s420t2",
         "bijzinAnalyse": {
           "role": "lv",
-          "notAsked": true
+          "verbindingswoord": true
         }
       },
       {
@@ -1252,12 +1245,11 @@
         "id": "s421t5",
         "text": "waar",
         "role": "bijzin",
-        "subRole": "vw_onder",
         "bijzinFunctie": "bijv_bep",
         "bijvBepTarget": "s421t4",
         "bijzinAnalyse": {
           "role": "bwb",
-          "notAsked": true
+          "verbindingswoord": true
         }
       },
       {
@@ -1309,12 +1301,11 @@
         "id": "s422t3",
         "text": "die",
         "role": "bijzin",
-        "subRole": "vw_onder",
         "bijzinFunctie": "bijv_bep",
         "bijvBepTarget": "s422t2",
         "bijzinAnalyse": {
           "role": "ow",
-          "notAsked": true
+          "verbindingswoord": true
         }
       },
       {
@@ -1845,11 +1836,10 @@
         "id": "s466t7",
         "text": "waardoor",
         "role": "bijzin",
-        "subRole": "vw_onder",
         "bijzinFunctie": "bwb",
         "bijzinAnalyse": {
           "role": "bwb",
-          "notAsked": true
+          "verbindingswoord": true
         }
       },
       {

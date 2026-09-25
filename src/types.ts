@@ -27,8 +27,11 @@ export interface BijzinTokenAnalyse {
   newChunk?: boolean;
   alternativeRole?: RoleKey;
   bijvBepTarget?: string;
-  /** Not asked of the student (for now: the betrekkelijk voornaamwoord). role still records its function. */
-  notAsked?: boolean;
+  /**
+   * Betrekkelijk of vragend verbindingswoord (die, dat, waar, waardoor, waarom): it links the bijzin
+   * and also has a function in it (role). Only asked as a zinsdeel on the highest level.
+   */
+  verbindingswoord?: boolean;
 }
 
 export interface Sentence {
