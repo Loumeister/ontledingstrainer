@@ -9,6 +9,7 @@ import {
   getConsistencyStreak,
   getPerfectSessionCount,
   incrementPerfectSessionCount,
+  trimSessionHistory,
 } from './sessionHistory';
 import type { SessionHistoryEntry } from '../types';
 
@@ -66,6 +67,43 @@ describe('saveSessionToHistory', () => {
       saveSessionToHistory(makeEntry(`2026-01-${String(i + 1).padStart(2, '0')}T10:00:00.000Z`));
     }
     expect(loadSessionHistory()).toHaveLength(20);
+  });
+
+  it('snoeit per leerling: veel sessies van B drukken A niet weg', () => {
+    for (let i = 0; i < 5; i++) {
+      saveSessionToHistory({ ...makeEntry(`2026-01-01T10:0${i}:00.000Z`), studentId: 'a:A' });
+    }
+    for (let i = 0; i < 30; i++) {
+      saveSessionToHistory({ ...makeEntry('2026-01-02T10:00:00.000Z', i), studentId: 'b:B' });
+    }
+    const history = loadSessionHistory();
+    expect(history.filter(e => e.studentId === 'a:A')).toHaveLength(5);
+    const b = history.filter(e => e.studentId === 'b:B');
+    expect(b).toHaveLength(20);
+    // De oudste van B zijn weg, volgorde blijft oud → nieuw
+    expect(b.map(e => e.scorePercentage)).toEqual(Array.from({ length: 20 }, (_, i) => i + 10));
+  });
+
+  it('ongelabelde sessies (anoniem/ladder) drukken gelabelde niet weg', () => {
+    saveSessionToHistory({ ...makeEntry('2026-01-01T10:00:00.000Z'), studentId: 'a:A' });
+    for (let i = 0; i < 25; i++) saveSessionToHistory(makeEntry('2026-01-02T10:00:00.000Z'));
+    const history = loadSessionHistory();
+    expect(history.filter(e => e.studentId === 'a:A')).toHaveLength(1);
+    expect(history.filter(e => !e.studentId)).toHaveLength(20);
+  });
+});
+
+describe('trimSessionHistory', () => {
+  it('laat boven de totaalgrens eerst de minst recent actieve leerling vallen', () => {
+    // 21 leerlingen × 20 sessies = 420 > 400; leerling 0 oefende het langst geleden
+    const history: SessionHistoryEntry[] = [];
+    for (let s = 0; s < 21; s++) {
+      for (let i = 0; i < 20; i++) history.push({ ...makeEntry('2026-01-01', i), studentId: `s${s}` });
+    }
+    const trimmed = trimSessionHistory(history);
+    expect(trimmed).toHaveLength(400);
+    expect(trimmed.filter(e => e.studentId === 's0')).toHaveLength(0);
+    expect(trimmed.filter(e => e.studentId === 's20')).toHaveLength(20);
   });
 });
 
