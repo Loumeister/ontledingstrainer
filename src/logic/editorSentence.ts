@@ -154,8 +154,7 @@ export function carryOverBijzinAnalyse(source: Sentence | null, tokens: Token[])
  * A betrekkelijke (bijvoeglijke) bijzin is only named and analysed on the highest level. Below that
  * level the editor warns the teacher: the student names the bijzin, but gets no function question.
  */
-export function getBetrekkelijkeBijzinLevelWarning(tokens: Token[], level: number): string | null {
-  const hasBetrekkelijkeBijzin = tokens.some(t => t.role === 'bijzin' && t.bijzinFunctie === 'bijv_bep');
-  if (!hasBetrekkelijkeBijzin || isBijzinFunctieAsked('bijv_bep', true, level)) return null;
+export function getBetrekkelijkeBijzinLevelWarning(bijzinFuncties: (RoleKey | undefined)[], level: number): string | null {
+  if (!bijzinFuncties.includes('bijv_bep') || isBijzinFunctieAsked('bijv_bep', true, level)) return null;
   return `Betrekkelijke bijzin op niveau ${level}: de app vraagt hier geen functie van de betrekkelijke bijzin en laat de bijzin niet ontleden. Dat gebeurt pas vanaf niveau ${BETREKKELIJKE_BIJZIN_LEVEL}. De leerling benoemt de bijzin alleen als bijzin.`;
 }
