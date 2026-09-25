@@ -10,6 +10,9 @@ import { ConfirmationModal } from '../components/ConfirmationModal';
 import { FeedbackPanel, FeedbackItem } from '../components/FeedbackPanel';
 import { TrainerState } from '../hooks/useTrainer';
 import { shouldShowSessionNextButton } from '../logic/sessionFlow';
+import { isBijzinFunctieAsked } from '../logic/validation';
+import { buildBijzinSentence, getBijzinTokenGroups, isBijzinAnalyseAsked, isBijzinUnlocked } from '../logic/bijzinAnalysis';
+import { BijzinAnalysePanel } from '../components/BijzinAnalysePanel';
 import { getLadderStage } from '../logic/rollenladder';
 import { requiresPredicateChoice } from '../logic/validation';
 
@@ -25,7 +28,7 @@ type TrainerScreenProps = Pick<TrainerState,
   | 'darkMode' | 'setDarkMode'
   | 'largeFont' | 'setLargeFont'
   | 'dyslexiaMode' | 'setDyslexiaMode'
-  | 'includeVV' | 'includeBB'
+  | 'includeVV' | 'includeBB' | 'includeGezegdeDelen'
   | 'focusVV' | 'focusBijzin'
   | 'selectedLevel'
   | 'sessionIndex' | 'sessionQueue'
@@ -47,7 +50,10 @@ type TrainerScreenProps = Pick<TrainerState,
   | 'handleTouchDrop'
   | 'ladderEnabled' | 'ladderStage' | 'ladderActiveRoles' | 'ladderPromotion'
   | 'handleSkipSplitStep'
->;
+> & {
+  /** Bijzin analysis: only on the hidden #/bijzinontleding route and when the student opted in. */
+  bijzinAnalyseEnabled: boolean;
+};
 
 export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   currentSentence, step, mode,
@@ -61,7 +67,8 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
   darkMode, setDarkMode,
   largeFont, setLargeFont,
   dyslexiaMode, setDyslexiaMode,
-  includeVV, includeBB,
+  includeVV, includeBB, includeGezegdeDelen,
+  bijzinAnalyseEnabled,
   focusVV, focusBijzin,
   selectedLevel,
   sessionIndex, sessionQueue,
@@ -128,6 +135,32 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
     const t = setTimeout(() => setStreakToast(null), 3000);
     return () => clearTimeout(t);
   }, [consecutivePerfect]);
+
+  // Bijzin analysis: a bijzin opens after a check in which it was found correctly, and stays open
+  // for the rest of this sentence so later edits in the main sentence do not wipe the student's work.
+  // A retry is a deliberate restart, so it also closes and resets opened bijzinnen.
+  const [retryCount, setRetryCount] = useState(0);
+  const sentenceKey = currentSentence ? `${currentSentence.id}-${sessionIndex}-${retryCount}` : '';
+  const [openBijzinnen, setOpenBijzinnen] = useState<{ key: string; ids: string[] }>({ key: '', ids: [] });
+  const bijzinGroups = currentSentence && bijzinAnalyseEnabled
+    ? getBijzinTokenGroups(currentSentence).filter(g => isBijzinAnalyseAsked(currentSentence, g) && buildBijzinSentence(currentSentence, g))
+    : [];
+  useEffect(() => {
+    if (!currentSentence || !validationResult || showAnswerMode || bijzinGroups.length === 0) return;
+    const unlocked = bijzinGroups
+      .filter(g => isBijzinUnlocked(currentSentence, g, splitIndices, chunkLabels, bijzinFunctieLabels, includeBB))
+      .map(g => g[0].id);
+    if (unlocked.length === 0) return;
+    setOpenBijzinnen(prev => {
+      const base = prev.key === sentenceKey ? prev.ids : [];
+      const ids = Array.from(new Set([...base, ...unlocked]));
+      return ids.length === base.length && prev.key === sentenceKey ? prev : { key: sentenceKey, ids };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validationResult]);
+  const openBijzinGroups = openBijzinnen.key === sentenceKey
+    ? bijzinGroups.filter(g => openBijzinnen.ids.includes(g[0].id))
+    : [];
 
   // Build feedback items for consolidated panel
   const feedbackItems: FeedbackItem[] = validationResult && !validationResult.isPerfect
@@ -288,6 +321,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   currentSentence={currentSentence}
                   includeVV={includeVV}
                   includeBB={includeBB}
+                  includeGezegdeDelen={includeGezegdeDelen}
                   focusVV={focusVV}
                   focusBijzin={focusBijzin}
                   selectedLevel={selectedLevel}
@@ -327,7 +361,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                 );
               })()}
 
-              <div className="flex flex-wrap gap-y-3 gap-x-2 justify-center items-start pt-2 px-1 flex-1 content-start">
+              <div className={`flex flex-wrap gap-y-3 gap-x-2 justify-center items-start pt-2 px-1 content-start ${openBijzinGroups.length > 0 ? '' : 'flex-1'}`}>
                 {userChunks.map((chunk, idx) => {
                   const startTokenId = chunk.tokens[0].id;
                   const assignedRoleKey = chunkLabels[startTokenId];
@@ -338,8 +372,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   const predicateTypeDef = predicateTypeKey ? ROLES.find(r => r.key === predicateTypeKey) || null : null;
                   const showPredicateTypeRow = !ladderEnabled && assignedRoleKey === 'pv' && requiresPredicateChoice(currentSentence);
                   const rawFunctie = chunk.tokens[0].bijzinFunctie;
-                  // Gate bijv_bep function behind includeBB
-                  const hasBijzinFunctie = !!rawFunctie && (rawFunctie !== 'bijv_bep' || includeBB);
+                  const hasBijzinFunctie = isBijzinFunctieAsked(rawFunctie, includeBB, currentSentence.level);
                   // Resolve bvb link target text
                   const bijvBepTargetId = bijvBepLinks[startTokenId];
                   const bijvBepTargetToken = bijvBepTargetId ? currentSentence.tokens.find(t => t.id === bijvBepTargetId) : null;
@@ -401,6 +434,15 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   );
                 })}
               </div>
+
+              {openBijzinGroups.map(group => (
+                <BijzinAnalysePanel
+                  key={`${sentenceKey}-${group[0].id}`}
+                  bijzin={buildBijzinSentence(currentSentence, group)!}
+                  allTokens={group}
+                  isLargeFont={largeFont}
+                />
+              ))}
             </div>
           )}
         </div>
@@ -478,7 +520,7 @@ export const TrainerScreen: React.FC<TrainerScreenProps> = ({
                   )}
 
                   {showAnswerMode && (
-                    <button onClick={handleRetry} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors text-sm">
+                    <button onClick={() => { setRetryCount(c => c + 1); handleRetry(); }} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors text-sm">
                       Opnieuw proberen
                     </button>
                   )}
@@ -520,6 +562,7 @@ interface RoleToolbarProps {
   currentSentence: TrainerState['currentSentence'];
   includeVV: boolean;
   includeBB: boolean;
+  includeGezegdeDelen: boolean;
   focusVV: boolean;
   focusBijzin: boolean;
   selectedLevel: TrainerState['selectedLevel'];
@@ -536,7 +579,7 @@ interface RoleToolbarProps {
 
 const RoleToolbar: React.FC<RoleToolbarProps> = ({
   currentSentence,
-  includeVV, includeBB,
+  includeVV, includeBB, includeGezegdeDelen,
   focusVV, focusBijzin,
   selectedLevel,
   largeFont,
@@ -624,7 +667,7 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
             )}
           </div>
         </div>
-        {includeBB && (
+        {(includeBB || includeGezegdeDelen) && (
         <div className="border-t border-slate-100 dark:border-slate-700 pt-3">
           {(() => {
             const hasAnyMainRole = Object.keys(chunkLabels).length > 0;
@@ -635,7 +678,10 @@ const RoleToolbar: React.FC<RoleToolbarProps> = ({
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {ROLES.filter(r => r.isSubOnly)
-                        .filter(r => isRoleVisible(r.key))
+                        // Only offer word labels that are actually checked. WWD/NWD are shown for every
+                        // sentence so their presence does not reveal whether the sentence has an NG.
+                        .filter(r => (r.key === 'bijv_bep' && includeBB && isRoleVisible(r.key))
+                          || ((r.key === 'wwd' || r.key === 'nwd') && includeGezegdeDelen))
                         .map(role => (
                     <DraggableRole key={role.key} role={role} onDragStart={handleDragStart} isLargeFont={largeFont} isSelected={selectedRole === role.key} onSelect={onSelectRole} onTouchDropChunk={onTouchDropChunk} disabled={!hasAnyMainRole} />
                   ))}

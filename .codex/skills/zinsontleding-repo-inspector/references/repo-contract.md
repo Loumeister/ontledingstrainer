@@ -24,6 +24,8 @@ Bronnen: `src/types.ts`, `src/data/sentences-level-0.json`, `src/data/sentences-
 - `subRole` markeert interne rolinformatie binnen een hoofdlabel.
 - `bijzinFunctie` koppelt een bijzin aan zijn functie in de hoofdzin.
 - `bijvBepTarget` koppelt een bijvoeglijke bepaling of bijvoeglijke bijzin aan een doeltoken.
+- `bijzinAnalyse` (alleen op tokens met rol `bijzin`) legt de ontleding van de bijzin als eigen zin vast: `role`, optioneel `subRole`, `newChunk`, `alternativeRole`, `bijvBepTarget`. Het onderschikkend voegwoord krijgt daarin rol `vw_onder` als eigen zinsdeel. `notAsked: true` markeert een woord dat de leerling niet benoemt (voorlopig het betrekkelijk voornaamwoord); `role` legt dan toch de functie vast.
+- Een bijzin is volledig of helemaal niet met `bijzinAnalyse` geannoteerd. `src/logic/bijzinAnalysis.ts` leidt er een gewone `Sentence` uit af die `validateAnswer` nakijkt.
 
 ## Supported phenomena
 

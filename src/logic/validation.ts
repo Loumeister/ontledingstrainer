@@ -97,6 +97,52 @@ export function getConsistentRole(tokens: Token[]): RoleKey | null {
   return null;
 }
 
+/** Level at which a betrekkelijke (bijvoeglijke) bijzin is named as such: only the highest level. */
+export const BETREKKELIJKE_BIJZIN_LEVEL = 4;
+
+/**
+ * Whether the student must name this bijzin function. A bijvoeglijke bijzin is harder than the other
+ * bijzinnen: it is only asked on the highest level, and only when bijvoeglijke bepalingen are practised.
+ */
+export function isBijzinFunctieAsked(functie: RoleKey | undefined, includeBB: boolean, level: number): boolean {
+  if (!functie) return false;
+  return functie !== 'bijv_bep' || (includeBB && level >= BETREKKELIJKE_BIJZIN_LEVEL);
+}
+
+/**
+ * Gezegdedeel of a token: in a naamwoordelijk gezegde every verb (the PV included) belongs to the
+ * werkwoordelijk deel, all other words of the NG belong to the naamwoordelijk deel.
+ * Derived from the main role so that a word-level subRole such as bijv_bep does not hide it.
+ */
+export function getGezegdeDeel(token: Token): 'wwd' | 'nwd' | undefined {
+  if (token.role === 'ng') return token.subRole === 'wwd' ? 'wwd' : 'nwd';
+  if (token.role === 'pv' && token.subRole === 'wwd') return 'wwd';
+  return undefined;
+}
+
+/**
+ * The word-level sub-label a student is expected to place on this token, given the active options.
+ * wwd/nwd are only asked with includeGezegdeDelen; a bijv_bep label takes precedence over nwd.
+ */
+export function getExpectedSubLabel(token: Token, includeBB: boolean, includeGezegdeDelen = false): RoleKey | undefined {
+  let expected = token.subRole;
+  if (!includeBB && expected === 'bijv_bep') expected = undefined;
+  if (expected === 'wd' || expected === 'wwd' || expected === 'nwd' || expected === 'vw_onder') expected = undefined; // display-only unless asked below
+  if (!expected && includeGezegdeDelen) expected = getGezegdeDeel(token);
+  return expected;
+}
+
+/**
+ * First word of an NG whose expected WWD/NWD label is still missing, for the Hint button.
+ * Follows getExpectedSubLabel, so a word that should get BB is not asked as WWD/NWD.
+ */
+export function findMissingGezegdeDeel(tokens: Token[], subLabels: PlacementMap, includeBB: boolean): Token | undefined {
+  return tokens.find(t => {
+    const expected = getExpectedSubLabel(t, includeBB, true);
+    return (expected === 'wwd' || expected === 'nwd') && !subLabels[t.id];
+  });
+}
+
 /**
  * Whether this sentence's gezegde needs an explicit WG/NG classification on the PV chunk.
  * Mirrors ROLES_PER_LEVEL: WG/NG are only taught from level 1 onward, so level 0 (where the
@@ -154,6 +200,7 @@ export function validateAnswer(
   bijvBepLinks?: Record<string, string>,
   wordBijvBepLinks?: Record<string, string>,
   predicateTypeLabels?: PlacementMap,
+  includeGezegdeDelen = false,
 ): { result: ValidationResult; mistakes: Record<string, number> } {
   const userChunks = buildUserChunks(sentence.tokens, splitIndices);
   const chunkStatus: Record<number, ValidationState> = {};
@@ -300,8 +347,7 @@ export function validateAnswer(
     const firstToken = chunk.tokens[0];
     const expectedFunctie = firstToken.bijzinFunctie;
     if (firstToken.role !== 'bijzin' || !expectedFunctie) return;
-    // Skip bijv_bep function swap detection when includeBB is off
-    if (expectedFunctie === 'bijv_bep' && !includeBB) return;
+    if (!isBijzinFunctieAsked(expectedFunctie, includeBB, sentence.level)) return;
     const userLabel = chunkLabels[firstToken.id];
     if (userLabel === expectedFunctie) {
       const functieName = ROLES.find(r => r.key === expectedFunctie)?.label || expectedFunctie;
@@ -320,7 +366,7 @@ export function validateAnswer(
       const expectedFunctie = firstToken.bijzinFunctie;
       if (!expectedFunctie) return;
       // Skip bijv_bep function validation when includeBB is off
-      if (expectedFunctie === 'bijv_bep' && !includeBB) return;
+      if (!isBijzinFunctieAsked(expectedFunctie, includeBB, sentence.level)) return;
       const userLabel = chunkLabels[firstToken.id];
       if (userLabel !== 'bijzin') return;
       if (chunkStatus[idx] !== 'correct') return;
@@ -383,10 +429,34 @@ export function validateAnswer(
   let subRoleMismatch = false;
   sentence.tokens.forEach(t => {
     const userSub = subLabels[t.id];
-    let expectedSub = t.subRole;
-    if (!includeBB && expectedSub === 'bijv_bep') expectedSub = undefined;
-    if (expectedSub === 'wd' || expectedSub === 'wwd' || expectedSub === 'nwd' || expectedSub === 'vw_onder') expectedSub = undefined; // display-only subRoles, not validated
-    if (userSub !== expectedSub) subRoleMismatch = true;
+    const expectedSub = getExpectedSubLabel(t, includeBB, includeGezegdeDelen);
+    if (userSub === expectedSub) return;
+    subRoleMismatch = true;
+
+    // Gezegdedelen: give one repair step on an otherwise correct chunk, without naming the answer.
+    if (!includeGezegdeDelen) return;
+    const userGezegde = userSub === 'wwd' || userSub === 'nwd';
+    const expectsGezegde = expectedSub === 'wwd' || expectedSub === 'nwd';
+    // One word label per word: a BB inside the naamwoordelijk deel keeps its BB label.
+    const bbInsideNwd = expectedSub === 'bijv_bep' && userGezegde && !!getGezegdeDeel(t);
+    const strayGezegde = !expectedSub && userGezegde;
+    if (!expectsGezegde && !bbInsideNwd && !strayGezegde) return;
+    const chunkIdx = userChunks.findIndex(c => c.tokens.some(ct => ct.id === t.id));
+    if (chunkIdx < 0 || chunkStatus[chunkIdx] !== 'correct') return;
+    chunkFeedback[chunkIdx] = bbInsideNwd
+      ? HINTS.GEZEGDE_DEEL_BIJV_BEP(t.text)
+      : strayGezegde
+        ? HINTS.GEZEGDE_DEEL_NOT_NG(t.text)
+        : userGezegde
+          ? HINTS.GEZEGDE_DEEL_WRONG(t.text)
+          : userSub === 'bijv_bep'
+            ? HINTS.GEZEGDE_DEEL_NOT_BIJV_BEP(t.text)
+            : HINTS.GEZEGDE_DEEL_MISSING(t.text);
+    chunkStatus[chunkIdx] = 'warning';
+    // Count under the role's display name, like the rest of validateAnswer
+    const mistakeKey = expectedSub || userSub!;
+    const mistakeName = ROLES.find(r => r.key === mistakeKey)?.label || mistakeKey;
+    currentMistakes[mistakeName] = (currentMistakes[mistakeName] || 0) + 1;
   });
 
   // --- Word-level bijv_bep link validation ---

@@ -12,7 +12,7 @@ import { preloadCommonLevels } from './data/sentenceLoader';
 import { decodeShared } from './data/customSentenceStore';
 import { StudentDashboardScreen } from './screens/StudentDashboardScreen';
 import { TeacherDashboardScreen } from './screens/TeacherDashboardScreen';
-import { isRollenladderRoute, shouldResetTrainerOnRouteChange } from './logic/appRoute';
+import { isBijzinOntledingRoute, isRollenladderRoute, shouldResetTrainerOnRouteChange } from './logic/appRoute';
 import type { Sentence } from './types';
 
 // Decode teacher-shared sentences from ?zinnen= URL param
@@ -41,6 +41,8 @@ export default function App() {
       resetToHomeRef.current();
     }
   }, []);
+  // #/bijzinontleding — hidden entry point: bijzin analysis is not released yet
+  const [bijzinOntledingAvailable, setBijzinOntledingAvailable] = useState(() => isBijzinOntledingRoute(window.location.hash));
   const [showStudentDashboard, setShowStudentDashboard] = useState(() => window.location.hash === '#/mijn-voortgang');
   const [showTeacherDashboard, setShowTeacherDashboard] = useState(() => window.location.hash === '#/docent-dashboard');
   const [sharedSentences] = useState<Sentence[]>(initialSharedSentences);
@@ -65,6 +67,7 @@ export default function App() {
       setShowZinsdeellab(hash === '#/zinnenlab');
       setShowStudentDashboard(hash === '#/mijn-voortgang');
       setShowTeacherDashboard(hash === '#/docent-dashboard');
+      setBijzinOntledingAvailable(isBijzinOntledingRoute(hash));
       if (shouldResetTrainerOnRouteChange(previousHash, hash)) {
         resetToHomeRef.current();
       }
@@ -175,6 +178,9 @@ export default function App() {
         focusBijzin={trainer.focusBijzin} setFocusBijzin={trainer.setFocusBijzin}
         includeBijst={trainer.includeBijst} setIncludeBijst={trainer.setIncludeBijst}
         includeBB={trainer.includeBB} setIncludeBB={trainer.setIncludeBB}
+        includeGezegdeDelen={trainer.includeGezegdeDelen} setIncludeGezegdeDelen={trainer.setIncludeGezegdeDelen}
+        bijzinOntledingAvailable={bijzinOntledingAvailable}
+        includeBijzinAnalyse={trainer.includeBijzinAnalyse} setIncludeBijzinAnalyse={trainer.setIncludeBijzinAnalyse}
         showHelp={trainer.showHelp} setShowHelp={trainer.setShowHelp}
         darkMode={trainer.darkMode} setDarkMode={trainer.setDarkMode}
         largeFont={trainer.largeFont} setLargeFont={trainer.setLargeFont}
@@ -246,7 +252,8 @@ export default function App() {
       darkMode={trainer.darkMode} setDarkMode={trainer.setDarkMode}
       largeFont={trainer.largeFont} setLargeFont={trainer.setLargeFont}
       dyslexiaMode={trainer.dyslexiaMode} setDyslexiaMode={trainer.setDyslexiaMode}
-      includeVV={trainer.includeVV} includeBB={trainer.includeBB}
+      includeVV={trainer.includeVV} includeBB={trainer.includeBB} includeGezegdeDelen={trainer.includeGezegdeDelen}
+      bijzinAnalyseEnabled={bijzinOntledingAvailable && trainer.includeBijzinAnalyse}
       focusVV={trainer.focusVV} focusBijzin={trainer.focusBijzin}
       selectedLevel={trainer.selectedLevel}
       sessionIndex={trainer.sessionIndex} sessionQueue={trainer.sessionQueue}

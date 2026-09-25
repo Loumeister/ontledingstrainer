@@ -341,31 +341,37 @@
     "tokens": [
       {
         "id": "s68t1",
-        "text": "De",
-        "role": "ow"
+        "text": "Door",
+        "role": "bwb"
       },
       {
         "id": "s68t2",
-        "text": "regen",
-        "role": "ow"
+        "text": "de",
+        "role": "bwb"
       },
       {
         "id": "s68t3",
-        "text": "maakt",
-        "role": "pv"
+        "text": "regen",
+        "role": "bwb"
       },
       {
         "id": "s68t4",
-        "text": "de",
-        "role": "lv"
+        "text": "is",
+        "role": "pv",
+        "subRole": "wwd"
       },
       {
         "id": "s68t5",
-        "text": "straat",
-        "role": "lv"
+        "text": "de",
+        "role": "ow"
       },
       {
         "id": "s68t6",
+        "text": "straat",
+        "role": "ow"
+      },
+      {
+        "id": "s68t7",
         "text": "spekglad.",
         "role": "ng",
         "subRole": "nwd"
@@ -4759,7 +4765,8 @@
       {
         "id": "s147t2",
         "text": "wil",
-        "role": "pv"
+        "role": "pv",
+        "subRole": "wwd"
       },
       {
         "id": "s147t3",
@@ -4842,7 +4849,7 @@
   {
     "id": 149,
     "label": "Zin 149: Lijken op vader",
-    "predicateType": "NG",
+    "predicateType": "WG",
     "level": 2,
     "tokens": [
       {
@@ -4853,8 +4860,7 @@
       {
         "id": "s149t2",
         "text": "lijkt",
-        "role": "pv",
-        "subRole": "wwd"
+        "role": "pv"
       },
       {
         "id": "s149t3",
@@ -4864,21 +4870,19 @@
       {
         "id": "s149t4",
         "text": "op",
-        "role": "ng",
-        "subRole": "nwd"
+        "role": "vv"
       },
       {
         "id": "s149t5",
         "text": "je",
-        "role": "ng",
+        "role": "vv",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s149t6"
       },
       {
         "id": "s149t6",
         "text": "vader.",
-        "role": "ng",
-        "subRole": "nwd"
+        "role": "vv"
       }
     ]
   },

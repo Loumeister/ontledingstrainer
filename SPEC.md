@@ -38,6 +38,10 @@ Eén afgeleide eis binnen deze norm: de persoonsvorm hoort altijd bij een werkwo
 
 Een verborgen experiment via `#/rollenladder`. De acht treden mogen rollen beperken binnen die route. Activatie wordt nooit opgeslagen en mag de standaardroute niet veranderen. Alleen trede en recente scores mogen lokaal blijven staan.
 
+### Bijzinontleding
+
+Een nog niet vrijgegeven optie via `#/bijzinontleding`. Een goed gevonden bijzin klapt na controle open en wordt als eigen zin ontleed, met dezelfde evaluator. Zie `docs/bijzinontleding.md`.
+
 ### Zinsdeellab
 
 Een verborgen experiment voor zinnen bouwen. Het deelt corpus en enkele lokale modellen, maar is geen tweede productkern.

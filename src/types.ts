@@ -13,6 +13,22 @@ export interface Token {
   alternativeRole?: RoleKey; // An acceptable alternative role for ambiguous sentences
   bijzinFunctie?: RoleKey; // The grammatical function of a bijzin in the sentence (e.g. lv, bwb, ow)
   bijvBepTarget?: string; // Token ID of the word this bijv_bep modifies (for bvb sub-roles and bijzin bvb functions)
+  bijzinAnalyse?: BijzinTokenAnalyse; // Only on tokens with role 'bijzin': the analysis of the bijzin as a sentence of its own
+}
+
+/**
+ * Annotation of one word inside a bijzin, used when the bijzin is analysed as a sentence of its own.
+ * Same semantics as the Token fields, but scoped to the bijzin: chunk boundaries follow role changes
+ * and newChunk within the bijzin. The onderschikkend voegwoord gets role 'vw_onder' as its own chunk.
+ */
+export interface BijzinTokenAnalyse {
+  role: RoleKey;
+  subRole?: RoleKey;
+  newChunk?: boolean;
+  alternativeRole?: RoleKey;
+  bijvBepTarget?: string;
+  /** Not asked of the student (for now: the betrekkelijk voornaamwoord). role still records its function. */
+  notAsked?: boolean;
 }
 
 export interface Sentence {

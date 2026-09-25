@@ -26,6 +26,9 @@ import {
   countRealChunks,
   computeCorrectSplits,
   validateAnswer,
+  getGezegdeDeel,
+  findMissingGezegdeDeel,
+  isBijzinFunctieAsked,
   getConsistentRole,
   requiresPredicateChoice,
   getExpectedPredicateType,
@@ -76,6 +79,10 @@ export interface TrainerState {
   setIncludeBijst: (v: boolean) => void;
   includeBB: boolean;
   setIncludeBB: (v: boolean) => void;
+  includeGezegdeDelen: boolean;
+  setIncludeGezegdeDelen: (v: boolean) => void;
+  includeBijzinAnalyse: boolean;
+  setIncludeBijzinAnalyse: (v: boolean) => void;
   includeVV: boolean;
 
   // Session
@@ -256,6 +263,10 @@ export function useTrainer(): TrainerState {
   // Complexity Filters
   const [includeBijst, setIncludeBijst] = useState(false);
   const [includeBB, setIncludeBB] = useState(false);
+  // Opt-in: also name werkwoordelijk and naamwoordelijk deel inside an NG. Off by default.
+  const [includeGezegdeDelen, setIncludeGezegdeDelen] = useState(false);
+  // Opt-in: analyse a found bijzin as a sentence of its own. Only offered on #/bijzinontleding for now.
+  const [includeBijzinAnalyse, setIncludeBijzinAnalyse] = useState(false);
   const [includeVV] = useState(false);
 
   // Level & Count
@@ -919,7 +930,7 @@ export function useTrainer(): TrainerState {
     if (!currentSentence) return;
     const token = currentSentence.tokens.find(t => t.id === chunkId);
     const bijzinFunctie = token?.bijzinFunctie;
-    const hasBijzinFunctie = !!bijzinFunctie && (bijzinFunctie !== 'bijv_bep' || includeBB);
+    const hasBijzinFunctie = isBijzinFunctieAsked(bijzinFunctie, includeBB, currentSentence.level);
     // Note: this stays true even once a predicateType is already set, so a WG/NG drop
     // always updates predicateTypeLabels — including changing an earlier WG choice to NG —
     // instead of falling through to chunkLabels and silently overwriting the PV label.
@@ -1246,8 +1257,7 @@ export function useTrainer(): TrainerState {
       const firstToken = chunk.tokens[0];
       const userLabel = chunkLabels[firstToken.id];
       const functie = firstToken.bijzinFunctie;
-      // Skip bijv_bep function requirement when includeBB is off
-      if (functie === 'bijv_bep' && !includeBB) continue;
+      if (!isBijzinFunctieAsked(functie, includeBB, currentSentence.level)) continue;
       if (userLabel === 'bijzin' && functie && !bijzinFunctieLabels[firstToken.id]) {
         const bijzinWords = chunk.tokens.map(t => t.text).join(' ');
         setHintMessage(`Kijk naar de bijzin "${bijzinWords}". ${HINTS.MISSING_BIJZIN_FUNCTIE}`);
@@ -1260,6 +1270,11 @@ export function useTrainer(): TrainerState {
       }
     }
 
+    if (includeGezegdeDelen) {
+      const missing = findMissingGezegdeDeel(currentSentence.tokens, subLabels, includeBB);
+      if (missing) { setHintMessage(HINTS.GEZEGDE_DEEL_MISSING(missing.text)); return; }
+    }
+
     setHintMessage(HINTS.ALL_PLACED);
   };
 
@@ -1270,7 +1285,8 @@ export function useTrainer(): TrainerState {
     const { result: rawResult, mistakes: rawMistakes } = validateAnswer(
       currentSentence, splitIndices, chunkLabels, subLabels, includeBB,
       bijzinFunctieLabels, bijvBepLinks, wordBijvBepLinks,
-      ladderEnabled ? undefined : predicateTypeLabels
+      ladderEnabled ? undefined : predicateTypeLabels,
+      includeGezegdeDelen
     );
 
     // In ladder mode, neutralise out-of-stage chunks before displaying and scoring
@@ -1395,7 +1411,7 @@ export function useTrainer(): TrainerState {
     let currentChunkStartId = currentSentence.tokens[0].id;
     correctChunkLabels[currentChunkStartId] = currentSentence.tokens[0].role;
     if (currentSentence.tokens[0].bijzinFunctie) {
-      if (currentSentence.tokens[0].bijzinFunctie !== 'bijv_bep' || includeBB) {
+      if (isBijzinFunctieAsked(currentSentence.tokens[0].bijzinFunctie, includeBB, currentSentence.level)) {
         correctBijzinFunctieLabels[currentChunkStartId] = currentSentence.tokens[0].bijzinFunctie;
         if (currentSentence.tokens[0].bijvBepTarget) {
           correctBijvBepLinks[currentChunkStartId] = currentSentence.tokens[0].bijvBepTarget;
@@ -1416,12 +1432,13 @@ export function useTrainer(): TrainerState {
           }
         }
       }
+      const gezegdeDeel = includeGezegdeDelen ? getGezegdeDeel(t) : undefined;
+      if (gezegdeDeel && correctSubLabels[t.id] !== 'bijv_bep') correctSubLabels[t.id] = gezegdeDeel;
       if (correctSplits.has(i - 1)) {
          currentChunkStartId = t.id;
          correctChunkLabels[currentChunkStartId] = t.role;
          if (t.bijzinFunctie) {
-           // Skip bijv_bep function when includeBB is off
-           if (t.bijzinFunctie !== 'bijv_bep' || includeBB) {
+           if (isBijzinFunctieAsked(t.bijzinFunctie, includeBB, currentSentence.level)) {
              correctBijzinFunctieLabels[currentChunkStartId] = t.bijzinFunctie;
              if (t.bijvBepTarget) {
                correctBijvBepLinks[currentChunkStartId] = t.bijvBepTarget;
@@ -1440,7 +1457,8 @@ export function useTrainer(): TrainerState {
       const { result: vResult, mistakes: currentMistakes } = validateAnswer(
         currentSentence, splitIndices, chunkLabels, subLabels, includeBB,
         bijzinFunctieLabels, bijvBepLinks, wordBijvBepLinks,
-        ladderEnabled ? undefined : predicateTypeLabels
+        ladderEnabled ? undefined : predicateTypeLabels,
+        includeGezegdeDelen
       );
       const realChunkCount = countRealChunks(currentSentence.tokens);
       if (mode === 'session') {
@@ -1571,7 +1589,7 @@ export function useTrainer(): TrainerState {
       if (!chunkLabels[firstToken.id]) return false;
       // If chunk is labeled bijzin and has a function, require function label too
       if (chunkLabels[firstToken.id] === 'bijzin' && firstToken.bijzinFunctie) {
-        if (firstToken.bijzinFunctie === 'bijv_bep' && !includeBB) return true;
+        if (!isBijzinFunctieAsked(firstToken.bijzinFunctie, includeBB, currentSentence?.level ?? 0)) return true;
         if (!bijzinFunctieLabels[firstToken.id]) return false;
       }
       // PV is always part of a WG or NG gezegde: require that choice too, once taught
@@ -1597,6 +1615,8 @@ export function useTrainer(): TrainerState {
     // Complexity filters
     includeBijst, setIncludeBijst,
     includeBB, setIncludeBB,
+    includeGezegdeDelen, setIncludeGezegdeDelen,
+    includeBijzinAnalyse, setIncludeBijzinAnalyse,
     includeVV,
 
     // Session
