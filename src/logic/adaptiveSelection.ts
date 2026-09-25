@@ -114,18 +114,41 @@ function relevantHistory(history: SessionHistoryEntry[], options: ConfidenceOpti
 const FRESHNESS_SESSIONS = 4;
 
 /**
- * Per zin-id: hoeveel sessies geleden de leerling hem maakte (0 = vorige sessie),
- * alleen voor de laatste FRESHNESS_SESSIONS sessies van deze leerling.
+ * Sleutel waarmee versheid een zin herkent, afgeleid van de zinstekst.
+ *
+ * Niet `Sentence.id`: dat is alleen uniek binnen één bron. Een JSON-import,
+ * een gedeelde link of een eigen zin kan hetzelfde getal dragen als een
+ * andere ingebouwde zin, en dan zou die ingebouwde zin onterecht als "net
+ * gemaakt" tellen. Dezelfde woorden uit een andere bron zijn voor de leerling
+ * wél dezelfde zin, dus die tellen terecht samen.
+ */
+export function sentenceRecencyKey(sentence: Pick<Sentence, 'tokens'>): string {
+  const text = sentence.tokens.map(t => t.text.trim().toLowerCase()).filter(Boolean).join(' ');
+  // FNV-1a (32 bit): kort genoeg voor localStorage, botsingen zijn verwaarloosbaar
+  // en kosten hooguit wat versheid.
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+/**
+ * Per zinsleutel (zie sentenceRecencyKey): hoeveel sessies geleden de leerling
+ * hem maakte (0 = vorige sessie), alleen voor de laatste FRESHNESS_SESSIONS
+ * sessies van deze leerling. Oude sessies met alleen `sentenceIds` tellen niet
+ * mee: uit een los id valt niet af te leiden welke zin het was.
  */
 export function computeRecentSentences(
   history: SessionHistoryEntry[],
   options: ConfidenceOptions = {},
-): Map<number, number> {
+): Map<string, number> {
   const relevant = relevantHistory(history, options);
-  const recent = new Map<number, number>();
+  const recent = new Map<string, number>();
   for (let age = 0; age < FRESHNESS_SESSIONS && age < relevant.length; age++) {
-    for (const id of relevant[relevant.length - 1 - age].sentenceIds ?? []) {
-      if (!recent.has(id)) recent.set(id, age);
+    for (const key of relevant[relevant.length - 1 - age].sentenceKeys ?? []) {
+      if (!recent.has(key)) recent.set(key, age);
     }
   }
   return recent;
@@ -214,7 +237,7 @@ export function loadRoleConfidencesFor(name: string, initiaal: string, klas: str
 /** Alles wat selectAdaptiveQueue voor de huidige leerling nodig heeft. */
 export function loadAdaptiveProfileFor(name: string, initiaal: string, klas: string): {
   confidences: Map<RoleKey, RoleConfidence>;
-  recentSentences: Map<number, number>;
+  recentSentences: Map<string, number>;
 } {
   const history = loadSessionHistory();
   const options = historyOptionsFor(history, name, initiaal, klas);
@@ -251,12 +274,12 @@ export function sentenceWeakness(
 export function computeSentenceScore(
   sentence: Sentence,
   roleConfidences: Map<RoleKey, RoleConfidence>,
-  recentSentences: Map<number, number> = new Map(),
+  recentSentences: Map<string, number> = new Map(),
 ): number {
   const weakness = sentenceWeakness(sentence, roleConfidences);
   const roleFactor = 1 + ROLE_BOOST * Math.max(0, (weakness - 0.5) / 0.5);
 
-  const age = recentSentences.get(sentence.id);
+  const age = recentSentences.get(sentenceRecencyKey(sentence));
   const freshnessFactor = age === undefined ? 1 : Math.min(1, 0.6 + 0.1 * age);
 
   return roleFactor * freshnessFactor;
@@ -275,7 +298,7 @@ export function selectAdaptiveQueue(
   count: number,
   roleConfidences: Map<RoleKey, RoleConfidence>,
   random: () => number = Math.random,
-  recentSentences: Map<number, number> = new Map(),
+  recentSentences: Map<string, number> = new Map(),
 ): Sentence[] {
   if (pool.length === 0) return [];
   const n = Math.min(count, pool.length);

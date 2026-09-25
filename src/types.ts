@@ -109,8 +109,14 @@ export interface SessionHistoryEntry {
   roleSeen?: Partial<Record<RoleKey, number>>;
   /** Waarvan goed benoemd. */
   roleCorrect?: Partial<Record<RoleKey, number>>;
-  /** Zin-id's uit deze sessie, voor versheid in adaptieve selectie. */
+  /**
+   * Verouderd: zin-id's zijn niet uniek over bronnen (JSON, gedeeld, eigen,
+   * ingebouwd) en worden niet meer geschreven of gelezen. Staat er nog in
+   * oude localStorage-gegevens.
+   */
   sentenceIds?: number[];
+  /** Zinsleutels (sentenceRecencyKey) uit deze sessie, voor versheid in adaptieve selectie. */
+  sentenceKeys?: string[];
   /** Rollenladder-sessie: telt niet mee voor adaptieve selectie. */
   adaptiveExcluded?: boolean;
 }

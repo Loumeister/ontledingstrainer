@@ -5,6 +5,7 @@ import {
   computeSentenceScore,
   tallySentenceRoles,
   computeRecentSentences,
+  sentenceRecencyKey,
   RoleConfidence,
 } from './adaptiveSelection';
 import type { Sentence, RoleKey, SessionHistoryEntry } from '../types';
@@ -21,7 +22,7 @@ function makeSentence(id: number, roles: RoleKey[], level: 1 | 2 | 3 | 4 = 1): S
     level,
     tokens: roles.map((role, i) => ({
       id: `s${id}w${i}`,
-      text: `woord${i}`,
+      text: `zin${id}woord${i}`,
       role,
     })),
   };
@@ -163,15 +164,49 @@ describe('computeSentenceScore', () => {
   });
 
   it('geeft zinnen uit de eigen recente sessies minder gewicht', () => {
+    const [s1, s2, s3] = [1, 2, 3].map(id => makeSentence(id, ['pv']));
     const history = [
-      session({ studentId: 'std-a', sentenceIds: [1] }),
-      session({ studentId: 'std-b', sentenceIds: [2] }),
-      session({ studentId: 'std-a', adaptiveExcluded: true, sentenceIds: [3] }),
+      session({ studentId: 'std-a', sentenceKeys: [sentenceRecencyKey(s1)] }),
+      session({ studentId: 'std-b', sentenceKeys: [sentenceRecencyKey(s2)] }),
+      session({ studentId: 'std-a', adaptiveExcluded: true, sentenceKeys: [sentenceRecencyKey(s3)] }),
     ];
     const recent = computeRecentSentences(history, { studentId: 'std-a', includeUntagged: false });
-    expect([...recent.keys()]).toEqual([1]);
-    const score = (id: number) => computeSentenceScore(makeSentence(id, ['pv']), new Map(), recent);
-    expect(score(1)).toBeLessThan(score(2));
+    expect([...recent.keys()]).toEqual([sentenceRecencyKey(s1)]);
+    const score = (s: Sentence) => computeSentenceScore(s, new Map(), recent);
+    expect(score(s1)).toBeLessThan(score(s2));
+  });
+});
+
+describe('versheid over zinsbronnen heen', () => {
+  const withText = (id: number, words: string[]): Sentence => ({
+    ...makeSentence(id, words.map(() => 'pv' as RoleKey)),
+    tokens: words.map((text, i) => ({ id: `s${id}w${i}`, text, role: 'pv' as RoleKey })),
+  });
+  const builtIn = withText(7, ['De', 'hond', 'blaft', '.']);
+  const recentAfter = (played: Sentence[]) => computeRecentSentences(
+    [session({ studentId: 'std-a', sentenceKeys: played.map(sentenceRecencyKey) })],
+    { studentId: 'std-a', includeUntagged: false },
+  );
+
+  it('laat een andere zin met hetzelfde id (JSON/gedeeld) de ingebouwde zin niet ontzien', () => {
+    const importedSameId = withText(7, ['Mijn', 'zus', 'leest', 'een', 'boek', '.']);
+    const recent = recentAfter([importedSameId]);
+    expect(computeSentenceScore(builtIn, new Map(), recent)).toBe(1);
+  });
+
+  it('herkent dezelfde zin uit een andere bron met een ander id', () => {
+    const sharedCopy = withText(90001, ['de', ' hond ', 'blaft', '.']);
+    const recent = recentAfter([sharedCopy]);
+    expect(computeSentenceScore(builtIn, new Map(), recent)).toBeLessThan(1);
+  });
+
+  it('negeert oude sessies met alleen numerieke sentenceIds', () => {
+    const recent = computeRecentSentences(
+      [session({ studentId: 'std-a', sentenceIds: [7] })],
+      { studentId: 'std-a', includeUntagged: false },
+    );
+    expect(recent.size).toBe(0);
+    expect(computeSentenceScore(builtIn, new Map(), recent)).toBe(1);
   });
 });
 
