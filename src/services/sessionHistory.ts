@@ -1,7 +1,10 @@
 import { SessionHistoryEntry } from '../types';
 
 const STORAGE_KEY = 'zinsontleding_session_history_v1';
-const MAX_ENTRIES = 20;
+/** Per leerling (studentId); sessies zonder studentId delen één eigen bak. */
+const MAX_ENTRIES_PER_STUDENT = 20;
+/** Opslaggrens voor de hele browser (gedeelde laptops met meerdere klassen). */
+const MAX_ENTRIES_TOTAL = 400;
 
 export function loadSessionHistory(): SessionHistoryEntry[] {
   try {
@@ -20,13 +23,52 @@ function saveSessionHistory(history: SessionHistoryEntry[]): void {
   }
 }
 
+const bucketOf = (e: SessionHistoryEntry): string => e.studentId ?? '';
+
+/**
+ * Snoei per leerling in plaats van browserbreed: anders drukken sessies van
+ * de ene leerling op een gedeelde laptop de geschiedenis van een andere
+ * leerling uit de adaptieve selectie. Boven de totaalgrens valt eerst de
+ * leerling af die het langst niet heeft geoefend. Volgorde blijft oud → nieuw.
+ */
+export function trimSessionHistory(history: SessionHistoryEntry[]): SessionHistoryEntry[] {
+  const perBucket = new Map<string, number>();
+  const kept: SessionHistoryEntry[] = [];
+  for (let i = history.length - 1; i >= 0; i--) {
+    const b = bucketOf(history[i]);
+    const n = perBucket.get(b) ?? 0;
+    if (n >= MAX_ENTRIES_PER_STUDENT) continue;
+    perBucket.set(b, n + 1);
+    kept.push(history[i]);
+  }
+  kept.reverse();
+
+  let excess = kept.length - MAX_ENTRIES_TOTAL;
+  if (excess <= 0) return kept;
+
+  // Laatste positie per bak = laatste activiteit; minst recent actief eerst.
+  const lastIndex = new Map<string, number>();
+  kept.forEach((e, i) => lastIndex.set(bucketOf(e), i));
+  const removeCount = new Map<string, number>();
+  for (const [b] of [...lastIndex].sort((x, y) => x[1] - y[1])) {
+    if (excess <= 0) break;
+    const take = Math.min(excess, perBucket.get(b) ?? 0);
+    removeCount.set(b, take);
+    excess -= take;
+  }
+  return kept.filter(e => {
+    const b = bucketOf(e);
+    const left = removeCount.get(b) ?? 0;
+    if (left <= 0) return true;
+    removeCount.set(b, left - 1); // oudste sessies van die bak eerst
+    return false;
+  });
+}
+
 export function saveSessionToHistory(entry: SessionHistoryEntry): void {
   const history = loadSessionHistory();
   history.push(entry);
-  if (history.length > MAX_ENTRIES) {
-    history.splice(0, history.length - MAX_ENTRIES);
-  }
-  saveSessionHistory(history);
+  saveSessionHistory(trimSessionHistory(history));
 }
 
 /**
