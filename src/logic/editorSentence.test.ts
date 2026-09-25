@@ -1,8 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import type { Sentence } from '../types';
-import { buildEditorTokens, carryOverBijzinAnalyse, editorAnnotationFromSentence, getBetrekkelijkeBijzinLevelWarning } from './editorSentence';
+import { buildEditorTokens, carryOverBijzinAnalyse, editorAnnotationFromSentence, getBetrekkelijkeBijzinLevelWarning, getDroppedFields } from './editorSentence';
 import { buildBijzinSentence, getBijzinTokenGroups } from './bijzinAnalysis';
 import { getLostBijzinAnalyses } from './bijzinEditor';
+import level0 from '../data/sentences-level-0.json';
+import level1 from '../data/sentences-level-1.json';
+import level2 from '../data/sentences-level-2.json';
 import level3 from '../data/sentences-level-3.json';
 import level4 from '../data/sentences-level-4.json';
 
@@ -112,5 +115,50 @@ describe('zinseditor — betrekkelijke bijzin onder het hoogste niveau', () => {
 
   it('waarschuwt niet bij een andere bijzin', () => {
     expect(getBetrekkelijkeBijzinLevelWarning(functies(330), 1)).toBeNull();
+  });
+});
+
+describe('zinseditor — andere velden die bij opslaan wegvallen', () => {
+  const alle = [level0, level1, level2, level3, level4].flat() as Sentence[];
+  /** What buildSentence saves: the editor's tokens with the bijzinAnalyse carried over, and only its own sentence fields. */
+  const opslaan = (s: Sentence, change?: (a: ReturnType<typeof editorAnnotationFromSentence>) => void): Sentence => {
+    const a = editorAnnotationFromSentence(s);
+    change?.(a);
+    const tokens = carryOverBijzinAnalyse(s, buildEditorTokens(s.id, a));
+    return { id: s.id, label: s.label, predicateType: s.predicateType, level: s.level, tokens };
+  };
+
+  it('meldt bij opslaan zonder wijziging precies de zinnen met velden die de editor niet kent', () => {
+    // Onafhankelijke beschrijving van de data: woordniveau-bijvBepTarget, alternativeRole of structuralTags.
+    const verwacht = alle
+      .filter(s => s.structuralTags || s.tokens.some(t => t.alternativeRole || (t.bijvBepTarget && t.role !== 'bijzin')))
+      .map(s => s.id);
+    const gemeld = alle.filter(s => getDroppedFields(s, opslaan(s)).length > 0).map(s => s.id);
+    expect(gemeld).toEqual(verwacht);
+    expect(gemeld.length).toBeGreaterThan(0);
+  });
+
+  it('noemt per veld de woorden (zin 3: bijvoeglijke bepalingen)', () => {
+    const s = alle.find(x => x.id === 3)!;
+    const dropped = getDroppedFields(s, opslaan(s));
+    expect(dropped.find(d => d.field === 'bijvBepTarget')?.words).toEqual(['voor', 'zaterdag']);
+    expect(dropped.find(d => d.field === 'bijvBepTarget')?.label).toContain('bijvoeglijke bepaling');
+  });
+
+  it('meldt structuralTags als veld van de hele zin', () => {
+    const s = alle.find(x => x.structuralTags)!;
+    expect(getDroppedFields(s, opslaan(s)).find(d => d.field === 'structuralTags')).toMatchObject({ words: [] });
+  });
+
+  it('meldt niets als de velden er nog zijn', () => {
+    const s = alle.find(x => x.structuralTags && x.tokens.some(t => t.bijvBepTarget))!;
+    expect(getDroppedFields(s, s)).toEqual([]);
+    expect(getDroppedFields(null, s)).toEqual([]);
+  });
+
+  it('meldt geen bijvBepTarget als de docent het label bijvoeglijke bepaling zelf weghaalt', () => {
+    const s = alle.find(x => x.id === 3)!;
+    const zonderBvb = opslaan(s, a => { a.subLabels = {}; });
+    expect(getDroppedFields(s, zonderBvb).some(d => d.field === 'bijvBepTarget')).toBe(false);
   });
 });

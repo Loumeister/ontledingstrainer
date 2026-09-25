@@ -147,3 +147,75 @@ export function getBetrekkelijkeBijzinLevelWarning(bijzinFuncties: (RoleKey | un
   if (!bijzinFuncties.includes('bijv_bep') || isBijzinFunctieAsked('bijv_bep', true, level)) return null;
   return `Betrekkelijke bijzin op niveau ${level}: de app vraagt hier geen functie van de betrekkelijke bijzin en laat de bijzin niet ontleden. Dat gebeurt pas vanaf niveau ${BETREKKELIJKE_BIJZIN_LEVEL}. De leerling benoemt de bijzin alleen als bijzin.`;
 }
+
+/** Map word indices of `a` to indices of `b` along a longest common subsequence of the words. */
+export function alignWords(a: string[], b: string[]): Map<number, number> {
+  const lcs = a.map(() => new Array<number>(b.length + 1).fill(0));
+  lcs.push(new Array<number>(b.length + 1).fill(0));
+  for (let i = a.length - 1; i >= 0; i--) {
+    for (let j = b.length - 1; j >= 0; j--) {
+      lcs[i][j] = a[i] === b[j] ? lcs[i + 1][j + 1] + 1 : Math.max(lcs[i + 1][j], lcs[i][j + 1]);
+    }
+  }
+  const map = new Map<number, number>();
+  let i = 0;
+  let j = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) map.set(i++, j++);
+    else if (lcs[i + 1][j] >= lcs[i][j + 1]) i++;
+    else j++;
+  }
+  return map;
+}
+
+/** Token fields the editor sets itself: when one is missing after saving, the teacher removed it. */
+const EDITOR_TOKEN_FIELDS = new Set(['id', 'text', 'role', 'subRole', 'newChunk', 'bijzinFunctie', 'bijzinAnalyse']);
+/** Sentence fields buildSentence keeps. */
+const EDITOR_SENTENCE_FIELDS = new Set(['id', 'label', 'tokens', 'predicateType', 'level', 'owNumber', 'pvTense']);
+
+const FIELD_LABELS: Record<string, string> = {
+  bijvBepTarget: 'koppeling van een bijvoeglijke bepaling aan haar kernwoord',
+  alternativeRole: 'alternatieve rol (tweede goedgekeurde lezing)',
+  structuralTags: 'structuurlabels voor docenten',
+};
+
+export interface DroppedField {
+  field: string;
+  /** Dutch description for the teacher. */
+  label: string;
+  /** Words that lose the field; empty for a field of the whole sentence. */
+  words: string[];
+}
+
+/**
+ * Fields of the source sentence that the editor has no controls for and that are gone from the
+ * sentence that will be saved. The bijzinAnalyse has its own check (getLostBijzinAnalyses).
+ * Words are aligned first; a word the teacher changed is not compared. A bijvBepTarget only counts
+ * while the word keeps its sub role, and not on a bijzin, whose link the editor sets itself.
+ */
+export function getDroppedFields(source: Sentence | null, sentence: Sentence): DroppedField[] {
+  if (!source) return [];
+  const words = new Map<string, string[]>();
+  const add = (field: string, word?: string) => {
+    const list = words.get(field) ?? [];
+    if (word !== undefined) list.push(word);
+    words.set(field, list);
+  };
+
+  const toNew = alignWords(source.tokens.map(t => t.text), sentence.tokens.map(t => t.text));
+  source.tokens.forEach((t, i) => {
+    const j = toNew.get(i);
+    if (j === undefined) return;
+    const kept = sentence.tokens[j];
+    for (const field of Object.keys(t)) {
+      if (EDITOR_TOKEN_FIELDS.has(field) || field in kept) continue;
+      if (field === 'bijvBepTarget' && (t.role === 'bijzin' || kept.subRole !== t.subRole)) continue;
+      add(field, t.text);
+    }
+  });
+  for (const field of Object.keys(source)) {
+    if (!EDITOR_SENTENCE_FIELDS.has(field) && !(field in sentence)) add(field);
+  }
+
+  return [...words].map(([field, list]) => ({ field, label: FIELD_LABELS[field] ?? field, words: list }));
+}

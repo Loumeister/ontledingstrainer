@@ -20,6 +20,7 @@ import {
   carryOverBijzinAnalyse,
   editorAnnotationFromSentence,
   getBetrekkelijkeBijzinLevelWarning,
+  getDroppedFields,
   getEditorChunks,
 } from '../logic/editorSentence';
 import { applyBijzinEdits, BijzinEditState, bijzinEditStateFromTokens, bijzinKey, getLostBijzinAnalyses, getVerbindingswoordWarnings } from '../logic/bijzinEditor';
@@ -34,6 +35,9 @@ import {
 import { getSubmissionsForAssignment } from '../services/trainerSubmissionStore';
 
 type ListFilter = 'all' | 'builtin' | 'custom';
+
+/** The list marks each sentence with _isBuiltIn. Strip it, so it is not taken for data of the sentence. */
+const withoutListMarker = ({ _isBuiltIn: _marker, ...s }: Sentence & { _isBuiltIn?: boolean }): Sentence => s;
 
 const PIN_SESSION_KEY = EDITOR_SESSION_KEY;
 
@@ -371,7 +375,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     setSubLabels(annotation.subLabels);
     setBijzinFunctieLabels(annotation.bijzinFunctieLabels);
     setBijvBepLinks(annotation.bijvBepLinks);
-    setSourceSentence(s);
+    setSourceSentence(withoutListMarker(s));
     setBijzinEdits({});
     setPhase('edit');
   };
@@ -400,7 +404,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     setSubLabels(annotation.subLabels);
     setBijzinFunctieLabels(annotation.bijzinFunctieLabels);
     setBijvBepLinks(annotation.bijvBepLinks);
-    setSourceSentence(s);
+    setSourceSentence(withoutListMarker(s));
     setBijzinEdits({});
 
     // Ga direct naar meta — splits/labels hoeven niet opnieuw ingesteld te worden
@@ -1016,6 +1020,7 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
     const errors = getValidationErrors(sentence);
     const bijzinProblems = getBijzinAnalyseProblems(sentence);
     const lostBijzinnen = getLostBijzinAnalyses(sourceSentence, sentence);
+    const droppedFields = getDroppedFields(sourceSentence, sentence);
 
     return (
       <div className={`${pageClass} flex items-center justify-center`}>
@@ -1057,6 +1062,23 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
               </p>
               <ul className="text-sm text-red-700 dark:text-red-300 list-disc list-inside">
                 {lostBijzinnen.map((b, i) => <li key={i}>{b}</li>)}
+              </ul>
+            </div>
+          )}
+
+          {droppedFields.length > 0 && (
+            <div role="alert" className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg">
+              <p className="font-bold text-red-800 dark:text-red-200 text-sm mb-1">Deze gegevens gaan verloren bij opslaan</p>
+              <p className="text-sm text-red-700 dark:text-red-300 mb-1">
+                De zin bevat gegevens die de editor niet kan tonen of bewerken. Ze worden niet mee opgeslagen, ook niet bij een export van het corpus. Is dat niet de bedoeling, sla dan niet op.
+              </p>
+              <ul className="text-sm text-red-700 dark:text-red-300 list-disc list-inside">
+                {droppedFields.map(d => (
+                  <li key={d.field}>
+                    {d.label}
+                    {d.words.length > 0 && <>: {d.words.slice(0, 5).map(w => `'${w}'`).join(', ')}{d.words.length > 5 && ` en nog ${d.words.length - 5}`}</>}
+                  </li>
+                ))}
               </ul>
             </div>
           )}

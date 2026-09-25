@@ -1,6 +1,7 @@
 import type { BijzinTokenAnalyse, RoleKey, Sentence, Token } from '../types';
 import { getBijzinTokenGroups } from './bijzinAnalysis';
 import { computeCorrectSplits } from './validation';
+import { alignWords } from './editorSentence';
 
 /**
  * Editor state for the analysis of one bijzin, following the same pattern as the main editor:
@@ -132,26 +133,6 @@ export function getVerbindingswoordWarnings(sentence: Sentence): string[] {
   return sentence.tokens
     .filter(t => t.bijzinAnalyse?.verbindingswoord && (t.subRole === 'vw_onder' || t.bijzinAnalyse.role === 'vw_onder'))
     .map(t => `'${t.text}' is een verbindingswoord en daarom geen onderschikkend voegwoord. Geef het in de bijzin zijn eigen functie (bijv. OW of LV) en haal in de hoofdzin het label onderschikkend voegwoord weg.`);
-}
-
-/** Map word indices of `a` to indices of `b` along a longest common subsequence of the words. */
-function alignWords(a: string[], b: string[]): Map<number, number> {
-  const lcs = a.map(() => new Array<number>(b.length + 1).fill(0));
-  lcs.push(new Array<number>(b.length + 1).fill(0));
-  for (let i = a.length - 1; i >= 0; i--) {
-    for (let j = b.length - 1; j >= 0; j--) {
-      lcs[i][j] = a[i] === b[j] ? lcs[i + 1][j + 1] + 1 : Math.max(lcs[i + 1][j], lcs[i][j + 1]);
-    }
-  }
-  const map = new Map<number, number>();
-  let i = 0;
-  let j = 0;
-  while (i < a.length && j < b.length) {
-    if (a[i] === b[j]) map.set(i++, j++);
-    else if (lcs[i + 1][j] >= lcs[i][j + 1]) i++;
-    else j++;
-  }
-  return map;
 }
 
 /**
