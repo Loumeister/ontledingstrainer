@@ -62,3 +62,43 @@ export function filterSentences(sentences: Sentence[], cfg: SentenceFilterConfig
     return true;
   });
 }
+
+export type FocusKey = 'lv' | 'mv' | 'vv' | 'ng' | 'bb';
+
+export interface FocusAvailability {
+  /** Zinnen met dit zinsdeel bij de huidige keuzes (niveau, gezegde). */
+  count: number;
+  /** Idem, maar ongeacht het gekozen gezegde (stap 2). */
+  countAnyPredicate: number;
+}
+
+/**
+ * Hoeveel zinnen passen bij elke keuze in 'Extra oefenen met', als die keuze
+ * als enige aan zou staan. Een keuze met 0 zinnen kan de leerling niet maken.
+ */
+export function getFocusAvailability(
+  sentences: Sentence[],
+  cfg: Pick<SentenceFilterConfig, 'predicateMode' | 'selectedLevel' | 'includeVV'>,
+): Record<FocusKey, FocusAvailability> {
+  const base: SentenceFilterConfig = {
+    predicateMode: cfg.predicateMode,
+    selectedLevel: cfg.selectedLevel,
+    includeVV: cfg.includeVV,
+    focusLV: false, focusMV: false, focusVV: false, focusBijzin: false,
+  };
+  const flags: Record<FocusKey, Partial<SentenceFilterConfig>> = {
+    lv: { focusLV: true },
+    mv: { focusMV: true },
+    vv: { focusVV: true },
+    ng: { focusNG: true },
+    bb: { focusBB: true },
+  };
+  const result = {} as Record<FocusKey, FocusAvailability>;
+  for (const key of Object.keys(flags) as FocusKey[]) {
+    result[key] = {
+      count: filterSentences(sentences, { ...base, ...flags[key] }).length,
+      countAnyPredicate: filterSentences(sentences, { ...base, ...flags[key], predicateMode: 'ALL' }).length,
+    };
+  }
+  return result;
+}

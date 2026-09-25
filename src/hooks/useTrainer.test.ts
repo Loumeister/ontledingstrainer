@@ -16,7 +16,7 @@ import level0 from '../data/sentences-level-0.json';
 import level1 from '../data/sentences-level-1.json';
 import level2 from '../data/sentences-level-2.json';
 import { getLadderSentenceFilter } from '../logic/rollenladder';
-import { filterSentences, defaultIncludeVV, type SentenceFilterConfig } from '../logic/sentenceFilter';
+import { filterSentences, defaultIncludeVV, getFocusAvailability, type SentenceFilterConfig } from '../logic/sentenceFilter';
 
 // ── localStorage mock ─────────────────────────────────────────────────────────
 
@@ -334,6 +334,25 @@ describe('filterSentences — bijst en vv', () => {
   it('vz.vw staat standaard alleen aan bij Hoog en Samengesteld', () => {
     expect([null, 0, 1, 2, 3, 4].map(l => defaultIncludeVV(l as DifficultyLevel | null)))
       .toEqual([false, false, false, false, true, true]);
+  });
+});
+
+// ── Tests: getFocusAvailability ──────────────────────────────────────────────
+
+describe('getFocusAvailability', () => {
+  const basisWG = makeSentence({ level: 1, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('lv')] });
+  const basisNG = makeSentence({ level: 1, predicateType: 'NG', tokens: [makeToken('pv'), makeToken('ow')] });
+  const middelVV = makeSentence({ level: 2, predicateType: 'WG', tokens: [makeToken('pv'), makeToken('vv')] });
+  const zinnen = [basisWG, basisNG, middelVV];
+
+  it('vz.vw is niet beschikbaar op Basis, wel op Middel (ook met de vz.vw-schakelaar uit)', () => {
+    expect(getFocusAvailability(zinnen, { predicateMode: 'ALL', selectedLevel: 1, includeVV: false }).vv.count).toBe(0);
+    expect(getFocusAvailability(zinnen, { predicateMode: 'ALL', selectedLevel: 2, includeVV: false }).vv.count).toBe(1);
+  });
+
+  it('NG telt 0 bij Alleen WG, maar wel mee ongeacht het gezegde', () => {
+    const ng = getFocusAvailability(zinnen, { predicateMode: 'WG', selectedLevel: 1, includeVV: false }).ng;
+    expect(ng).toEqual({ count: 0, countAnyPredicate: 1 });
   });
 });
 

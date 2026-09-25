@@ -52,7 +52,7 @@ import {
 export type { ChunkData, ValidationResult };
 export type AppStep = 'split' | 'label';
 export type Mode = 'free' | 'session';
-import { PredicateMode, filterSentences, defaultIncludeVV } from '../logic/sentenceFilter';
+import { PredicateMode, filterSentences, defaultIncludeVV, getFocusAvailability, FocusKey, FocusAvailability } from '../logic/sentenceFilter';
 export type { PredicateMode };
 /** Tracks how a session was started so results can be labelled accordingly. */
 export type SessionSource = 'pool' | 'json' | 'selected' | 'shared';
@@ -138,6 +138,8 @@ export interface TrainerState {
   // Derived
   userChunks: ChunkData[];
   availableSentences: Sentence[];
+  /** Per keuze in 'Extra oefenen met': hoeveel zinnen erbij passen. */
+  focusAvailability: Record<FocusKey, FocusAvailability>;
 
   // Actions
   refreshCustomSentences: () => void;
@@ -1532,6 +1534,10 @@ export function useTrainer(): TrainerState {
 
   const userChunks = getUserChunks();
   const availableSentences = filteredSentences;
+  const focusAvailability = useMemo(
+    () => getFocusAvailability(allSentences, { predicateMode, selectedLevel, includeVV }),
+    [allSentences, predicateMode, selectedLevel, includeVV],
+  );
 
   const handleSkipSplitStep = () => {
     if (!currentSentence || step !== 'split') return;
@@ -1620,7 +1626,7 @@ export function useTrainer(): TrainerState {
     dyslexiaMode, setDyslexiaMode,
 
     // Derived
-    userChunks, availableSentences,
+    userChunks, availableSentences, focusAvailability,
 
     // Actions
     refreshCustomSentences,

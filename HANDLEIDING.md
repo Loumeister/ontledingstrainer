@@ -58,7 +58,7 @@ Zet alleen aan wat je al in de les hebt gehad. Bij elke schakelaar staat wat er 
 Bijstellingen (Jan, *mijn broer*, komt langs) komen alleen voor op Hoog en Samengesteld.
 
 ### 4. Extra oefenen met
-Wil je gericht één zinsdeel oefenen? Kies hier het **lijdend voorwerp**, **meewerkend voorwerp**, **voorzetselvoorwerp**, **naamwoordelijk gezegde** of de **bijvoeglijke bepaling**. Je krijgt dan alleen zinnen waarin een gekozen zinsdeel zit. Kies je het voorzetselvoorwerp of de bijvoeglijke bepaling, dan gaat de schakelaar in stap 3 vanzelf aan: je moet dat zinsdeel dan ook benoemen.
+Wil je gericht één zinsdeel oefenen? Kies hier het **lijdend voorwerp**, **meewerkend voorwerp**, **voorzetselvoorwerp**, **naamwoordelijk gezegde** of de **bijvoeglijke bepaling**. Je krijgt dan alleen zinnen waarin een gekozen zinsdeel zit. Kies je het voorzetselvoorwerp of de bijvoeglijke bepaling, dan gaat de schakelaar in stap 3 vanzelf aan: je moet dat zinsdeel dan ook benoemen. Een keuze die bij jouw niveau of gezegde geen zinnen oplevert, is grijs; eronder staat waarom.
 
 ### Slim kiezen
 Staat **Slim kiezen** aan, dan krijg je vaker zinnen met zinsdelen waar je eerder fouten mee maakte.

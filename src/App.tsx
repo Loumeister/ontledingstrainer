@@ -187,6 +187,7 @@ export default function App() {
         largeFont={trainer.largeFont} setLargeFont={trainer.setLargeFont}
         dyslexiaMode={trainer.dyslexiaMode} setDyslexiaMode={trainer.setDyslexiaMode}
         availableSentences={trainer.availableSentences}
+        focusAvailability={trainer.focusAvailability}
         isLoadingSentences={trainer.isLoadingSentences}
         sentenceLoadError={trainer.sentenceLoadError}
         refreshCustomSentences={trainer.refreshCustomSentences}

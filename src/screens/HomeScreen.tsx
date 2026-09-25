@@ -1,11 +1,11 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { DifficultyLevel, Sentence } from '../types';
 import { HelpModal } from '../components/HelpModal';
 import { SentencePicker } from '../components/SentencePicker';
 import { TrainerState } from '../hooks/useTrainer';
 import { importCustomSentences, getCustomSentences, parseAndValidateSentences } from '../data/customSentenceStore';
 import { LEVEL_NAMES, LEVEL_SUMMARIES, LEVEL_TOOLTIPS, ROLES } from '../constants';
-import { PredicateMode } from '../logic/sentenceFilter';
+import { PredicateMode, FocusKey, FocusAvailability } from '../logic/sentenceFilter';
 import { nextRadioIndex } from '../logic/radioKeys';
 import { getPreviousScore, getStreak } from '../services/sessionHistory';
 import { getLadderStage, LADDER_STAGES } from '../logic/rollenladder';
@@ -28,6 +28,7 @@ type HomeScreenProps = Pick<TrainerState,
   | 'largeFont' | 'setLargeFont'
   | 'dyslexiaMode' | 'setDyslexiaMode'
   | 'availableSentences'
+  | 'focusAvailability'
   | 'isLoadingSentences'
   | 'sentenceLoadError'
   | 'refreshCustomSentences'
@@ -56,6 +57,14 @@ const FOCUS_OPTIONS = [
   { key: 'ng', role: 'ng' },
   { key: 'bb', role: 'bijv_bep' },
 ] as const;
+
+/** Korte uitleg waarom een keuze in 'Extra oefenen met' niet kan, of null als hij wel kan. */
+function focusUnavailableReason(key: FocusKey, availability: FocusAvailability, predicateMode: PredicateMode, level: string): string | null {
+  if (availability.count > 0) return null;
+  if (key === 'ng' && predicateMode === 'WG') return 'Kies in stap 2 NG of Allebei.';
+  if (availability.countAnyPredicate > 0) return 'Kies in stap 2 Allebei.';
+  return `Komt niet voor op ${level}.`;
+}
 
 const LEVEL_OPTIONS: (DifficultyLevel | null)[] = [null, 0, 1, 2, 3, 4];
 const ALL_LEVELS_SUMMARY = 'Instap tot en met Hoog door elkaar. Samengestelde zinnen zitten er niet bij.';
@@ -141,6 +150,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   largeFont, setLargeFont,
   dyslexiaMode, setDyslexiaMode,
   availableSentences,
+  focusAvailability,
   isLoadingSentences,
   sentenceLoadError,
   refreshCustomSentences,
@@ -177,6 +187,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     }
     return ROLES.filter(r => present.has(r.key));
   }, [availableSentences, includeBB]);
+
+  const focusState: Record<FocusKey, [boolean, (v: boolean) => void]> = {
+    lv: [focusLV, setFocusLV], mv: [focusMV, setFocusMV], vv: [focusVV, setFocusVV], ng: [focusNG, setFocusNG], bb: [focusBB, setFocusBB],
+  };
+  const focusReasons = Object.fromEntries(
+    FOCUS_OPTIONS.map(({ key }) => [key, focusUnavailableReason(key, focusAvailability[key], predicateMode, levelName(selectedLevel))]),
+  ) as Record<FocusKey, string | null>;
+
+  // Een keuze die door een ander niveau of gezegde onmogelijk wordt, gaat vanzelf uit.
+  useEffect(() => {
+    for (const { key } of FOCUS_OPTIONS) {
+      const [active, setActive] = focusState[key];
+      if (active && focusReasons[key]) setActive(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusReasons.lv, focusReasons.mv, focusReasons.vv, focusReasons.ng, focusReasons.bb]);
 
   // Welcome card data — gelezen eenmalig bij mount; sessionHistory verandert niet
   // zolang HomeScreen getoond wordt, dus lege deps zijn correct.
@@ -553,29 +579,35 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             {!ladderEnabled && (
               <section aria-labelledby="stap-extra">
                 <StepHeading id="stap-extra" number={4} title="Extra oefenen met" hint="Niet verplicht. Je krijgt dan alleen zinnen waarin een gekozen zinsdeel zit." />
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-start gap-2">
                   {FOCUS_OPTIONS.map(({ key, role: roleKey }) => {
-                    const role = ROLES.find(r => r.key === roleKey);
-                    const focus = { lv: [focusLV, setFocusLV], mv: [focusMV, setFocusMV], vv: [focusVV, setFocusVV], ng: [focusNG, setFocusNG], bb: [focusBB, setFocusBB] } as const;
-                    const [active, setActive] = focus[key];
-                    const toggle = () => {
-                      setActive(!active);
-                      // Oefenen met de bijv. bepaling betekent ook: benoemen.
-                      if (key === 'bb' && !active) setIncludeBB(true);
-                      if (key === 'vv' && !active) setIncludeVV(true);
-                    };
-                    return (
+                  const role = ROLES.find(r => r.key === roleKey);
+                  const [active, setActive] = focusState[key];
+                  const reason = focusReasons[key];
+                  const toggle = () => {
+                    setActive(!active);
+                    // Oefenen met de bijv. bepaling betekent ook: benoemen.
+                    if (key === 'bb' && !active) setIncludeBB(true);
+                    if (key === 'vv' && !active) setIncludeVV(true);
+                  };
+                  return (
+                    <div key={key} className="flex flex-col items-start gap-1">
                       <button
-                        key={key}
                         aria-pressed={active}
+                        disabled={!!reason}
+                        aria-describedby={reason ? `focus-reden-${key}` : undefined}
                         onClick={toggle}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 text-sm font-bold transition-all ${active ? `${role?.colorClass} ${role?.borderColorClass} shadow-sm` : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-slate-300'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 text-sm font-bold transition-all disabled:cursor-not-allowed disabled:opacity-50 disabled:border-dashed ${active ? `${role?.colorClass} ${role?.borderColorClass} shadow-sm` : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 enabled:hover:border-slate-300'}`}
                       >
                         <span className={`w-4 h-4 rounded border-2 flex items-center justify-center text-[10px] ${active ? 'border-current' : 'border-slate-300 dark:border-slate-500'}`} aria-hidden="true">{active ? '✓' : ''}</span>
                         {role?.label}
                       </button>
-                    );
-                  })}
+                      {reason && (
+                        <span id={`focus-reden-${key}`} className="pl-4 text-xs text-slate-500 dark:text-slate-400">{reason}</span>
+                      )}
+                    </div>
+                  );
+                })}
                 </div>
               </section>
             )}
