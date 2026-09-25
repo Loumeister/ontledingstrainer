@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { buildBijzinSentence, getBijzinTokenGroups, isBijzinAnalyseAsked, isBijzinUnlocked } from './bijzinAnalysis';
+import { buildBijzinSentence, checkBijzinAnalyse, getBijzinTokenGroups, isBijzinAnalyseAsked, isBijzinUnlocked } from './bijzinAnalysis';
+import { HINTS } from '../constants';
 import { validateAnswer, computeCorrectSplits } from './validation';
 import type { Sentence, Token } from '../types';
 
@@ -26,12 +27,29 @@ describe('buildBijzinSentence', () => {
     expect(wrong.result.chunkStatus[0]).toBe('incorrect-role');
   });
 
-  it('laat een niet-gevraagd woord (betrekkelijk voornaamwoord) weg', () => {
+  describe('verbindingswoord (die, dat, waar …)', () => {
     const rel: Token[] = [
-      { id: 'r1', text: 'die', role: 'bijzin', bijzinAnalyse: { role: 'ow', notAsked: true } },
+      { id: 'r1', text: 'die', role: 'bijzin', bijzinAnalyse: { role: 'ow', verbindingswoord: true } },
       { id: 'r2', text: 'slaapt', role: 'bijzin', bijzinAnalyse: { role: 'pv' } },
     ];
-    expect(buildBijzinSentence(sentence, rel)!.tokens.map(t => t.text)).toEqual(['slaapt']);
+
+    it('laat het onder het hoogste niveau weg', () => {
+      expect(buildBijzinSentence({ ...sentence, level: 3 }, rel)!.tokens.map(t => t.text)).toEqual(['slaapt']);
+    });
+
+    it('vraagt het op het hoogste niveau als eigen zinsdeel met zijn functie', () => {
+      const derived = buildBijzinSentence({ ...sentence, level: 4 }, rel)!;
+      expect(derived.tokens.map(t => `${t.text}:${t.role}`)).toEqual(['die:ow', 'slaapt:pv']);
+      const splits = computeCorrectSplits(derived.tokens);
+      expect(checkBijzinAnalyse(derived, rel, splits, { r1: 'ow', r2: 'pv' }).result.isPerfect).toBe(true);
+    });
+
+    it('wijst bij "onderschikkend voegwoord" op de eigen functie in de bijzin', () => {
+      const derived = buildBijzinSentence({ ...sentence, level: 4 }, rel)!;
+      const { result } = checkBijzinAnalyse(derived, rel, computeCorrectSplits(derived.tokens), { r1: 'vw_onder', r2: 'pv' });
+      expect(result.chunkStatus[0]).toBe('incorrect-role');
+      expect(result.chunkFeedback[0]).toBe(HINTS.VERBINDINGSWOORD_HAS_FUNCTIE('die'));
+    });
   });
 
   it('geeft null voor een bijzin zonder annotatie', () => {

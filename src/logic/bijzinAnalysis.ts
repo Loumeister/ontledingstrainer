@@ -1,5 +1,6 @@
+import { HINTS } from '../constants';
 import { PlacementMap, Sentence, Token } from '../types';
-import { BETREKKELIJKE_BIJZIN_LEVEL, buildUserChunks, computeCorrectSplits, isBijzinFunctieAsked } from './validation';
+import { BETREKKELIJKE_BIJZIN_LEVEL, buildUserChunks, computeCorrectSplits, isBijzinFunctieAsked, validateAnswer } from './validation';
 
 /** The bijzinnen of a sentence as token groups, following the same chunk rules as the main analysis. */
 export function getBijzinTokenGroups(sentence: Sentence): Token[][] {
@@ -10,14 +11,16 @@ export function getBijzinTokenGroups(sentence: Sentence): Token[][] {
 /**
  * Derive the bijzin as a sentence of its own, so it can be split, labelled and checked with
  * validateAnswer like any other sentence. Returns null when the bijzin is not (fully) annotated.
- * Tokens marked notAsked are left out: the student does not label them.
+ * A verbindingswoord (die, dat, waar …) is only asked as a zinsdeel on the highest level; below
+ * that it is left out and the student does not label it.
  */
 export function buildBijzinSentence(sentence: Sentence, bijzinTokens: Token[]): Sentence | null {
   if (bijzinTokens.length === 0 || bijzinTokens.some(t => t.role !== 'bijzin' || !t.bijzinAnalyse)) return null;
+  const askVerbindingswoord = isVerbindingswoordAsked(sentence);
   const tokens: Token[] = bijzinTokens
-    .filter(t => !t.bijzinAnalyse!.notAsked)
+    .filter(t => askVerbindingswoord || !t.bijzinAnalyse!.verbindingswoord)
     .map(t => {
-      const { notAsked: _notAsked, ...analyse } = t.bijzinAnalyse!;
+      const { verbindingswoord: _verbindingswoord, ...analyse } = t.bijzinAnalyse!;
       return { id: t.id, text: t.text, ...analyse };
     });
   if (tokens.length === 0) return null;
@@ -28,6 +31,32 @@ export function buildBijzinSentence(sentence: Sentence, bijzinTokens: Token[]): 
     predicateType: tokens.some(t => t.role === 'ng') ? 'NG' : 'WG',
     tokens,
   };
+}
+
+/** Betrekkelijke and vragende verbindingswoorden are named as a zinsdeel only on the highest level. */
+export function isVerbindingswoordAsked(sentence: Sentence): boolean {
+  return sentence.level >= BETREKKELIJKE_BIJZIN_LEVEL;
+}
+
+/**
+ * Check the student's analysis of a bijzin with validateAnswer. When a verbindingswoord is labelled
+ * as onderschikkend voegwoord, the repair step points at its own function in the bijzin.
+ */
+export function checkBijzinAnalyse(
+  bijzin: Sentence,
+  allTokens: Token[],
+  splitIndices: Set<number>,
+  chunkLabels: PlacementMap,
+) {
+  const checked = validateAnswer(bijzin, splitIndices, chunkLabels, {}, false);
+  const verbindingswoordIds = new Set(allTokens.filter(t => t.bijzinAnalyse?.verbindingswoord).map(t => t.id));
+  buildUserChunks(bijzin.tokens, splitIndices).forEach((chunk, idx) => {
+    const first = chunk.tokens[0];
+    if (verbindingswoordIds.has(first.id) && chunkLabels[first.id] === 'vw_onder' && checked.result.chunkStatus[idx] === 'incorrect-role') {
+      checked.result.chunkFeedback[idx] = HINTS.VERBINDINGSWOORD_HAS_FUNCTIE(first.text);
+    }
+  });
+  return checked;
 }
 
 /** A betrekkelijke (bijvoeglijke) bijzin is only analysed on the highest level, like its function. */

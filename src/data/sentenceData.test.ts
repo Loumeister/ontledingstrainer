@@ -56,6 +56,13 @@ describe('zinnendata — docentcorrecties', () => {
 });
 
 describe('zinnendata — bijzinontleding', () => {
+  it('geeft een betrekkelijk of vragend verbindingswoord geen label onderschikkend voegwoord', () => {
+    const offenders = all.flatMap(s => s.tokens
+      .filter(t => t.bijzinAnalyse?.verbindingswoord && (t.subRole === 'vw_onder' || t.bijzinAnalyse.role === 'vw_onder'))
+      .map(t => `${s.id}:${t.text}`));
+    expect(offenders).toEqual([]);
+  });
+
   it('annoteert elke bijzin volledig, en elke bijzin heeft een PV', () => {
     for (const s of all) {
       for (const group of getBijzinTokenGroups(s)) {

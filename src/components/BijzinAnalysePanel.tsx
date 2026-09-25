@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { ROLES } from '../constants';
 import { PlacementMap, RoleKey, Sentence, Token } from '../types';
-import { buildUserChunks, computeCorrectSplits, validateAnswer, ValidationResult } from '../logic/validation';
+import { buildUserChunks, computeCorrectSplits, ValidationResult } from '../logic/validation';
+import { checkBijzinAnalyse } from '../logic/bijzinAnalysis';
 import { logInteraction } from '../services/interactionLog';
 import { FeedbackPanel, FeedbackItem } from './FeedbackPanel';
 
@@ -60,7 +61,7 @@ export const BijzinAnalysePanel: React.FC<BijzinAnalysePanelProps> = ({ bijzin, 
   };
 
   const check = () => {
-    const { result: r } = validateAnswer(bijzin, splits, labels, {}, false);
+    const { result: r } = checkBijzinAnalyse(bijzin, allTokens, splits, labels);
     setResult(r);
     logInteraction('bijzin_analyse_check', bijzin.id, `start=${bijzin.tokens[0].id},perfect=${r.isPerfect}`);
   };
