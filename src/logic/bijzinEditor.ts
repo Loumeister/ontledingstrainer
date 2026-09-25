@@ -135,17 +135,29 @@ export function getVerbindingswoordWarnings(sentence: Sentence): string[] {
 }
 
 /**
- * Bijzinnen of the source sentence whose analysis is gone from the sentence that will be saved:
- * none of their word positions carries a bijzinAnalyse any more. That covers a changed bijzin, a
- * removed bijzin label and a wiped analysis; a bijzin whose analysis was entered again is not listed.
+ * Bijzinnen of the source sentence whose analysis is gone from the sentence that will be saved.
+ * A source bijzin counts as kept when an analysed bijzin with the same words is still there (also
+ * when it moved), or when an analysed bijzin now overlaps its old words (the teacher entered it
+ * again after a change). Otherwise it is listed: a changed bijzin, a removed bijzin label or a
+ * wiped analysis.
  */
 export function getLostBijzinAnalyses(source: Sentence | null, sentence: Sentence): string[] {
   if (!source) return [];
-  return getBijzinTokenGroups(source)
-    .filter(group => group.some(t => t.bijzinAnalyse))
+  const textOf = (group: Token[]) => group.map(t => t.text).join(' ');
+  const annotated = getBijzinTokenGroups(sentence).filter(g => g.some(t => t.bijzinAnalyse));
+  const remaining = getBijzinTokenGroups(source).filter(g => g.some(t => t.bijzinAnalyse)).filter(group => {
+    const same = annotated.findIndex(g => textOf(g) === textOf(group));
+    if (same >= 0) annotated.splice(same, 1);
+    return same < 0;
+  });
+  return remaining
     .filter(group => {
       const start = source.tokens.indexOf(group[0]);
-      return !group.some((_, i) => sentence.tokens[start + i]?.bijzinAnalyse);
+      const end = start + group.length;
+      return !annotated.some(g => {
+        const gStart = sentence.tokens.indexOf(g[0]);
+        return gStart < end && gStart + g.length > start;
+      });
     })
-    .map(group => group.map(t => t.text).join(' '));
+    .map(textOf);
 }

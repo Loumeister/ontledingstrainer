@@ -101,6 +101,16 @@ describe('bijzineditor', () => {
       expect(getLostBijzinAnalyses(zin330, opslaan(() => {}))).toEqual([]);
     });
 
+    it('meldt niets als de bijzin alleen verschuift', () => {
+      const verschoven = opslaan(a => {
+        a.words.splice(2, 0, 'lekker');
+        a.splitIndices = new Set([0, 1, 3]);
+        a.chunkLabels = { 0: 'ow', 1: 'pv', 2: 'bwb', 3: 'bijzin' };
+        a.bijzinFunctieLabels = { 3: 'bwb' };
+      });
+      expect(getLostBijzinAnalyses(zin330, verschoven)).toEqual([]);
+    });
+
     it('meldt de bijzin als het bijzinlabel wordt weggehaald, ook zonder andere bijzin in de zin', () => {
       const zonderBijzin = opslaan(a => { a.chunkLabels[3] = 'bwb'; delete a.bijzinFunctieLabels[3]; });
       expect(getBijzinTokenGroups(zonderBijzin)).toEqual([]);
