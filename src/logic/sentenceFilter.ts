@@ -35,7 +35,8 @@ export function filterSentences(sentences: Sentence[], cfg: SentenceFilterConfig
 
     const hasRole = (role: string) => s.tokens.some(t => t.role === role);
 
-    if (cfg.focusLV || cfg.focusMV || cfg.focusVV || cfg.focusNG || cfg.focusBB) {
+    // De Rollenladder bepaalt de pool per trede; de oefenmodus geldt daar niet.
+    if (!cfg.ladderFilter && (cfg.focusLV || cfg.focusMV || cfg.focusVV || cfg.focusNG || cfg.focusBB)) {
       // Oefenmodus: de zin moet minstens één van de gekozen zinsdelen bevatten.
       const matchesFocus =
         (cfg.focusLV && hasRole('lv')) ||

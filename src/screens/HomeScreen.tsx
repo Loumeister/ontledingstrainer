@@ -549,33 +549,36 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               </div>
             </section>
 
-            <section aria-labelledby="stap-extra">
-              <StepHeading id="stap-extra" number={4} title="Extra oefenen met" hint="Niet verplicht. Je krijgt dan alleen zinnen waarin een gekozen zinsdeel zit." />
-              <div className="flex flex-wrap gap-2">
-                {FOCUS_OPTIONS.map(({ key, role: roleKey }) => {
-                  const role = ROLES.find(r => r.key === roleKey);
-                  const focus = { lv: [focusLV, setFocusLV], mv: [focusMV, setFocusMV], vv: [focusVV, setFocusVV], ng: [focusNG, setFocusNG], bb: [focusBB, setFocusBB] } as const;
-                  const [active, setActive] = focus[key];
-                  const toggle = () => {
-                    setActive(!active);
-                    // Oefenen met de bijv. bepaling betekent ook: benoemen.
-                    if (key === 'bb' && !active) setIncludeBB(true);
-                    if (key === 'vv' && !active) setIncludeVV(true);
-                  };
-                  return (
-                    <button
-                      key={key}
-                      aria-pressed={active}
-                      onClick={toggle}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 text-sm font-bold transition-all ${active ? `${role?.colorClass} ${role?.borderColorClass} shadow-sm` : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-slate-300'}`}
-                    >
-                      <span className={`w-4 h-4 rounded border-2 flex items-center justify-center text-[10px] ${active ? 'border-current' : 'border-slate-300 dark:border-slate-500'}`} aria-hidden="true">{active ? '✓' : ''}</span>
-                      {role?.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
+            {/* De Rollenladder bepaalt zelf welke zinnen meedoen; de oefenmodus geldt daar niet. */}
+            {!ladderEnabled && (
+              <section aria-labelledby="stap-extra">
+                <StepHeading id="stap-extra" number={4} title="Extra oefenen met" hint="Niet verplicht. Je krijgt dan alleen zinnen waarin een gekozen zinsdeel zit." />
+                <div className="flex flex-wrap gap-2">
+                  {FOCUS_OPTIONS.map(({ key, role: roleKey }) => {
+                    const role = ROLES.find(r => r.key === roleKey);
+                    const focus = { lv: [focusLV, setFocusLV], mv: [focusMV, setFocusMV], vv: [focusVV, setFocusVV], ng: [focusNG, setFocusNG], bb: [focusBB, setFocusBB] } as const;
+                    const [active, setActive] = focus[key];
+                    const toggle = () => {
+                      setActive(!active);
+                      // Oefenen met de bijv. bepaling betekent ook: benoemen.
+                      if (key === 'bb' && !active) setIncludeBB(true);
+                      if (key === 'vv' && !active) setIncludeVV(true);
+                    };
+                    return (
+                      <button
+                        key={key}
+                        aria-pressed={active}
+                        onClick={toggle}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 text-sm font-bold transition-all ${active ? `${role?.colorClass} ${role?.borderColorClass} shadow-sm` : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-slate-300'}`}
+                      >
+                        <span className={`w-4 h-4 rounded border-2 flex items-center justify-center text-[10px] ${active ? 'border-current' : 'border-slate-300 dark:border-slate-500'}`} aria-hidden="true">{active ? '✓' : ''}</span>
+                        {role?.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
             {/* Bestanden van de docent */}
             <section aria-labelledby="docent-bestand" className="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-100 dark:border-green-800">
               <h2 id="docent-bestand" className="font-bold text-green-800 dark:text-green-200 mb-3">Bestand van je docent gekregen?</h2>

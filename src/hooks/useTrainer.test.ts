@@ -320,6 +320,12 @@ describe('filterSentences — bijst en vv', () => {
     expect(filterSentences([samengesteld], { ...defaultCfg, ladderFilter: getLadderSentenceFilter(1) })).toHaveLength(0);
   });
 
+  it('de Rollenladder negeert de oefenmodus', () => {
+    const wg = makeSentence({ level: 0, predicateType: 'WG' });
+    const result = filterSentences([wg], { ...defaultCfg, focusNG: true, focusLV: true, ladderFilter: getLadderSentenceFilter(1) });
+    expect(result).toContain(wg);
+  });
+
   it('de Rollenladder negeert de vz.vw-schakelaar', () => {
     const result = filterSentences([metVV], { ...defaultCfg, ladderFilter: () => true });
     expect(result).toContain(metVV);
