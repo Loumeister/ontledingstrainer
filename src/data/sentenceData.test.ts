@@ -12,6 +12,26 @@ import level4 from './sentences-level-4.json';
 const all = [level0, level1, level2, level3, level4].flat() as Sentence[];
 const byId = (id: number) => all.find(s => s.id === id)!;
 
+describe('zinnendata — identiteit', () => {
+  it('geeft elke zin een uniek id en het niveau van zijn bestand', () => {
+    const files = [level0, level1, level2, level3, level4] as Sentence[][];
+    expect(files.flatMap((f, level) => f.filter(s => s.level !== level).map(s => s.id))).toEqual([]);
+    const ids = all.map(s => s.id);
+    expect(ids.filter((id, i) => ids.indexOf(id) !== i)).toEqual([]);
+  });
+
+  it('nummert tokens als s<zin-id>t<n>, uniek binnen de zin', () => {
+    const offenders = all.flatMap(s => s.tokens
+      .filter((t, i) => !t.id.startsWith(`s${s.id}t`) || s.tokens.findIndex(o => o.id === t.id) !== i)
+      .map(t => `${s.id}:${t.id}`));
+    expect(offenders).toEqual([]);
+  });
+
+  it('heeft in elke zin een persoonsvorm', () => {
+    expect(all.filter(s => !s.tokens.some(t => t.role === 'pv')).map(s => s.id)).toEqual([]);
+  });
+});
+
 describe('zinnendata — gezegde-annotatie', () => {
   it('"De kat is op het dak": zijn = zich bevinden, dus BWB en geen NG (zin 324)', () => {
     const s = byId(324);

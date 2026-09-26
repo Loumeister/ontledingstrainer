@@ -41,6 +41,4 @@ Resultaat: **alle 248 zinnen slagen**. Vijf bevelzinnen zonder expliciet onderwe
 
 ## Numerieke ordening
 
-- Binnen elk niveaubestand staan zinnen in oplopende `id`.
-- ID-reeksen per niveau: **N1 1–60, N2 61–161, N3 300–341, N4 400–444**.
-- Voor docenten is een numeriek overzicht per subskill beschikbaar in `TEACHERS_SENTENCE_OVERVIEW.md`.
+- Actuele aantallen, ID's en zinsdeelpatronen per niveau staan in `TEACHERS_SENTENCE_OVERVIEW.md`. Dat overzicht wordt uit de zinnendata gegenereerd (`npm run docs:zinnen`); de aantallen hierboven zijn een momentopname van maart 2026.

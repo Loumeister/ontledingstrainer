@@ -6,7 +6,7 @@ Ontleedlab is de lokale ontleedapp. De runtime en tests bepalen huidig gedrag; `
 
 - Productdoel of prioriteit: `SPEC.md`, `TODO.md`
 - Runtime of UI: betrokken bestand, aanroepers en tests
-- Zinnen of annotaties: `.codex/skills/zinsontleding-repo-inspector/references/repo-contract.md` en de relevante dataset
+- Zinnen of annotaties: `.codex/skills/zinsontleding-repo-inspector/references/repo-contract.md` en de relevante dataset; werk daarna het docentoverzicht bij met `npm run docs:zinnen`
 - Ontleedfeedback: `shared/grammar-core/docs/parsing-didactics-kaders.md`, `shared/grammar-core/docs/feedback-authoring.md`, daarna `src/logic/validation.ts` en `src/constants.ts`
 - Gedeelde canon of sync: `shared/grammar-core/README.md`, `shared/grammar-core/docs/repo-sync-strategy.md`
 
