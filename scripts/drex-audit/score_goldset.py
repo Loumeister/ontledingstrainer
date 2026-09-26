@@ -36,6 +36,23 @@ def read_csv(path):
         return list(csv.DictReader(fh, delimiter=';'))
 
 
+def parse_role(raw):
+    """(rol, extra_twijfel). Toegevoegd na blad 1 (alleen inlezen; drempels en maten ongewijzigd):
+    - "VV / BWB": twee lezingen -> twijfel, eerste rol;
+    - "NWD+NG", "NWD+WWD-PV": beschrijft het Ontleedlab-ng-zinsdeel (naamwoordelijk deel, eventueel met koppelwerkwoord) -> ng.
+    """
+    raw = raw.strip().lower()
+    readings = [r.strip() for r in raw.split('/') if r.strip()]
+    if len(readings) > 1:
+        return parse_role(readings[0])[0], True
+    parts = [p.strip() for p in raw.split('+')]
+    if len(parts) > 1 and any(p in ('nwd', 'ng') for p in parts):
+        return 'ng', False
+    if raw not in ROLE_MAP:
+        raise ValueError(f'onbekende rol "{raw}"')
+    return ROLE_MAP[raw], False
+
+
 def column(row, *prefixes):
     for name, value in row.items():
         if name and any(name.strip().lower().startswith(p) for p in prefixes):
@@ -74,13 +91,15 @@ def load_judgements(design_path, sheets):
             key = design[(blad, int(row['nr']))]
             if int(row['zin_id']) != key[0]:
                 raise ValueError(f'blad {blad} nr {row["nr"]}: zin_id {row["zin_id"]} past niet bij het ontwerp ({key[0]})')
-            raw = column(row, 'human_role', 'jouw_rol').lower()
+            raw = column(row, 'human_role', 'jouw_rol')
             if not raw:
                 continue
-            if raw not in ROLE_MAP:
-                raise ValueError(f'blad {blad} nr {row["nr"]}: onbekende rol "{raw}"')
-            judged[key] = (ROLE_MAP[raw], column(row, 'ambiguous', 'twee_lezingen').lower() in YES,
-                           column(row, 'note', 'opmerking'))
+            try:
+                role, two_readings = parse_role(raw)
+            except ValueError as e:
+                raise ValueError(f'blad {blad} nr {row["nr"]}: {e}') from None
+            ambiguous = two_readings or column(row, 'ambiguous', 'twee_lezingen').lower() in YES
+            judged[key] = (role, ambiguous, column(row, 'note', 'opmerking'))
     return judged
 
 

@@ -67,3 +67,7 @@ Sanity check, geen beslissing: zin 5008 *Wij luisteren **naar muziek*** (geannot
 - Blad 1 is getrokken met dezelfde signalen die we toetsen. Ongewogen cijfers over blad 1 overschatten daarom de recall. Alleen de gewogen cijfers zeggen iets over het corpus.
 - Eén beoordelaar. Wat die beoordelaar "fout" noemt, is de maatstaf. Een tweede beoordelaar op de twijfel- en foutgevallen zou de betrouwbaarheid laten zien.
 - Omschrijvingen per rol zijn niet weggegooid, maar zijn ongeschikt als primaire instructie gebleken. Een smalle omschrijving per contrast moet later apart bewijzen dat hij iets toevoegt.
+
+## Afwijkingen
+
+1. **Na het inleveren van blad 1** kreeg `score_goldset.py` regels voor samengestelde notaties: `NWD+NG` en `NWD+WWD-PV` gelden als ng; `VV / BWB` geldt als twee lezingen, dus twijfel. Het betreft alleen het inlezen. Configuratie, drempels, maten en beslisregel zijn ongewijzigd. Een lege twijfelkolom telt als *nee*.

@@ -190,6 +190,14 @@ class GoldsetTest(unittest.TestCase):
         self.assertIn('stoppen', sg.decision({**base, 'precision': 0.05, 'errors_flagged': 0}))
         self.assertEqual((sg.FLAG_P_LABELS_BELOW, sg.FLAG_NOUL_BELOW, sg.USEFUL_PRECISION), (0.18, 0.45, 0.20))
 
+    def test_compound_role_notations(self):
+        import score_goldset as sg
+        self.assertEqual(sg.parse_role('NWD+NG'), ('ng', False))
+        self.assertEqual(sg.parse_role('NWD+WWD-PV'), ('ng', False))
+        self.assertEqual(sg.parse_role('VV / BWB'), ('vv', True))
+        with self.assertRaises(ValueError):
+            sg.parse_role('LV+MV')
+
     def test_sheet_columns_in_either_language_and_design_check(self):
         import tempfile
         import score_goldset as sg
