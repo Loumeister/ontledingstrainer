@@ -20,9 +20,9 @@ describe('zinnendata — identiteit', () => {
     expect(ids.filter((id, i) => ids.indexOf(id) !== i)).toEqual([]);
   });
 
-  it('nummert tokens als s<zin-id>t<n>, uniek binnen de zin', () => {
+  it('nummert tokens als s<zin-id>t<n>, met n de positie in de zin vanaf 1', () => {
     const offenders = all.flatMap(s => s.tokens
-      .filter((t, i) => !t.id.startsWith(`s${s.id}t`) || s.tokens.findIndex(o => o.id === t.id) !== i)
+      .filter((t, i) => t.id !== `s${s.id}t${i + 1}`)
       .map(t => `${s.id}:${t.id}`));
     expect(offenders).toEqual([]);
   });
