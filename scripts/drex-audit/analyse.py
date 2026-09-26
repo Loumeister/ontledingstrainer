@@ -4,6 +4,7 @@
 Gebruik: python3 scripts/drex-audit/analyse.py [rows.jsonl] > rapport.md
 """
 import collections
+import gzip
 import json
 import sys
 from pathlib import Path
@@ -24,17 +25,46 @@ def pct(a, b):
 CLASSIFY_SETUPS = ('A_v2', 'A_v1', 'A_book', 'A_bare')  # A_book = eerste meting (omschrijvingen v1)
 
 
-def load(path):
-    rows = []
-    with open(path) as fh:
+def load(path, notes=None):
+    """Lees meetrijen (.jsonl of .jsonl.gz). Laat onvolledige zinnen en dubbelzinnige sleutels weg.
+
+    notes: optionele lijst waarin elke weglating als zin wordt genoteerd (komt bovenaan het rapport).
+    """
+    notes = notes if notes is not None else []
+    opener = gzip.open if str(path).endswith('.gz') else open
+    rows, truncated = [], False
+    with opener(path, 'rt', encoding='utf-8') as fh:
         for line in fh:
             try:
                 row = json.loads(line)
             except json.JSONDecodeError:
-                continue  # afgebroken laatste regel
+                truncated = True  # afgebroken regel: de zin waar die bij hoorde is onvolledig
+                continue
             if 'accepted' not in row:  # eerste meting: alleen de rol van het eerste woord
                 row['accepted'] = [row['gold']] + ([row['alt']] if row.get('alt') else [])
             rows.append(row)
+    by_sentence = collections.defaultdict(list)
+    for r in rows:
+        by_sentence[r['id']].append(r)
+    classify = {r['setup'] for r in rows if r['setup'] in CLASSIFY_SETUPS}
+    drop = set()
+    for sid, rs in by_sentence.items():
+        n = sum(r['setup'] == 'B_gold' for r in rs)
+        counts = collections.Counter(r['setup'] for r in rs)
+        if n == 0 or any(counts[c] != n for c in classify) or counts['B_mut'] > 1:
+            drop.add(sid)
+    if truncated and rows:
+        drop.add(rows[-1]['id'])
+    if drop:
+        notes.append(f"{len(drop)} onvolledige zin(nen) weggelaten: {', '.join(map(str, sorted(drop)))}.")
+    rows = [r for r in rows if r['id'] not in drop]
+    # Meting 1 had geen tokenpositie: zinsdelen met dezelfde tekst in één zin zijn niet te onderscheiden.
+    texts = collections.Counter((r['id'], r['chunk']) for r in rows if r['setup'] == 'B_gold' and 'start' not in r)
+    ambiguous = {k for k, n in texts.items() if n > 1}
+    if ambiguous:
+        notes.append(f"{sum(texts[k] for k in ambiguous)} zinsdelen zonder tokenpositie en met dubbele tekst in dezelfde zin "
+                     f"weggelaten (niet te koppelen): " + ', '.join(f'{i} "{c}"' for i, c in sorted(ambiguous)) + '.')
+        rows = [r for r in rows if 'start' in r or (r['id'], r['chunk']) not in ambiguous]
     return rows
 
 
@@ -97,7 +127,7 @@ def calibration(pairs, bands):
     return table, ece
 
 
-def report(rows):
+def report(rows, notes=()):
     by = collections.defaultdict(list)
     for r in rows:
         by[r['setup']].append(r)
@@ -108,7 +138,7 @@ def report(rows):
     models = sorted({r.get('model', '?') for r in rows})
     out = [f"Zinnen: {len({r['id'] for r in rows})} · zinsdelen: {len(A)} · model: {', '.join(models)} · "
            f"invoertokens: {tokens:,.0f} (≈ ${tokens * 40e-9:.3f})", '',
-           f'Hoofdvariant voor secties 2–4: `{primary}`.', '']
+           f'Hoofdvariant voor secties 2–4: `{primary}`.', ''] + [f'> {n}' for n in notes] + ([''] if notes else [])
 
     out += ['## 1. Overeenstemming met de annotatie (recall per rol)', '',
             '| rol | n | ' + ' | '.join(variants) + ' |', '|---|---|' + '---|' * len(variants)]
@@ -142,7 +172,8 @@ def report(rows):
     out += ['', 'De verwisselingen komen uit `schema.mutate`: een testharnas. Deze cijfers zeggen of de audit zo\'n fout '
             'vindt, niet hoe vaak het corpus fouten bevat.']
     out += ['', 'Bij gelijke vals-alarmkans (drempel gekozen op de goede labels; de ingebouwde fouten zijn per variant dezelfde):', '',
-            '| methode | AUC | ' + ' | '.join(f'@{f:.0%} vals alarm' for f in MATCHED_FPR) + ' |', '|---|---|' + '---|' * len(MATCHED_FPR)]
+            'Per cel: gevonden fouten (drempel; werkelijk behaald vals alarm, want bij gelijke scores valt dat lager uit dan het doel).', '',
+            '| methode | AUC | ' + ' | '.join(f'doel {f:.0%} vals alarm' for f in MATCHED_FPR) + ' |', '|---|---|' + '---|' * len(MATCHED_FPR)]
     methods = []
     for v in variants:
         chunk_of = {key(r): r for r in by[v]}
@@ -151,7 +182,8 @@ def report(rows):
     methods.append(('verificatie', [r['noul'] for r in Bg], [m['noul'] for m in Bm]))
     for name, g, m in methods:
         a = auc(g, m)
-        cells = [f'{pct(found * len(m), len(m))} (< {t:.2f})' for found, _, t in (detection_at_fpr(g, m, f) for f in MATCHED_FPR)]
+        cells = [f'{pct(found * len(m), len(m))} (< {t:.2f}; {achieved:.1%})'
+                 for found, achieved, t in (detection_at_fpr(g, m, f) for f in MATCHED_FPR)]
         out.append(f"| {name} | {'–' if a is None else f'{a:.3f}'} | " + ' | '.join(cells) + ' |')
 
     auc_value = auc([r['noul'] for r in Bg], [m['noul'] for m in Bm])
@@ -195,4 +227,5 @@ def report(rows):
 
 if __name__ == '__main__':
     path = sys.argv[1] if len(sys.argv) > 1 else Path(__file__).parent / 'rows.jsonl'
-    print(report(load(path)))
+    found_notes = []
+    print(report(load(path, found_notes), found_notes))

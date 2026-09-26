@@ -10,7 +10,7 @@ Beoordeeld: 128 zinsdelen · bevroren regel: P(alleen labels) < 0.18 of verifica
 
 | maat | waarde | toelichting |
 |---|---|---|
-| corpus-error precision | 19.0% (8 fout; 95%-BI 10.0%–33.3%) | van de gemarkeerde, niet-twijfelachtige zinsdelen: echt fout geannoteerd |
+| corpus-error precision | 19.0% (8 fout) | van de gemarkeerde, niet-twijfelachtige zinsdelen: echt fout geannoteerd; volledige telling, geen steekproefinterval |
 | reviewwaardig | 34.6% | gemarkeerd en fout óf twijfelgeval (10 twijfel) |
 | laat correcte items met rust | 96.4% | gewogen naar het corpus |
 | corpus-error recall | 63.4% | gewogen; 2 gemiste fout(en) in de steekproef — weinig zeggingskracht |
@@ -42,7 +42,6 @@ Sanity check zin 5008 *naar muziek* (geannoteerd BWB, Drex VV): mens = vv.
 | 5008 | 2 | bwb | vv | vv | fout |  |
 | 5038 | 3 | bwb | ow | bwb | twijfel |  |
 
-
 ---
 
 ## Gold-set na herbeoordeling (afwijking van de preregistratie)
@@ -53,7 +52,7 @@ Beoordeeld: 128 zinsdelen · bevroren regel: P(alleen labels) < 0.18 of verifica
 
 | maat | waarde | toelichting |
 |---|---|---|
-| corpus-error precision | 7.3% (3 fout; 95%-BI 2.5%–19.4%) | van de gemarkeerde, niet-twijfelachtige zinsdelen: echt fout geannoteerd |
+| corpus-error precision | 7.3% (3 fout) | van de gemarkeerde, niet-twijfelachtige zinsdelen: echt fout geannoteerd; volledige telling, geen steekproefinterval |
 | reviewwaardig | 26.9% | gemarkeerd en fout óf twijfelgeval (11 twijfel) |
 | laat correcte items met rust | 96.0% | gewogen naar het corpus |
 | corpus-error recall | 75.0% | gewogen; 1 gemiste fout(en) in de steekproef — weinig zeggingskracht |
@@ -85,13 +84,13 @@ Sanity check zin 5008 *naar muziek* (geannoteerd BWB, Drex VV): mens = vv.
 
 De beoordelaar koos in vier lijdende zinnen met het MV vooraan LV in plaats van OW (306, 513, 507, 515); die zijn als vergissing herbeoordeeld. 442 en 461 zijn dezelfde zin en werden verschillend beoordeeld; 118 is niet herbeoordeeld.
 
-| scenario | precisie | 95%-BI | regel |
-|---|---|---|---|
-| A vooraf vastgelegd (blind) | 8/42 = 19,0% | 10–33% | tweede mening |
-| B + herbeoordeling blad 1 | 5/41 = 12,2% | 5–26% | tweede mening |
-| **C + 507/515 (vastgelegd)** | **3/41 = 7,3%** | **3–19%** | **stoppen** |
-| D + 461 twijfel (zoals 442) | 2/40 = 5,0% | 1–17% | stoppen |
-| E + 118 twijfel | 1/39 = 2,6% | 0–13% | stoppen |
+| scenario | precisie | regel |
+|---|---|---|
+| A vooraf vastgelegd (blind) | 8/42 = 19,0% | tweede mening |
+| B + herbeoordeling blad 1 | 5/41 = 12,2% | tweede mening |
+| **C + 507/515 (vastgelegd)** | **3/41 = 7,3%** | **stoppen** |
+| D + 461 twijfel (zoals 442) | 2/40 = 5,0% | stoppen |
+| E + 118 twijfel | 1/39 = 2,6% | stoppen |
 
 ## Verkennend: Drex en twijfelgevallen (niet vooraf vastgelegd)
 

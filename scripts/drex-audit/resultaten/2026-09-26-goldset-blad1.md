@@ -10,7 +10,7 @@ Beoordeeld: 78 zinsdelen · bevroren regel: P(alleen labels) < 0.18 of verificat
 
 | maat | waarde | toelichting |
 |---|---|---|
-| corpus-error precision | 33.3% (4 fout; 95%-BI 13.8%–60.9%) | van de gemarkeerde, niet-twijfelachtige zinsdelen: echt fout geannoteerd |
+| corpus-error precision | 33.3% (4 fout) | van de gemarkeerde, niet-twijfelachtige zinsdelen: echt fout geannoteerd; voorlopig: gestratificeerde deelverzameling |
 | reviewwaardig | 33.3% | gemarkeerd en fout óf twijfelgeval (0 twijfel) |
 | laat correcte items met rust | 96.2% | gewogen naar het corpus |
 | corpus-error recall | 68.4% | gewogen; 2 gemiste fout(en) in de steekproef — weinig zeggingskracht |
@@ -21,7 +21,7 @@ Cellen zonder beoordeling (niet vertegenwoordigd in de gewogen cijfers): lv/verd
 
 Sanity check zin 5008 *naar muziek* (geannoteerd BWB, Drex VV): mens = vv.
 
-## Gemarkeerd en volgens de mens fout of twijfel
+### Gemarkeerd en volgens de mens fout of twijfel
 
 | zin | zinsdeel-start | annotatie | Drex | mens | oordeel | opmerking |
 |---|---|---|---|---|---|---|
@@ -29,7 +29,6 @@ Sanity check zin 5008 *naar muziek* (geannoteerd BWB, Drex VV): mens = vv.
 | 306 | 8 | ow | lv | lv | fout |  |
 | 513 | 3 | ow | lv | lv | fout |  |
 | 5008 | 2 | bwb | vv | vv | fout |  |
-
 
 ---
 
@@ -41,7 +40,7 @@ Beoordeeld: 78 zinsdelen · bevroren regel: P(alleen labels) < 0.18 of verificat
 
 | maat | waarde | toelichting |
 |---|---|---|
-| corpus-error precision | 9.1% (1 fout; 95%-BI 1.6%–37.7%) | van de gemarkeerde, niet-twijfelachtige zinsdelen: echt fout geannoteerd |
+| corpus-error precision | 9.1% (1 fout) | van de gemarkeerde, niet-twijfelachtige zinsdelen: echt fout geannoteerd; voorlopig: gestratificeerde deelverzameling |
 | reviewwaardig | 16.7% | gemarkeerd en fout óf twijfelgeval (1 twijfel) |
 | laat correcte items met rust | 95.8% | gewogen naar het corpus |
 | corpus-error recall | 83.3% | gewogen; 1 gemiste fout(en) in de steekproef — weinig zeggingskracht |
@@ -52,7 +51,7 @@ Cellen zonder beoordeling (niet vertegenwoordigd in de gewogen cijfers): lv/verd
 
 Sanity check zin 5008 *naar muziek* (geannoteerd BWB, Drex VV): mens = vv.
 
-## Gemarkeerd en volgens de mens fout of twijfel
+### Gemarkeerd en volgens de mens fout of twijfel
 
 | zin | zinsdeel-start | annotatie | Drex | mens | oordeel | opmerking |
 |---|---|---|---|---|---|---|

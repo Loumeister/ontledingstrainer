@@ -11,11 +11,11 @@ Leest het ontwerp (goldset/ontwerp.csv) en de bevroren Drex-scores van meting 2;
 import argparse
 import collections
 import csv
-import math
 from pathlib import Path
 
 HERE = Path(__file__).parent
 DESIGN = HERE / 'goldset' / 'ontwerp.csv'
+DESIGN_TEXTS = HERE / 'goldset' / 'ontwerp-zinsdelen.csv'  # zinsdeelteksten van het corpus van meting 2
 SCORES = HERE / 'resultaten' / '2026-09-26-meting-2-scores.csv'
 
 # ── Bevroren configuratie (gekozen op meting 2 met kunstmatige fouten: 77% gevonden bij 5,0% vals alarm) ──
@@ -29,6 +29,8 @@ MIN_CONFIRMED_ERRORS = 3
 ROLE_MAP = {'ow': 'ow', 'lv': 'lv', 'mv': 'mv', 'vv': 'vv', 'vzv': 'vv', 'bwb': 'bwb', 'nwd': 'ng', 'ng': 'ng',
             'bijst': 'bijst', 'anders': 'anders'}
 YES = {'ja', 'j', 'yes', 'y', '1', 'true', 'x'}
+NO = {'nee', 'n', 'no', '0', 'false', ''}
+NG_PARTS = {'nwd', 'ng', 'wwd', 'wwd-pv'}  # onderdelen die samen het Ontleedlab-ng-zinsdeel beschrijven
 
 
 def read_csv(path):
@@ -36,21 +38,41 @@ def read_csv(path):
         return list(csv.DictReader(fh, delimiter=';'))
 
 
+def parse_yes_no(raw):
+    """Twijfelkolom: ja-waarden -> True, nee-waarden of leeg -> False, al het andere is een invoerfout."""
+    value = (raw or '').strip().lower()
+    if value in YES:
+        return True
+    if value in NO:
+        return False
+    raise ValueError(f'onbekende twijfelwaarde "{raw}" (gebruik ja/j of nee/n/leeg)')
+
+
 def parse_role(raw):
     """(rol, extra_twijfel). Toegevoegd na blad 1 (alleen inlezen; drempels en maten ongewijzigd):
-    - "VV / BWB": twee lezingen -> twijfel, eerste rol;
-    - "NWD+NG", "NWD+WWD-PV": beschrijft het Ontleedlab-ng-zinsdeel (naamwoordelijk deel, eventueel met koppelwerkwoord) -> ng.
+    - "VV / BWB": twee lezingen -> twijfel, eerste rol; elke lezing moet een geldige rol zijn;
+    - "NWD+NG", "NWD+WWD-PV": beschrijft het Ontleedlab-ng-zinsdeel -> ng; alleen onderdelen uit NG_PARTS.
     """
     raw = raw.strip().lower()
-    readings = [r.strip() for r in raw.split('/') if r.strip()]
+    readings = [r.strip() for r in raw.split('/')]
     if len(readings) > 1:
-        return parse_role(readings[0])[0], True
+        roles = [parse_role(r)[0] for r in readings]
+        return roles[0], True
+    if not raw:
+        raise ValueError('lege rol')
     parts = [p.strip() for p in raw.split('+')]
-    if len(parts) > 1 and any(p in ('nwd', 'ng') for p in parts):
-        return 'ng', False
+    if len(parts) > 1:
+        if set(parts) <= NG_PARTS and set(parts) & {'nwd', 'ng'}:
+            return 'ng', False
+        raise ValueError(f'onbekende samengestelde rol "{raw}"')
     if raw not in ROLE_MAP:
         raise ValueError(f'onbekende rol "{raw}"')
     return ROLE_MAP[raw], False
+
+
+def shown_chunk(text):
+    """Zinsdeel zoals op het blad getoond, zonder toegevoegde context ("ik (in: maar ik bedenk)" -> "ik")."""
+    return text.split(' (in:')[0].strip().strip('"').strip()
 
 
 def column(row, *prefixes):
@@ -82,23 +104,28 @@ def load_scores(path=SCORES):
     return scores
 
 
-def load_judgements(design_path, sheets):
+def load_judgements(design_path, sheets, texts_path=DESIGN_TEXTS):
     """sheets: {blad: pad}. Geeft {(zin_id, start): (menselijke rol, twijfel, opmerking)} voor ingevulde regels."""
     design = {(int(r['blad']), int(r['nr'])): (int(r['zin_id']), int(r['start'])) for r in read_csv(design_path)}
+    texts = {(int(r['blad']), int(r['nr'])): r['zinsdeel'] for r in read_csv(texts_path)}
     judged = {}
     for blad, path in sheets.items():
         for row in read_csv(path):
+            where = f'blad {blad} nr {row["nr"]}'
             key = design[(blad, int(row['nr']))]
             if int(row['zin_id']) != key[0]:
-                raise ValueError(f'blad {blad} nr {row["nr"]}: zin_id {row["zin_id"]} past niet bij het ontwerp ({key[0]})')
+                raise ValueError(f'{where}: zin_id {row["zin_id"]} past niet bij het ontwerp ({key[0]})')
+            # Een zin kan meer doelen hebben: controleer ook het zinsdeel, niet alleen de zin.
+            if shown_chunk(row['zinsdeel']) != texts[(blad, int(row['nr']))]:
+                raise ValueError(f'{where}: zinsdeel "{row["zinsdeel"]}" past niet bij het ontwerp ("{texts[(blad, int(row["nr"]))]}")')
             raw = column(row, 'human_role', 'jouw_rol')
             if not raw:
                 continue
             try:
                 role, two_readings = parse_role(raw)
+                ambiguous = parse_yes_no(column(row, 'ambiguous', 'twee_lezingen')) or two_readings
             except ValueError as e:
-                raise ValueError(f'blad {blad} nr {row["nr"]}: {e}') from None
-            ambiguous = two_readings or column(row, 'ambiguous', 'twee_lezingen').lower() in YES
+                raise ValueError(f'{where}: {e}') from None
             judged[key] = (role, ambiguous, column(row, 'note', 'opmerking'))
     return judged
 
@@ -111,8 +138,12 @@ def load_adjudication(design_path, path):
         key = design[(int(row['blad']), int(row['nr']))]
         if int(row['zin_id']) != key[0]:
             raise ValueError(f'herbeoordeling blad {row["blad"]} nr {row["nr"]}: zin_id past niet bij het ontwerp')
-        role, two_readings = parse_role(row['rol'])
-        out[key] = (role, two_readings or row['twijfel'].strip().lower() in YES, row['reden'].strip())
+        try:
+            role, two_readings = parse_role(row['rol'])
+            ambiguous = parse_yes_no(row['twijfel']) or two_readings
+        except ValueError as e:
+            raise ValueError(f'herbeoordeling blad {row["blad"]} nr {row["nr"]}: {e}') from None
+        out[key] = (role, ambiguous, row['reden'].strip())
     return out
 
 
@@ -120,16 +151,6 @@ def verdict(score, human_role, ambiguous):
     if ambiguous:
         return 'twijfel'
     return 'correct' if human_role in score['accepted'] else 'fout'
-
-
-def wilson(k, n, z=1.96):
-    if n == 0:
-        return None
-    p = k / n
-    d = 1 + z * z / n
-    centre = (p + z * z / (2 * n)) / d
-    half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
-    return max(0.0, centre - half), min(1.0, centre + half)
 
 
 def weights(scores, judged):
@@ -167,7 +188,6 @@ def evaluate(scores, judged):
         'flagged_ambiguous': sum(v[x] == 'twijfel' for x in flagged_judged),
         'errors_flagged': errors_flagged,
         'precision': errors_flagged / len(decided) if decided else None,
-        'precision_ci': wilson(errors_flagged, len(decided)),
         'review_worthy': sum(v[x] != 'correct' for x in flagged_judged) / len(flagged_judged) if flagged_judged else None,
         'specificity_w': wsum(lambda x: v[x] == 'correct' and not f[x]) / correct_w if correct_w else None,
         'recall_w': wsum(lambda x: v[x] == 'fout' and f[x]) / error_w if error_w else None,
@@ -199,15 +219,15 @@ def fmt(p):
 
 def report(scores, judged):
     m = evaluate(scores, judged)
-    ci = m['precision_ci']
     agree_k, agree_n = m['drex_human_agreement']
     out = ['# Gold-set: externe validatie', '',
            f"Beoordeeld: {m['judged']} zinsdelen · bevroren regel: P(alleen labels) < {FLAG_P_LABELS_BELOW} "
            f"of verificatie-noul < {FLAG_NOUL_BELOW}", '',
            f"**Beslissing (vooraf vastgelegd): {decision(m)}**", '',
            '| maat | waarde | toelichting |', '|---|---|---|',
-           f"| corpus-error precision | {fmt(m['precision'])} ({m['errors_flagged']} fout"
-           f"{'' if ci is None else f'; 95%-BI {fmt(ci[0])}–{fmt(ci[1])}'}) | van de gemarkeerde, niet-twijfelachtige zinsdelen: echt fout geannoteerd |",
+           f"| corpus-error precision | {fmt(m['precision'])} ({m['errors_flagged']} fout) | van de gemarkeerde, "
+           f"niet-twijfelachtige zinsdelen: echt fout geannoteerd; "
+           f"{'volledige telling, geen steekproefinterval' if m['flagged_judged'] == m['flagged_total'] else 'voorlopig: gestratificeerde deelverzameling'} |",
            f"| reviewwaardig | {fmt(m['review_worthy'])} | gemarkeerd en fout óf twijfelgeval ({m['flagged_ambiguous']} twijfel) |",
            f"| laat correcte items met rust | {fmt(m['specificity_w'])} | gewogen naar het corpus |",
            f"| corpus-error recall | {fmt(m['recall_w'])} | gewogen; {m['errors_unflagged']} gemiste fout(en) in de steekproef — weinig zeggingskracht |",
@@ -237,12 +257,18 @@ def main():
     sheets = {b: p for b, p in ((1, args.blad1), (2, args.blad2)) if p}
     if not sheets:
         ap.error('geef minstens --blad1 of --blad2')
+    print(full_report(sheets, args.herbeoordeling))
+
+
+def full_report(sheets, adjudication_path=None):
+    """Blind rapport, en met herbeoordeling ook het herziene rapport (zoals de resultatenbestanden)."""
     scores, judged = load_scores(), load_judgements(DESIGN, sheets)
-    print(report(scores, judged))
-    if args.herbeoordeling:
-        adjusted = {**judged, **{k: v for k, v in load_adjudication(DESIGN, args.herbeoordeling).items() if k in judged}}
-        print('\n\n---\n\n' + report(scores, adjusted).replace('# Gold-set: externe validatie',
-              '# Gold-set na herbeoordeling (afwijking van de preregistratie)', 1))
+    out = report(scores, judged)
+    if adjudication_path:
+        adjusted = {**judged, **{k: v for k, v in load_adjudication(DESIGN, adjudication_path).items() if k in judged}}
+        out += '\n\n---\n\n' + report(scores, adjusted).replace('# Gold-set: externe validatie',
+                                                                  '# Gold-set na herbeoordeling (afwijking van de preregistratie)', 1)
+    return out
 
 
 if __name__ == '__main__':

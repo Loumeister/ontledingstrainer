@@ -1,6 +1,9 @@
 """Tests zonder netwerk: python3 -m unittest discover -s scripts/drex-audit"""
+import collections
 import glob
+import gzip
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -127,6 +130,31 @@ class AnalyseTest(unittest.TestCase):
         self.assertEqual((t, false), (0.5, 0.1))  # precies 1 van de 10 goede labels onder de drempel
         self.assertAlmostEqual(found, 2 / 3)
 
+    def test_load_drops_incomplete_and_ambiguous_rows(self):
+        def row(i, setup, chunk, **extra):
+            return {'id': i, 'setup': setup, 'chunk': chunk, 'gold': 'ow', 'accepted': ['ow'], **extra}
+        rows = [row(1, 'A_bare', 'wij', start=0), row(1, 'B_gold', 'wij', start=0),       # compleet
+                row(2, 'A_bare', 'hij', start=0), row(2, 'A_bare', 'zij', start=2),       # B_gold ontbreekt deels
+                row(2, 'B_gold', 'hij', start=0),
+                row(3, 'A_bare', 'wij'), row(3, 'A_bare', 'wij'), row(3, 'A_bare', 'kip'),  # meting 1: dubbele tekst
+                row(3, 'B_gold', 'wij'), row(3, 'B_gold', 'wij'), row(3, 'B_gold', 'kip'),
+                row(4, 'A_bare', 'ik', start=0)]                                           # afgebroken laatste zin
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / 'rows.jsonl.gz'
+            with gzip.open(path, 'wt', encoding='utf-8') as fh:
+                fh.write('\n'.join(json.dumps(r) for r in rows) + '\n{"id": 4, "setup": "B_go')
+            notes = []
+            kept = analyse.load(path, notes)
+        self.assertEqual(sorted({(r['id'], r['chunk']) for r in kept}), [(1, 'wij'), (3, 'kip')])
+        self.assertEqual(len(notes), 2)
+
+    def test_committed_measurement_reports_are_reproducible(self):
+        r = Path(__file__).parent / 'resultaten'
+        for k in (1, 2):
+            notes = []
+            generated = analyse.report(analyse.load(r / 'ruw' / f'2026-09-26-meting-{k}.jsonl.gz', notes), notes)
+            self.assertIn(generated, (r / f'2026-09-26-meting-{k}.md').read_text(encoding='utf-8'))
+
     def test_auc_requires_both_classes(self):
         # Komt echt voor: 5 bijstellingen, en niet elke rol krijgt een verwisseling.
         self.assertIsNone(analyse.auc([0.9], []))
@@ -209,11 +237,50 @@ class GoldsetTest(unittest.TestCase):
         import tempfile
         import score_goldset as sg
         with tempfile.TemporaryDirectory() as d:
-            design, sheet = Path(d) / 'ontwerp.csv', Path(d) / 'blad.csv'
+            design, texts, sheet = Path(d) / 'ontwerp.csv', Path(d) / 'teksten.csv', Path(d) / 'blad.csv'
             design.write_text('blad;nr;zin_id;start\n1;1;7;2\n1;2;8;0\n', encoding='utf-8')
+            texts.write_text('blad;nr;zin_id;start;zinsdeel\n1;1;7;2;een eitje\n1;2;8;0;ik\n', encoding='utf-8')
             sheet.write_text('nr;zin_id;zin;zinsdeel;jouw_rol (OW/..);twee_lezingen_verdedigbaar (ja/nee);opmerking\n'
-                             '1;7;x;y;NWD;ja;twijfel\n2;8;x;y;;;\n', encoding='utf-8-sig')
-            self.assertEqual(sg.load_judgements(design, {1: sheet}), {(7, 2): ('ng', True, 'twijfel')})
-            sheet.write_text('nr;zin_id;human_role;ambiguous;note\n1;9;OW;nee;\n', encoding='utf-8')
-            with self.assertRaises(ValueError):
-                sg.load_judgements(design, {1: sheet})
+                             '1;7;x;een eitje;NWD;ja;twijfel\n2;8;x;ik (in: maar ik bedenk);;;\n', encoding='utf-8-sig')
+            self.assertEqual(sg.load_judgements(design, {1: sheet}, texts), {(7, 2): ('ng', True, 'twijfel')})
+            sheet.write_text('nr;zin_id;zinsdeel;human_role;ambiguous;note\n1;9;een eitje;OW;nee;\n', encoding='utf-8')
+            with self.assertRaises(ValueError):  # verkeerde zin
+                sg.load_judgements(design, {1: sheet}, texts)
+            sheet.write_text('nr;zin_id;zinsdeel;human_role;ambiguous;note\n1;7;ik;OW;nee;\n', encoding='utf-8')
+            with self.assertRaises(ValueError):  # juiste zin, verkeerd zinsdeel
+                sg.load_judgements(design, {1: sheet}, texts)
+            sheet.write_text('nr;zin_id;zinsdeel;human_role;ambiguous;note\n1;7;een eitje;OW;jaa;\n', encoding='utf-8')
+            with self.assertRaises(ValueError):  # onbekende twijfelwaarde
+                sg.load_judgements(design, {1: sheet}, texts)
+
+    def test_yes_no_and_compound_roles_are_strict(self):
+        import score_goldset as sg
+        self.assertEqual([sg.parse_yes_no(v) for v in ('j', 'JA', 'n', '', 'nee')], [True, True, False, False, False])
+        for bad in ('OW / typo', 'NWD+garbage', 'LV+MV', 'ow /'):
+            with self.assertRaises(ValueError, msg=bad):
+                sg.parse_role(bad)
+        self.assertEqual(sg.shown_chunk('ik (in: maar ik bedenk)'), 'ik')
+
+    def test_design_allocation_matches_preregistration(self):
+        # Blad 1: per rol 6 verdacht + 6 controle; te weinig verdacht -> allemaal, aanvullen tot 12 (VV 4 + 8);
+        # zin 5008 bovenop de BWB-trekking (7 + 6); alle 5 bijstellingen.
+        import score_goldset as sg
+        scores = sg.load_scores()
+        blad1 = [(int(r['zin_id']), int(r['start'])) for r in sg.read_csv(sg.DESIGN) if r['blad'] == '1']
+        got = collections.Counter((scores[x]['role'], sg.design_stratum(scores[x])) for x in blad1)
+        population = collections.Counter((s['role'], sg.design_stratum(s)) for s in scores.values())
+        for role in ('ow', 'lv', 'mv', 'vv', 'bwb', 'ng'):
+            suspect = min(6, population[(role, 'verdacht')]) + (1 if role == 'bwb' else 0)
+            self.assertEqual((got[(role, 'verdacht')], got[(role, 'controle')]),
+                             (suspect, 12 - min(6, population[(role, 'verdacht')])), role)
+        self.assertEqual(got[('bijst', 'alle')], population[('bijst', 'alle')])
+
+    def test_committed_goldset_reports_are_reproducible(self):
+        import score_goldset as sg
+        g, r = HERE_GOLDSET, HERE_GOLDSET.parent / 'resultaten'
+        for name, sheets in (('blad1', {1: g / 'blad1-ingevuld.csv'}),
+                             ('compleet', {1: g / 'blad1-ingevuld.csv', 2: g / 'blad2-ingevuld.csv'})):
+            committed = (r / f'2026-09-26-goldset-{name}.md').read_text(encoding='utf-8').split('\n')
+            for line in sg.full_report(sheets, g / 'herbeoordeling.csv').split('\n'):
+                if line.startswith('|') or line.startswith('**Beslissing'):
+                    self.assertIn(line, committed, name)

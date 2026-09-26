@@ -10,6 +10,7 @@ Drex dient hier als onafhankelijke detector van afwijkingen, niet als nieuwe bro
 # DREX_API_KEY in de omgeving of in .env (gitignored; nooit met VITE_-prefix)
 python3 scripts/drex-audit/measure.py                 # hele corpus -> scripts/drex-audit/rows.jsonl (gitignored)
 python3 scripts/drex-audit/analyse.py scripts/drex-audit/rows.jsonl > rapport.md
+python3 scripts/drex-audit/analyse.py scripts/drex-audit/resultaten/ruw/2026-09-26-meting-2.jsonl.gz   # bevroren meting opnieuw rapporteren
 python3 -m unittest discover -s scripts/drex-audit    # tests zonder netwerk (live-tests worden overgeslagen)
 DREX_LIVE=1 python3 -m unittest discover -s scripts/drex-audit -p 'test_live_*.py'   # contract met Drex, live
 ```
@@ -38,7 +39,7 @@ Een antwoord telt als goed als de leerlingbeoordeling het goedkeurt. Die regel s
 
 Drex-contract (bevestigd door `test_live_contract.py`): `instructions` moet een string zijn; een omschrijving bij `choice` mag een string of `null` zijn (zo werkt `A_bare`); modelnamen buiten `drex-*` geven 422.
 
-Meet per rol, niet alleen het totaal. Het corpus heeft 384 OW, 296 BWB, 184 LV, 78 NG, 64 MV, 33 VV en maar 5 bijstellingen. Een mooi totaal kan dus verbergen dat Drex bijna alle MV's mist.
+Meet per rol, niet alleen het totaal. Het corpus is scheef verdeeld over de rollen (zie de kolom `n` in het rapport; bijstellingen zijn schaars). Een mooi totaal kan dus verbergen dat Drex bijna alle MV's mist.
 
 ## Schema voor Drex
 
@@ -69,8 +70,9 @@ Geraadpleegd: *Online Dutch Grammar Course* (dutchgrammar.com, woordvolgorde en 
 
 - **Alleen labels werkt het best**: 86% overeenstemming, tegen 85% (v1) en 82% (v2). Omschrijvingen maken Drex niet slimmer. Ze verschuiven alleen kans tussen buurlabels; de AUC van de verificatie blijft rond 0,94. Stuur daarom met drempels per rol, niet met herschreven omschrijvingen.
 - **v2 laat zien waarom**: "lexically selected by the predicate" is taalkundig juist, maar geen schoolgrammatica. *Op tafel* in *legt de sleutels op tafel* is taalkundig een geselecteerde aanvulling en voor school een BWB. Het gevolg: 44 BWB's werden VV (precisie VV 38%), onder meer *Ik fiets **naar school***. "Niet op woordvolgorde beslissen" haalde de sterkste aanwijzing weg: 50 LV's werden OW (*Zij schrijft **een brief***). Congruentie beslist niets als beide zinsdelen enkelvoud zijn.
-- **Betrouwbaar als afwijkingsdetector op één punt**: classificatie met confidence ≥ 0,8 klopte in beide metingen voor 99–100% met de annotatie. Verificatie met noul < 0,3 geeft bijna geen vals alarm (0,2–0,7%), maar vindt maar 45–48% van de ingebouwde fouten.
+- **Zekerheid is bruikbaar**: classificatie met confidence ≥ 0,8 klopte in beide metingen voor 99–100% met de annotatie. Verificatie met noul < 0,3 geeft bijna geen vals alarm (0,2–0,7%), maar vindt maar 45–48% van de ingebouwde fouten.
 - **Zwak juist op de didactische kern**: MV (45–50%) en BWB → VV (9–47% gevonden). Daar blijft een mens nodig.
+- **Externe validatie (gold-set) weerlegt Drex als foutdetector**: van de gemarkeerde zinsdelen bleek na herbeoordeling maar een klein deel echt fout geannoteerd; de vooraf vastgelegde regel zegt "stoppen" (`resultaten/2026-09-26-goldset-compleet.md`). Het corpus is daarvoor te schoon, en bij lijdende zinnen maakt Drex dezelfde fout als een menselijke beoordelaar.
 - **Enige zekere afwijking**: zin 5008 *Wij luisteren **naar muziek*** staat als BWB, terwijl zin 435 *luisteren **naar de trainer*** als VV staat.
 
 ## Externe validatie (gold-set)
