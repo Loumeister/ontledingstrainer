@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import type { Sentence } from '../types';
 import { getBijzinAnalyseProblems, getBijzinTokenGroups } from '../logic/bijzinAnalysis';
 import { BETREKKELIJKE_BIJZIN_LEVEL } from '../logic/validation';
+import { ROLES_PER_LEVEL } from '../constants';
 import level0 from './sentences-level-0.json';
 import level1 from './sentences-level-1.json';
 import level2 from './sentences-level-2.json';
@@ -107,5 +108,21 @@ describe('zinnendata — betrekkelijke bijzinnen', () => {
       .filter(s => s.level < BETREKKELIJKE_BIJZIN_LEVEL)
       .map(s => s.id);
     expect(tooLow).toEqual([]);
+  });
+});
+
+describe('zinnendata — rollen per niveau en bijvoeglijke bepalingen', () => {
+  it('gebruikt per niveau alleen hoofdrollen die op dat niveau bestaan (Instap: geen WG/NG)', () => {
+    const offenders = all.flatMap(s => s.tokens
+      .filter(t => !ROLES_PER_LEVEL[s.level].includes(t.role))
+      .map(t => `${s.id}:${t.text} (${t.role})`));
+    expect(offenders).toEqual([]);
+  });
+
+  it('laat elke bijvoeglijke bepaling naar een ander woord in dezelfde zin wijzen', () => {
+    const offenders = all.flatMap(s => s.tokens
+      .filter(t => t.bijvBepTarget && (t.bijvBepTarget === t.id || !s.tokens.some(o => o.id === t.bijvBepTarget)))
+      .map(t => `${s.id}:${t.text}`));
+    expect(offenders).toEqual([]);
   });
 });

@@ -3540,5 +3540,1559 @@
         "subRole": "nwd"
       }
     ]
+  },
+  {
+    "id": 467,
+    "label": "Zin 467: De trein is vertrokken",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s467t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s467t2",
+        "text": "trein",
+        "role": "ow"
+      },
+      {
+        "id": "s467t3",
+        "text": "is",
+        "role": "pv"
+      },
+      {
+        "id": "s467t4",
+        "text": "vertrokken.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "samengestelde tijd"
+    ]
+  },
+  {
+    "id": 468,
+    "label": "Zin 468: Is de wedstrijd begonnen",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s468t1",
+        "text": "Is",
+        "role": "pv"
+      },
+      {
+        "id": "s468t2",
+        "text": "de",
+        "role": "ow"
+      },
+      {
+        "id": "s468t3",
+        "text": "wedstrijd",
+        "role": "ow"
+      },
+      {
+        "id": "s468t4",
+        "text": "begonnen?",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "samengestelde tijd"
+    ]
+  },
+  {
+    "id": 469,
+    "label": "Zin 469: Wie heeft gewonnen",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s469t1",
+        "text": "Wie",
+        "role": "ow"
+      },
+      {
+        "id": "s469t2",
+        "text": "heeft",
+        "role": "pv"
+      },
+      {
+        "id": "s469t3",
+        "text": "gewonnen?",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "vraagwoord als OW"
+    ]
+  },
+  {
+    "id": 470,
+    "label": "Zin 470: Mijn broertjes vervelen zich",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s470t1",
+        "text": "Mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s470t2"
+      },
+      {
+        "id": "s470t2",
+        "text": "broertjes",
+        "role": "ow"
+      },
+      {
+        "id": "s470t3",
+        "text": "vervelen",
+        "role": "pv"
+      },
+      {
+        "id": "s470t4",
+        "text": "zich.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "wederkerend werkwoord"
+    ]
+  },
+  {
+    "id": 471,
+    "label": "Zin 471: De zon komt op",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s471t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s471t2",
+        "text": "zon",
+        "role": "ow"
+      },
+      {
+        "id": "s471t3",
+        "text": "komt",
+        "role": "pv"
+      },
+      {
+        "id": "s471t4",
+        "text": "op.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "scheidbaar werkwoord"
+    ]
+  },
+  {
+    "id": 472,
+    "label": "Zin 472: Mijn opa gaat verhuizen",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s472t1",
+        "text": "Mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s472t2"
+      },
+      {
+        "id": "s472t2",
+        "text": "opa",
+        "role": "ow"
+      },
+      {
+        "id": "s472t3",
+        "text": "gaat",
+        "role": "pv"
+      },
+      {
+        "id": "s472t4",
+        "text": "verhuizen.",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 473,
+    "label": "Zin 473: De leerlingen moeten nablijven",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s473t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s473t2",
+        "text": "leerlingen",
+        "role": "ow"
+      },
+      {
+        "id": "s473t3",
+        "text": "moeten",
+        "role": "pv"
+      },
+      {
+        "id": "s473t4",
+        "text": "nablijven.",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 474,
+    "label": "Zin 474: Mag ik meedoen",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s474t1",
+        "text": "Mag",
+        "role": "pv"
+      },
+      {
+        "id": "s474t2",
+        "text": "ik",
+        "role": "ow"
+      },
+      {
+        "id": "s474t3",
+        "text": "meedoen?",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 475,
+    "label": "Zin 475: Het concert wordt afgelast",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s475t1",
+        "text": "Het",
+        "role": "ow"
+      },
+      {
+        "id": "s475t2",
+        "text": "concert",
+        "role": "ow"
+      },
+      {
+        "id": "s475t3",
+        "text": "wordt",
+        "role": "pv"
+      },
+      {
+        "id": "s475t4",
+        "text": "afgelast.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "lijdende vorm: WG, geen NG"
+    ]
+  },
+  {
+    "id": 476,
+    "label": "Zin 476: Gaan jullie mee",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s476t1",
+        "text": "Gaan",
+        "role": "pv"
+      },
+      {
+        "id": "s476t2",
+        "text": "jullie",
+        "role": "ow"
+      },
+      {
+        "id": "s476t3",
+        "text": "mee?",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "scheidbaar werkwoord"
+    ]
+  },
+  {
+    "id": 477,
+    "label": "Zin 477: Mijn vriendinnen zijn gaan zwemmen",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s477t1",
+        "text": "Mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s477t2"
+      },
+      {
+        "id": "s477t2",
+        "text": "vriendinnen",
+        "role": "ow"
+      },
+      {
+        "id": "s477t3",
+        "text": "zijn",
+        "role": "pv"
+      },
+      {
+        "id": "s477t4",
+        "text": "gaan",
+        "role": "wg"
+      },
+      {
+        "id": "s477t5",
+        "text": "zwemmen.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "samengestelde tijd"
+    ]
+  },
+  {
+    "id": 478,
+    "label": "Zin 478: De wekker ging af",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s478t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s478t2",
+        "text": "wekker",
+        "role": "ow"
+      },
+      {
+        "id": "s478t3",
+        "text": "ging",
+        "role": "pv"
+      },
+      {
+        "id": "s478t4",
+        "text": "af.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "scheidbaar werkwoord"
+    ]
+  },
+  {
+    "id": 479,
+    "label": "Zin 479: Wij willen een hond",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s479t1",
+        "text": "Wij",
+        "role": "ow"
+      },
+      {
+        "id": "s479t2",
+        "text": "willen",
+        "role": "pv"
+      },
+      {
+        "id": "s479t3",
+        "text": "een",
+        "role": "lv"
+      },
+      {
+        "id": "s479t4",
+        "text": "hond.",
+        "role": "lv"
+      }
+    ],
+    "structuralTags": [
+      "contrast met zin 480: zelfstandig ww of hulpww"
+    ]
+  },
+  {
+    "id": 480,
+    "label": "Zin 480: Wij willen een hond kopen",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s480t1",
+        "text": "Wij",
+        "role": "ow"
+      },
+      {
+        "id": "s480t2",
+        "text": "willen",
+        "role": "pv"
+      },
+      {
+        "id": "s480t3",
+        "text": "een",
+        "role": "lv"
+      },
+      {
+        "id": "s480t4",
+        "text": "hond",
+        "role": "lv"
+      },
+      {
+        "id": "s480t5",
+        "text": "kopen.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "contrast met zin 479: zelfstandig ww of hulpww"
+    ]
+  },
+  {
+    "id": 481,
+    "label": "Zin 481: Mijn buurman heeft een nieuwe auto",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s481t1",
+        "text": "Mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s481t2"
+      },
+      {
+        "id": "s481t2",
+        "text": "buurman",
+        "role": "ow"
+      },
+      {
+        "id": "s481t3",
+        "text": "heeft",
+        "role": "pv"
+      },
+      {
+        "id": "s481t4",
+        "text": "een",
+        "role": "lv"
+      },
+      {
+        "id": "s481t5",
+        "text": "nieuwe",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s481t6"
+      },
+      {
+        "id": "s481t6",
+        "text": "auto.",
+        "role": "lv"
+      }
+    ],
+    "structuralTags": [
+      "contrast met zin 482: zelfstandig ww of hulpww"
+    ]
+  },
+  {
+    "id": 482,
+    "label": "Zin 482: Mijn buurman heeft een nieuwe auto gekocht",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s482t1",
+        "text": "Mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s482t2"
+      },
+      {
+        "id": "s482t2",
+        "text": "buurman",
+        "role": "ow"
+      },
+      {
+        "id": "s482t3",
+        "text": "heeft",
+        "role": "pv"
+      },
+      {
+        "id": "s482t4",
+        "text": "een",
+        "role": "lv"
+      },
+      {
+        "id": "s482t5",
+        "text": "nieuwe",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s482t6"
+      },
+      {
+        "id": "s482t6",
+        "text": "auto",
+        "role": "lv"
+      },
+      {
+        "id": "s482t7",
+        "text": "gekocht.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "contrast met zin 481: zelfstandig ww of hulpww"
+    ]
+  },
+  {
+    "id": 483,
+    "label": "Zin 483: Heb jij mijn sleutels gezien",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s483t1",
+        "text": "Heb",
+        "role": "pv"
+      },
+      {
+        "id": "s483t2",
+        "text": "jij",
+        "role": "ow"
+      },
+      {
+        "id": "s483t3",
+        "text": "mijn",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s483t4"
+      },
+      {
+        "id": "s483t4",
+        "text": "sleutels",
+        "role": "lv"
+      },
+      {
+        "id": "s483t5",
+        "text": "gezien?",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 484,
+    "label": "Zin 484: Wie heeft jou geholpen",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s484t1",
+        "text": "Wie",
+        "role": "ow"
+      },
+      {
+        "id": "s484t2",
+        "text": "heeft",
+        "role": "pv"
+      },
+      {
+        "id": "s484t3",
+        "text": "jou",
+        "role": "lv"
+      },
+      {
+        "id": "s484t4",
+        "text": "geholpen?",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "contrast met zin 485: congruentie wijst het OW aan"
+    ]
+  },
+  {
+    "id": 485,
+    "label": "Zin 485: Wie heb jij geholpen",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s485t1",
+        "text": "Wie",
+        "role": "lv"
+      },
+      {
+        "id": "s485t2",
+        "text": "heb",
+        "role": "pv"
+      },
+      {
+        "id": "s485t3",
+        "text": "jij",
+        "role": "ow"
+      },
+      {
+        "id": "s485t4",
+        "text": "geholpen?",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "contrast met zin 484: congruentie wijst het OW aan"
+    ]
+  },
+  {
+    "id": 486,
+    "label": "Zin 486: Die taarten heeft mijn moeder gebakken",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s486t1",
+        "text": "Die",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s486t2"
+      },
+      {
+        "id": "s486t2",
+        "text": "taarten",
+        "role": "lv"
+      },
+      {
+        "id": "s486t3",
+        "text": "heeft",
+        "role": "pv"
+      },
+      {
+        "id": "s486t4",
+        "text": "mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s486t5"
+      },
+      {
+        "id": "s486t5",
+        "text": "moeder",
+        "role": "ow"
+      },
+      {
+        "id": "s486t6",
+        "text": "gebakken.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "congruentie wijst het OW aan"
+    ]
+  },
+  {
+    "id": 487,
+    "label": "Zin 487: Zet jij de televisie uit",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s487t1",
+        "text": "Zet",
+        "role": "pv"
+      },
+      {
+        "id": "s487t2",
+        "text": "jij",
+        "role": "ow"
+      },
+      {
+        "id": "s487t3",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s487t4",
+        "text": "televisie",
+        "role": "lv"
+      },
+      {
+        "id": "s487t5",
+        "text": "uit?",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "scheidbaar werkwoord"
+    ]
+  },
+  {
+    "id": 488,
+    "label": "Zin 488: De hond heeft de krant verscheurd",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s488t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s488t2",
+        "text": "hond",
+        "role": "ow"
+      },
+      {
+        "id": "s488t3",
+        "text": "heeft",
+        "role": "pv"
+      },
+      {
+        "id": "s488t4",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s488t5",
+        "text": "krant",
+        "role": "lv"
+      },
+      {
+        "id": "s488t6",
+        "text": "verscheurd.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "samengestelde tijd"
+    ]
+  },
+  {
+    "id": 489,
+    "label": "Zin 489: Mijn broer moet zijn kamer opruimen",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s489t1",
+        "text": "Mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s489t2"
+      },
+      {
+        "id": "s489t2",
+        "text": "broer",
+        "role": "ow"
+      },
+      {
+        "id": "s489t3",
+        "text": "moet",
+        "role": "pv"
+      },
+      {
+        "id": "s489t4",
+        "text": "zijn",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s489t5"
+      },
+      {
+        "id": "s489t5",
+        "text": "kamer",
+        "role": "lv"
+      },
+      {
+        "id": "s489t6",
+        "text": "opruimen.",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 490,
+    "label": "Zin 490: Kunnen jullie de tafel dekken",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s490t1",
+        "text": "Kunnen",
+        "role": "pv"
+      },
+      {
+        "id": "s490t2",
+        "text": "jullie",
+        "role": "ow"
+      },
+      {
+        "id": "s490t3",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s490t4",
+        "text": "tafel",
+        "role": "lv"
+      },
+      {
+        "id": "s490t5",
+        "text": "dekken?",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 491,
+    "label": "Zin 491: Mijn ouders zijn in Frankrijk",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s491t1",
+        "text": "Mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s491t2"
+      },
+      {
+        "id": "s491t2",
+        "text": "ouders",
+        "role": "ow"
+      },
+      {
+        "id": "s491t3",
+        "text": "zijn",
+        "role": "pv"
+      },
+      {
+        "id": "s491t4",
+        "text": "in",
+        "role": "bwb"
+      },
+      {
+        "id": "s491t5",
+        "text": "Frankrijk.",
+        "role": "bwb"
+      }
+    ],
+    "structuralTags": [
+      "zijn = zich bevinden: WG, geen NG"
+    ]
+  },
+  {
+    "id": 492,
+    "label": "Zin 492: Is de juf in het lokaal",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s492t1",
+        "text": "Is",
+        "role": "pv"
+      },
+      {
+        "id": "s492t2",
+        "text": "de",
+        "role": "ow"
+      },
+      {
+        "id": "s492t3",
+        "text": "juf",
+        "role": "ow"
+      },
+      {
+        "id": "s492t4",
+        "text": "in",
+        "role": "bwb"
+      },
+      {
+        "id": "s492t5",
+        "text": "het",
+        "role": "bwb"
+      },
+      {
+        "id": "s492t6",
+        "text": "lokaal?",
+        "role": "bwb"
+      }
+    ],
+    "structuralTags": [
+      "zijn = zich bevinden: WG, geen NG"
+    ]
+  },
+  {
+    "id": 493,
+    "label": "Zin 493: De wind waait hard",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s493t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s493t2",
+        "text": "wind",
+        "role": "ow"
+      },
+      {
+        "id": "s493t3",
+        "text": "waait",
+        "role": "pv"
+      },
+      {
+        "id": "s493t4",
+        "text": "hard.",
+        "role": "bwb"
+      }
+    ],
+    "structuralTags": [
+      "BWB van wijze: WG, geen NG"
+    ]
+  },
+  {
+    "id": 494,
+    "label": "Zin 494: De scheidsrechter gaf de spits een gele kaart",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s494t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s494t2",
+        "text": "scheidsrechter",
+        "role": "ow"
+      },
+      {
+        "id": "s494t3",
+        "text": "gaf",
+        "role": "pv"
+      },
+      {
+        "id": "s494t4",
+        "text": "de",
+        "role": "mv"
+      },
+      {
+        "id": "s494t5",
+        "text": "spits",
+        "role": "mv"
+      },
+      {
+        "id": "s494t6",
+        "text": "een",
+        "role": "lv"
+      },
+      {
+        "id": "s494t7",
+        "text": "gele",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s494t8"
+      },
+      {
+        "id": "s494t8",
+        "text": "kaart.",
+        "role": "lv"
+      }
+    ]
+  },
+  {
+    "id": 495,
+    "label": "Zin 495: Mijn ouders hebben mij een fiets beloofd",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s495t1",
+        "text": "Mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s495t2"
+      },
+      {
+        "id": "s495t2",
+        "text": "ouders",
+        "role": "ow"
+      },
+      {
+        "id": "s495t3",
+        "text": "hebben",
+        "role": "pv"
+      },
+      {
+        "id": "s495t4",
+        "text": "mij",
+        "role": "mv"
+      },
+      {
+        "id": "s495t5",
+        "text": "een",
+        "role": "lv"
+      },
+      {
+        "id": "s495t6",
+        "text": "fiets",
+        "role": "lv"
+      },
+      {
+        "id": "s495t7",
+        "text": "beloofd.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "samengestelde tijd"
+    ]
+  },
+  {
+    "id": 496,
+    "label": "Zin 496: De mentor legt ons de opdracht uit",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s496t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s496t2",
+        "text": "mentor",
+        "role": "ow"
+      },
+      {
+        "id": "s496t3",
+        "text": "legt",
+        "role": "pv"
+      },
+      {
+        "id": "s496t4",
+        "text": "ons",
+        "role": "mv"
+      },
+      {
+        "id": "s496t5",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s496t6",
+        "text": "opdracht",
+        "role": "lv"
+      },
+      {
+        "id": "s496t7",
+        "text": "uit.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "scheidbaar werkwoord"
+    ]
+  },
+  {
+    "id": 497,
+    "label": "Zin 497: Opa leest de kinderen een verhaal voor",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s497t1",
+        "text": "Opa",
+        "role": "ow"
+      },
+      {
+        "id": "s497t2",
+        "text": "leest",
+        "role": "pv"
+      },
+      {
+        "id": "s497t3",
+        "text": "de",
+        "role": "mv"
+      },
+      {
+        "id": "s497t4",
+        "text": "kinderen",
+        "role": "mv"
+      },
+      {
+        "id": "s497t5",
+        "text": "een",
+        "role": "lv"
+      },
+      {
+        "id": "s497t6",
+        "text": "verhaal",
+        "role": "lv"
+      },
+      {
+        "id": "s497t7",
+        "text": "voor.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "scheidbaar werkwoord"
+    ]
+  },
+  {
+    "id": 498,
+    "label": "Zin 498: Geef jij Daan de bal terug",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s498t1",
+        "text": "Geef",
+        "role": "pv"
+      },
+      {
+        "id": "s498t2",
+        "text": "jij",
+        "role": "ow"
+      },
+      {
+        "id": "s498t3",
+        "text": "Daan",
+        "role": "mv"
+      },
+      {
+        "id": "s498t4",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s498t5",
+        "text": "bal",
+        "role": "lv"
+      },
+      {
+        "id": "s498t6",
+        "text": "terug?",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "scheidbaar werkwoord"
+    ]
+  },
+  {
+    "id": 499,
+    "label": "Zin 499: Wie heeft jou dat verteld",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s499t1",
+        "text": "Wie",
+        "role": "ow"
+      },
+      {
+        "id": "s499t2",
+        "text": "heeft",
+        "role": "pv"
+      },
+      {
+        "id": "s499t3",
+        "text": "jou",
+        "role": "mv"
+      },
+      {
+        "id": "s499t4",
+        "text": "dat",
+        "role": "lv"
+      },
+      {
+        "id": "s499t5",
+        "text": "verteld?",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "vraagwoord als OW"
+    ]
+  },
+  {
+    "id": 500,
+    "label": "Zin 500: Dat boek heb ik mijn zus gegeven",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s500t1",
+        "text": "Dat",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s500t2"
+      },
+      {
+        "id": "s500t2",
+        "text": "boek",
+        "role": "lv"
+      },
+      {
+        "id": "s500t3",
+        "text": "heb",
+        "role": "pv"
+      },
+      {
+        "id": "s500t4",
+        "text": "ik",
+        "role": "ow"
+      },
+      {
+        "id": "s500t5",
+        "text": "mijn",
+        "role": "mv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s500t6"
+      },
+      {
+        "id": "s500t6",
+        "text": "zus",
+        "role": "mv"
+      },
+      {
+        "id": "s500t7",
+        "text": "gegeven.",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 501,
+    "label": "Zin 501: Een jongen bood de oude dame zijn zitplaats aan",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s501t1",
+        "text": "Een",
+        "role": "ow"
+      },
+      {
+        "id": "s501t2",
+        "text": "jongen",
+        "role": "ow"
+      },
+      {
+        "id": "s501t3",
+        "text": "bood",
+        "role": "pv"
+      },
+      {
+        "id": "s501t4",
+        "text": "de",
+        "role": "mv"
+      },
+      {
+        "id": "s501t5",
+        "text": "oude",
+        "role": "mv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s501t6"
+      },
+      {
+        "id": "s501t6",
+        "text": "dame",
+        "role": "mv"
+      },
+      {
+        "id": "s501t7",
+        "text": "zijn",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s501t8"
+      },
+      {
+        "id": "s501t8",
+        "text": "zitplaats",
+        "role": "lv"
+      },
+      {
+        "id": "s501t9",
+        "text": "aan.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "scheidbaar werkwoord"
+    ]
+  },
+  {
+    "id": 502,
+    "label": "Zin 502: Wil jij de gasten koffie inschenken",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s502t1",
+        "text": "Wil",
+        "role": "pv"
+      },
+      {
+        "id": "s502t2",
+        "text": "jij",
+        "role": "ow"
+      },
+      {
+        "id": "s502t3",
+        "text": "de",
+        "role": "mv"
+      },
+      {
+        "id": "s502t4",
+        "text": "gasten",
+        "role": "mv"
+      },
+      {
+        "id": "s502t5",
+        "text": "koffie",
+        "role": "lv"
+      },
+      {
+        "id": "s502t6",
+        "text": "inschenken?",
+        "role": "wg"
+      }
+    ]
+  },
+  {
+    "id": 503,
+    "label": "Zin 503: Gisteren heeft mijn oom mij een horloge gegeven",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s503t1",
+        "text": "Gisteren",
+        "role": "bwb"
+      },
+      {
+        "id": "s503t2",
+        "text": "heeft",
+        "role": "pv"
+      },
+      {
+        "id": "s503t3",
+        "text": "mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s503t4"
+      },
+      {
+        "id": "s503t4",
+        "text": "oom",
+        "role": "ow"
+      },
+      {
+        "id": "s503t5",
+        "text": "mij",
+        "role": "mv"
+      },
+      {
+        "id": "s503t6",
+        "text": "een",
+        "role": "lv"
+      },
+      {
+        "id": "s503t7",
+        "text": "horloge",
+        "role": "lv"
+      },
+      {
+        "id": "s503t8",
+        "text": "gegeven.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "samengestelde tijd"
+    ]
+  },
+  {
+    "id": 504,
+    "label": "Zin 504: Heb jij je tante al een kaart gestuurd",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s504t1",
+        "text": "Heb",
+        "role": "pv"
+      },
+      {
+        "id": "s504t2",
+        "text": "jij",
+        "role": "ow"
+      },
+      {
+        "id": "s504t3",
+        "text": "je",
+        "role": "mv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s504t4"
+      },
+      {
+        "id": "s504t4",
+        "text": "tante",
+        "role": "mv"
+      },
+      {
+        "id": "s504t5",
+        "text": "al",
+        "role": "bwb"
+      },
+      {
+        "id": "s504t6",
+        "text": "een",
+        "role": "lv"
+      },
+      {
+        "id": "s504t7",
+        "text": "kaart",
+        "role": "lv"
+      },
+      {
+        "id": "s504t8",
+        "text": "gestuurd?",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "samengestelde tijd"
+    ]
+  },
+  {
+    "id": 505,
+    "label": "Zin 505: De juf stelt de nieuwe leerling aan de klas voor",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s505t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s505t2",
+        "text": "juf",
+        "role": "ow"
+      },
+      {
+        "id": "s505t3",
+        "text": "stelt",
+        "role": "pv"
+      },
+      {
+        "id": "s505t4",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s505t5",
+        "text": "nieuwe",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s505t6"
+      },
+      {
+        "id": "s505t6",
+        "text": "leerling",
+        "role": "lv"
+      },
+      {
+        "id": "s505t7",
+        "text": "aan",
+        "role": "mv"
+      },
+      {
+        "id": "s505t8",
+        "text": "de",
+        "role": "mv"
+      },
+      {
+        "id": "s505t9",
+        "text": "klas",
+        "role": "mv"
+      },
+      {
+        "id": "s505t10",
+        "text": "voor.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "LV en MV zijn allebei personen"
+    ]
+  },
+  {
+    "id": 506,
+    "label": "Zin 506: De postbode zal ons het pakket morgen bezorgen",
+    "predicateType": "WG",
+    "level": 1,
+    "tokens": [
+      {
+        "id": "s506t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s506t2",
+        "text": "postbode",
+        "role": "ow"
+      },
+      {
+        "id": "s506t3",
+        "text": "zal",
+        "role": "pv"
+      },
+      {
+        "id": "s506t4",
+        "text": "ons",
+        "role": "mv"
+      },
+      {
+        "id": "s506t5",
+        "text": "het",
+        "role": "lv"
+      },
+      {
+        "id": "s506t6",
+        "text": "pakket",
+        "role": "lv"
+      },
+      {
+        "id": "s506t7",
+        "text": "morgen",
+        "role": "bwb"
+      },
+      {
+        "id": "s506t8",
+        "text": "bezorgen.",
+        "role": "wg"
+      }
+    ]
   }
 ]

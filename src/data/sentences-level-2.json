@@ -6302,5 +6302,88 @@
       "inversie",
       "samengestelde tijd"
     ]
+  },
+  {
+    "id": 507,
+    "label": "Zin 507: Aan de winnaar werd een beker uitgereikt",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s507t1",
+        "text": "Aan",
+        "role": "mv"
+      },
+      {
+        "id": "s507t2",
+        "text": "de",
+        "role": "mv"
+      },
+      {
+        "id": "s507t3",
+        "text": "winnaar",
+        "role": "mv"
+      },
+      {
+        "id": "s507t4",
+        "text": "werd",
+        "role": "pv"
+      },
+      {
+        "id": "s507t5",
+        "text": "een",
+        "role": "ow"
+      },
+      {
+        "id": "s507t6",
+        "text": "beker",
+        "role": "ow"
+      },
+      {
+        "id": "s507t7",
+        "text": "uitgereikt.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "lijdende vorm: MV zonder LV"
+    ]
+  },
+  {
+    "id": 508,
+    "label": "Zin 508: Hem werd de toegang geweigerd",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s508t1",
+        "text": "Hem",
+        "role": "mv"
+      },
+      {
+        "id": "s508t2",
+        "text": "werd",
+        "role": "pv"
+      },
+      {
+        "id": "s508t3",
+        "text": "de",
+        "role": "ow"
+      },
+      {
+        "id": "s508t4",
+        "text": "toegang",
+        "role": "ow"
+      },
+      {
+        "id": "s508t5",
+        "text": "geweigerd.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "lijdende vorm: MV zonder LV",
+      "contrast met zin 142: bedrijvend of lijdend"
+    ]
   }
 ]
