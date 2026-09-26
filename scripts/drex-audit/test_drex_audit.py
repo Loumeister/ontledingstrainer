@@ -120,6 +120,12 @@ class AnalyseTest(unittest.TestCase):
         self.assertEqual(analyse.auc([0.9, 0.8], [0.1, 0.2]), 1.0)
         self.assertEqual(analyse.auc([0.5], [0.5]), 0.5)
 
+    def test_detection_at_matched_false_positive_rate(self):
+        gold = [0.1, 0.5, 0.6, 0.7, 0.8, 0.9, 0.9, 0.95, 0.95, 0.99]
+        found, false, t = analyse.detection_at_fpr(gold, [0.05, 0.2, 0.6], 0.1)
+        self.assertEqual((t, false), (0.5, 0.1))  # precies 1 van de 10 goede labels onder de drempel
+        self.assertAlmostEqual(found, 2 / 3)
+
     def test_auc_requires_both_classes(self):
         # Komt echt voor: 5 bijstellingen, en niet elke rol krijgt een verwisseling.
         self.assertIsNone(analyse.auc([0.9], []))

@@ -61,6 +61,21 @@ def mutation_detection(classified, verified_gold, mutated):
     return result
 
 
+MATCHED_FPR = (0.01, 0.02, 0.05, 0.10)
+
+
+def detection_at_fpr(gold_scores, mut_scores, fpr):
+    """Drempel waaronder een fractie `fpr` van de goede labels valt; geeft (gevonden fouten, werkelijk vals alarm, drempel).
+
+    Zo vergelijk je methodes eerlijk: allemaal bij hetzelfde aantal onterechte meldingen.
+    """
+    ranked = sorted(gold_scores)
+    k = int(fpr * len(ranked))
+    t = ranked[k] if k < len(ranked) else float('inf')
+    found = sum(s < t for s in mut_scores) / len(mut_scores) if mut_scores else None
+    return found, sum(s < t for s in ranked) / len(ranked), t
+
+
 def auc(pos_scores, neg_scores):
     """Kans dat een willekeurig goed label hoger scoort dan een willekeurig fout label; None zonder beide klassen."""
     if not pos_scores or not neg_scores:
@@ -126,6 +141,19 @@ def report(rows):
         out.append(f'| {name} | {pct(found, n_mut)} ({found}/{n_mut}) | {pct(false, n_gold)} ({false}/{n_gold}) |')
     out += ['', 'De verwisselingen komen uit `schema.mutate`: een testharnas. Deze cijfers zeggen of de audit zo\'n fout '
             'vindt, niet hoe vaak het corpus fouten bevat.']
+    out += ['', 'Bij gelijke vals-alarmkans (drempel gekozen op de goede labels; de ingebouwde fouten zijn per variant dezelfde):', '',
+            '| methode | AUC | ' + ' | '.join(f'@{f:.0%} vals alarm' for f in MATCHED_FPR) + ' |', '|---|---|' + '---|' * len(MATCHED_FPR)]
+    methods = []
+    for v in variants:
+        chunk_of = {key(r): r for r in by[v]}
+        methods.append((f'classificatie `{v}`', [gold_prob(r) for r in by[v]],
+                        [chunk_of[key(m)]['probs'].get(m['claimed'], 0) for m in Bm if key(m) in chunk_of]))
+    methods.append(('verificatie', [r['noul'] for r in Bg], [m['noul'] for m in Bm]))
+    for name, g, m in methods:
+        a = auc(g, m)
+        cells = [f'{pct(found * len(m), len(m))} (< {t:.2f})' for found, _, t in (detection_at_fpr(g, m, f) for f in MATCHED_FPR)]
+        out.append(f"| {name} | {'–' if a is None else f'{a:.3f}'} | " + ' | '.join(cells) + ' |')
+
     auc_value = auc([r['noul'] for r in Bg], [m['noul'] for m in Bm])
     out += ['', f"Verificatie-AUC: {'–' if auc_value is None else f'{auc_value:.3f}'} "
             '(kans dat een goed label hoger scoort dan een fout label; 0,5 = gokken)', '',
