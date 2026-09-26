@@ -73,6 +73,16 @@ Geraadpleegd: *Online Dutch Grammar Course* (dutchgrammar.com, woordvolgorde en 
 - **Zwak juist op de didactische kern**: MV (45–50%) en BWB → VV (9–47% gevonden). Daar blijft een mens nodig.
 - **Enige zekere afwijking**: zin 5008 *Wij luisteren **naar muziek*** staat als BWB, terwijl zin 435 *luisteren **naar de trainer*** als VV staat.
 
+## Externe validatie (gold-set)
+
+Configuratie, drempels, maten en beslisregel liggen vast in [`PREREGISTRATIE.md`](PREREGISTRATIE.md), vastgelegd voordat er beoordelingen waren. Beoordeel de blinde lijsten (blad 1: 78 zinsdelen, blad 2: 50) en scoor ze daarna:
+
+```bash
+python3 scripts/drex-audit/score_goldset.py --blad1 goldset-blind.csv --blad2 goldset-blind-2.csv
+```
+
+Het script leest `goldset/ontwerp.csv` en de bevroren scores van meting 2; het roept Drex niet aan.
+
 ## Bekende grenzen
 
 - Drex kiest altijd een van de zeven labels. Een zinsdeel dat nergens past, krijgt toch een label.

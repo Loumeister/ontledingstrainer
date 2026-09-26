@@ -144,3 +144,61 @@ class AnalyseTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class GoldsetTest(unittest.TestCase):
+    """Scorelogica voor de externe validatie (score_goldset.py), zonder echte beoordelingen."""
+
+    @staticmethod
+    def score(role, drex, p, noul, accepted=None):
+        return {'role': role, 'accepted': accepted or [role], 'drex_role': drex, 'p_labels': p, 'noul': noul}
+
+    def test_design_is_a_census_of_flagged_chunks(self):
+        import score_goldset as sg
+        scores = sg.load_scores()
+        design = {(int(r['zin_id']), int(r['start'])) for r in sg.read_csv(sg.DESIGN)}
+        self.assertEqual(len(scores), 1044)
+        self.assertTrue(design <= set(scores))
+        self.assertTrue({x for x, s in scores.items() if sg.flagged(s)} <= design)
+
+    def test_verdicts_and_precision(self):
+        import score_goldset as sg
+        scores = {(1, 0): self.score('bwb', 'vv', 0.1, 0.6),   # gemarkeerd, mens: vv -> echte fout
+                  (2, 0): self.score('lv', 'ow', 0.1, 0.9),    # gemarkeerd, mens: lv -> vals alarm
+                  (3, 0): self.score('mv', 'lv', 0.5, 0.3),    # gemarkeerd, twijfel
+                  (4, 0): self.score('ow', 'ow', 0.9, 0.9)}    # niet gemarkeerd, correct
+        judged = {(1, 0): ('vv', False, ''), (2, 0): ('lv', False, ''), (3, 0): ('lv', True, ''), (4, 0): ('ow', False, '')}
+        m = sg.evaluate(scores, judged)
+        self.assertEqual((m['flagged_total'], m['flagged_judged'], m['errors_flagged']), (3, 3, 1))
+        self.assertAlmostEqual(m['precision'], 1 / 2)        # twijfel telt niet mee
+        self.assertAlmostEqual(m['review_worthy'], 2 / 3)    # fout + twijfel
+        self.assertEqual(m['verdicts'][(3, 0)], 'twijfel')
+        self.assertIn('voorlopig', sg.decision({**m, 'flagged_judged': 2}))
+
+    def test_weights_scale_sample_to_population(self):
+        import score_goldset as sg
+        scores = {(i, 0): self.score('ow', 'ow', 0.9, 0.9) for i in range(10)}
+        w, uncovered = sg.weights(scores, {(0, 0): ('ow', False, ''), (1, 0): ('ow', False, '')})
+        self.assertEqual(w[(0, 0)], 5.0)
+        self.assertEqual(uncovered, {})
+
+    def test_decision_rule_is_frozen(self):
+        import score_goldset as sg
+        base = {'flagged_total': 10, 'flagged_judged': 10}
+        self.assertIn('S1 gehaald', sg.decision({**base, 'precision': 0.3, 'errors_flagged': 3}))
+        self.assertIn('tweede mening', sg.decision({**base, 'precision': 0.3, 'errors_flagged': 2}))
+        self.assertIn('stoppen', sg.decision({**base, 'precision': 0.05, 'errors_flagged': 0}))
+        self.assertEqual((sg.FLAG_P_LABELS_BELOW, sg.FLAG_NOUL_BELOW, sg.USEFUL_PRECISION), (0.18, 0.45, 0.20))
+
+    def test_sheet_columns_in_either_language_and_design_check(self):
+        import tempfile
+        import score_goldset as sg
+        with tempfile.TemporaryDirectory() as d:
+            design, sheet = Path(d) / 'ontwerp.csv', Path(d) / 'blad.csv'
+            design.write_text('blad;nr;zin_id;start\n1;1;7;2\n1;2;8;0\n', encoding='utf-8')
+            sheet.write_text('nr;zin_id;zin;zinsdeel;jouw_rol (OW/..);twee_lezingen_verdedigbaar (ja/nee);opmerking\n'
+                             '1;7;x;y;NWD;ja;twijfel\n2;8;x;y;;;\n', encoding='utf-8-sig')
+            self.assertEqual(sg.load_judgements(design, {1: sheet}), {(7, 2): ('ng', True, 'twijfel')})
+            sheet.write_text('nr;zin_id;human_role;ambiguous;note\n1;9;OW;nee;\n', encoding='utf-8')
+            with self.assertRaises(ValueError):
+                sg.load_judgements(design, {1: sheet})
