@@ -42,8 +42,8 @@ class ChunkTest(unittest.TestCase):
                                                 tok('worden.', 'ng', subRole='wwd', alternativeRole='nwd')]), ['ng'])
 
     def test_alternative_on_first_token_only_is_not_accepted(self):
-        # validation.ts:304 keurt een leerlinglabel alleen goed als élk woord het toestaat. (sentenceAnalysis.ts
-        # telt fouten op chunkgrenzen en kijkt dus alleen naar het eerste woord; dat is docentanalyse, geen beoordeling.)
+        # validation.ts keurt een leerlinglabel alleen goed als élk woord het toestaat (roleMatchesToken over alle
+        # tokens); #173 laat de docentanalyse in sentenceAnalysis.ts dezelfde regel volgen.
         self.assertEqual(schema.accepted_roles([tok('iets', 'vv', alternativeRole='bwb'), tok('anders', 'vv')]), ['vv'])
 
     def test_anchor_disambiguates_repeated_text_without_counting(self):
