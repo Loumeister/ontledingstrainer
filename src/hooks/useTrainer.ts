@@ -32,6 +32,7 @@ import {
   computeCorrectSplits,
   validateAnswer,
   getGezegdeDeel,
+  isUnaskedWordSubRole,
   findMissingGezegdeDeel,
   isBijzinFunctieAsked,
   getConsistentRole,
@@ -1440,7 +1441,7 @@ export function useTrainer(): TrainerState {
 
     currentSentence.tokens.forEach((t, i) => {
       if (t.subRole) {
-        if (t.subRole === 'bijv_bep' && !includeBB) { /* skip */ }
+        if ((t.subRole === 'bijv_bep' && !includeBB) || isUnaskedWordSubRole(t.subRole)) { /* skip */ }
         else {
           correctSubLabels[t.id] = t.subRole;
           if (t.subRole === 'bijv_bep' && t.bijvBepTarget && includeBB) {

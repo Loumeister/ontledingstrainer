@@ -567,8 +567,7 @@
         "id": "s11t7",
         "text": "half",
         "role": "lv",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s11t9"
+        "subRole": "bwb"
       },
       {
         "id": "s11t8",
@@ -2026,8 +2025,7 @@
         "id": "s45t4",
         "text": "erg",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s45t5"
+        "subRole": "bwb"
       },
       {
         "id": "s45t5",
@@ -2863,8 +2861,7 @@
         "id": "s425t4",
         "text": "ernstig",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s425t5"
+        "subRole": "bwb"
       },
       {
         "id": "s425t5",
@@ -3486,8 +3483,7 @@
         "id": "s447t7",
         "text": "heel",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s447t8"
+        "subRole": "bwb"
       },
       {
         "id": "s447t8",

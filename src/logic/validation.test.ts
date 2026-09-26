@@ -10,6 +10,7 @@ import {
   findMissingGezegdeDeel,
   requiresPredicateChoice,
   getExpectedPredicateType,
+  getExpectedSubLabel,
 } from './validation';
 import { HINTS } from '../constants';
 import type { Token, Sentence, PlacementMap } from '../types';
@@ -907,6 +908,32 @@ describe('validateAnswer — gezegdedelen', () => {
     const sub: PlacementMap = { b2: 'wwd', b3: 'nwd', b4: 'bijv_bep', b5: 'nwd' };
     const { result } = validateAnswer(bb, new Set([0, 1]), { b1: 'ow', b2: 'pv', b3: 'ng' }, sub, true, {}, {}, { b4: 'b5' }, undefined, true);
     expect(result.isPerfect).toBe(true);
+  });
+});
+
+describe('validateAnswer — bijwoordelijke bepaling binnen het naamwoordelijk deel (nog niet gevraagd)', () => {
+  // "Hij is erg ziek": erg is een BWB bij het bijvoeglijk naamwoord ziek, geen BB
+  const tokens: Token[] = [
+    makeToken({ id: 'e1', text: 'Hij', role: 'ow' }),
+    makeToken({ id: 'e2', text: 'is', role: 'pv', subRole: 'wwd' }),
+    makeToken({ id: 'e3', text: 'erg', role: 'ng', subRole: 'bwb' }),
+    makeToken({ id: 'e4', text: 'ziek.', role: 'ng', subRole: 'nwd' }),
+  ];
+  const sentence = makeSentence(tokens, { predicateType: 'NG' });
+  const labels: PlacementMap = { e1: 'ow', e2: 'pv', e3: 'ng' };
+  const run = (subLabels: PlacementMap, includeGezegdeDelen = false) =>
+    validateAnswer(sentence, new Set([0, 1]), labels, subLabels, true, {}, {}, {}, undefined, includeGezegdeDelen).result;
+
+  it('vraagt het woord niet als BWB, ook niet met BB aan, en telt het mee als naamwoordelijk deel', () => {
+    expect(getExpectedSubLabel(tokens[2], true)).toBeUndefined();
+    expect(getExpectedSubLabel(tokens[2], true, true)).toBe('nwd');
+    expect(run({}).isPerfect).toBe(true);
+    expect(run({ e2: 'wwd', e3: 'nwd', e4: 'nwd' }, true).isPerfect).toBe(true);
+  });
+
+  it('rekent een BWB-label dat de leerling er zelf op zet niet fout, maar wel een BB-label', () => {
+    expect(run({ e3: 'bwb' }).isPerfect).toBe(true);
+    expect(run({ e3: 'bijv_bep' }).isPerfect).toBe(false);
   });
 });
 

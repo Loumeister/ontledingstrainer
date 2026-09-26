@@ -146,8 +146,7 @@
         "role": "bijzin",
         "bijzinAnalyse": {
           "role": "ng",
-          "subRole": "bijv_bep",
-          "bijvBepTarget": "s302t6"
+          "subRole": "bwb"
         }
       },
       {
@@ -599,8 +598,7 @@
         "id": "s308t10",
         "text": "heel",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s308t11"
+        "subRole": "bwb"
       },
       {
         "id": "s308t11",
@@ -1013,15 +1011,13 @@
         "id": "s313t11",
         "text": "politiek",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s313t13"
+        "subRole": "bwb"
       },
       {
         "id": "s313t12",
         "text": "zeer",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s313t13"
+        "subRole": "bwb"
       },
       {
         "id": "s313t13",
@@ -1082,8 +1078,7 @@
         "id": "s314t8",
         "text": "meest",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s314t10"
+        "subRole": "bwb"
       },
       {
         "id": "s314t9",
@@ -2627,8 +2622,7 @@
         "id": "s341t8",
         "text": "opvallend",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s341t9"
+        "subRole": "bwb"
       },
       {
         "id": "s341t9",
@@ -2748,8 +2742,7 @@
         "id": "s454t5",
         "text": "erg",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s454t7"
+        "subRole": "bwb"
       },
       {
         "id": "s454t6",
@@ -2811,15 +2804,13 @@
         "id": "s456t5",
         "text": "veel",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s456t7"
+        "subRole": "bwb"
       },
       {
         "id": "s456t6",
         "text": "te",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s456t7"
+        "subRole": "bwb"
       },
       {
         "id": "s456t7",

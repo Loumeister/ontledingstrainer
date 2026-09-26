@@ -61,6 +61,20 @@ describe('zinnendata — docentcorrecties', () => {
     expect(s.tokens.filter(t => ['opvallend', 'stil.'].includes(t.text)).map(t => t.role)).toEqual(['ng', 'ng']);
   });
 
+  it('een bepaling bij een bijvoeglijk naamwoord is een BWB, geen BB (zin 425: ernstig ziek)', () => {
+    const ernstig = byId(425).tokens.find(t => t.text === 'ernstig')!;
+    expect(ernstig.role).toBe('ng');
+    expect(ernstig.subRole).toBe('bwb');
+    expect(ernstig.bijvBepTarget).toBeUndefined();
+  });
+
+  it('koppelt alleen een bijvoeglijke bepaling aan een doelwoord', () => {
+    const offenders = all.flatMap(s => s.tokens.flatMap(t => [t, t.bijzinAnalyse].filter(Boolean)
+      .filter(x => x!.bijvBepTarget && x!.subRole !== 'bijv_bep' && (x as typeof t).bijzinFunctie !== 'bijv_bep')
+      .map(() => `${s.id}:${t.text}`)));
+    expect(offenders).toEqual([]);
+  });
+
   it('"Dat jullie de opdracht al snapten" is LV-bijzin bij vertellen (zin 440)', () => {
     expect(byId(440).tokens[0].bijzinFunctie).toBe('lv');
   });

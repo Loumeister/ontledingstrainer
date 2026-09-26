@@ -121,13 +121,24 @@ export function getGezegdeDeel(token: Token): 'wwd' | 'nwd' | undefined {
 }
 
 /**
+ * Word-level sub-roles the data already records but that are not (yet) asked, such as a
+ * bijwoordelijke bepaling inside the naamwoordelijk deel ("ernstig" in "ernstig ziek").
+ * Such a word still counts as naamwoordelijk deel; a student who labels it correctly is not penalised.
+ */
+const UNASKED_WORD_SUBROLES: ReadonlySet<RoleKey> = new Set<RoleKey>(['bwb']);
+
+export function isUnaskedWordSubRole(subRole: RoleKey | undefined): boolean {
+  return subRole !== undefined && UNASKED_WORD_SUBROLES.has(subRole);
+}
+
+/**
  * The word-level sub-label a student is expected to place on this token, given the active options.
  * wwd/nwd are only asked with includeGezegdeDelen; a bijv_bep label takes precedence over nwd.
  */
 export function getExpectedSubLabel(token: Token, includeBB: boolean, includeGezegdeDelen = false): RoleKey | undefined {
   let expected = token.subRole;
   if (!includeBB && expected === 'bijv_bep') expected = undefined;
-  if (expected === 'wd' || expected === 'wwd' || expected === 'nwd' || expected === 'vw_onder') expected = undefined; // display-only unless asked below
+  if (expected === 'wd' || expected === 'wwd' || expected === 'nwd' || expected === 'vw_onder' || isUnaskedWordSubRole(expected)) expected = undefined; // display-only unless asked below
   if (!expected && includeGezegdeDelen) expected = getGezegdeDeel(token);
   return expected;
 }
@@ -276,7 +287,7 @@ export function validateAnswer(
         if (subLabelOnFirstToken && roleMatchesToken(subLabelOnFirstToken, chunkTokens[0])) {
           // Student placed correct role on word instead of chunk header
           const hasDualRole = chunkTokens.some(t => {
-            const expectedSub = (!includeBB && t.subRole === 'bijv_bep') || t.subRole === 'wd' || t.subRole === 'wwd' || t.subRole === 'nwd' ? undefined : t.subRole;
+            const expectedSub = (!includeBB && t.subRole === 'bijv_bep') || t.subRole === 'wd' || t.subRole === 'wwd' || t.subRole === 'nwd' || isUnaskedWordSubRole(t.subRole) ? undefined : t.subRole;
             return expectedSub && expectedSub !== t.role;
           });
           if (!hasDualRole) {
@@ -288,7 +299,7 @@ export function validateAnswer(
           const sub = subLabels[anyMatchingSubLabel.id] as RoleKey;
           if (chunkTokens.every(t => roleMatchesToken(sub, t))) {
             const hasDualRole = chunkTokens.some(t => {
-              const expectedSub = (!includeBB && t.subRole === 'bijv_bep') || t.subRole === 'wd' || t.subRole === 'wwd' || t.subRole === 'nwd' ? undefined : t.subRole;
+              const expectedSub = (!includeBB && t.subRole === 'bijv_bep') || t.subRole === 'wd' || t.subRole === 'wwd' || t.subRole === 'nwd' || isUnaskedWordSubRole(t.subRole) ? undefined : t.subRole;
               return expectedSub && expectedSub !== t.role;
             });
             if (!hasDualRole) {
@@ -431,6 +442,7 @@ export function validateAnswer(
     const userSub = subLabels[t.id];
     const expectedSub = getExpectedSubLabel(t, includeBB, includeGezegdeDelen);
     if (userSub === expectedSub) return;
+    if (userSub && userSub === t.subRole && isUnaskedWordSubRole(userSub)) return; // correct, just not asked
     subRoleMismatch = true;
 
     // Gezegdedelen: give one repair step on an otherwise correct chunk, without naming the answer.

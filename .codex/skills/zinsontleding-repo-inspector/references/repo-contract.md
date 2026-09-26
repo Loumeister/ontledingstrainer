@@ -41,6 +41,7 @@ Bronnen: `src/types.ts`, `src/constants.ts`, `src/data/sentences-level-0.json`, 
 - Nevenschikking via `vw_neven`.
 - Onderschikking wordt in de huidige data gemarkeerd via `subRole: vw_onder` binnen een `bijzin`.
 - Bijvoeglijke bepaling op woordniveau via `subRole: bijv_bep` en `bijvBepTarget`.
+- Een bepaling bij een bijvoeglijk naamwoord (*ernstig* ziek, *veel te* duur, een *erg* productieve) is een bijwoordelijke bepaling: `subRole: bwb`, zonder `bijvBepTarget`. Die deelrol wordt (nog) niet gevraagd; zie `isUnaskedWordSubRole` in `src/logic/validation.ts`.
 
 ## Feedback hooks
 
