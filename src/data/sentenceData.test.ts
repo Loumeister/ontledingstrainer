@@ -75,6 +75,14 @@ describe('zinnendata — docentcorrecties', () => {
     expect(byId(440).tokens[0].bijzinFunctie).toBe('lv');
   });
 
+  it('"van de namiddag" is een bijvoeglijke bepaling bij licht, binnen het voorzetselvoorwerp (zin 100)', () => {
+    const s = byId(100);
+    expect(s.tokens.map(t => t.text).join(' ')).toBe('De natuurfotograaf rekent op het betere licht van de namiddag.');
+    const licht = s.tokens.find(t => t.text === 'licht')!;
+    const vdn = s.tokens.filter(t => ['van', 'de', 'namiddag.'].includes(t.text));
+    expect(vdn.map(t => [t.role, t.subRole, t.bijvBepTarget, !!t.newChunk])).toEqual(Array(3).fill(['vv', 'bijv_bep', licht.id, false]));
+  });
+
   it('zin 24 zet het MV met "aan" voorop, zodat alleen Sara het onderwerp kan zijn', () => {
     const s = byId(24);
     expect(s.tokens.map(t => t.text).join(' ')).toBe('Aan haar oma stuurt Sara een kaart.');
@@ -146,10 +154,14 @@ describe('zinnendata — rollen per niveau en bijvoeglijke bepalingen', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('laat elke bijvoeglijke bepaling naar een ander woord in dezelfde zin wijzen', () => {
-    const offenders = all.flatMap(s => s.tokens
-      .filter(t => t.bijvBepTarget && (t.bijvBepTarget === t.id || !s.tokens.some(o => o.id === t.bijvBepTarget)))
-      .map(t => `${s.id}:${t.text}`));
+  it('geeft elke bijvoeglijke bepaling een doelwoord: een ander woord in dezelfde zin, ook binnen een bijzin', () => {
+    const wijstGoed = (s: Sentence, id: string, target?: string) =>
+      !!target && target !== id && s.tokens.some(o => o.id === target);
+    const offenders = all.flatMap(s => s.tokens.flatMap(t => [
+      ...(t.subRole === 'bijv_bep' && !wijstGoed(s, t.id, t.bijvBepTarget) ? [`${s.id}:${t.text}`] : []),
+      ...(t.bijzinAnalyse?.subRole === 'bijv_bep' && !wijstGoed(s, t.id, t.bijzinAnalyse.bijvBepTarget)
+        ? [`${s.id}:${t.text} (bijzin)`] : []),
+    ]));
     expect(offenders).toEqual([]);
   });
 });

@@ -1,6 +1,8 @@
 # Sentence parse audit (maart 2026)
 
-Deze controle volgt de workflow van `zinsontleding-repo-inspector` en `zinsontleding-constraint-sentence-author`, opnieuw uitgevoerd op de actuele dataset.
+> **Historische audit.** Dit verslag beschrijft de dataset van maart 2026 (248 zinnen) en wordt niet bijgewerkt. Actuele aantallen staan in het gegenereerde `TEACHERS_SENTENCE_OVERVIEW.md`; de actuele automatische controles staan in `src/data/sentenceData.test.ts`.
+
+Deze controle volgde de workflow van `zinsontleding-repo-inspector` en `zinsontleding-constraint-sentence-author`, uitgevoerd op de dataset van dat moment.
 
 ## Label inventory
 
@@ -30,15 +32,15 @@ De gecontroleerde zinnen gebruiken alleen rollen die door bestaande feedback/hin
 
 ## Parse correctness check
 
-Automatische controles op alle 248 zinnen:
+Automatische controles op de toenmalige 248 zinnen, met het inmiddels verwijderde script `scripts/regenerate_sentence_docs_and_validate.cjs`:
 
 - geldig rolgebruik (`role`, `subRole`, `bijzinFunctie`)
 - unieke en consistente token-id's (`s<zinId>t<tokenIndex>`)
 - niveauconsistentie (`sentence.level` == bestandsniveau)
-- aanwezigheid van expliciete `pv` en `ow`
+- aanwezigheid van expliciete `pv` en `ow` (een ontbrekend `ow` gaf alleen een waarschuwing, nooit een fout)
 
 Resultaat: **alle 248 zinnen slagen**. Vijf bevelzinnen zonder expliciet onderwerp geven een waarschuwing (geen fout): id 125, 126, 127, 315, 316.
 
 ## Numerieke ordening
 
-- Actuele aantallen, ID's en zinsdeelpatronen per niveau staan in `TEACHERS_SENTENCE_OVERVIEW.md`. Dat overzicht wordt uit de zinnendata gegenereerd (`npm run docs:zinnen`); de aantallen hierboven zijn een momentopname van maart 2026.
+- Actuele aantallen, ID's en zinsdeelpatronen per niveau: zie `TEACHERS_SENTENCE_OVERVIEW.md` (`npm run docs:zinnen`).

@@ -2210,34 +2210,41 @@
       },
       {
         "id": "s100t5",
-        "text": "beter",
-        "role": "vv",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s100t6"
+        "text": "het",
+        "role": "vv"
       },
       {
         "id": "s100t6",
+        "text": "betere",
+        "role": "vv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s100t7"
+      },
+      {
+        "id": "s100t7",
         "text": "licht",
         "role": "vv"
       },
       {
-        "id": "s100t7",
-        "text": "in",
+        "id": "s100t8",
+        "text": "van",
         "role": "vv",
         "subRole": "bijv_bep",
-        "newChunk": true
-      },
-      {
-        "id": "s100t8",
-        "text": "de",
-        "role": "vv",
-        "subRole": "bijv_bep"
+        "bijvBepTarget": "s100t7"
       },
       {
         "id": "s100t9",
+        "text": "de",
+        "role": "vv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s100t7"
+      },
+      {
+        "id": "s100t10",
         "text": "namiddag.",
         "role": "vv",
-        "subRole": "bijv_bep"
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s100t7"
       }
     ]
   },

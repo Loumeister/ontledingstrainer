@@ -296,7 +296,7 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 97 | Wij hopen op een oplossing voor dit probleem. | OW · PV · VZV | WG |
 | 98 | De lucht boven de stad bleef de hele avond helder. | OW · PV · BWB · NG | NG |
 | 99 | De student gaf zijn moeder trots zijn eerste wetenschappelijke artikel. | OW · PV · MV · BWB · LV | WG |
-| 100 | De natuurfotograaf rekent op beter licht in de namiddag. | OW · PV · VZV · VZV | WG |
+| 100 | De natuurfotograaf rekent op het betere licht van de namiddag. | OW · PV · VZV | WG |
 | 101 | Het nieuwe systeem lijkt veel efficiënter dan het oude. | OW · PV · NG | NG |
 | 102 | De vrijwilliger stuurde gistermiddag aan alle deelnemers een herinnering. | OW · PV · BWB · MV · LV | WG |
 | 103 | In veel Europese steden blijkt de luchtkwaliteit na de pandemiejaren aanzienlijk slechter dan verwacht. | BWB · PV · OW · BWB · NG | NG |
