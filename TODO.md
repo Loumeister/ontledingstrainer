@@ -13,7 +13,7 @@ _Alleen open werk. Afgerond werk staat in git._
 - [ ] Test expliciet dat de standaardroute alle toepasselijke rollen tegelijk vraagt en het ladderexperiment niet lekt.
 - [ ] Bepaal op basis van pilotdata of de Rollenladder leerwinst geeft; verwijder hem als dat niet aantoonbaar is.
 
-- [ ] De zinseditor bouwt bij opslaan alle tokens opnieuw op. Daarbij vallen nog weg: woordniveau-`bijvBepTarget` (bijvoeglijke bepalingen op woordniveau, in veel ingebouwde zinnen), `alternativeRole` en `structuralTags`. Behoud of waarschuw, zoals bij `bijzinAnalyse` (`carryOverBijzinAnalyse`), voordat een docent het corpus per niveau exporteert.
+- [ ] Besluit of de zinseditor woordniveau-`bijvBepTarget`, `alternativeRole` en `structuralTags` ook behoudt als de docent zinsdelen of labels verandert. Zonder structuurwijziging blijft de zin al ongewijzigd (`buildEditorSentence`); met structuurwijziging waarschuwt het voorbeeld (`getDroppedFields`).
 - [ ] Test bijzinontleding (`#/bijzinontleding`) met alle bijzinzinnen en besluit of de bijzinscore meetelt; zet daarna live.
 
 ## P2: pas na bewijs

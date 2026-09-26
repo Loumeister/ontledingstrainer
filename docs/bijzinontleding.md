@@ -55,7 +55,8 @@ Heeft een zin een bijzin, dan volgt na **Eigenschappen** de stap **Bijzin ontled
 - De docent knipt de bijzin met knopjes tussen de woorden en kiest per deel een zinsdeel uit dezelfde lijst als het leerlingpaneel (`BIJZIN_ROLE_KEYS`). Per woord kan een vinkje `verbindingswoord` aan.
 - Een voorbeeld toont wat de leerling op het gekozen niveau ontleedt, afgeleid met `buildBijzinSentence`. Een woord dat de leerling niet hoeft te benoemen staat erbij.
 - Het voorbeeldscherm controleert met `getBijzinAnalyseProblems`. Voldoet de ontleding niet, dan kan de docent niet opslaan. Een bijzin zonder ontleding mag wel. Een verbindingswoord met label onderschikkend voegwoord geeft een waarschuwing.
-- Bewerkt de docent een bestaande zin, dan blijft de bijzinontleding per woord staan zolang de bijzingrenzen en de woorden gelijk blijven (`carryOverBijzinAnalyse` in `src/logic/editorSentence.ts`). Veranderen die wel, dan meldt de editor dat de ontleding vervalt en opnieuw moet worden ingevoerd.
+- Bewaart de docent een bestaande zin zonder de zinsdelen of labels te veranderen, dan blijft de zin precies zoals hij was, op de zinsvelden van de docent na (`buildEditorSentence` in `src/logic/editorSentence.ts`).
+- Verandert de docent wel zinsdelen of labels, dan blijft de bijzinontleding per woord staan zolang de bijzingrenzen en de woorden gelijk blijven (`carryOverBijzinAnalyse`). Veranderen die wel, dan meldt de editor dat de ontleding vervalt en opnieuw moet worden ingevoerd.
 - Heeft een bijzin functie bijvoeglijke bepaling op een niveau onder 4, dan waarschuwt de editor dat de app daar geen functie vraagt en de bijzin niet laat ontleden. Opslaan blijft mogelijk.
 
 ## Code
