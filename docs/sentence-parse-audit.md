@@ -32,12 +32,14 @@ De gecontroleerde zinnen gebruiken alleen rollen die door bestaande feedback/hin
 
 ## Parse correctness check
 
-Automatische controles op de toenmalige 248 zinnen, met het inmiddels verwijderde script `scripts/regenerate_sentence_docs_and_validate.cjs`:
+Automatische controles op de toenmalige 248 zinnen, met het inmiddels verwijderde script `scripts/regenerate_sentence_docs_and_validate.cjs` (niveau 1–4). Het script controleerde aantoonbaar:
 
-- geldig rolgebruik (`role`, `subRole`, `bijzinFunctie`)
-- unieke en consistente token-id's (`s<zinId>t<tokenIndex>`)
 - niveauconsistentie (`sentence.level` == bestandsniveau)
-- aanwezigheid van expliciete `pv` en `ow` (een ontbrekend `ow` gaf alleen een waarschuwing, nooit een fout)
+- aaneengesloten zin-id's binnen elk niveaubestand, en geen dubbele zin-id's over de bestanden heen
+- token-id's met het voorvoegsel `s<zinId>t` en uniek binnen de zin (niet de oplopende nummering zelf)
+- aanwezigheid van een `pv`; een ontbrekend `ow` gaf alleen een waarschuwing, nooit een fout
+
+Geldig rolgebruik (`role`, `subRole`, `bijzinFunctie`) controleerde het script niet; hoe die controle voor deze audit is gedaan, is niet vastgelegd.
 
 Resultaat: **alle 248 zinnen slagen**. Vijf bevelzinnen zonder expliciet onderwerp geven een waarschuwing (geen fout): id 125, 126, 127, 315, 316.
 

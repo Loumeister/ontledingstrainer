@@ -154,13 +154,18 @@ describe('zinnendata — rollen per niveau en bijvoeglijke bepalingen', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('geeft elke bijvoeglijke bepaling een doelwoord: een ander woord in dezelfde zin, ook binnen een bijzin', () => {
+  it('geeft elke bijvoeglijke bepaling een doelwoord: op woordniveau, binnen een bijzin en als hele bijzin', () => {
     const wijstGoed = (s: Sentence, id: string, target?: string) =>
       !!target && target !== id && s.tokens.some(o => o.id === target);
+    // Een bijvoeglijke bijzin bepaalt een woord in de hoofdzin, dus niet een woord van een bijzin.
+    const wijstBuitenBijzin = (s: Sentence, target?: string) =>
+      s.tokens.some(o => o.id === target && o.role !== 'bijzin');
     const offenders = all.flatMap(s => s.tokens.flatMap(t => [
       ...(t.subRole === 'bijv_bep' && !wijstGoed(s, t.id, t.bijvBepTarget) ? [`${s.id}:${t.text}`] : []),
       ...(t.bijzinAnalyse?.subRole === 'bijv_bep' && !wijstGoed(s, t.id, t.bijzinAnalyse.bijvBepTarget)
-        ? [`${s.id}:${t.text} (bijzin)`] : []),
+        ? [`${s.id}:${t.text} (in bijzin)`] : []),
+      ...(t.bijzinFunctie === 'bijv_bep' && !wijstBuitenBijzin(s, t.bijvBepTarget)
+        ? [`${s.id}:${t.text} (bijvoeglijke bijzin)`] : []),
     ]));
     expect(offenders).toEqual([]);
   });
