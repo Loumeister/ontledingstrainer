@@ -27,6 +27,17 @@ describe('zinnendata — gezegde-annotatie', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('knipt het naamwoordelijk deel los van de werkwoorden van het NG (zin 425: ernstig ziek | geworden)', () => {
+    const offenders = all.flatMap(s => s.tokens
+      .filter((t, i) => {
+        const prev = s.tokens[i - 1];
+        return prev && prev.role === 'ng' && t.role === 'ng' && !t.newChunk
+          && (prev.subRole === 'wwd') !== (t.subRole === 'wwd');
+      })
+      .map(t => `${s.id}:${t.text}`));
+    expect(offenders).toEqual([]);
+  });
+
   it('labelt werkwoorden van een werkwoordelijk gezegde niet als NG', () => {
     expect(byId(403).tokens.find(t => t.text === 'afgerond.')?.role).toBe('wg');
     expect(byId(406).tokens.filter(t => ['willen', 'komen,'].includes(t.text)).map(t => t.role)).toEqual(['wg', 'wg']);

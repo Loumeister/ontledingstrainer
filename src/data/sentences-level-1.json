@@ -2772,7 +2772,8 @@
         "id": "s419t7",
         "text": "geworden.",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       }
     ]
   },
@@ -2823,7 +2824,8 @@
         "id": "s424t7",
         "text": "te",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       },
       {
         "id": "s424t8",
@@ -2874,7 +2876,8 @@
         "id": "s425t6",
         "text": "geworden.",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       }
     ]
   },
@@ -2925,7 +2928,8 @@
         "id": "s426t7",
         "text": "te",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       },
       {
         "id": "s426t8",

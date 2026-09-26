@@ -2079,7 +2079,8 @@
         "id": "s331t6",
         "text": "geworden",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       },
       {
         "id": "s331t7",
@@ -2767,7 +2768,8 @@
         "id": "s454t8",
         "text": "geweest.",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       }
     ],
     "structuralTags": [
@@ -2829,7 +2831,8 @@
         "id": "s456t8",
         "text": "geworden.",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       }
     ],
     "structuralTags": [

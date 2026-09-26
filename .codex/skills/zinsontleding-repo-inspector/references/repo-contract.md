@@ -21,6 +21,7 @@ Bronnen: `src/types.ts`, `src/data/sentences-level-0.json`, `src/data/sentences-
 - Een `Token` bevat minimaal: `id`, `text`, `role`.
 - Optionele tokenvelden in het huidige model: `subRole`, `newChunk`, `alternativeRole`, `bijzinFunctie`, `bijvBepTarget`.
 - Chunkgrenzen volgen opeenvolgende tokens en kunnen expliciet worden afgedwongen met `newChunk: true`, ook als de hoofdrol gelijk blijft.
+- Binnen een `ng` zijn naamwoordelijk deel en werkwoorden (`subRole: wwd`) aparte zinsdelen: het eerste token na die grens krijgt `newChunk: true` (*ernstig ziek | geworden*).
 - `subRole` markeert interne rolinformatie binnen een hoofdlabel.
 - `bijzinFunctie` koppelt een bijzin aan zijn functie in de hoofdzin.
 - `bijvBepTarget` koppelt een bijvoeglijke bepaling of bijvoeglijke bijzin aan een doeltoken.
@@ -45,7 +46,7 @@ Bronnen: `src/types.ts`, `src/constants.ts`, `src/data/sentences-level-0.json`, 
 
 Bron: `src/constants.ts`.
 
-- `FEEDBACK_MATRIX` voor korte, controleerbare herstelvragen bij relevante rolverwisselingen.
+- `FEEDBACK_MATRIX[gekozen label][juiste rol]` voor korte, controleerbare herstelvragen bij relevante rolverwisselingen. De vraag toetst het **gekozen** label (bijv. LV: ondergaat dit deel een handeling?), niet de definitie van de juiste rol.
 - `FEEDBACK_STRUCTURE` voor knip- en structuurfeedback.
 - `FEEDBACK_BIJZIN_FUNCTIE` voor vervolgfeedback bij goed gevonden bijzinnen met functiekeuze.
 - `FEEDBACK_SWAP` voor gevallen waarin een bijzin wel een functie heeft maar als vorm anders beoordeeld moet worden.

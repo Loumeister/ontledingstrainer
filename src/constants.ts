@@ -155,147 +155,74 @@ export const FEEDBACK_STRUCTURE = {
 
 const ROLE_REPAIR: Record<string, string> = {
   pv: "Verander de zin van tijd. Welk werkwoord verandert mee?",
-  ow: "Wie of wat bepaalt enkelvoud of meervoud van de persoonsvorm?",
-  lv: "Wie of wat wordt door de handeling geraakt?",
-  mv: "Wie of wat is ontvanger of belanghebbende? Kun je er 'aan' of 'voor' bij zetten?",
-  bwb: "Welke vrije informatie geeft dit deel over tijd, plaats, manier, reden of ontkenning?",
-  wg: "Welke werkwoorden vormen samen het gezegde en drukken een handeling of gebeurtenis uit?",
-  ng: "Zeggen het koppelwerkwoord en het naamwoordelijk deel samen wat het onderwerp is, wordt of blijft?",
-  vv: "Vraagt het gezegde om juist dit voorzetsel, of geeft het deel vrije omstandigheidsinformatie?",
-  bijzin: "Behandel het hele deel als één eenheid: bevat het een eigen onderwerp en persoonsvorm?",
-  bijst: "Geeft dit zinsdeel een andere naam aan een eerder genoemd zinsdeel?",
-  bijv_bep: "Bepaalt dit deel één woord nader, of geeft het een heel zinsdeel een andere naam?",
   wwd: "Welk werkwoord hoort bij het naamwoordelijk gezegde, naast de persoonsvorm?",
-  vw_onder: "Leidt dit woord een afhankelijke bijzin in?",
-  vw_neven: "Verbindt dit woord twee gelijkwaardige delen of hoofdzinnen?",
 };
 
+/**
+ * Controlestap voor het label dat de leerling KOOS. De leerling toetst zijn eigen keuze
+ * aan wat dat zinsdeel doet, en ontdekt zo zelf dat het niet past. We noemen niet het
+ * juiste label, want een verkeerd label bewijst niet welke denkfout er achter zit.
+ */
+const CHOSEN_ROLE_CHECK: Record<string, string> = {
+  pv: "Een persoonsvorm verandert mee als je de zin in een andere tijd zet. Gebeurt dat met dit deel?",
+  ow: "Het onderwerp bepaalt of de persoonsvorm enkelvoud of meervoud is. Verandert de persoonsvorm als je dit deel meervoud maakt?",
+  lv: "Een lijdend voorwerp ondergaat de handeling van het onderwerp. Welke handeling voert het onderwerp hier uit, en ondergaat dit deel die?",
+  mv: "Een meewerkend voorwerp krijgt iets of heeft er belang bij. Kun je vragen: aan of voor wie? En is dit deel het antwoord?",
+  bwb: "Een bijwoordelijke bepaling geeft extra informatie, zoals tijd, plaats of manier. Blijft de zin compleet als je dit deel weglaat?",
+  vv: "Een voorzetselvoorwerp begint met een voorzetsel dat vastzit aan het werkwoord, zoals wachten óp. Begint dit deel met zo'n vast voorzetsel?",
+  wg: "Een werkwoordelijk gezegde bestaat alleen uit werkwoorden en zegt wat er gebeurt. Is elk woord in dit deel een werkwoord?",
+  ng: "Een naamwoordelijk gezegde heeft een koppelwerkwoord en zegt wat het onderwerp is, wordt of blijft. Kun je het werkwoord vervangen door 'zijn' zonder dat de betekenis verandert?",
+  bijzin: "Een bijzin heeft een eigen onderwerp en persoonsvorm. Kun je die allebei in dit deel aanwijzen?",
+  bijst: "Een bijstelling geeft een andere naam aan het zinsdeel ervoor. Noemt dit deel hetzelfde nog een keer?",
+  vw_onder: "Een onderschikkend voegwoord leidt een bijzin in. Staat na dit woord een deel met een eigen onderwerp en persoonsvorm?",
+  vw_neven: "Een nevenschikkend voegwoord verbindt twee gelijkwaardige delen. Kunnen de delen ervoor en erna allebei los staan?",
+};
+
+/** Alle doelrollen van één gekozen label krijgen dezelfde controlestap, tenzij een paar een eigen contrast heeft. */
+function checkChosen(chosen: string, correctRoles: string[], contrasts: Record<string, FeedbackEntry> = {}): Record<string, FeedbackEntry> {
+  const row: Record<string, FeedbackEntry> = {};
+  for (const correct of correctRoles) row[correct] = contrasts[correct] ?? CHOSEN_ROLE_CHECK[chosen];
+  return row;
+}
+
+/**
+ * FEEDBACK_MATRIX[gekozen label][juiste rol]. De feedback toetst het GEKOZEN label:
+ * wie een NG als LV aanwijst, krijgt de vraag of dit deel wel iets ondergaat —
+ * niet de definitie van het NG, want dan verklappen we het antwoord zonder denkstap.
+ */
 export const FEEDBACK_MATRIX: Record<string, Record<string, FeedbackEntry>> = {
-  ow: {
-    pv: ROLE_REPAIR.pv,
-    lv: ROLE_REPAIR.lv,
-    mv: ROLE_REPAIR.mv,
-    bwb: ROLE_REPAIR.bwb,
-    wg: ROLE_REPAIR.wg,
-    ng: ROLE_REPAIR.ng,
-    vv: ROLE_REPAIR.vv,
-    bijzin: ROLE_REPAIR.bijzin,
-    bijst: ROLE_REPAIR.bijst,
-  },
-  pv: {
-    wg: "De persoonsvorm hoort bij het gezegde, maar is niet altijd het hele gezegde. Welke werkwoorden horen erbij?",
-    ow: ROLE_REPAIR.ow,
-    lv: ROLE_REPAIR.lv,
-    bwb: ROLE_REPAIR.bwb,
-    ng: ROLE_REPAIR.ng,
-    mv: ROLE_REPAIR.mv,
-    vv: ROLE_REPAIR.vv,
-  },
-  wg: {
+  ow: checkChosen('ow', ['pv', 'lv', 'mv', 'bwb', 'wg', 'ng', 'vv', 'bijzin', 'bijst']),
+  pv: checkChosen('pv', ['wg', 'ow', 'lv', 'bwb', 'ng', 'mv', 'vv']),
+  wg: checkChosen('wg', ['pv', 'ng', 'lv', 'bwb', 'ow', 'mv', 'vv', 'wwd'], {
+    // WG op de PV: gedeeltelijk goed, want de PV hoort bij het gezegde (zie validateAnswer).
     pv: ROLE_REPAIR.pv,
     ng: "Zegt het gezegde wat er gebeurt, of wat het onderwerp is, wordt of blijft?",
-    lv: ROLE_REPAIR.lv,
-    bwb: ROLE_REPAIR.bwb,
-    ow: ROLE_REPAIR.ow,
-    mv: ROLE_REPAIR.mv,
-    vv: ROLE_REPAIR.vv,
     wwd: ROLE_REPAIR.wwd,
-  },
-  ng: {
+  }),
+  ng: checkChosen('ng', ['wg', 'lv', 'bwb', 'ow', 'pv', 'mv', 'vv', 'wwd'], {
     wg: "Zegt het gezegde wat het onderwerp is, wordt of blijft, of wat er gebeurt?",
-    lv: ROLE_REPAIR.lv,
-    bwb: ROLE_REPAIR.bwb,
-    ow: ROLE_REPAIR.ow,
-    pv: ROLE_REPAIR.pv,
-    mv: ROLE_REPAIR.mv,
-    vv: ROLE_REPAIR.vv,
     wwd: ROLE_REPAIR.wwd,
-  },
-  lv: {
-    ow: ROLE_REPAIR.ow,
-    vv: ROLE_REPAIR.vv,
-    bwb: ROLE_REPAIR.bwb,
-    mv: ROLE_REPAIR.mv,
-    ng: ROLE_REPAIR.ng,
-    bijst: ROLE_REPAIR.bijst,
-    pv: ROLE_REPAIR.pv,
-    wg: ROLE_REPAIR.wg,
-    bijzin: ROLE_REPAIR.bijzin,
-  },
-  mv: {
-    ow: ROLE_REPAIR.ow,
-    lv: ROLE_REPAIR.lv,
-    vv: ROLE_REPAIR.vv,
-    bwb: ROLE_REPAIR.bwb,
-    pv: ROLE_REPAIR.pv,
-    wg: ROLE_REPAIR.wg,
-    ng: ROLE_REPAIR.ng,
-    bijzin: ROLE_REPAIR.bijzin,
-  },
-  vv: {
+  }),
+  lv: checkChosen('lv', ['ow', 'vv', 'bwb', 'mv', 'ng', 'bijst', 'pv', 'wg', 'bijzin']),
+  mv: checkChosen('mv', ['ow', 'lv', 'vv', 'bwb', 'pv', 'wg', 'ng', 'bijzin']),
+  vv: checkChosen('vv', ['bwb', 'lv', 'mv', 'ow', 'pv', 'wg', 'ng', 'bijzin'], {
     bwb: "Vraagt het gezegde om dit voorzetsel, of kun je de bepaling vrij weglaten of vervangen?",
-    lv: ROLE_REPAIR.lv,
-    mv: ROLE_REPAIR.mv,
-    ow: ROLE_REPAIR.ow,
-    pv: ROLE_REPAIR.pv,
-    wg: ROLE_REPAIR.wg,
-    ng: ROLE_REPAIR.ng,
-    bijzin: ROLE_REPAIR.bijzin,
-  },
-  bwb: {
+  }),
+  bwb: checkChosen('bwb', ['vv', 'lv', 'ow', 'bijzin', 'mv', 'ng', 'bijst', 'pv', 'wg'], {
     vv: "Is dit vrije omstandigheidsinformatie, of vraagt het gezegde om juist dit voorzetsel?",
-    lv: ROLE_REPAIR.lv,
-    ow: ROLE_REPAIR.ow,
-    bijzin: ROLE_REPAIR.bijzin,
-    mv: ROLE_REPAIR.mv,
-    ng: ROLE_REPAIR.ng,
-    bijst: ROLE_REPAIR.bijst,
-    pv: ROLE_REPAIR.pv,
-    wg: ROLE_REPAIR.wg,
-  },
-  bijst: {
-    bijv_bep: ROLE_REPAIR.bijv_bep,
-    ow: ROLE_REPAIR.ow,
-    lv: ROLE_REPAIR.lv,
-    bwb: ROLE_REPAIR.bwb,
-    pv: ROLE_REPAIR.pv,
-    mv: ROLE_REPAIR.mv,
-    vv: ROLE_REPAIR.vv,
-    bijzin: ROLE_REPAIR.bijzin,
-  },
-  bijzin: {
-    bwb: ROLE_REPAIR.bwb,
-    ow: ROLE_REPAIR.ow,
-    lv: ROLE_REPAIR.lv,
-    mv: ROLE_REPAIR.mv,
-    vv: ROLE_REPAIR.vv,
-    pv: ROLE_REPAIR.pv,
-    wg: ROLE_REPAIR.wg,
-    ng: ROLE_REPAIR.ng,
-    bijst: ROLE_REPAIR.bijst,
-  },
-  vw_onder: {
+  }),
+  bijst: checkChosen('bijst', ['bijv_bep', 'ow', 'lv', 'bwb', 'pv', 'mv', 'vv', 'bijzin'], {
+    bijv_bep: "Bepaalt dit deel één woord nader, of geeft het een heel zinsdeel een andere naam?",
+  }),
+  bijzin: checkChosen('bijzin', ['bwb', 'ow', 'lv', 'mv', 'vv', 'pv', 'wg', 'ng', 'bijst']),
+  vw_onder: checkChosen('vw_onder', ['vw_neven', 'bwb', 'pv', 'ow', 'lv', 'mv', 'wg', 'ng', 'bijzin'], {
     vw_neven: "Kan het volgende deel zelfstandig als hoofdzin staan, of is het afhankelijk?",
-    bwb: ROLE_REPAIR.bwb,
-    pv: ROLE_REPAIR.pv,
-    ow: ROLE_REPAIR.ow,
-    lv: ROLE_REPAIR.lv,
-    mv: ROLE_REPAIR.mv,
-    wg: ROLE_REPAIR.wg,
-    ng: ROLE_REPAIR.ng,
     bijzin: "Kies het hele zinsdeel met eigen onderwerp en persoonsvorm, niet alleen het voegwoord.",
-  },
-  vw_neven: {
+  }),
+  vw_neven: checkChosen('vw_neven', ['vw_onder', 'bwb', 'pv', 'ow', 'lv', 'mv', 'wg', 'ng', 'bijzin'], {
     vw_onder: "Leidt het voegwoord een afhankelijke bijzin in, of verbindt het gelijkwaardige delen?",
-    bwb: ROLE_REPAIR.bwb,
-    pv: ROLE_REPAIR.pv,
-    ow: ROLE_REPAIR.ow,
-    lv: ROLE_REPAIR.lv,
-    mv: ROLE_REPAIR.mv,
-    wg: ROLE_REPAIR.wg,
-    ng: ROLE_REPAIR.ng,
     bijzin: "Kies het hele zinsdeel met eigen onderwerp en persoonsvorm, niet alleen het voegwoord.",
-  },
+  }),
 };
 
 export const FEEDBACK_SWAP = {

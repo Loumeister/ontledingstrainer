@@ -4784,7 +4784,8 @@
         "text": "worden.",
         "role": "ng",
         "alternativeRole": "nwd",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       }
     ]
   },
@@ -5913,7 +5914,8 @@
         "id": "s449t5",
         "text": "geworden.",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       }
     ],
     "structuralTags": [
@@ -6028,7 +6030,8 @@
         "id": "s452t7",
         "text": "geweest.",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       }
     ],
     "structuralTags": [
@@ -6113,7 +6116,8 @@
         "id": "s455t5",
         "text": "geweest.",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       }
     ],
     "structuralTags": [
@@ -6174,7 +6178,8 @@
         "id": "s457t9",
         "text": "geworden.",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       }
     ],
     "structuralTags": [
@@ -6230,7 +6235,8 @@
         "id": "s458t8",
         "text": "gebleven.",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       }
     ],
     "structuralTags": [
