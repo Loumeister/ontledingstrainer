@@ -81,7 +81,7 @@ Configuratie, drempels, maten en beslisregel liggen vast in [`PREREGISTRATIE.md`
 python3 scripts/drex-audit/score_goldset.py --blad1 goldset-blind.csv --blad2 goldset-blind-2.csv
 ```
 
-Het script leest `goldset/ontwerp.csv` en de bevroren scores van meting 2; het roept Drex niet aan. Met `--herbeoordeling goldset/herbeoordeling.csv` rapporteert het daarnaast de versie na herbeoordeling (afwijking 2). Stand na blad 1: `resultaten/2026-09-26-goldset-blad1.md`.
+Het script leest `goldset/ontwerp.csv` en de bevroren scores van meting 2; het roept Drex niet aan. Met `--herbeoordeling goldset/herbeoordeling.csv` rapporteert het daarnaast de versie na herbeoordeling (afwijking 2). Stand na blad 1: `resultaten/2026-09-26-goldset-blad1.md`; na blad 1 en 2: `resultaten/2026-09-26-goldset-compleet.md`.
 
 ## Bekende grenzen
 
