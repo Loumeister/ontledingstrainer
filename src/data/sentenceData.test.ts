@@ -64,7 +64,7 @@ describe('zinnendata — docentcorrecties', () => {
   it('een bepaling bij een bijvoeglijk naamwoord is een BWB, geen BB (zin 425: ernstig ziek)', () => {
     const ernstig = byId(425).tokens.find(t => t.text === 'ernstig')!;
     expect(ernstig.role).toBe('ng');
-    expect(ernstig.subRole).toBe('bwb');
+    expect(ernstig.subRole).toBe('bijw_bep');
     expect(ernstig.bijvBepTarget).toBeUndefined();
   });
 

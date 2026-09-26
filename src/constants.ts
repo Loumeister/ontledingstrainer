@@ -102,6 +102,16 @@ export const ROLES: RoleDefinition[] = [
     borderColorClass: 'border-teal-200 dark:border-teal-700', 
     isSubOnly: true 
   },
+  {
+    // Een BWB binnen een zinsdeel: bepaling bij een bijvoeglijk naamwoord ("ernstig ziek").
+    // Woordlabel, dus isSubOnly; alleen gevraagd met de schakelaar "BWB binnen een zinsdeel".
+    key: 'bijw_bep',
+    label: 'Bijwoordelijke Bepaling in zinsdeel',
+    shortLabel: 'BWB',
+    colorClass: 'bg-orange-50 text-orange-700 dark:bg-orange-900/40 dark:text-orange-100',
+    borderColorClass: 'border-orange-200 dark:border-orange-700',
+    isSubOnly: true
+  },
   { 
     key: 'vw_onder', 
     label: 'Onderschikkend VW', 
@@ -258,6 +268,9 @@ export const HINTS = {
   GEZEGDE_DEEL_MISSING: (word: string) => `Benoem elk woord van het naamwoordelijk gezegde, ook de PV. Is '${word}' een werkwoord (WWD) of zegt het iets over het onderwerp (NWD)?`,
   GEZEGDE_DEEL_WRONG: (word: string) => `Is '${word}' een werkwoord? Alle werkwoorden van het naamwoordelijk gezegde, ook de PV, vormen samen het werkwoordelijk deel; de rest is het naamwoordelijk deel.`,
   GEZEGDE_DEEL_BIJV_BEP: (word: string) => `Bepaalt '${word}' één ander woord nader? Zo'n woord hoort wel bij het naamwoordelijk deel, maar je geeft het het label bijvoeglijke bepaling (BB) en niet NWD.`,
+  GEZEGDE_DEEL_BIJW_BEP: (word: string) => `Zegt '${word}' iets over een bijvoeglijk naamwoord, zoals hoe erg of hoe sterk? Zo'n woord hoort wel bij het naamwoordelijk deel, maar je geeft het het label bijwoordelijke bepaling (BWB) en niet NWD.`,
+  WORD_NOT_BIJV_BEP: (word: string) => `Een bijvoeglijke bepaling zegt iets over een zelfstandig naamwoord. Is het woord waar '${word}' iets over zegt een zelfstandig naamwoord?`,
+  WORD_NOT_BIJW_BEP: (word: string) => `Een bijwoordelijke bepaling in een zinsdeel zegt iets over een bijvoeglijk naamwoord of een bijwoord. Is het woord waar '${word}' iets over zegt er een?`,
   GEZEGDE_DEEL_NOT_BIJV_BEP: (word: string) => `Bepaalt '${word}' één ander woord nader? Zo niet, dan hoort het gewoon bij het naamwoordelijk deel (NWD).`,
   VERBINDINGSWOORD_HAS_FUNCTIE: (word: string) => `Verbindt '${word}' alleen de bijzin met de hoofdzin, of doet het ook mee in de bijzin? Vervang '${word}' door het woord waarnaar het verwijst en stel dan de vraag voor het zinsdeel.`,
   GEZEGDE_DEEL_NOT_NG: (word: string) => `Hoort '${word}' bij een naamwoordelijk gezegde? Alleen daarin benoem je een werkwoordelijk en een naamwoordelijk deel.`,

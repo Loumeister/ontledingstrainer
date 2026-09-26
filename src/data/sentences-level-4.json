@@ -348,7 +348,7 @@
         "id": "s404t4",
         "text": "zeer",
         "role": "ng",
-        "subRole": "bwb"
+        "subRole": "bijw_bep"
       },
       {
         "id": "s404t5",
@@ -1141,7 +1141,7 @@
         "id": "s413t11",
         "text": "erg",
         "role": "ng",
-        "subRole": "bwb"
+        "subRole": "bijw_bep"
       },
       {
         "id": "s413t12",
@@ -1332,7 +1332,7 @@
         "id": "s422t7",
         "text": "erg",
         "role": "ng",
-        "subRole": "bwb"
+        "subRole": "bijw_bep"
       },
       {
         "id": "s422t8",

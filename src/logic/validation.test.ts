@@ -911,29 +911,38 @@ describe('validateAnswer — gezegdedelen', () => {
   });
 });
 
-describe('validateAnswer — bijwoordelijke bepaling binnen het naamwoordelijk deel (nog niet gevraagd)', () => {
+describe('validateAnswer — bijwoordelijke bepaling binnen een zinsdeel (optioneel)', () => {
   // "Hij is erg ziek": erg is een BWB bij het bijvoeglijk naamwoord ziek, geen BB
   const tokens: Token[] = [
     makeToken({ id: 'e1', text: 'Hij', role: 'ow' }),
     makeToken({ id: 'e2', text: 'is', role: 'pv', subRole: 'wwd' }),
-    makeToken({ id: 'e3', text: 'erg', role: 'ng', subRole: 'bwb' }),
+    makeToken({ id: 'e3', text: 'erg', role: 'ng', subRole: 'bijw_bep' }),
     makeToken({ id: 'e4', text: 'ziek.', role: 'ng', subRole: 'nwd' }),
   ];
-  const sentence = makeSentence(tokens, { predicateType: 'NG' });
+  const sentence = makeSentence(tokens, { predicateType: 'NG', level: 4 });
   const labels: PlacementMap = { e1: 'ow', e2: 'pv', e3: 'ng' };
-  const run = (subLabels: PlacementMap, includeGezegdeDelen = false) =>
-    validateAnswer(sentence, new Set([0, 1]), labels, subLabels, true, {}, {}, {}, undefined, includeGezegdeDelen).result;
+  const run = (subLabels: PlacementMap, opts: { bb?: boolean; bijw?: boolean; delen?: boolean } = {}) =>
+    validateAnswer(sentence, new Set([0, 1]), labels, subLabels, opts.bb ?? true, {}, {}, {}, undefined, opts.delen ?? false, opts.bijw ?? false).result;
 
-  it('vraagt het woord niet als BWB, ook niet met BB aan, en telt het mee als naamwoordelijk deel', () => {
+  it('vraagt de BWB standaard niet, ook niet op het hoogste niveau met BB aan', () => {
     expect(getExpectedSubLabel(tokens[2], true)).toBeUndefined();
     expect(getExpectedSubLabel(tokens[2], true, true)).toBe('nwd');
     expect(run({}).isPerfect).toBe(true);
-    expect(run({ e2: 'wwd', e3: 'nwd', e4: 'nwd' }, true).isPerfect).toBe(true);
+    expect(run({ e2: 'wwd', e3: 'nwd', e4: 'nwd' }, { delen: true }).isPerfect).toBe(true);
   });
 
-  it('rekent een BWB-label dat de leerling er zelf op zet niet fout, maar wel een BB-label', () => {
-    expect(run({ e3: 'bwb' }).isPerfect).toBe(true);
-    expect(run({ e3: 'bijv_bep' }).isPerfect).toBe(false);
+  it('vraagt de BWB wel met de schakelaar aan, en laat hem voorgaan op NWD', () => {
+    expect(getExpectedSubLabel(tokens[2], false, true, true)).toBe('bijw_bep');
+    expect(run({}, { bijw: true }).isPerfect).toBe(false);
+    expect(run({ e3: 'bijw_bep' }, { bijw: true }).isPerfect).toBe(true);
+    const asNwd = run({ e2: 'wwd', e3: 'nwd', e4: 'nwd' }, { bijw: true, delen: true });
+    expect(asNwd.chunkFeedback[2]).toBe(HINTS.GEZEGDE_DEEL_BIJW_BEP('erg'));
+  });
+
+  it('toetst bij BB in plaats van BWB het gekozen label', () => {
+    const result = run({ e3: 'bijv_bep' }, { bijw: true });
+    expect(result.chunkStatus[2]).toBe('warning');
+    expect(result.chunkFeedback[2]).toBe(HINTS.WORD_NOT_BIJV_BEP('erg'));
   });
 });
 

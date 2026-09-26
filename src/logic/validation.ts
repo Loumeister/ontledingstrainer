@@ -121,24 +121,25 @@ export function getGezegdeDeel(token: Token): 'wwd' | 'nwd' | undefined {
 }
 
 /**
- * Word-level sub-roles the data already records but that are not (yet) asked, such as a
- * bijwoordelijke bepaling inside the naamwoordelijk deel ("ernstig" in "ernstig ziek").
- * Such a word still counts as naamwoordelijk deel; a student who labels it correctly is not penalised.
+ * Whether a word-level bepaling is asked. Both are opt-in on every level, the highest included:
+ * a bijvoeglijke bepaling (BB) with includeBB, a bijwoordelijke bepaling inside a zinsdeel
+ * ("ernstig" in "ernstig ziek") with includeBijwBep. When not asked, the word simply belongs to
+ * its zinsdeel (and to the naamwoordelijk deel inside an NG).
  */
-const UNASKED_WORD_SUBROLES: ReadonlySet<RoleKey> = new Set<RoleKey>(['bwb']);
-
-export function isUnaskedWordSubRole(subRole: RoleKey | undefined): boolean {
-  return subRole !== undefined && UNASKED_WORD_SUBROLES.has(subRole);
+export function isWordBepalingAsked(subRole: RoleKey | undefined, includeBB: boolean, includeBijwBep: boolean): boolean {
+  if (subRole === 'bijv_bep') return includeBB;
+  if (subRole === 'bijw_bep') return includeBijwBep;
+  return true;
 }
 
 /**
  * The word-level sub-label a student is expected to place on this token, given the active options.
  * wwd/nwd are only asked with includeGezegdeDelen; a bijv_bep label takes precedence over nwd.
  */
-export function getExpectedSubLabel(token: Token, includeBB: boolean, includeGezegdeDelen = false): RoleKey | undefined {
+export function getExpectedSubLabel(token: Token, includeBB: boolean, includeGezegdeDelen = false, includeBijwBep = false): RoleKey | undefined {
   let expected = token.subRole;
-  if (!includeBB && expected === 'bijv_bep') expected = undefined;
-  if (expected === 'wd' || expected === 'wwd' || expected === 'nwd' || expected === 'vw_onder' || isUnaskedWordSubRole(expected)) expected = undefined; // display-only unless asked below
+  if (!isWordBepalingAsked(expected, includeBB, includeBijwBep)) expected = undefined;
+  if (expected === 'wd' || expected === 'wwd' || expected === 'nwd' || expected === 'vw_onder') expected = undefined; // display-only unless asked below
   if (!expected && includeGezegdeDelen) expected = getGezegdeDeel(token);
   return expected;
 }
@@ -147,9 +148,9 @@ export function getExpectedSubLabel(token: Token, includeBB: boolean, includeGez
  * First word of an NG whose expected WWD/NWD label is still missing, for the Hint button.
  * Follows getExpectedSubLabel, so a word that should get BB is not asked as WWD/NWD.
  */
-export function findMissingGezegdeDeel(tokens: Token[], subLabels: PlacementMap, includeBB: boolean): Token | undefined {
+export function findMissingGezegdeDeel(tokens: Token[], subLabels: PlacementMap, includeBB: boolean, includeBijwBep = false): Token | undefined {
   return tokens.find(t => {
-    const expected = getExpectedSubLabel(t, includeBB, true);
+    const expected = getExpectedSubLabel(t, includeBB, true, includeBijwBep);
     return (expected === 'wwd' || expected === 'nwd') && !subLabels[t.id];
   });
 }
@@ -212,6 +213,7 @@ export function validateAnswer(
   wordBijvBepLinks?: Record<string, string>,
   predicateTypeLabels?: PlacementMap,
   includeGezegdeDelen = false,
+  includeBijwBep = false,
 ): { result: ValidationResult; mistakes: Record<string, number> } {
   const userChunks = buildUserChunks(sentence.tokens, splitIndices);
   const chunkStatus: Record<number, ValidationState> = {};
@@ -287,7 +289,7 @@ export function validateAnswer(
         if (subLabelOnFirstToken && roleMatchesToken(subLabelOnFirstToken, chunkTokens[0])) {
           // Student placed correct role on word instead of chunk header
           const hasDualRole = chunkTokens.some(t => {
-            const expectedSub = (!includeBB && t.subRole === 'bijv_bep') || t.subRole === 'wd' || t.subRole === 'wwd' || t.subRole === 'nwd' || isUnaskedWordSubRole(t.subRole) ? undefined : t.subRole;
+            const expectedSub = !isWordBepalingAsked(t.subRole, includeBB, includeBijwBep) || t.subRole === 'wd' || t.subRole === 'wwd' || t.subRole === 'nwd' ? undefined : t.subRole;
             return expectedSub && expectedSub !== t.role;
           });
           if (!hasDualRole) {
@@ -299,7 +301,7 @@ export function validateAnswer(
           const sub = subLabels[anyMatchingSubLabel.id] as RoleKey;
           if (chunkTokens.every(t => roleMatchesToken(sub, t))) {
             const hasDualRole = chunkTokens.some(t => {
-              const expectedSub = (!includeBB && t.subRole === 'bijv_bep') || t.subRole === 'wd' || t.subRole === 'wwd' || t.subRole === 'nwd' || isUnaskedWordSubRole(t.subRole) ? undefined : t.subRole;
+              const expectedSub = !isWordBepalingAsked(t.subRole, includeBB, includeBijwBep) || t.subRole === 'wd' || t.subRole === 'wwd' || t.subRole === 'nwd' ? undefined : t.subRole;
               return expectedSub && expectedSub !== t.role;
             });
             if (!hasDualRole) {
@@ -440,28 +442,40 @@ export function validateAnswer(
   let subRoleMismatch = false;
   sentence.tokens.forEach(t => {
     const userSub = subLabels[t.id];
-    const expectedSub = getExpectedSubLabel(t, includeBB, includeGezegdeDelen);
+    const expectedSub = getExpectedSubLabel(t, includeBB, includeGezegdeDelen, includeBijwBep);
     if (userSub === expectedSub) return;
-    if (userSub && userSub === t.subRole && isUnaskedWordSubRole(userSub)) return; // correct, just not asked
     subRoleMismatch = true;
+
+    // BB versus BWB within a zinsdeel: test the chosen label, on an otherwise correct chunk.
+    const bepalingSwap = (userSub === 'bijv_bep' && expectedSub === 'bijw_bep')
+      || (userSub === 'bijw_bep' && expectedSub === 'bijv_bep');
+    if (bepalingSwap) {
+      const chunkIdx = userChunks.findIndex(c => c.tokens.some(ct => ct.id === t.id));
+      if (chunkIdx < 0 || chunkStatus[chunkIdx] !== 'correct') return;
+      chunkFeedback[chunkIdx] = userSub === 'bijv_bep' ? HINTS.WORD_NOT_BIJV_BEP(t.text) : HINTS.WORD_NOT_BIJW_BEP(t.text);
+      chunkStatus[chunkIdx] = 'warning';
+      const mistakeName = ROLES.find(r => r.key === expectedSub)?.label || expectedSub!;
+      currentMistakes[mistakeName] = (currentMistakes[mistakeName] || 0) + 1;
+      return;
+    }
 
     // Gezegdedelen: give one repair step on an otherwise correct chunk, without naming the answer.
     if (!includeGezegdeDelen) return;
     const userGezegde = userSub === 'wwd' || userSub === 'nwd';
     const expectsGezegde = expectedSub === 'wwd' || expectedSub === 'nwd';
-    // One word label per word: a BB inside the naamwoordelijk deel keeps its BB label.
-    const bbInsideNwd = expectedSub === 'bijv_bep' && userGezegde && !!getGezegdeDeel(t);
+    // One word label per word: a BB or BWB inside the naamwoordelijk deel keeps that label.
+    const bepalingInsideNwd = (expectedSub === 'bijv_bep' || expectedSub === 'bijw_bep') && userGezegde && !!getGezegdeDeel(t);
     const strayGezegde = !expectedSub && userGezegde;
-    if (!expectsGezegde && !bbInsideNwd && !strayGezegde) return;
+    if (!expectsGezegde && !bepalingInsideNwd && !strayGezegde) return;
     const chunkIdx = userChunks.findIndex(c => c.tokens.some(ct => ct.id === t.id));
     if (chunkIdx < 0 || chunkStatus[chunkIdx] !== 'correct') return;
-    chunkFeedback[chunkIdx] = bbInsideNwd
-      ? HINTS.GEZEGDE_DEEL_BIJV_BEP(t.text)
+    chunkFeedback[chunkIdx] = bepalingInsideNwd
+      ? (expectedSub === 'bijw_bep' ? HINTS.GEZEGDE_DEEL_BIJW_BEP(t.text) : HINTS.GEZEGDE_DEEL_BIJV_BEP(t.text))
       : strayGezegde
         ? HINTS.GEZEGDE_DEEL_NOT_NG(t.text)
         : userGezegde
           ? HINTS.GEZEGDE_DEEL_WRONG(t.text)
-          : userSub === 'bijv_bep'
+          : userSub === 'bijv_bep' || userSub === 'bijw_bep'
             ? HINTS.GEZEGDE_DEEL_NOT_BIJV_BEP(t.text)
             : HINTS.GEZEGDE_DEEL_MISSING(t.text);
     chunkStatus[chunkIdx] = 'warning';
