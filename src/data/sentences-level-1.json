@@ -789,7 +789,9 @@
       {
         "id": "s15t7",
         "text": "twee",
-        "role": "lv"
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s15t9"
       },
       {
         "id": "s15t8",
@@ -819,7 +821,9 @@
       {
         "id": "s16t1",
         "text": "Veel",
-        "role": "lv"
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s16t2"
       },
       {
         "id": "s16t2",
@@ -852,7 +856,9 @@
       {
         "id": "s17t1",
         "text": "Die",
-        "role": "lv"
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s17t2"
       },
       {
         "id": "s17t2",
@@ -1117,37 +1123,44 @@
   },
   {
     "id": 24,
-    "label": "Zin 24: Haar oma stuurt Sara een kaart.",
+    "label": "Zin 24: Aan haar oma stuurt Sara een kaart.",
     "predicateType": "WG",
     "level": 1,
     "tokens": [
       {
         "id": "s24t1",
-        "text": "Haar",
+        "text": "Aan",
         "role": "mv"
       },
       {
         "id": "s24t2",
+        "text": "haar",
+        "role": "mv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s24t3"
+      },
+      {
+        "id": "s24t3",
         "text": "oma",
         "role": "mv"
       },
       {
-        "id": "s24t3",
+        "id": "s24t4",
         "text": "stuurt",
         "role": "pv"
       },
       {
-        "id": "s24t4",
+        "id": "s24t5",
         "text": "Sara",
         "role": "ow"
       },
       {
-        "id": "s24t5",
+        "id": "s24t6",
         "text": "een",
         "role": "lv"
       },
       {
-        "id": "s24t6",
+        "id": "s24t7",
         "text": "kaart.",
         "role": "lv"
       }
@@ -1212,7 +1225,9 @@
       {
         "id": "s26t3",
         "text": "onze",
-        "role": "ow"
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s26t4"
       },
       {
         "id": "s26t4",
@@ -1444,7 +1459,9 @@
       {
         "id": "s32t1",
         "text": "Elke",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s32t2"
       },
       {
         "id": "s32t2",
@@ -3016,12 +3033,16 @@
       {
         "id": "s429t2",
         "text": "al",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s429t5"
       },
       {
         "id": "s429t3",
         "text": "die",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s429t5"
       },
       {
         "id": "s429t4",
@@ -3627,39 +3648,6 @@
     ],
     "structuralTags": [
       "vraagwoord als OW"
-    ]
-  },
-  {
-    "id": 470,
-    "label": "Zin 470: Mijn broertjes vervelen zich",
-    "predicateType": "WG",
-    "level": 1,
-    "tokens": [
-      {
-        "id": "s470t1",
-        "text": "Mijn",
-        "role": "ow",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s470t2"
-      },
-      {
-        "id": "s470t2",
-        "text": "broertjes",
-        "role": "ow"
-      },
-      {
-        "id": "s470t3",
-        "text": "vervelen",
-        "role": "pv"
-      },
-      {
-        "id": "s470t4",
-        "text": "zich.",
-        "role": "wg"
-      }
-    ],
-    "structuralTags": [
-      "wederkerend werkwoord"
     ]
   },
   {

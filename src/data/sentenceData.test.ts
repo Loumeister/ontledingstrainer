@@ -54,6 +54,13 @@ describe('zinnendata — docentcorrecties', () => {
   it('"Dat jullie de opdracht al snapten" is LV-bijzin bij vertellen (zin 440)', () => {
     expect(byId(440).tokens[0].bijzinFunctie).toBe('lv');
   });
+
+  it('zin 24 zet het MV met "aan" voorop, zodat alleen Sara het onderwerp kan zijn', () => {
+    const s = byId(24);
+    expect(s.tokens.map(t => t.text).join(' ')).toBe('Aan haar oma stuurt Sara een kaart.');
+    expect(s.tokens.filter(t => t.role === 'ow').map(t => t.text)).toEqual(['Sara']);
+    expect(s.tokens.filter(t => t.role === 'mv').map(t => t.text)).toEqual(['Aan', 'haar', 'oma']);
+  });
 });
 
 describe('zinnendata — bijzinontleding', () => {
@@ -122,6 +129,33 @@ describe('zinnendata — rollen per niveau en bijvoeglijke bepalingen', () => {
   it('laat elke bijvoeglijke bepaling naar een ander woord in dezelfde zin wijzen', () => {
     const offenders = all.flatMap(s => s.tokens
       .filter(t => t.bijvBepTarget && (t.bijvBepTarget === t.id || !s.tokens.some(o => o.id === t.bijvBepTarget)))
+      .map(t => `${s.id}:${t.text}`));
+    expect(offenders).toEqual([]);
+  });
+});
+
+describe('zinnendata — wederkerende werkwoorden', () => {
+  const REFLEXIEF = /^(zich|me|mij|je|ons|jullie|u)[,.!?]?$/i;
+
+  it('staan pas vanaf niveau Hoog, ook in een bijzin', () => {
+    const tooLow = all
+      .filter(s => s.level < 3)
+      .filter(s => s.tokens.some(t => REFLEXIEF.test(t.text) && (t.role === 'bijzin' ? t.bijzinAnalyse?.role : t.role) === 'wg'))
+      .map(s => s.id);
+    expect(tooLow).toEqual([]);
+  });
+});
+
+describe('zinnendata — lidwoordachtige woorden als bijvoeglijke bepaling', () => {
+  const DETERMINATOR = /^(die|dat|deze|dit|elke|iedere|mijn|jouw|zijn|haar|onze|ons|hun|je|jullie|uw|twee|drie|veel|alle)$/i;
+
+  it('markeert een bezittelijk, aanwijzend of onbepaald woord of telwoord vóór zijn kern altijd als BB', () => {
+    const offenders = all.flatMap(s => s.tokens
+      .filter((t, i) => {
+        const next = s.tokens[i + 1];
+        return DETERMINATOR.test(t.text) && !t.subRole && !!next && next.role === t.role && !next.newChunk
+          && !['pv', 'bijzin', 'vw_neven'].includes(t.role);
+      })
       .map(t => `${s.id}:${t.text}`));
     expect(offenders).toEqual([]);
   });

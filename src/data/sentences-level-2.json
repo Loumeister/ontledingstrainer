@@ -4106,87 +4106,6 @@
     ]
   },
   {
-    "id": 131,
-    "label": "Zin 131: Verheugen",
-    "predicateType": "WG",
-    "level": 2,
-    "tokens": [
-      {
-        "id": "s131t1",
-        "text": "Wij",
-        "role": "ow"
-      },
-      {
-        "id": "s131t2",
-        "text": "verheugen",
-        "role": "pv"
-      },
-      {
-        "id": "s131t3",
-        "text": "ons",
-        "role": "wg"
-      },
-      {
-        "id": "s131t4",
-        "text": "op",
-        "role": "vv"
-      },
-      {
-        "id": "s131t5",
-        "text": "het",
-        "role": "vv"
-      },
-      {
-        "id": "s131t6",
-        "text": "schoolreisje.",
-        "role": "vv"
-      }
-    ]
-  },
-  {
-    "id": 132,
-    "label": "Zin 132: Scheren",
-    "predicateType": "WG",
-    "level": 2,
-    "tokens": [
-      {
-        "id": "s132t1",
-        "text": "De",
-        "role": "ow"
-      },
-      {
-        "id": "s132t2",
-        "text": "acteur",
-        "role": "ow"
-      },
-      {
-        "id": "s132t3",
-        "text": "scheert",
-        "role": "pv"
-      },
-      {
-        "id": "s132t4",
-        "text": "zich",
-        "role": "wg"
-      },
-      {
-        "id": "s132t5",
-        "text": "voor",
-        "role": "bwb"
-      },
-      {
-        "id": "s132t6",
-        "text": "de",
-        "role": "bwb"
-      },
-      {
-        "id": "s132t7",
-        "text": "spiegel.",
-        "role": "bwb"
-      }
-    ]
-  },
-  {
     "id": 133,
     "label": "Zin 133: Dat geheim",
     "predicateType": "WG",
@@ -4915,7 +4834,9 @@
       {
         "id": "s150t5",
         "text": "elke",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s150t6"
       },
       {
         "id": "s150t6",
@@ -4953,7 +4874,9 @@
       {
         "id": "s151t5",
         "text": "elke",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s151t6"
       },
       {
         "id": "s151t6",
@@ -6384,6 +6307,361 @@
     "structuralTags": [
       "lijdende vorm: MV zonder LV",
       "contrast met zin 142: bedrijvend of lijdend"
+    ]
+  },
+  {
+    "id": 509,
+    "label": "Zin 509: Mij is een nieuwe kans gegeven",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s509t1",
+        "text": "Mij",
+        "role": "mv"
+      },
+      {
+        "id": "s509t2",
+        "text": "is",
+        "role": "pv"
+      },
+      {
+        "id": "s509t3",
+        "text": "een",
+        "role": "ow"
+      },
+      {
+        "id": "s509t4",
+        "text": "nieuwe",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s509t5"
+      },
+      {
+        "id": "s509t5",
+        "text": "kans",
+        "role": "ow"
+      },
+      {
+        "id": "s509t6",
+        "text": "gegeven.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "lijdende vorm: MV zonder LV"
+    ]
+  },
+  {
+    "id": 510,
+    "label": "Zin 510: Ons werd niets verteld",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s510t1",
+        "text": "Ons",
+        "role": "mv"
+      },
+      {
+        "id": "s510t2",
+        "text": "werd",
+        "role": "pv"
+      },
+      {
+        "id": "s510t3",
+        "text": "niets",
+        "role": "ow"
+      },
+      {
+        "id": "s510t4",
+        "text": "verteld.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "lijdende vorm: MV zonder LV"
+    ]
+  },
+  {
+    "id": 511,
+    "label": "Zin 511: Het pakket wordt ons morgen bezorgd",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s511t1",
+        "text": "Het",
+        "role": "ow"
+      },
+      {
+        "id": "s511t2",
+        "text": "pakket",
+        "role": "ow"
+      },
+      {
+        "id": "s511t3",
+        "text": "wordt",
+        "role": "pv"
+      },
+      {
+        "id": "s511t4",
+        "text": "ons",
+        "role": "mv"
+      },
+      {
+        "id": "s511t5",
+        "text": "morgen",
+        "role": "bwb"
+      },
+      {
+        "id": "s511t6",
+        "text": "bezorgd.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "lijdende vorm: MV zonder LV",
+      "contrast met zin 506: bedrijvend of lijdend"
+    ]
+  },
+  {
+    "id": 512,
+    "label": "Zin 512: Deze vraag wordt ons vaak gesteld",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s512t1",
+        "text": "Deze",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s512t2"
+      },
+      {
+        "id": "s512t2",
+        "text": "vraag",
+        "role": "ow"
+      },
+      {
+        "id": "s512t3",
+        "text": "wordt",
+        "role": "pv"
+      },
+      {
+        "id": "s512t4",
+        "text": "ons",
+        "role": "mv"
+      },
+      {
+        "id": "s512t5",
+        "text": "vaak",
+        "role": "bwb"
+      },
+      {
+        "id": "s512t6",
+        "text": "gesteld.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "lijdende vorm: MV zonder LV"
+    ]
+  },
+  {
+    "id": 513,
+    "label": "Zin 513: De bezoekers werd een gratis drankje aangeboden",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s513t1",
+        "text": "De",
+        "role": "mv"
+      },
+      {
+        "id": "s513t2",
+        "text": "bezoekers",
+        "role": "mv"
+      },
+      {
+        "id": "s513t3",
+        "text": "werd",
+        "role": "pv"
+      },
+      {
+        "id": "s513t4",
+        "text": "een",
+        "role": "ow"
+      },
+      {
+        "id": "s513t5",
+        "text": "gratis",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s513t6"
+      },
+      {
+        "id": "s513t6",
+        "text": "drankje",
+        "role": "ow"
+      },
+      {
+        "id": "s513t7",
+        "text": "aangeboden.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "lijdende vorm: MV zonder LV",
+      "congruentie wijst het OW aan"
+    ]
+  },
+  {
+    "id": 514,
+    "label": "Zin 514: Aan mijn opa is een lintje toegekend",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s514t1",
+        "text": "Aan",
+        "role": "mv"
+      },
+      {
+        "id": "s514t2",
+        "text": "mijn",
+        "role": "mv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s514t3"
+      },
+      {
+        "id": "s514t3",
+        "text": "opa",
+        "role": "mv"
+      },
+      {
+        "id": "s514t4",
+        "text": "is",
+        "role": "pv"
+      },
+      {
+        "id": "s514t5",
+        "text": "een",
+        "role": "ow"
+      },
+      {
+        "id": "s514t6",
+        "text": "lintje",
+        "role": "ow"
+      },
+      {
+        "id": "s514t7",
+        "text": "toegekend.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "lijdende vorm: MV zonder LV"
+    ]
+  },
+  {
+    "id": 515,
+    "label": "Zin 515: Is aan iedereen een rooster gestuurd",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s515t1",
+        "text": "Is",
+        "role": "pv"
+      },
+      {
+        "id": "s515t2",
+        "text": "aan",
+        "role": "mv"
+      },
+      {
+        "id": "s515t3",
+        "text": "iedereen",
+        "role": "mv"
+      },
+      {
+        "id": "s515t4",
+        "text": "een",
+        "role": "ow"
+      },
+      {
+        "id": "s515t5",
+        "text": "rooster",
+        "role": "ow"
+      },
+      {
+        "id": "s515t6",
+        "text": "gestuurd?",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "lijdende vorm: MV zonder LV"
+    ]
+  },
+  {
+    "id": 516,
+    "label": "Zin 516: Tijdens de les werd ons een korte film getoond",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s516t1",
+        "text": "Tijdens",
+        "role": "bwb"
+      },
+      {
+        "id": "s516t2",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s516t3",
+        "text": "les",
+        "role": "bwb"
+      },
+      {
+        "id": "s516t4",
+        "text": "werd",
+        "role": "pv"
+      },
+      {
+        "id": "s516t5",
+        "text": "ons",
+        "role": "mv"
+      },
+      {
+        "id": "s516t6",
+        "text": "een",
+        "role": "ow"
+      },
+      {
+        "id": "s516t7",
+        "text": "korte",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s516t8"
+      },
+      {
+        "id": "s516t8",
+        "text": "film",
+        "role": "ow"
+      },
+      {
+        "id": "s516t9",
+        "text": "getoond.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "lijdende vorm: MV zonder LV"
     ]
   }
 ]

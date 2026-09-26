@@ -7,7 +7,7 @@
     "tokens": [
       { "id": "s5001t1", "text": "Wij", "role": "ow" },
       { "id": "s5001t2", "text": "voetballen", "role": "pv" },
-      { "id": "s5001t3", "text": "elke", "role": "bwb" },
+      { "id": "s5001t3", "text": "elke", "role": "bwb", "subRole": "bijv_bep", "bijvBepTarget": "s5001t4" },
       { "id": "s5001t4", "text": "woensdag.", "role": "bwb" }
     ]
   },
@@ -19,7 +19,7 @@
     "tokens": [
       { "id": "s5002t1", "text": "Lisa", "role": "ow" },
       { "id": "s5002t2", "text": "maakt", "role": "pv" },
-      { "id": "s5002t3", "text": "haar", "role": "lv" },
+      { "id": "s5002t3", "text": "haar", "role": "lv", "subRole": "bijv_bep", "bijvBepTarget": "s5002t4" },
       { "id": "s5002t4", "text": "huiswerk.", "role": "lv" }
     ]
   },
@@ -82,7 +82,7 @@
       { "id": "s5007t3", "text": "een", "role": "lv" },
       { "id": "s5007t4", "text": "boek", "role": "lv" },
       { "id": "s5007t5", "text": "op", "role": "bwb" },
-      { "id": "s5007t6", "text": "haar", "role": "bwb" },
+      { "id": "s5007t6", "text": "haar", "role": "bwb", "subRole": "bijv_bep", "bijvBepTarget": "s5007t7" },
       { "id": "s5007t7", "text": "kamer.", "role": "bwb" }
     ]
   },
@@ -208,7 +208,7 @@
       { "id": "s5017t1", "text": "Gisteren", "role": "bwb" },
       { "id": "s5017t2", "text": "kochten", "role": "pv" },
       { "id": "s5017t3", "text": "wij", "role": "ow" },
-      { "id": "s5017t4", "text": "nieuwe", "role": "lv" },
+      { "id": "s5017t4", "text": "nieuwe", "role": "lv", "subRole": "bijv_bep", "bijvBepTarget": "s5017t5" },
       { "id": "s5017t5", "text": "schoenen.", "role": "lv" }
     ]
   },
@@ -312,7 +312,7 @@
       { "id": "s5025t1", "text": "Leen", "role": "pv" },
       { "id": "s5025t2", "text": "jij", "role": "ow" },
       { "id": "s5025t3", "text": "mij", "role": "mv" },
-      { "id": "s5025t4", "text": "je", "role": "lv" },
+      { "id": "s5025t4", "text": "je", "role": "lv", "subRole": "bijv_bep", "bijvBepTarget": "s5025t5" },
       { "id": "s5025t5", "text": "pen?", "role": "lv" }
     ]
   },
