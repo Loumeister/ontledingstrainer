@@ -65,6 +65,14 @@ Constructies waarover de bronnen het oneens zijn: niet laten beoordelen, maar ve
 
 Geraadpleegd: *Online Dutch Grammar Course* (dutchgrammar.com, woordvolgorde en de lijst werkwoorden + voorzetsel), Donaldson *Dutch: A Comprehensive Grammar* (11.21, 9.5), Shetter *Dutch: An Essential Grammar*, *Intermediate Dutch*. Geen van deze boeken beschrijft schoolse zinsontleding; ze bevestigen vooral de proeven. `grammar-core` en de lesmethode blijven leidend. Neem geen tekst of lijsten uit deze boeken over in de repo.
 
+## Conclusies tot nu toe (metingen 1 en 2, `resultaten/`)
+
+- **Alleen labels werkt het best**: 86% overeenstemming, tegen 85% (v1) en 82% (v2). Omschrijvingen maken Drex niet slimmer. Ze verschuiven alleen kans tussen buurlabels; de AUC van de verificatie blijft rond 0,94. Stuur daarom met drempels per rol, niet met herschreven omschrijvingen.
+- **v2 laat zien waarom**: "lexically selected by the predicate" is taalkundig juist, maar geen schoolgrammatica. *Op tafel* in *legt de sleutels op tafel* is taalkundig een geselecteerde aanvulling en voor school een BWB. Het gevolg: 44 BWB's werden VV (precisie VV 38%), onder meer *Ik fiets **naar school***. "Niet op woordvolgorde beslissen" haalde de sterkste aanwijzing weg: 50 LV's werden OW (*Zij schrijft **een brief***). Congruentie beslist niets als beide zinsdelen enkelvoud zijn.
+- **Betrouwbaar als afwijkingsdetector op één punt**: classificatie met confidence ≥ 0,8 klopte in beide metingen voor 99–100% met de annotatie. Verificatie met noul < 0,3 geeft bijna geen vals alarm (0,2–0,7%), maar vindt maar 45–48% van de ingebouwde fouten.
+- **Zwak juist op de didactische kern**: MV (45–50%) en BWB → VV (9–47% gevonden). Daar blijft een mens nodig.
+- **Enige zekere afwijking**: zin 5008 *Wij luisteren **naar muziek*** staat als BWB, terwijl zin 435 *luisteren **naar de trainer*** als VV staat.
+
 ## Bekende grenzen
 
 - Drex kiest altijd een van de zeven labels. Een zinsdeel dat nergens past, krijgt toch een label.
