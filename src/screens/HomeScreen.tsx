@@ -9,6 +9,7 @@ import { PredicateMode, FocusKey, FocusAvailability } from '../logic/sentenceFil
 import { nextRadioIndex } from '../logic/radioKeys';
 import { getPreviousScore, getStreak } from '../services/sessionHistory';
 import { getLadderStage, LADDER_STAGES } from '../logic/rollenladder';
+import { findHistoryStudentId } from '../logic/adaptiveSelection';
 
 type HomeScreenProps = Pick<TrainerState,
   | 'predicateMode' | 'setPredicateMode'
@@ -205,10 +206,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusReasons.lv, focusReasons.mv, focusReasons.vv, focusReasons.ng, focusReasons.bb]);
 
-  // Welcome card data — gelezen eenmalig bij mount; sessionHistory verandert niet
-  // zolang HomeScreen getoond wordt, dus lege deps zijn correct.
-  const previousScore = useMemo(() => getPreviousScore(), []);
-  const streak = useMemo(() => getStreak(), []);
+  // Welkomstkaart: alleen eigen sessies van de huidige leerling (zelfde id als
+  // bij opslaan). sessionHistory verandert niet zolang HomeScreen getoond wordt,
+  // maar de leerling kan hier wel van naam wisselen.
+  const historyStudentId = useMemo(
+    () => findHistoryStudentId(studentName, studentInitiaal, studentKlas),
+    [studentName, studentInitiaal, studentKlas],
+  );
+  const previousScore = useMemo(() => getPreviousScore(historyStudentId), [historyStudentId]);
+  const streak = useMemo(() => getStreak(historyStudentId), [historyStudentId]);
   const motivatieZin = (score: number): string => {
     if (score >= 80) return 'Geweldig gedaan — ga zo door!';
     if (score >= 50) return 'Goed bezig — nog even oefenen!';

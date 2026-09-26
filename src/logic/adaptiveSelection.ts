@@ -15,7 +15,7 @@
 import { Sentence, RoleKey, SessionHistoryEntry, Token, ValidationState, PlacementMap } from '../types';
 import { roleMatchesToken } from './validation';
 import { loadSessionHistory } from '../services/sessionHistory';
-import { getOrCreateStudent, getStudents } from '../services/studentStore';
+import { findStudent, getOrCreateStudent, getStudents } from '../services/studentStore';
 import { ROLES } from '../constants';
 
 // ---------------------------------------------------------------------------
@@ -214,6 +214,15 @@ export function resolveHistoryStudentId(name: string, initiaal: string, klas: st
     const { id } = getOrCreateStudent(name, initiaal, klas);
     return `${id}:${initiaal.trim().toUpperCase()}`;
   } catch { return null; }
+}
+
+/**
+ * Zelfde id als resolveHistoryStudentId, maar zonder een studentrecord aan te
+ * maken (veilig tijdens renderen). Geen record = nog geen eigen sessies = null.
+ */
+export function findHistoryStudentId(name: string, initiaal: string, klas: string): string | null {
+  const student = findStudent(name, klas);
+  return student ? `${student.id}:${initiaal.trim().toUpperCase()}` : null;
 }
 
 /**
