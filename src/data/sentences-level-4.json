@@ -1560,44 +1560,6 @@
     ]
   },
   {
-    "id": 461,
-    "label": "Zin 461: VV vs BWB paar 3B",
-    "predicateType": "WG",
-    "level": 4,
-    "tokens": [
-      {
-        "id": "s461t1",
-        "text": "De",
-        "role": "ow"
-      },
-      {
-        "id": "s461t2",
-        "text": "leerlingen",
-        "role": "ow"
-      },
-      {
-        "id": "s461t3",
-        "text": "schrijven",
-        "role": "pv"
-      },
-      {
-        "id": "s461t4",
-        "text": "aan",
-        "role": "bwb"
-      },
-      {
-        "id": "s461t5",
-        "text": "de",
-        "role": "bwb"
-      },
-      {
-        "id": "s461t6",
-        "text": "toets.",
-        "role": "bwb"
-      }
-    ]
-  },
-  {
     "id": 462,
     "label": "Zin 462: Werkwoordspelling relevant 5",
     "predicateType": "WG",

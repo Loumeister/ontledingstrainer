@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { Sentence } from '../types';
 import { getBijzinAnalyseProblems, getBijzinTokenGroups } from '../logic/bijzinAnalysis';
-import { BETREKKELIJKE_BIJZIN_LEVEL } from '../logic/validation';
+import { BETREKKELIJKE_BIJZIN_LEVEL, roleMatchesToken } from '../logic/validation';
 import { ROLES_PER_LEVEL } from '../constants';
 import level0 from './sentences-level-0.json';
 import level1 from './sentences-level-1.json';
@@ -88,6 +88,36 @@ describe('zinnendata — docentcorrecties', () => {
     expect(s.tokens.map(t => t.text).join(' ')).toBe('Aan haar oma stuurt Sara een kaart.');
     expect(s.tokens.filter(t => t.role === 'ow').map(t => t.text)).toEqual(['Sara']);
     expect(s.tokens.filter(t => t.role === 'mv').map(t => t.text)).toEqual(['Aan', 'haar', 'oma']);
+  });
+});
+
+describe('zinnendata — gold-set 2026-09 (blinde docentbeoordeling)', () => {
+  it('"luisteren naar" is een voorzetselvoorwerp en staat daarom pas op niveau 2 (zin 5008)', () => {
+    const s = byId(5008);
+    expect(s.level).toBe(2);
+    expect(s.tokens.filter(t => ['naar', 'muziek.'].includes(t.text)).map(t => t.role)).toEqual(['vv', 'vv']);
+  });
+
+  it('"aan de kijker" is het meewerkend voorwerp bij geven (zin 304)', () => {
+    expect(byId(304).tokens.filter(t => ['aan', 'de', 'kijker'].includes(t.text)).map(t => t.role)).toEqual(['mv', 'mv', 'mv']);
+  });
+
+  it.each([
+    [91, ['als', 'een', 'meesterwerk.'], 'vv', 'bwb'],
+    [438, ['op', 'de', 'bus.'], 'bwb', 'vv'],
+    [442, ['aan', 'de', 'toets.'], 'bwb', 'vv'],
+    [448, ['voor', 'deze', 'mannen'], 'bwb', 'mv'],
+    [505, ['aan', 'de', 'klas'], 'mv', 'vv'],
+  ] as const)('zin %i: beide verdedigbare lezingen worden goedgekeurd', (id, words, role, alt) => {
+    const chunk = byId(id).tokens.filter(t => (words as readonly string[]).includes(t.text) && t.role === role);
+    expect(chunk.map(t => t.text)).toEqual(words);
+    // Zelfde regel als de leerlingbeoordeling: élk woord van het zinsdeel moet het label toestaan.
+    for (const label of [role, alt]) expect(chunk.every(t => roleMatchesToken(label, t))).toBe(true);
+  });
+
+  it('bevat geen zinnen met "er" als eigen zinsdeel (docentbesluit: niet eenduidig te benoemen)', () => {
+    const offenders = all.filter(s => s.tokens.some(t => /^er[.,!?]?$/i.test(t.text))).map(s => s.id);
+    expect(offenders).toEqual([]);
   });
 });
 

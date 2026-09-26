@@ -3534,19 +3534,22 @@
       {
         "id": "s448t3",
         "text": "voor",
-        "role": "bwb"
+        "role": "bwb",
+        "alternativeRole": "mv"
       },
       {
         "id": "s448t4",
         "text": "deze",
         "role": "bwb",
+        "alternativeRole": "mv",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s448t5"
       },
       {
         "id": "s448t5",
         "text": "mannen",
-        "role": "bwb"
+        "role": "bwb",
+        "alternativeRole": "mv"
       },
       {
         "id": "s448t6",
@@ -5013,17 +5016,20 @@
       {
         "id": "s505t7",
         "text": "aan",
-        "role": "mv"
+        "role": "mv",
+        "alternativeRole": "vv"
       },
       {
         "id": "s505t8",
         "text": "de",
-        "role": "mv"
+        "role": "mv",
+        "alternativeRole": "vv"
       },
       {
         "id": "s505t9",
         "text": "klas",
-        "role": "mv"
+        "role": "mv",
+        "alternativeRole": "vv"
       },
       {
         "id": "s505t10",

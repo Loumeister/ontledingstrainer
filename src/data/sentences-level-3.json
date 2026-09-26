@@ -365,17 +365,17 @@
       {
         "id": "s304t5",
         "text": "aan",
-        "role": "vv"
+        "role": "mv"
       },
       {
         "id": "s304t6",
         "text": "de",
-        "role": "vv"
+        "role": "mv"
       },
       {
         "id": "s304t7",
         "text": "kijker",
-        "role": "vv"
+        "role": "mv"
       },
       {
         "id": "s304t8",
@@ -1267,110 +1267,6 @@
         "text": "stil.",
         "role": "ng",
         "subRole": "nwd"
-      }
-    ]
-  },
-  {
-    "id": 317,
-    "label": "Zin 317: Ontbrekende pagina's",
-    "predicateType": "WG",
-    "level": 3,
-    "tokens": [
-      {
-        "id": "s317t1",
-        "text": "Er",
-        "role": "bwb"
-      },
-      {
-        "id": "s317t2",
-        "text": "ontbreken",
-        "role": "pv"
-      },
-      {
-        "id": "s317t3",
-        "text": "drie",
-        "role": "ow",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s317t5"
-      },
-      {
-        "id": "s317t4",
-        "text": "belangrijke",
-        "role": "ow",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s317t5"
-      },
-      {
-        "id": "s317t5",
-        "text": "pagina's",
-        "role": "ow"
-      },
-      {
-        "id": "s317t6",
-        "text": "in",
-        "role": "bwb"
-      },
-      {
-        "id": "s317t7",
-        "text": "dit",
-        "role": "bwb",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s317t8"
-      },
-      {
-        "id": "s317t8",
-        "text": "rapport.",
-        "role": "bwb"
-      }
-    ]
-  },
-  {
-    "id": 318,
-    "label": "Zin 318: Wolven",
-    "predicateType": "WG",
-    "level": 3,
-    "tokens": [
-      {
-        "id": "s318t1",
-        "text": "Er",
-        "role": "bwb"
-      },
-      {
-        "id": "s318t2",
-        "text": "schijnen",
-        "role": "pv"
-      },
-      {
-        "id": "s318t3",
-        "text": "in",
-        "role": "bwb"
-      },
-      {
-        "id": "s318t4",
-        "text": "dit",
-        "role": "bwb",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s318t5"
-      },
-      {
-        "id": "s318t5",
-        "text": "gebied",
-        "role": "bwb"
-      },
-      {
-        "id": "s318t6",
-        "text": "wolven",
-        "role": "ow"
-      },
-      {
-        "id": "s318t7",
-        "text": "te",
-        "role": "wg"
-      },
-      {
-        "id": "s318t8",
-        "text": "leven.",
-        "role": "wg"
       }
     ]
   },
