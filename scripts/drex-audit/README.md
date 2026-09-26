@@ -10,7 +10,8 @@ Drex dient hier als onafhankelijke detector van afwijkingen, niet als nieuwe bro
 # DREX_API_KEY in de omgeving of in .env (gitignored; nooit met VITE_-prefix)
 python3 scripts/drex-audit/measure.py                 # hele corpus -> scripts/drex-audit/rows.jsonl (gitignored)
 python3 scripts/drex-audit/analyse.py scripts/drex-audit/rows.jsonl > rapport.md
-python3 -m unittest discover -s scripts/drex-audit    # tests zonder netwerk
+python3 -m unittest discover -s scripts/drex-audit    # tests zonder netwerk (live-tests worden overgeslagen)
+DREX_LIVE=1 python3 -m unittest discover -s scripts/drex-audit -p 'test_live_*.py'   # contract met Drex, live
 ```
 
 Het hele corpus kost ongeveer 1 miljoen invoertokens: enkele centen. Met een gratis account (2 aanroepen tegelijk) duurt het 30–60 minuten, afhankelijk van hoe druk Drex is. Er gaan alleen oefenzinnen uit de repo naar Drex, geen leerlinggegevens.
@@ -33,7 +34,9 @@ De drie A-varianten zitten in één aanroep: vragen over dezelfde state beïnvlo
 
 Het doel-zinsdeel wordt met tekst aangewezen, niet met woordposities, want Drex telt niet betrouwbaar. Komt de tekst vaker voor ("Ik ben moe, maar ik ..."), dan komen er buurwoorden bij: `"ik" (in "maar ik bedenk")`. In de resultaten is een zinsdeel `(zin-id, start)`.
 
-Een antwoord telt als goed als de app het zou goedkeuren. Dat is dezelfde regel als `getConsistentRole` in `src/logic/validation.ts`: elk woord van het zinsdeel moet die rol of die `alternativeRole` hebben. De `alternativeRole: nwd` op "worden" in zin 147 is een alternatief op subrolniveau en telt dus niet voor het zinsdeel.
+Een antwoord telt als goed als de leerlingbeoordeling het goedkeurt. Die regel staat in `src/logic/validation.ts` (`chunkTokens.every(t => roleMatchesToken(label, t))`): elk woord van het zinsdeel moet die rol of die `alternativeRole` hebben. Een `alternativeRole` op alleen het eerste woord telt dus niet. De docentanalyse in `sentenceAnalysis.ts` telt fouten op chunkgrenzen en kijkt daardoor alleen naar het eerste woord; dat is geen beoordeling. De `alternativeRole: nwd` op "worden" in zin 147 is een alternatief op subrolniveau en telt niet voor het zinsdeel.
+
+Drex-contract (bevestigd door `test_live_contract.py`): `instructions` moet een string zijn; een omschrijving bij `choice` mag een string of `null` zijn (zo werkt `A_bare`); modelnamen buiten `drex-*` geven 422.
 
 Meet per rol, niet alleen het totaal. Het corpus heeft 384 OW, 296 BWB, 184 LV, 78 NG, 64 MV, 33 VV en maar 5 bijstellingen. Een mooi totaal kan dus verbergen dat Drex bijna alle MV's mist.
 

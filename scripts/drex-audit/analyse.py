@@ -62,9 +62,9 @@ def mutation_detection(classified, verified_gold, mutated):
 
 
 def auc(pos_scores, neg_scores):
-    """Kans dat een willekeurig goed label hoger scoort dan een willekeurig fout label."""
+    """Kans dat een willekeurig goed label hoger scoort dan een willekeurig fout label; None zonder beide klassen."""
     if not pos_scores or not neg_scores:
-        return float('nan')
+        return None
     wins = sum((p > n) + 0.5 * (p == n) for p in pos_scores for n in neg_scores)
     return wins / (len(pos_scores) * len(neg_scores))
 
@@ -126,7 +126,8 @@ def report(rows):
         out.append(f'| {name} | {pct(found, n_mut)} ({found}/{n_mut}) | {pct(false, n_gold)} ({false}/{n_gold}) |')
     out += ['', 'De verwisselingen komen uit `schema.mutate`: een testharnas. Deze cijfers zeggen of de audit zo\'n fout '
             'vindt, niet hoe vaak het corpus fouten bevat.']
-    out += ['', f"Verificatie-AUC: {auc([r['noul'] for r in Bg], [m['noul'] for m in Bm]):.3f} "
+    auc_value = auc([r['noul'] for r in Bg], [m['noul'] for m in Bm])
+    out += ['', f"Verificatie-AUC: {'–' if auc_value is None else f'{auc_value:.3f}'} "
             '(kans dat een goed label hoger scoort dan een fout label; 0,5 = gokken)', '',
             'Per soort verwisseling:', '',
             '| verwisseling | n | verificatie (noul < 0,5) | classificatie (P < 0,3) |', '|---|---|---|---|']
