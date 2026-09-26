@@ -30,3 +30,4 @@ dist-ssr
 
 # Ruwe Drex-meetresultaten (scripts/drex-audit/measure.py)
 scripts/drex-audit/rows.jsonl
+__pycache__/
