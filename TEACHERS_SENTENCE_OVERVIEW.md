@@ -9,11 +9,11 @@
 | Niveau | Zinnen | WG | NG | Met LV | Met MV | Met VV | Met BWB | Met bijzin | Nevenschikking |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Instap (0) | 52 | 52 | 0 | 23 | 9 | 0 | 26 | 0 | 0 |
-| Basis (1) | 117 | 105 | 12 | 86 | 19 | 0 | 62 | 0 | 0 |
-| Middel (2) | 127 | 81 | 46 | 41 | 29 | 24 | 96 | 0 | 0 |
+| Basis (1) | 116 | 104 | 12 | 85 | 18 | 0 | 62 | 0 | 0 |
+| Middel (2) | 128 | 83 | 45 | 42 | 30 | 24 | 96 | 0 | 0 |
 | Hoog (3) | 46 | 34 | 12 | 19 | 6 | 6 | 32 | 6 | 11 |
-| Samengesteld (4) | 25 | 17 | 8 | 11 | 2 | 3 | 13 | 17 | 6 |
-| **Totaal** | 367 | 289 | 78 | 180 | 65 | 33 | 229 | 23 | 17 |
+| Samengesteld (4) | 22 | 14 | 8 | 9 | 2 | 2 | 11 | 17 | 6 |
+| **Totaal** | 364 | 287 | 77 | 178 | 65 | 32 | 227 | 23 | 17 |
 
 ## Woordvolgorde per niveau
 
@@ -22,10 +22,10 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | Niveau | SVO | SV | VSO | VS | OVS | VOS | zonder OW |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | Instap (0) | 14 | 19 | 7 | 10 | 2 | 0 | 0 |
-| Basis (1) | 54 | 23 | 25 | 8 | 7 | 0 | 0 |
-| Middel (2) | 24 | 63 | 15 | 13 | 7 | 2 | 3 |
+| Basis (1) | 53 | 23 | 25 | 8 | 7 | 0 | 0 |
+| Middel (2) | 25 | 63 | 15 | 13 | 7 | 2 | 3 |
 | Hoog (3) | 16 | 19 | 1 | 4 | 1 | 2 | 3 |
-| Samengesteld (4) | 8 | 9 | 4 | 4 | 0 | 0 | 0 |
+| Samengesteld (4) | 6 | 8 | 4 | 4 | 0 | 0 | 0 |
 
 ## Structuurlabels
 
@@ -249,7 +249,6 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 502 | Wil jij de gasten koffie inschenken? | PV · OW · MV · LV · WG | WG |
 | 503 | Gisteren heeft mijn oom mij een horloge gegeven. | BWB · PV · OW · MV · LV · WG | WG |
 | 504 | Heb jij je tante al een kaart gestuurd? | PV · OW · MV · BWB · LV · WG | WG |
-| 505 | De juf stelt de nieuwe leerling aan de klas voor. | OW · PV · LV · MV · WG | WG |
 | 506 | De postbode zal ons het pakket morgen bezorgen. | OW · PV · MV · LV · BWB · WG | WG |
 
 ### Middel (2)
@@ -276,7 +275,7 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 78 | Helaas serveerde de chef zijn gasten tijdens het jubileumfeest een aangebrand hoofdgerecht. | BWB · PV · OW · MV · BWB · LV | WG |
 | 79 | De nieuwe strategie is volgens recente onderzoeken aanzienlijk effectiever dan de vorige. | OW · PV · BWB · NG | NG |
 | 80 | Tegenwoordig wil de overheid in drukke stadscentra de luchtkwaliteit verbeteren. | BWB · PV · OW · BWB · LV · WG | WG |
-| 81 | De journalist noemde de politicus tijdens het debat een gevaarlijke populist. | OW · PV · LV · BWB · NG | NG |
+| 81 | De journalist noemde de politicus tijdens het debat een gevaarlijke populist. | OW · PV · LV · BWB · BWB | WG |
 | 82 | Op de parkeerplaats werden twee auto’s door onbekenden opengebroken. | BWB · PV · OW · BWB · WG | WG |
 | 83 | Hebben jullie hem gisteren nog een eerlijke kans gegeven? | PV · OW · MV · BWB · BWB · LV · WG | WG |
 | 84 | De directeur laat zijn assistent alle documenten zorgvuldig archiveren. | OW · PV · MV · LV · BWB · WG | WG |
@@ -363,7 +362,7 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 437 | De ouders wachten op de bus. | OW · PV · VZV | WG |
 | 438 | De ouders springen op de bus. | OW · PV · BWB | WG |
 | 441 | De leerlingen denken aan de toets. | OW · PV · VZV | WG |
-| 442 | De leerlingen schrijven aan de toets. | OW · PV · BWB | WG |
+| 442 | De leerlingen zitten aan de tafel. | OW · PV · BWB | WG |
 | 449 | Roosmarijn is alsnog manager geworden. | OW · PV · BWB · NG | NG |
 | 451 | Met die kleuren is het bos prachtig dit seizoen. | BWB · PV · OW · NG · BWB | NG |
 | 452 | Vincent is nooit een betrouwbare jongen geweest. | OW · PV · BWB · NG | NG |
@@ -372,6 +371,7 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 457 | Mijn vader is nu ook fan van Antoon geworden. | OW · PV · BWB · NG | NG |
 | 458 | Gisteren is Francisca heel de dag vrolijk gebleven. | BWB · PV · OW · BWB · NG | NG |
 | 459 | Met twee linkerhanden word je nooit een goede bouwvakker. | BWB · PV · OW · BWB · NG | NG |
+| 505 | De juf stelt de nieuwe leerling aan de klas voor. | OW · PV · LV · MV · WG | WG |
 | 507 | Aan de winnaar werd een beker uitgereikt. | MV · PV · OW · WG | WG |
 | 508 | Hem werd de toegang geweigerd. | MV · PV · OW · WG | WG |
 | 509 | Mij is een nieuwe kans gegeven. | MV · PV · OW · WG | WG |
@@ -458,9 +458,6 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 422 | De lerares die ons lesgeeft is erg aardig. | OW · BIJZIN (BB) · PV · NG | NG |
 | 439 | Dat de nieuwe planning zoveel vragen oproept, merkt de mentor meteen. | BIJZIN (LV) · PV · OW · BWB | WG |
 | 440 | Dat jullie de opdracht al snapten, vertelde de docent ons glimlachend. | BIJZIN (LV) · PV · OW · MV · BWB | WG |
-| 460 | De leerlingen denken aan de toets. | OW · PV · VZV | WG |
-| 462 | De leerlingen zouden de fouten gisteren hebben verbeterd. | OW · PV · LV · BWB · WG | WG |
-| 463 | De mentor heeft de zinnen zorgvuldig nagekeken. | OW · PV · LV · BWB · WG | WG |
 | 464 | Omdat zij zich versliep, kwam ze te laat. | BIJZIN (BWB) · PV · OW · BWB | WG |
 | 465 | Hij schaamt zich, maar hij zegt niets. | OW · PV · WG · NEVEN · OW · PV · LV | WG |
 | 466 | Ik vergiste mij in het lokaal, waardoor ik te laat kwam. | OW · PV · WG · VZV · BIJZIN (BWB) | WG |

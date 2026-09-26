@@ -105,7 +105,6 @@ describe('zinnendata — gold-set 2026-09 (blinde docentbeoordeling)', () => {
   it.each([
     [91, ['als', 'een', 'meesterwerk.'], 'vv', 'bwb'],
     [438, ['op', 'de', 'bus.'], 'bwb', 'vv'],
-    [442, ['aan', 'de', 'toets.'], 'bwb', 'vv'],
     [448, ['voor', 'deze', 'mannen'], 'bwb', 'mv'],
     [505, ['aan', 'de', 'klas'], 'mv', 'vv'],
   ] as const)('zin %i: beide verdedigbare lezingen worden goedgekeurd', (id, words, role, alt) => {
@@ -113,6 +112,31 @@ describe('zinnendata — gold-set 2026-09 (blinde docentbeoordeling)', () => {
     expect(chunk.map(t => t.text)).toEqual(words);
     // Zelfde regel als de leerlingbeoordeling: élk woord van het zinsdeel moet het label toestaan.
     for (const label of [role, alt]) expect(chunk.every(t => roleMatchesToken(label, t))).toBe(true);
+  });
+
+  it('VV/BWB-paar 3 houdt zijn contrast zonder tweede lezing: denken aan (VV) tegenover zitten aan (BWB)', () => {
+    const pp = (id: number) => byId(id).tokens.slice(3);
+    expect(byId(442).tokens.map(t => t.text).join(' ')).toBe('De leerlingen zitten aan de tafel.');
+    expect(pp(441).map(t => [t.text, t.role, t.alternativeRole])).toEqual([['aan', 'vv', undefined], ['de', 'vv', undefined], ['toets.', 'vv', undefined]]);
+    expect(pp(442).map(t => [t.text, t.role, t.alternativeRole])).toEqual([['aan', 'bwb', undefined], ['de', 'bwb', undefined], ['tafel.', 'bwb', undefined]]);
+  });
+
+  it('staat met de tweede lezing VV op een niveau waar VV kiesbaar is (zin 505)', () => {
+    expect(ROLES_PER_LEVEL[byId(505).level]).toContain('vv');
+  });
+
+  it('annoteert noemen + naamwoordgroep overal als WG met BWB (zinnen 81, 312)', () => {
+    for (const id of [81, 312]) {
+      const s = byId(id);
+      expect(s.predicateType).toBe('WG');
+      expect(s.tokens.some(t => t.role === 'ng')).toBe(false);
+      expect(s.tokens.at(-1)!.role).toBe('bwb');
+    }
+  });
+
+  it('bevat geen letterlijk dubbele zinnen', () => {
+    const texts = all.map(s => s.tokens.map(t => t.text).join(' ').toLowerCase());
+    expect(texts.filter((t, i) => texts.indexOf(t) !== i)).toEqual([]);
   });
 
   it('bevat geen zinnen met "er" als eigen zinsdeel (docentbesluit: niet eenduidig te benoemen)', () => {

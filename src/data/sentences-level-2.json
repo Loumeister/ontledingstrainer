@@ -1057,7 +1057,7 @@
   {
     "id": 81,
     "label": "Zin 81: Gevaarlijke populist",
-    "predicateType": "NG",
+    "predicateType": "WG",
     "level": 2,
     "tokens": [
       {
@@ -1073,8 +1073,7 @@
       {
         "id": "s81t3",
         "text": "noemde",
-        "role": "pv",
-        "subRole": "wwd"
+        "role": "pv"
       },
       {
         "id": "s81t4",
@@ -1104,22 +1103,20 @@
       {
         "id": "s81t9",
         "text": "een",
-        "role": "ng",
-        "newChunk": true,
-        "subRole": "nwd"
+        "role": "bwb",
+        "newChunk": true
       },
       {
         "id": "s81t10",
         "text": "gevaarlijke",
-        "role": "ng",
+        "role": "bwb",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s81t11"
       },
       {
         "id": "s81t11",
         "text": "populist.",
-        "role": "ng",
-        "subRole": "nwd"
+        "role": "bwb"
       }
     ]
   },
@@ -5655,26 +5652,23 @@
       },
       {
         "id": "s442t3",
-        "text": "schrijven",
+        "text": "zitten",
         "role": "pv"
       },
       {
         "id": "s442t4",
         "text": "aan",
-        "role": "bwb",
-        "alternativeRole": "vv"
+        "role": "bwb"
       },
       {
         "id": "s442t5",
         "text": "de",
-        "role": "bwb",
-        "alternativeRole": "vv"
+        "role": "bwb"
       },
       {
         "id": "s442t6",
-        "text": "toets.",
-        "role": "bwb",
-        "alternativeRole": "vv"
+        "text": "tafel.",
+        "role": "bwb"
       }
     ]
   },
@@ -6098,6 +6092,72 @@
     "structuralTags": [
       "inversie",
       "samengestelde tijd"
+    ]
+  },
+  {
+    "id": 505,
+    "label": "Zin 505: De juf stelt de nieuwe leerling aan de klas voor",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s505t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s505t2",
+        "text": "juf",
+        "role": "ow"
+      },
+      {
+        "id": "s505t3",
+        "text": "stelt",
+        "role": "pv"
+      },
+      {
+        "id": "s505t4",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s505t5",
+        "text": "nieuwe",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s505t6"
+      },
+      {
+        "id": "s505t6",
+        "text": "leerling",
+        "role": "lv"
+      },
+      {
+        "id": "s505t7",
+        "text": "aan",
+        "role": "mv",
+        "alternativeRole": "vv"
+      },
+      {
+        "id": "s505t8",
+        "text": "de",
+        "role": "mv",
+        "alternativeRole": "vv"
+      },
+      {
+        "id": "s505t9",
+        "text": "klas",
+        "role": "mv",
+        "alternativeRole": "vv"
+      },
+      {
+        "id": "s505t10",
+        "text": "voor.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "LV en MV zijn allebei personen"
     ]
   },
   {
