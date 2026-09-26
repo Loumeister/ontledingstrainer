@@ -8,6 +8,7 @@ import analyse
 import schema
 
 REPO = Path(__file__).resolve().parents[2]
+HERE_GOLDSET = Path(__file__).parent / 'goldset'
 
 
 def corpus():
@@ -189,6 +190,12 @@ class GoldsetTest(unittest.TestCase):
         self.assertIn('tweede mening', sg.decision({**base, 'precision': 0.3, 'errors_flagged': 2}))
         self.assertIn('stoppen', sg.decision({**base, 'precision': 0.05, 'errors_flagged': 0}))
         self.assertEqual((sg.FLAG_P_LABELS_BELOW, sg.FLAG_NOUL_BELOW, sg.USEFUL_PRECISION), (0.18, 0.45, 0.20))
+
+    def test_adjudication_file_matches_design(self):
+        import score_goldset as sg
+        adj = sg.load_adjudication(sg.DESIGN, HERE_GOLDSET / 'herbeoordeling.csv')
+        self.assertEqual(adj[(513, 3)][:2], ('ow', False))
+        self.assertTrue(adj[(91, 8)][1])  # VV / BWB: twijfel
 
     def test_compound_role_notations(self):
         import score_goldset as sg

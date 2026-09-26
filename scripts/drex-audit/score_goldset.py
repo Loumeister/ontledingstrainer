@@ -103,6 +103,19 @@ def load_judgements(design_path, sheets):
     return judged
 
 
+def load_adjudication(design_path, path):
+    """Herbeoordeling na het blinde oordeel: {(zin_id, start): (rol, twijfel, reden)}. Vervangt alleen die items."""
+    design = {(int(r['blad']), int(r['nr'])): (int(r['zin_id']), int(r['start'])) for r in read_csv(design_path)}
+    out = {}
+    for row in read_csv(path):
+        key = design[(int(row['blad']), int(row['nr']))]
+        if int(row['zin_id']) != key[0]:
+            raise ValueError(f'herbeoordeling blad {row["blad"]} nr {row["nr"]}: zin_id past niet bij het ontwerp')
+        role, two_readings = parse_role(row['rol'])
+        out[key] = (role, two_readings or row['twijfel'].strip().lower() in YES, row['reden'].strip())
+    return out
+
+
 def verdict(score, human_role, ambiguous):
     if ambiguous:
         return 'twijfel'
@@ -219,11 +232,17 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--blad1')
     ap.add_argument('--blad2')
+    ap.add_argument('--herbeoordeling', help='afwijking van de preregistratie: rapporteert blind én herbeoordeeld')
     args = ap.parse_args()
     sheets = {b: p for b, p in ((1, args.blad1), (2, args.blad2)) if p}
     if not sheets:
         ap.error('geef minstens --blad1 of --blad2')
-    print(report(load_scores(), load_judgements(DESIGN, sheets)))
+    scores, judged = load_scores(), load_judgements(DESIGN, sheets)
+    print(report(scores, judged))
+    if args.herbeoordeling:
+        adjusted = {**judged, **{k: v for k, v in load_adjudication(DESIGN, args.herbeoordeling).items() if k in judged}}
+        print('\n\n---\n\n' + report(scores, adjusted).replace('# Gold-set: externe validatie',
+              '# Gold-set na herbeoordeling (afwijking van de preregistratie)', 1))
 
 
 if __name__ == '__main__':
