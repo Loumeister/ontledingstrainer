@@ -32,6 +32,7 @@ import {
   computeCorrectSplits,
   validateAnswer,
   getGezegdeDeel,
+  isWordBepalingAsked,
   findMissingGezegdeDeel,
   isBijzinFunctieAsked,
   getConsistentRole,
@@ -87,6 +88,8 @@ export interface TrainerState {
   // Complexity filters
   includeBB: boolean;
   setIncludeBB: (v: boolean) => void;
+  includeBijwBep: boolean;
+  setIncludeBijwBep: (v: boolean) => void;
   includeGezegdeDelen: boolean;
   setIncludeGezegdeDelen: (v: boolean) => void;
   includeBijzinAnalyse: boolean;
@@ -282,6 +285,8 @@ export function useTrainer(): TrainerState {
 
   // Complexity Filters
   const [includeBB, setIncludeBB] = useState(false);
+  // Opt-in on every level: also name a bijwoordelijke bepaling inside a zinsdeel ("ernstig" ziek). Off by default.
+  const [includeBijwBep, setIncludeBijwBep] = useState(false);
   // Opt-in: also name werkwoordelijk and naamwoordelijk deel inside an NG. Off by default.
   const [includeGezegdeDelen, setIncludeGezegdeDelen] = useState(false);
   // Opt-in: analyse a found bijzin as a sentence of its own. Only offered on #/bijzinontleding for now.
@@ -1287,7 +1292,7 @@ export function useTrainer(): TrainerState {
     }
 
     if (includeGezegdeDelen) {
-      const missing = findMissingGezegdeDeel(currentSentence.tokens, subLabels, includeBB);
+      const missing = findMissingGezegdeDeel(currentSentence.tokens, subLabels, includeBB, includeBijwBep);
       if (missing) { setHintMessage(HINTS.GEZEGDE_DEEL_MISSING(missing.text)); return; }
     }
 
@@ -1302,7 +1307,7 @@ export function useTrainer(): TrainerState {
       currentSentence, splitIndices, chunkLabels, subLabels, includeBB,
       bijzinFunctieLabels, bijvBepLinks, wordBijvBepLinks,
       ladderEnabled ? undefined : predicateTypeLabels,
-      includeGezegdeDelen
+      includeGezegdeDelen, includeBijwBep
     );
 
     // In ladder mode, neutralise out-of-stage chunks before displaying and scoring
@@ -1440,7 +1445,7 @@ export function useTrainer(): TrainerState {
 
     currentSentence.tokens.forEach((t, i) => {
       if (t.subRole) {
-        if (t.subRole === 'bijv_bep' && !includeBB) { /* skip */ }
+        if (!isWordBepalingAsked(t.subRole, includeBB, includeBijwBep)) { /* skip */ }
         else {
           correctSubLabels[t.id] = t.subRole;
           if (t.subRole === 'bijv_bep' && t.bijvBepTarget && includeBB) {
@@ -1449,7 +1454,7 @@ export function useTrainer(): TrainerState {
         }
       }
       const gezegdeDeel = includeGezegdeDelen ? getGezegdeDeel(t) : undefined;
-      if (gezegdeDeel && correctSubLabels[t.id] !== 'bijv_bep') correctSubLabels[t.id] = gezegdeDeel;
+      if (gezegdeDeel && correctSubLabels[t.id] !== 'bijv_bep' && correctSubLabels[t.id] !== 'bijw_bep') correctSubLabels[t.id] = gezegdeDeel;
       if (correctSplits.has(i - 1)) {
          currentChunkStartId = t.id;
          correctChunkLabels[currentChunkStartId] = t.role;
@@ -1474,7 +1479,7 @@ export function useTrainer(): TrainerState {
         currentSentence, splitIndices, chunkLabels, subLabels, includeBB,
         bijzinFunctieLabels, bijvBepLinks, wordBijvBepLinks,
         ladderEnabled ? undefined : predicateTypeLabels,
-        includeGezegdeDelen
+        includeGezegdeDelen, includeBijwBep
       );
       const realChunkCount = countRealChunks(currentSentence.tokens);
       if (mode === 'session') {
@@ -1636,6 +1641,7 @@ export function useTrainer(): TrainerState {
 
     // Complexity filters
     includeBB, setIncludeBB,
+    includeBijwBep, setIncludeBijwBep,
     includeGezegdeDelen, setIncludeGezegdeDelen,
     includeBijzinAnalyse, setIncludeBijzinAnalyse,
     includeVV, setIncludeVV,

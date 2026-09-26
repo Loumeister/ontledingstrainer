@@ -10,6 +10,7 @@ import {
   findMissingGezegdeDeel,
   requiresPredicateChoice,
   getExpectedPredicateType,
+  getExpectedSubLabel,
 } from './validation';
 import { HINTS } from '../constants';
 import type { Token, Sentence, PlacementMap } from '../types';
@@ -831,16 +832,25 @@ describe('validateAnswer — gezegdedelen', () => {
     makeToken({ id: 't1', text: 'Hij', role: 'ow' }),
     makeToken({ id: 't2', text: 'is', role: 'pv', subRole: 'wwd' }),
     makeToken({ id: 't3', text: 'ziek', role: 'ng', subRole: 'nwd' }),
-    makeToken({ id: 't4', text: 'geworden.', role: 'ng', subRole: 'wwd' }),
+    makeToken({ id: 't4', text: 'geworden.', role: 'ng', subRole: 'wwd', newChunk: true }),
   ];
   const sentence = makeSentence(tokens, { predicateType: 'NG' });
-  const splits = new Set([0, 1]);
-  const labels: PlacementMap = { t1: 'ow', t2: 'pv', t3: 'ng' };
+  const splits = new Set([0, 1, 2]);
+  const labels: PlacementMap = { t1: 'ow', t2: 'pv', t3: 'ng', t4: 'ng' };
   const run = (subLabels: PlacementMap, includeGezegdeDelen: boolean) =>
     validateAnswer(sentence, splits, labels, subLabels, false, {}, {}, {}, undefined, includeGezegdeDelen).result;
 
   it('vraagt standaard geen gezegdedelen', () => {
     expect(run({}, false).isPerfect).toBe(true);
+  });
+
+  it('ziet naamwoordelijk deel en werkwoord als aparte zinsdelen, en toetst een LV-keuze op "ondergaan"', () => {
+    const { result } = validateAnswer(sentence, splits, { ...labels, t3: 'lv' }, {}, false);
+    expect(result.chunkStatus[2]).toBe('incorrect-role');
+    expect(result.chunkStatus[3]).toBe('correct');
+    expect(result.chunkFeedback[2]).toContain('ondergaat');
+    const merged = validateAnswer(sentence, new Set([0, 1]), labels, {}, false).result;
+    expect(merged.chunkStatus[2]).toBe('incorrect-split');
   });
 
   it('eist WWD op elk werkwoord (ook de PV) en NWD op de rest als de optie aan staat', () => {
@@ -898,6 +908,41 @@ describe('validateAnswer — gezegdedelen', () => {
     const sub: PlacementMap = { b2: 'wwd', b3: 'nwd', b4: 'bijv_bep', b5: 'nwd' };
     const { result } = validateAnswer(bb, new Set([0, 1]), { b1: 'ow', b2: 'pv', b3: 'ng' }, sub, true, {}, {}, { b4: 'b5' }, undefined, true);
     expect(result.isPerfect).toBe(true);
+  });
+});
+
+describe('validateAnswer — bijwoordelijke bepaling binnen een zinsdeel (optioneel)', () => {
+  // "Hij is erg ziek": erg is een BWB bij het bijvoeglijk naamwoord ziek, geen BB
+  const tokens: Token[] = [
+    makeToken({ id: 'e1', text: 'Hij', role: 'ow' }),
+    makeToken({ id: 'e2', text: 'is', role: 'pv', subRole: 'wwd' }),
+    makeToken({ id: 'e3', text: 'erg', role: 'ng', subRole: 'bijw_bep' }),
+    makeToken({ id: 'e4', text: 'ziek.', role: 'ng', subRole: 'nwd' }),
+  ];
+  const sentence = makeSentence(tokens, { predicateType: 'NG', level: 4 });
+  const labels: PlacementMap = { e1: 'ow', e2: 'pv', e3: 'ng' };
+  const run = (subLabels: PlacementMap, opts: { bb?: boolean; bijw?: boolean; delen?: boolean } = {}) =>
+    validateAnswer(sentence, new Set([0, 1]), labels, subLabels, opts.bb ?? true, {}, {}, {}, undefined, opts.delen ?? false, opts.bijw ?? false).result;
+
+  it('vraagt de BWB standaard niet, ook niet op het hoogste niveau met BB aan', () => {
+    expect(getExpectedSubLabel(tokens[2], true)).toBeUndefined();
+    expect(getExpectedSubLabel(tokens[2], true, true)).toBe('nwd');
+    expect(run({}).isPerfect).toBe(true);
+    expect(run({ e2: 'wwd', e3: 'nwd', e4: 'nwd' }, { delen: true }).isPerfect).toBe(true);
+  });
+
+  it('vraagt de BWB wel met de schakelaar aan, en laat hem voorgaan op NWD', () => {
+    expect(getExpectedSubLabel(tokens[2], false, true, true)).toBe('bijw_bep');
+    expect(run({}, { bijw: true }).isPerfect).toBe(false);
+    expect(run({ e3: 'bijw_bep' }, { bijw: true }).isPerfect).toBe(true);
+    const asNwd = run({ e2: 'wwd', e3: 'nwd', e4: 'nwd' }, { bijw: true, delen: true });
+    expect(asNwd.chunkFeedback[2]).toBe(HINTS.GEZEGDE_DEEL_BIJW_BEP('erg'));
+  });
+
+  it('toetst bij BB in plaats van BWB het gekozen label', () => {
+    const result = run({ e3: 'bijv_bep' }, { bijw: true });
+    expect(result.chunkStatus[2]).toBe('warning');
+    expect(result.chunkFeedback[2]).toBe(HINTS.WORD_NOT_BIJV_BEP('erg'));
   });
 });
 

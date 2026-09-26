@@ -27,6 +27,17 @@ describe('zinnendata — gezegde-annotatie', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('knipt het naamwoordelijk deel los van de werkwoorden van het NG (zin 425: ernstig ziek | geworden)', () => {
+    const offenders = all.flatMap(s => s.tokens
+      .filter((t, i) => {
+        const prev = s.tokens[i - 1];
+        return prev && prev.role === 'ng' && t.role === 'ng' && !t.newChunk
+          && (prev.subRole === 'wwd') !== (t.subRole === 'wwd');
+      })
+      .map(t => `${s.id}:${t.text}`));
+    expect(offenders).toEqual([]);
+  });
+
   it('labelt werkwoorden van een werkwoordelijk gezegde niet als NG', () => {
     expect(byId(403).tokens.find(t => t.text === 'afgerond.')?.role).toBe('wg');
     expect(byId(406).tokens.filter(t => ['willen', 'komen,'].includes(t.text)).map(t => t.role)).toEqual(['wg', 'wg']);
@@ -48,6 +59,20 @@ describe('zinnendata — docentcorrecties', () => {
     const s = byId(341);
     expect(s.predicateType).toBe('NG');
     expect(s.tokens.filter(t => ['opvallend', 'stil.'].includes(t.text)).map(t => t.role)).toEqual(['ng', 'ng']);
+  });
+
+  it('een bepaling bij een bijvoeglijk naamwoord is een BWB, geen BB (zin 425: ernstig ziek)', () => {
+    const ernstig = byId(425).tokens.find(t => t.text === 'ernstig')!;
+    expect(ernstig.role).toBe('ng');
+    expect(ernstig.subRole).toBe('bijw_bep');
+    expect(ernstig.bijvBepTarget).toBeUndefined();
+  });
+
+  it('koppelt alleen een bijvoeglijke bepaling aan een doelwoord', () => {
+    const offenders = all.flatMap(s => s.tokens.flatMap(t => [t, t.bijzinAnalyse].filter(Boolean)
+      .filter(x => x!.bijvBepTarget && x!.subRole !== 'bijv_bep' && (x as typeof t).bijzinFunctie !== 'bijv_bep')
+      .map(() => `${s.id}:${t.text}`)));
+    expect(offenders).toEqual([]);
   });
 
   it('"Dat jullie de opdracht al snapten" is LV-bijzin bij vertellen (zin 440)', () => {

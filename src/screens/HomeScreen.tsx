@@ -21,6 +21,7 @@ type HomeScreenProps = Pick<TrainerState,
   | 'focusBB' | 'setFocusBB'
   | 'includeVV' | 'setIncludeVV'
   | 'includeBB' | 'setIncludeBB'
+  | 'includeBijwBep' | 'setIncludeBijwBep'
   | 'includeGezegdeDelen' | 'setIncludeGezegdeDelen'
   | 'includeBijzinAnalyse' | 'setIncludeBijzinAnalyse'
   | 'showHelp' | 'setShowHelp'
@@ -142,6 +143,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   focusBB, setFocusBB,
   includeVV, setIncludeVV,
   includeBB, setIncludeBB,
+  includeBijwBep, setIncludeBijwBep,
   includeGezegdeDelen, setIncludeGezegdeDelen,
   includeBijzinAnalyse, setIncludeBijzinAnalyse,
   bijzinOntledingAvailable,
@@ -555,6 +557,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   onChange={(v) => { setIncludeBB(v); if (!v) setFocusBB(false); }}
                   onText="Je benoemt ook de bijvoeglijke bepalingen binnen een zinsdeel."
                   offText="Hoef je niet te benoemen. De zinnen blijven hetzelfde."
+                />
+                <ToggleCard
+                  title="Bijwoordelijke bepaling in een zinsdeel"
+                  checked={includeBijwBep}
+                  onChange={setIncludeBijwBep}
+                  onText="Je benoemt ook een BWB binnen een zinsdeel, zoals 'ernstig' in 'ernstig ziek'."
+                  offText="Hoef je niet te benoemen. Het woord hoort gewoon bij zijn zinsdeel."
                 />
                 <ToggleCard
                   title="Werkwoordelijk en naamwoordelijk deel"

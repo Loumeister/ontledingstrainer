@@ -567,8 +567,7 @@
         "id": "s11t7",
         "text": "half",
         "role": "lv",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s11t9"
+        "subRole": "bijw_bep"
       },
       {
         "id": "s11t8",
@@ -2026,8 +2025,7 @@
         "id": "s45t4",
         "text": "erg",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s45t5"
+        "subRole": "bijw_bep"
       },
       {
         "id": "s45t5",
@@ -2772,7 +2770,8 @@
         "id": "s419t7",
         "text": "geworden.",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       }
     ]
   },
@@ -2823,7 +2822,8 @@
         "id": "s424t7",
         "text": "te",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       },
       {
         "id": "s424t8",
@@ -2861,8 +2861,7 @@
         "id": "s425t4",
         "text": "ernstig",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s425t5"
+        "subRole": "bijw_bep"
       },
       {
         "id": "s425t5",
@@ -2874,7 +2873,8 @@
         "id": "s425t6",
         "text": "geworden.",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       }
     ]
   },
@@ -2925,7 +2925,8 @@
         "id": "s426t7",
         "text": "te",
         "role": "ng",
-        "subRole": "wwd"
+        "subRole": "wwd",
+        "newChunk": true
       },
       {
         "id": "s426t8",
@@ -3482,8 +3483,7 @@
         "id": "s447t7",
         "text": "heel",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s447t8"
+        "subRole": "bijw_bep"
       },
       {
         "id": "s447t8",
