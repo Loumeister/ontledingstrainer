@@ -9,8 +9,9 @@
  * - Comparison walks tokens left-to-right, detecting split and label mismatches
  */
 
-import type { Sentence, Token } from '../types';
+import type { RoleKey, Sentence, Token } from '../types';
 import { ROLES } from '../constants';
+import { roleMatchesToken } from './validation';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -68,12 +69,6 @@ export interface SentenceComparisonResult {
 function getRoleLabel(key: string): string | null {
   const role = ROLES.find(r => r.key === key);
   return role ? role.shortLabel : key.toUpperCase();
-}
-
-function roleMatches(studentRole: string, token: Token): boolean {
-  if (studentRole === token.role) return true;
-  if (token.alternativeRole && studentRole === token.alternativeRole) return true;
-  return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -158,10 +153,13 @@ export function compareSentence(
   // Map: for each token index, which expected chunk does it belong to?
   const expectedChunkForToken: string[] = []; // role per token
   const expectedStartForToken: boolean[] = [];
+  const expectedTokensForToken: Token[][] = [];
   for (const chunk of expectedChunks) {
+    const chunkTokens = chunk.tokens.map(t => sentence.tokens[t.index]);
     for (const t of chunk.tokens) {
       expectedChunkForToken[t.index] = chunk.role || '';
       expectedStartForToken[t.index] = t.index === chunk.startIndex;
+      expectedTokensForToken[t.index] = chunkTokens;
     }
   }
 
@@ -190,7 +188,11 @@ export function compareSentence(
     // Only check split/label at chunk boundaries (first token of a chunk)
     // For non-boundary tokens, inherit the chunk's correctness
     const splitMatch = expectedStart === studentStart;
-    const labelMatch = studentRole !== null && roleMatches(studentRole, token);
+    // Zelfde regel als validation.ts: een label is goed als élk woord van het
+    // verwachte zinsdeel die rol (of zijn alternativeRole) heeft.
+    const expectedTokens = expectedTokensForToken[i] ?? [token];
+    const labelMatch = studentRole !== null
+      && expectedTokens.every(t => roleMatchesToken(studentRole as RoleKey, t));
 
     let errorType: ErrorType = 'correct';
     if (!splitMatch && !labelMatch) {

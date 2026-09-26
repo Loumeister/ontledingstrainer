@@ -183,6 +183,21 @@ describe('compareSentence', () => {
     expect(result.summary.splitErrors).toBe(0);
   });
 
+  it('keurt alternativeRole alleen goed als elk woord van het zinsdeel die rol toestaat (zoals validation.ts)', () => {
+    const sentence = makeSentence([
+      makeToken({ id: 's1w0', text: 'Gisteren', role: 'bwb', alternativeRole: 'vv' }),
+      makeToken({ id: 's1w1', text: 'avond', role: 'bwb' }),
+      makeToken({ id: 's1w2', text: 'liep', role: 'pv' }),
+      makeToken({ id: 's1w3', text: 'ik', role: 'ow' }),
+    ]);
+    const sol = { sp: [2, 3], lb: { s1w0: 'vv', s1w2: 'pv', s1w3: 'ow' } };
+    const result = compareSentence(sentence, sol);
+
+    expect(result.summary.splitErrors).toBe(0);
+    expect(result.summary.labelErrors).toBe(1);
+    expect(result.tokenComparisons[0].errorType).toBe('benoeming');
+  });
+
   it('handles missing student splits (fewer chunks than expected)', () => {
     const sentence = makeSentence([
       makeToken({ id: 's1w0', text: 'De', role: 'ow' }),
