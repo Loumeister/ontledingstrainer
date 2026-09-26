@@ -143,6 +143,15 @@ describe('tallySentenceRoles', () => {
     expect(correct).toEqual({ lv: 1 });
   });
 
+  it('telt een goedgekeurde tweede lezing bij de gekozen rol, niet bij de hoofdrol', () => {
+    const alt = makeSentence(2, ['ow', 'pv', 'vv', 'vv']);
+    alt.tokens[2].alternativeRole = 'bwb';
+    alt.tokens[3].alternativeRole = 'bwb';
+    const pp = { tokens: alt.tokens.slice(2, 4) };
+    expect(tallySentenceRoles([pp], { 0: 'correct' }, { [alt.tokens[2].id]: 'bwb' })).toEqual({ seen: { bwb: 1 }, correct: { bwb: 1 } });
+    expect(tallySentenceRoles([pp], { 0: 'incorrect-role' }, { [alt.tokens[2].id]: 'lv' })).toEqual({ seen: { vv: 1 }, correct: {} });
+  });
+
   it('telt niets bij een verdelingsfout of een zinsdeel buiten de trede', () => {
     const { seen, correct } = tallySentenceRoles([chunk(0, 6)], { 0: 'incorrect-split' });
     expect(seen).toEqual({});

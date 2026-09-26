@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { Sentence } from '../types';
 import { getBijzinAnalyseProblems, getBijzinTokenGroups } from '../logic/bijzinAnalysis';
-import { BETREKKELIJKE_BIJZIN_LEVEL, roleMatchesToken } from '../logic/validation';
+import { BETREKKELIJKE_BIJZIN_LEVEL, roleMatchesToken, validateAnswer, getExpectedPredicateType } from '../logic/validation';
 import { ROLES_PER_LEVEL } from '../constants';
 import level0 from './sentences-level-0.json';
 import level1 from './sentences-level-1.json';
@@ -29,6 +29,31 @@ describe('zinnendata — identiteit', () => {
 
   it('heeft in elke zin een persoonsvorm', () => {
     expect(all.filter(s => !s.tokens.some(t => t.role === 'pv')).map(s => s.id)).toEqual([]);
+  });
+});
+
+describe('zinnendata — eigen annotatie is na te maken', () => {
+  it('rekent het antwoord volgens de annotatie in elke zin volledig goed', () => {
+    // Vangt o.a. een alternativeRole die de verplichte knip met het vorige zinsdeel opheft (zin 91).
+    const fout = all.flatMap(s => {
+      const splits = new Set<number>();
+      s.tokens.forEach((t, i) => { const n = s.tokens[i + 1]; if (n && (n.role !== t.role || n.newChunk)) splits.add(i); });
+      const labels: Record<string, string> = {};
+      const gezegde: Record<string, string> = {};
+      const functie: Record<string, string> = {};
+      let begin = true;
+      s.tokens.forEach((t, i) => {
+        if (begin) {
+          labels[t.id] = t.role;
+          if (t.role === 'pv') gezegde[t.id] = getExpectedPredicateType(s, t.id);
+          if (t.bijzinFunctie) functie[t.id] = t.bijzinFunctie;
+        }
+        begin = splits.has(i);
+      });
+      const { result } = validateAnswer(s, splits, labels as never, {}, false, functie as never, {}, {}, gezegde as never);
+      return Object.entries(result.chunkStatus).filter(([, v]) => v !== 'correct').map(([i, v]) => `${s.id}:${i} ${v}`);
+    });
+    expect(fout).toEqual([]);
   });
 });
 
