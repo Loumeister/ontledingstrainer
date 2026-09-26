@@ -1,5 +1,86 @@
 [
   {
+    "id": 131,
+    "label": "Zin 131: Verheugen",
+    "predicateType": "WG",
+    "level": 3,
+    "tokens": [
+      {
+        "id": "s131t1",
+        "text": "Wij",
+        "role": "ow"
+      },
+      {
+        "id": "s131t2",
+        "text": "verheugen",
+        "role": "pv"
+      },
+      {
+        "id": "s131t3",
+        "text": "ons",
+        "role": "wg"
+      },
+      {
+        "id": "s131t4",
+        "text": "op",
+        "role": "vv"
+      },
+      {
+        "id": "s131t5",
+        "text": "het",
+        "role": "vv"
+      },
+      {
+        "id": "s131t6",
+        "text": "schoolreisje.",
+        "role": "vv"
+      }
+    ]
+  },
+  {
+    "id": 132,
+    "label": "Zin 132: Scheren",
+    "predicateType": "WG",
+    "level": 3,
+    "tokens": [
+      {
+        "id": "s132t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s132t2",
+        "text": "acteur",
+        "role": "ow"
+      },
+      {
+        "id": "s132t3",
+        "text": "scheert",
+        "role": "pv"
+      },
+      {
+        "id": "s132t4",
+        "text": "zich",
+        "role": "wg"
+      },
+      {
+        "id": "s132t5",
+        "text": "voor",
+        "role": "bwb"
+      },
+      {
+        "id": "s132t6",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s132t7",
+        "text": "spiegel.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
     "id": 300,
     "label": "Zin 300: Oom Kees",
     "predicateType": "WG",
@@ -40,7 +121,9 @@
       {
         "id": "s300t7",
         "text": "elke",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s300t8"
       },
       {
         "id": "s300t8",
@@ -235,7 +318,9 @@
         "id": "s303t11",
         "text": "iedere",
         "role": "bwb",
-        "newChunk": true
+        "newChunk": true,
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s303t12"
       },
       {
         "id": "s303t12",
@@ -588,7 +673,9 @@
       {
         "id": "s308t8",
         "text": "alle",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s308t9"
       },
       {
         "id": "s308t9",
@@ -1295,7 +1382,7 @@
     "tokens": [
       {
         "id": "s319t1",
-        "text": "De",
+        "text": "Het",
         "role": "ow"
       },
       {
@@ -1765,7 +1852,9 @@
       {
         "id": "s326t12",
         "text": "ons",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s326t13"
       },
       {
         "id": "s326t13",
@@ -2089,7 +2178,7 @@
       },
       {
         "id": "s331t8",
-        "text": "zijn",
+        "text": "zijn.",
         "role": "ng",
         "subRole": "wwd"
       }
@@ -2333,7 +2422,9 @@
       {
         "id": "s336t9",
         "text": "die",
-        "role": "bwb"
+        "role": "bwb",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s336t10"
       },
       {
         "id": "s336t10",
@@ -2834,6 +2925,39 @@
     ],
     "structuralTags": [
       "samengestelde tijd"
+    ]
+  },
+  {
+    "id": 470,
+    "label": "Zin 470: Mijn broertjes vervelen zich",
+    "predicateType": "WG",
+    "level": 3,
+    "tokens": [
+      {
+        "id": "s470t1",
+        "text": "Mijn",
+        "role": "ow",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s470t2"
+      },
+      {
+        "id": "s470t2",
+        "text": "broertjes",
+        "role": "ow"
+      },
+      {
+        "id": "s470t3",
+        "text": "vervelen",
+        "role": "pv"
+      },
+      {
+        "id": "s470t4",
+        "text": "zich.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "wederkerend werkwoord"
     ]
   }
 ]
