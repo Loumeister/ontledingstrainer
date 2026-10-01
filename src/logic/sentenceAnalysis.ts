@@ -111,12 +111,14 @@ export function buildStudentChunks(
   sol: { sp: number[]; lb: Record<string, string> },
 ): ChunkInfo[] {
   const chunks: ChunkInfo[] = [];
+  // sp bevat de index van het laatste woord van elk zinsdeel, net als
+  // splitIndices in buildUserChunks (validation.ts) en useTrainer.
   const splitSet = new Set(sol.sp);
   let currentChunk: ChunkInfo | null = null;
 
   for (let i = 0; i < sentence.tokens.length; i++) {
     const token = sentence.tokens[i];
-    const isNewChunk = i === 0 || splitSet.has(i);
+    const isNewChunk = i === 0 || splitSet.has(i - 1);
 
     if (isNewChunk) {
       if (currentChunk) chunks.push(currentChunk);
