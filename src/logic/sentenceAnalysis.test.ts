@@ -196,6 +196,12 @@ describe('compareSentence', () => {
     expect(result.summary.splitErrors).toBe(0);
     expect(result.summary.labelErrors).toBe(1);
     expect(result.tokenComparisons[0].errorType).toBe('benoeming');
+
+    // Splitst de leerling het zinsdeel, dan telt alleen het eigen woord: alleen een groeperingsfout
+    const splitSol = { sp: [1, 2, 3], lb: { s1w0: 'vv', s1w1: 'bwb', s1w2: 'pv', s1w3: 'ow' } };
+    const splitResult = compareSentence(sentence, splitSol);
+    expect(splitResult.summary.labelErrors).toBe(0);
+    expect(splitResult.summary.splitErrors).toBe(1);
   });
 
   it('handles missing student splits (fewer chunks than expected)', () => {

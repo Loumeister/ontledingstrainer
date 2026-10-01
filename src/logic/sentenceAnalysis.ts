@@ -9,7 +9,7 @@
  * - Comparison walks tokens left-to-right, detecting split and label mismatches
  */
 
-import type { RoleKey, Sentence, Token } from '../types';
+import type { RoleKey, Sentence } from '../types';
 import { ROLES } from '../constants';
 import { roleMatchesToken } from './validation';
 
@@ -153,25 +153,26 @@ export function compareSentence(
   // Map: for each token index, which expected chunk does it belong to?
   const expectedChunkForToken: string[] = []; // role per token
   const expectedStartForToken: boolean[] = [];
-  const expectedTokensForToken: Token[][] = [];
-  for (const chunk of expectedChunks) {
-    const chunkTokens = chunk.tokens.map(t => sentence.tokens[t.index]);
+  const expectedChunkIndexForToken: number[] = [];
+  expectedChunks.forEach((chunk, chunkIndex) => {
     for (const t of chunk.tokens) {
       expectedChunkForToken[t.index] = chunk.role || '';
       expectedStartForToken[t.index] = t.index === chunk.startIndex;
-      expectedTokensForToken[t.index] = chunkTokens;
+      expectedChunkIndexForToken[t.index] = chunkIndex;
     }
-  }
+  });
 
   // Map: for each token index, which student chunk / role?
   const studentRoleForToken: (string | null)[] = [];
   const studentStartForToken: boolean[] = [];
-  for (const chunk of studentChunks) {
+  const studentChunkIndexForToken: number[] = [];
+  studentChunks.forEach((chunk, chunkIndex) => {
     for (const t of chunk.tokens) {
       studentRoleForToken[t.index] = chunk.role;
       studentStartForToken[t.index] = t.index === chunk.startIndex;
+      studentChunkIndexForToken[t.index] = chunkIndex;
     }
-  }
+  });
 
   let splitErrors = 0;
   let labelErrors = 0;
@@ -188,11 +189,15 @@ export function compareSentence(
     // Only check split/label at chunk boundaries (first token of a chunk)
     // For non-boundary tokens, inherit the chunk's correctness
     const splitMatch = expectedStart === studentStart;
-    // Zelfde regel als validation.ts: een label is goed als élk woord van het
-    // verwachte zinsdeel die rol (of zijn alternativeRole) heeft.
-    const expectedTokens = expectedTokensForToken[i] ?? [token];
+    // Zelfde regel als validation.ts: een label is goed als élk woord dat het
+    // dekt die rol (of zijn alternativeRole) heeft. We kijken naar de woorden
+    // die zowel in dit verwachte als in dit leerlingzinsdeel vallen; bij een
+    // juiste verdeling is dat het hele zinsdeel.
+    const coveredTokens = sentence.tokens.filter((_, j) =>
+      expectedChunkIndexForToken[j] === expectedChunkIndexForToken[i]
+      && studentChunkIndexForToken[j] === studentChunkIndexForToken[i]);
     const labelMatch = studentRole !== null
-      && expectedTokens.every(t => roleMatchesToken(studentRole as RoleKey, t));
+      && coveredTokens.every(t => roleMatchesToken(studentRole as RoleKey, t));
 
     let errorType: ErrorType = 'correct';
     if (!splitMatch && !labelMatch) {
