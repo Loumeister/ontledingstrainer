@@ -1,0 +1,10 @@
+# Local HTTPS worker or Vite same-origin proxy only. Never use production data locally.
+APP_ORIGIN=http://localhost:5173
+GOOGLE_CLIENT_ID=CONFIGURE.apps.googleusercontent.com
+OWNER_EMAILS=owner@example.invalid
+TEACHER_EMAILS=teacher@example.invalid
+EDITOR_EMAILS=editor@example.invalid
+STUDENT_EMAILS=
+REPORTS_PER_DAY=10000
+SESSION_SECONDS=3600
+ALLOW_LOCAL_HTTP=true
