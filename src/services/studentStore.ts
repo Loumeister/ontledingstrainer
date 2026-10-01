@@ -74,6 +74,21 @@ export function getStudentById(id: string): Student | null {
 }
 
 /**
+ * Zoek een bestaande student op naam+klas (case-insensitief), zonder iets aan
+ * te maken. `null` bij een lege naam of als er geen record is.
+ */
+export function findStudent(name: string, klas: string): Student | null {
+  const normName = name.trim().toLowerCase();
+  const normKlas = klas.trim().toLowerCase();
+  if (!normName) return null;
+  return getStudents().find(
+    s =>
+      s.name.trim().toLowerCase() === normName &&
+      s.klas.trim().toLowerCase() === normKlas,
+  ) ?? null;
+}
+
+/**
  * Zoek een bestaande student op naam+klas (case-insensitief).
  * Als geen match gevonden, maak een nieuwe Student aan en sla op.
  * Gebruikt voor het koppelen van een sessie aan een stabiel student-id.
@@ -97,13 +112,9 @@ export function getOrCreateStudent(
     };
   }
 
-  const students = getStudents();
-  const existing = students.find(
-    s =>
-      s.name.trim().toLowerCase() === normName &&
-      s.klas.trim().toLowerCase() === normKlas,
-  );
+  const existing = findStudent(name, klas);
   if (existing) return existing;
+  const students = getStudents();
 
   const newStudent: Student = {
     id: generateStudentId(),
