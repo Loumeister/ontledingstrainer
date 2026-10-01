@@ -134,10 +134,12 @@ class AnalyseTest(unittest.TestCase):
         def row(i, setup, chunk, **extra):
             return {'id': i, 'setup': setup, 'chunk': chunk, 'gold': 'ow', 'accepted': ['ow'], **extra}
         rows = [row(1, 'A_bare', 'wij', start=0), row(1, 'B_gold', 'wij', start=0),       # compleet
+                row(1, 'B_mut', 'wij', start=0),
                 row(2, 'A_bare', 'hij', start=0), row(2, 'A_bare', 'zij', start=2),       # B_gold ontbreekt deels
                 row(2, 'B_gold', 'hij', start=0),
                 row(3, 'A_bare', 'wij'), row(3, 'A_bare', 'wij'), row(3, 'A_bare', 'kip'),  # meting 1: dubbele tekst
-                row(3, 'B_gold', 'wij'), row(3, 'B_gold', 'wij'), row(3, 'B_gold', 'kip'),
+                row(3, 'B_gold', 'wij'), row(3, 'B_gold', 'wij'), row(3, 'B_gold', 'kip'), row(3, 'B_mut', 'kip'),
+                row(5, 'A_bare', 'zij', start=0), row(5, 'B_gold', 'zij', start=0),       # verwisseling ontbreekt
                 row(4, 'A_bare', 'ik', start=0)]                                           # afgebroken laatste zin
         with tempfile.TemporaryDirectory() as d:
             path = Path(d) / 'rows.jsonl.gz'

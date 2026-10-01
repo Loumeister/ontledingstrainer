@@ -73,7 +73,7 @@ Geraadpleegd: *Online Dutch Grammar Course* (dutchgrammar.com, woordvolgorde en 
 - **Zekerheid is bruikbaar**: classificatie met confidence ≥ 0,8 klopte in beide metingen voor 99–100% met de annotatie. Verificatie met noul < 0,3 geeft bijna geen vals alarm (0,2–0,7%), maar vindt maar 45–48% van de ingebouwde fouten.
 - **Zwak juist op de didactische kern**: MV (45–50%) en BWB → VV (9–47% gevonden). Daar blijft een mens nodig.
 - **Externe validatie (gold-set) weerlegt Drex als foutdetector**: van de gemarkeerde zinsdelen bleek na herbeoordeling maar een klein deel echt fout geannoteerd; de vooraf vastgelegde regel zegt "stoppen" (`resultaten/2026-09-26-goldset-compleet.md`). Het corpus is daarvoor te schoon, en bij lijdende zinnen maakt Drex dezelfde fout als een menselijke beoordelaar.
-- **Enige zekere afwijking**: zin 5008 *Wij luisteren **naar muziek*** staat als BWB, terwijl zin 435 *luisteren **naar de trainer*** als VV staat.
+- **Gevonden annotatiefouten**: in de metingen was zin 5008 *Wij luisteren **naar muziek*** (BWB, terwijl 435 *luisteren **naar de trainer*** VV is) de enige afwijking waar Drex zeker was. In de gold-set zijn na herbeoordeling 304 (*aan de kijker*: MV) en 5008 (VV) bevestigde annotatiefouten. 118 en 461 heeft de beoordelaar blind fout genoemd, maar die zijn niet herbeoordeeld; ze tellen in de vastgelegde cijfers mee als fout. Correcties staan in #175.
 
 ## Externe validatie (gold-set)
 

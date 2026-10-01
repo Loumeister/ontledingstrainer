@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from schema import TARGET_ROLES, agrees  # noqa: E402
+from schema import TARGET_ROLES, agrees, mutate  # noqa: E402
 
 CLASSIFY_THRESHOLDS = (0.2, 0.3, 0.5)
 VERIFY_THRESHOLDS = (0.3, 0.5, 0.7)
@@ -49,9 +49,12 @@ def load(path, notes=None):
     classify = {r['setup'] for r in rows if r['setup'] in CLASSIFY_SETUPS}
     drop = set()
     for sid, rs in by_sentence.items():
-        n = sum(r['setup'] == 'B_gold' for r in rs)
+        gold = [r for r in rs if r['setup'] == 'B_gold']
+        n = len(gold)
         counts = collections.Counter(r['setup'] for r in rs)
-        if n == 0 or any(counts[c] != n for c in classify) or counts['B_mut'] > 1:
+        # measure.py schrijft precies één B_mut als minstens één zinsdeel een verwisseling toelaat, anders geen.
+        expected_mut = int(any(mutate(r['gold'], r['chunk']) for r in gold))
+        if n == 0 or any(counts[c] != n for c in classify) or counts['B_mut'] != expected_mut:
             drop.add(sid)
     if truncated and rows:
         drop.add(rows[-1]['id'])
