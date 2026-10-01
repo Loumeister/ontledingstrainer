@@ -7,7 +7,10 @@ import {
   computeRecentSentences,
   sentenceRecencyKey,
   RoleConfidence,
+  findHistoryStudentId,
+  resolveHistoryStudentId,
 } from './adaptiveSelection';
+import { getStudents } from '../services/studentStore';
 import type { Sentence, RoleKey, SessionHistoryEntry } from '../types';
 
 // ---------------------------------------------------------------------------
@@ -272,5 +275,27 @@ describe('selectAdaptiveQueue', () => {
     }
     expect(mv / 1000).toBeGreaterThan(0.15);
     expect(mv / 1000).toBeLessThan(0.25);
+  });
+});
+
+describe('findHistoryStudentId', () => {
+  const mem: Record<string, string> = {};
+  beforeEach(() => {
+    Object.keys(mem).forEach(k => delete mem[k]);
+    vi.stubGlobal('localStorage', {
+      getItem: (k: string) => mem[k] ?? null,
+      setItem: (k: string, v: string) => { mem[k] = v; },
+      removeItem: (k: string) => { delete mem[k]; },
+    });
+  });
+
+  it('maakt geen student aan en geeft daarna hetzelfde id als bij opslaan', () => {
+    expect(findHistoryStudentId('Sam', 'b', '1a')).toBeNull();
+    expect(getStudents()).toHaveLength(0);
+
+    const saved = resolveHistoryStudentId('Sam', 'b', '1a');
+    expect(saved).not.toBeNull();
+    expect(findHistoryStudentId('Sam', 'b', '1a')).toBe(saved);
+    expect(findHistoryStudentId('Sam', 'k', '1a')).not.toBe(saved);
   });
 });
