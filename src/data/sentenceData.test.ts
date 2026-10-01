@@ -139,11 +139,13 @@ describe('zinnendata — gold-set 2026-09 (blinde docentbeoordeling)', () => {
     for (const label of [role, alt]) expect(chunk.every(t => roleMatchesToken(label, t))).toBe(true);
   });
 
-  it('VV/BWB-paar 3 houdt zijn contrast zonder tweede lezing: denken aan (VV) tegenover zitten aan (BWB)', () => {
+  it('VV/BWB-paar 3 houdt zijn contrast zonder tweede lezing: denken aan (VV, 441) tegenover zitten aan (BWB, 517)', () => {
     const pp = (id: number) => byId(id).tokens.slice(3);
-    expect(byId(442).tokens.map(t => t.text).join(' ')).toBe('De leerlingen zitten aan de tafel.');
+    // Nieuw id: 442 (schrijven aan de toets) is verwijderd, zodat oude gebruiksgegevens niet aan deze zin hangen.
+    expect(all.some(s => s.id === 442)).toBe(false);
+    expect(byId(517).tokens.map(t => t.text).join(' ')).toBe('De leerlingen zitten aan de tafel.');
     expect(pp(441).map(t => [t.text, t.role, t.alternativeRole])).toEqual([['aan', 'vv', undefined], ['de', 'vv', undefined], ['toets.', 'vv', undefined]]);
-    expect(pp(442).map(t => [t.text, t.role, t.alternativeRole])).toEqual([['aan', 'bwb', undefined], ['de', 'bwb', undefined], ['tafel.', 'bwb', undefined]]);
+    expect(pp(517).map(t => [t.text, t.role, t.alternativeRole])).toEqual([['aan', 'bwb', undefined], ['de', 'bwb', undefined], ['tafel.', 'bwb', undefined]]);
   });
 
   it('staat met de tweede lezing VV op een niveau waar VV kiesbaar is (zin 505)', () => {

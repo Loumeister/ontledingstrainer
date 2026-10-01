@@ -56,7 +56,10 @@ const LABEL_TO_KEY = new Map<string, RoleKey>(ROLES.map(r => [r.label, r.key]));
  * daarvan goed waren, uit de chunkstatus van validateAnswer.
  * Alleen goed verdeelde zinsdelen tellen: bij een verdelingsfout (of een
  * zinsdeel buiten de actieve trede, status null) is de rol niet beoordeeld.
- * Een waarschuwing telt als goed als het hoofdlabel klopt (de waarschuwing
+ * De rol is het label van de leerling als de leerlingbeoordeling dat goedkeurt
+ * (elk woord heeft die rol of die alternativeRole), anders de hoofdrol van het
+ * zinsdeel. Zo telt een goedgekeurde tweede lezing bij de gekozen rol.
+ * Een waarschuwing telt als goed als dat label is goedgekeurd (de waarschuwing
  * gaat dan over bijzinfunctie of verwijzing), anders als gezien maar fout.
  */
 export function tallySentenceRoles(

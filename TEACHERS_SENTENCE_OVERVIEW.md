@@ -362,7 +362,6 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 437 | De ouders wachten op de bus. | OW · PV · VZV | WG |
 | 438 | De ouders springen op de bus. | OW · PV · BWB | WG |
 | 441 | De leerlingen denken aan de toets. | OW · PV · VZV | WG |
-| 442 | De leerlingen zitten aan de tafel. | OW · PV · BWB | WG |
 | 449 | Roosmarijn is alsnog manager geworden. | OW · PV · BWB · NG | NG |
 | 451 | Met die kleuren is het bos prachtig dit seizoen. | BWB · PV · OW · NG · BWB | NG |
 | 452 | Vincent is nooit een betrouwbare jongen geweest. | OW · PV · BWB · NG | NG |
@@ -382,6 +381,7 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 514 | Aan mijn opa is een lintje toegekend. | MV · PV · OW · WG | WG |
 | 515 | Is aan iedereen een rooster gestuurd? | PV · MV · OW · WG | WG |
 | 516 | Tijdens de les werd ons een korte film getoond. | BWB · PV · MV · OW · WG | WG |
+| 517 | De leerlingen zitten aan de tafel. | OW · PV · BWB | WG |
 | 5008 | Wij luisteren naar muziek. | OW · PV · VZV | WG |
 
 ### Hoog (3)
