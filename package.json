@@ -8,6 +8,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "docs:zinnen": "vitest run src/logic/sentenceOverview.test.ts -u",
     "clean-install": "rm -rf node_modules package-lock.json && npm install"
   },
   "dependencies": {

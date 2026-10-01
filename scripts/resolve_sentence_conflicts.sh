@@ -6,7 +6,8 @@
 #   bash scripts/resolve_sentence_conflicts.sh ours
 #   bash scripts/resolve_sentence_conflicts.sh theirs
 #
-# Na de keuze worden de bestanden gestaged en gevalideerd.
+# Na de keuze worden de bestanden gestaged en gevalideerd, en wordt het
+# docentoverzicht (TEACHERS_SENTENCE_OVERVIEW.md) opnieuw gegenereerd.
 
 set -euo pipefail
 
@@ -17,6 +18,7 @@ if [[ "$SIDE" != "ours" && "$SIDE" != "theirs" ]]; then
 fi
 
 FILES=(
+  src/data/sentences-level-0.json
   src/data/sentences-level-1.json
   src/data/sentences-level-2.json
   src/data/sentences-level-3.json
@@ -34,5 +36,9 @@ for f in "${FILES[@]}"; do
 done
 
 echo ""
-echo "Validating dataset..."
-node scripts/regenerate_sentence_docs_and_validate.cjs
+echo "Zinnendata controleren..."
+npx vitest run src/data/sentenceData.test.ts
+
+echo "Docentoverzicht bijwerken..."
+npm run docs:zinnen
+git add TEACHERS_SENTENCE_OVERVIEW.md

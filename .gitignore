@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Server-side secrets (DREX_API_KEY). Nooit committen; geen VITE_-prefix, anders belandt de sleutel in de bundel.
+.env
+
 # AI agent runtime caches (never commit)
 .ai-sync/
 
