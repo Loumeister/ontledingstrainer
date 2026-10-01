@@ -145,9 +145,9 @@ function PairCard({ sourceRole, targetRole, builtinEntry, override, onSave, onRe
       >
         <span className="text-slate-400 text-xs w-4 shrink-0">{expanded ? '▼' : '▶'}</span>
         <span className="text-xs font-medium text-slate-700 dark:text-slate-200 flex-1">
-          <span className="text-slate-500 dark:text-slate-400">Als leerling </span>
+          <span className="text-slate-500 dark:text-slate-400">Leerling kiest </span>
           <span className="font-semibold">{sourceLabel}</span>
-          <span className="text-slate-500 dark:text-slate-400"> aanwijst als </span>
+          <span className="text-slate-500 dark:text-slate-400">, maar het is </span>
           <span className="font-semibold">{targetLabel}</span>
         </span>
         {isOverridden && (

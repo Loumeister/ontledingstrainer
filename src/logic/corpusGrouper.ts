@@ -102,6 +102,8 @@ export function groupSentencesBySlotSignature(
  * Extraheert de tokens van een specifiek slot (rol) uit een zin.
  * Behandelt newChunk: tokens die niet bij het eerste chunk van die rol horen
  * worden NIET opgenomen (we nemen altijd het eerste chunk van elke rol).
+ * Uitzondering: bij het NG zijn naamwoordelijk deel en werkwoordelijk deel aparte
+ * zinsdelen, maar op één kaart houden we ze samen ('ziek' + 'geworden').
  */
 function extractSlotTokens(
   sentence: Sentence,
@@ -118,7 +120,7 @@ function extractSlotTokens(
         // Begin van het eerste chunk van dit slot
         inSlot = true;
         result.push({ text: token.text, role: token.role, subRole: token.subRole });
-      } else if (token.newChunk) {
+      } else if (token.newChunk && slot !== 'ng') {
         // Nieuw chunk van hetzelfde slot → stop (neem alleen het eerste chunk)
         break;
       } else {

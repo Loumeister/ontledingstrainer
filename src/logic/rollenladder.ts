@@ -65,7 +65,7 @@ export const LADDER_STAGES: LadderStage[] = [
     id: 8,
     name: 'Samengestelde zinnen',
     question: 'Wat is de functie van de bijzin (bijzinlabel)?',
-    activeRoles: ['pv', 'ow', 'wg', 'ng', 'wwd', 'nwd', 'lv', 'mv', 'bwb', 'vv', 'bijst', 'bijzin', 'vw_neven', 'vw_onder', 'bijv_bep'],
+    activeRoles: ['pv', 'ow', 'wg', 'ng', 'wwd', 'nwd', 'lv', 'mv', 'bwb', 'vv', 'bijst', 'bijzin', 'vw_neven', 'vw_onder', 'bijv_bep', 'bijw_bep'],
     maxSentenceLevel: 4,
   },
 ];
