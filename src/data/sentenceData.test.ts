@@ -117,14 +117,23 @@ describe('zinnendata — docentcorrecties', () => {
 });
 
 describe('zinnendata — gold-set 2026-09 (blinde docentbeoordeling)', () => {
-  it('"luisteren naar" is een voorzetselvoorwerp en staat daarom pas op niveau 2 (zin 5008)', () => {
-    const s = byId(5008);
+  it('geeft zinnen met een gewijzigde antwoordsleutel een nieuw id, zodat oude pogingen niet tegen de nieuwe sleutel worden gelezen', () => {
+    // Gebruiksgegevens, docentnotities en rapporten zijn alleen op zin-id opgeslagen.
+    // 81 → 518 (NG → WG met BWB), 304 → 519 (VV → MV), 5008 → 520 (BWB → VV), 442 → 517 (andere zin).
+    expect(all.filter(s => [81, 304, 442, 5008].includes(s.id))).toEqual([]);
+    expect(byId(518).tokens.map(t => t.text).join(' ')).toBe('De journalist noemde de politicus tijdens het debat een gevaarlijke populist.');
+    expect(byId(519).tokens.map(t => t.text).join(' ')).toBe('Door die ex-voetballer wordt aan de kijker een geweldige analyse gegeven.');
+    expect(byId(520).tokens.map(t => t.text).join(' ')).toBe('Wij luisteren naar muziek.');
+  });
+
+  it('"luisteren naar" is een voorzetselvoorwerp en staat daarom pas op niveau 2 (zin 520)', () => {
+    const s = byId(520);
     expect(s.level).toBe(2);
     expect(s.tokens.filter(t => ['naar', 'muziek.'].includes(t.text)).map(t => t.role)).toEqual(['vv', 'vv']);
   });
 
-  it('"aan de kijker" is het meewerkend voorwerp bij geven (zin 304)', () => {
-    expect(byId(304).tokens.filter(t => ['aan', 'de', 'kijker'].includes(t.text)).map(t => t.role)).toEqual(['mv', 'mv', 'mv']);
+  it('"aan de kijker" is het meewerkend voorwerp bij geven (zin 519)', () => {
+    expect(byId(519).tokens.filter(t => ['aan', 'de', 'kijker'].includes(t.text)).map(t => t.role)).toEqual(['mv', 'mv', 'mv']);
   });
 
   it.each([
@@ -141,8 +150,6 @@ describe('zinnendata — gold-set 2026-09 (blinde docentbeoordeling)', () => {
 
   it('VV/BWB-paar 3 houdt zijn contrast zonder tweede lezing: denken aan (VV, 441) tegenover zitten aan (BWB, 517)', () => {
     const pp = (id: number) => byId(id).tokens.slice(3);
-    // Nieuw id: 442 (schrijven aan de toets) is verwijderd, zodat oude gebruiksgegevens niet aan deze zin hangen.
-    expect(all.some(s => s.id === 442)).toBe(false);
     expect(byId(517).tokens.map(t => t.text).join(' ')).toBe('De leerlingen zitten aan de tafel.');
     expect(pp(441).map(t => [t.text, t.role, t.alternativeRole])).toEqual([['aan', 'vv', undefined], ['de', 'vv', undefined], ['toets.', 'vv', undefined]]);
     expect(pp(517).map(t => [t.text, t.role, t.alternativeRole])).toEqual([['aan', 'bwb', undefined], ['de', 'bwb', undefined], ['tafel.', 'bwb', undefined]]);
@@ -152,8 +159,8 @@ describe('zinnendata — gold-set 2026-09 (blinde docentbeoordeling)', () => {
     expect(ROLES_PER_LEVEL[byId(505).level]).toContain('vv');
   });
 
-  it('annoteert noemen + naamwoordgroep overal als WG met BWB (zinnen 81, 312)', () => {
-    for (const id of [81, 312]) {
+  it('annoteert noemen + naamwoordgroep overal als WG met BWB (zinnen 518, 312)', () => {
+    for (const id of [518, 312]) {
       const s = byId(id);
       expect(s.predicateType).toBe('WG');
       expect(s.tokens.some(t => t.role === 'ng')).toBe(false);

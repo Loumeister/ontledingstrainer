@@ -275,7 +275,6 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 78 | Helaas serveerde de chef zijn gasten tijdens het jubileumfeest een aangebrand hoofdgerecht. | BWB · PV · OW · MV · BWB · LV | WG |
 | 79 | De nieuwe strategie is volgens recente onderzoeken aanzienlijk effectiever dan de vorige. | OW · PV · BWB · NG | NG |
 | 80 | Tegenwoordig wil de overheid in drukke stadscentra de luchtkwaliteit verbeteren. | BWB · PV · OW · BWB · LV · WG | WG |
-| 81 | De journalist noemde de politicus tijdens het debat een gevaarlijke populist. | OW · PV · LV · BWB · BWB | WG |
 | 82 | Op de parkeerplaats werden twee auto’s door onbekenden opengebroken. | BWB · PV · OW · BWB · WG | WG |
 | 83 | Hebben jullie hem gisteren nog een eerlijke kans gegeven? | PV · OW · MV · BWB · BWB · LV · WG | WG |
 | 84 | De directeur laat zijn assistent alle documenten zorgvuldig archiveren. | OW · PV · MV · LV · BWB · WG | WG |
@@ -382,7 +381,8 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 515 | Is aan iedereen een rooster gestuurd? | PV · MV · OW · WG | WG |
 | 516 | Tijdens de les werd ons een korte film getoond. | BWB · PV · MV · OW · WG | WG |
 | 517 | De leerlingen zitten aan de tafel. | OW · PV · BWB | WG |
-| 5008 | Wij luisteren naar muziek. | OW · PV · VZV | WG |
+| 518 | De journalist noemde de politicus tijdens het debat een gevaarlijke populist. | OW · PV · LV · BWB · BWB | WG |
+| 520 | Wij luisteren naar muziek. | OW · PV · VZV | WG |
 
 ### Hoog (3)
 
@@ -394,7 +394,6 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 301 | De chef-kok, meneer Lu, werd vanmorgen woedend. | OW · BIJST · PV · BWB · NG | NG |
 | 302 | Weet jij waarom hij zo boos is? | PV · OW · BIJZIN (LV) | WG |
 | 303 | Ondanks zijn schoolverplichtingen sliep de 14-jarige jongen sinds de meivakantie iedere ochtend uit. | BWB · PV · OW · BWB · BWB · WG | WG |
-| 304 | Door die ex-voetballer wordt aan de kijker een geweldige analyse gegeven. | BWB · PV · MV · OW · WG | WG |
 | 305 | De journalist leek tijdens het debat de nieuwe minister met zijn voorganger te vergelijken. | OW · PV · BWB · LV · VZV · WG | WG |
 | 306 | Tijdens een zoektocht naar zijn ouders werd hem inzicht in zijn herkomst geschonken. | BWB · PV · MV · OW · WG | WG |
 | 307 | De bioloog scheen op excursie een zeepaardje met een kogelvis te verwarren. | OW · PV · BWB · LV · VZV · WG | WG |
@@ -434,6 +433,7 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 454 | Taco is nooit een erg productieve werknemer geweest. | OW · PV · BWB · NG | NG |
 | 456 | Die snelle telefoon is veel te duur geworden. | OW · PV · NG | NG |
 | 470 | Mijn broertjes vervelen zich. | OW · PV · WG | WG |
+| 519 | Door die ex-voetballer wordt aan de kijker een geweldige analyse gegeven. | BWB · PV · MV · OW · WG | WG |
 
 ### Samengesteld (4)
 

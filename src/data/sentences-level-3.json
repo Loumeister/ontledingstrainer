@@ -335,67 +335,67 @@
     ]
   },
   {
-    "id": 304,
-    "label": "Zin 304: Ex-voetballer",
+    "id": 519,
+    "label": "Zin 519: Ex-voetballer",
     "predicateType": "WG",
     "level": 3,
     "tokens": [
       {
-        "id": "s304t1",
+        "id": "s519t1",
         "text": "Door",
         "role": "bwb"
       },
       {
-        "id": "s304t2",
+        "id": "s519t2",
         "text": "die",
         "role": "bwb",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s304t3"
+        "bijvBepTarget": "s519t3"
       },
       {
-        "id": "s304t3",
+        "id": "s519t3",
         "text": "ex-voetballer",
         "role": "bwb"
       },
       {
-        "id": "s304t4",
+        "id": "s519t4",
         "text": "wordt",
         "role": "pv"
       },
       {
-        "id": "s304t5",
+        "id": "s519t5",
         "text": "aan",
         "role": "mv"
       },
       {
-        "id": "s304t6",
+        "id": "s519t6",
         "text": "de",
         "role": "mv"
       },
       {
-        "id": "s304t7",
+        "id": "s519t7",
         "text": "kijker",
         "role": "mv"
       },
       {
-        "id": "s304t8",
+        "id": "s519t8",
         "text": "een",
         "role": "ow"
       },
       {
-        "id": "s304t9",
+        "id": "s519t9",
         "text": "geweldige",
         "role": "ow",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s304t10"
+        "bijvBepTarget": "s519t10"
       },
       {
-        "id": "s304t10",
+        "id": "s519t10",
         "text": "analyse",
         "role": "ow"
       },
       {
-        "id": "s304t11",
+        "id": "s519t11",
         "text": "gegeven.",
         "role": "wg"
       }

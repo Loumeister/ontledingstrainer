@@ -1055,66 +1055,66 @@
     ]
   },
   {
-    "id": 81,
-    "label": "Zin 81: Gevaarlijke populist",
+    "id": 518,
+    "label": "Zin 518: Gevaarlijke populist",
     "predicateType": "WG",
     "level": 2,
     "tokens": [
       {
-        "id": "s81t1",
+        "id": "s518t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s81t2",
+        "id": "s518t2",
         "text": "journalist",
         "role": "ow"
       },
       {
-        "id": "s81t3",
+        "id": "s518t3",
         "text": "noemde",
         "role": "pv"
       },
       {
-        "id": "s81t4",
+        "id": "s518t4",
         "text": "de",
         "role": "lv"
       },
       {
-        "id": "s81t5",
+        "id": "s518t5",
         "text": "politicus",
         "role": "lv"
       },
       {
-        "id": "s81t6",
+        "id": "s518t6",
         "text": "tijdens",
         "role": "bwb"
       },
       {
-        "id": "s81t7",
+        "id": "s518t7",
         "text": "het",
         "role": "bwb"
       },
       {
-        "id": "s81t8",
+        "id": "s518t8",
         "text": "debat",
         "role": "bwb"
       },
       {
-        "id": "s81t9",
+        "id": "s518t9",
         "text": "een",
         "role": "bwb",
         "newChunk": true
       },
       {
-        "id": "s81t10",
+        "id": "s518t10",
         "text": "gevaarlijke",
         "role": "bwb",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s81t11"
+        "bijvBepTarget": "s518t11"
       },
       {
-        "id": "s81t11",
+        "id": "s518t11",
         "text": "populist.",
         "role": "bwb"
       }
@@ -6600,28 +6600,28 @@
     ]
   },
   {
-    "id": 5008,
-    "label": "Zin 5008: Luisteren naar muziek",
+    "id": 520,
+    "label": "Zin 520: Luisteren naar muziek",
     "predicateType": "WG",
     "level": 2,
     "tokens": [
       {
-        "id": "s5008t1",
+        "id": "s520t1",
         "text": "Wij",
         "role": "ow"
       },
       {
-        "id": "s5008t2",
+        "id": "s520t2",
         "text": "luisteren",
         "role": "pv"
       },
       {
-        "id": "s5008t3",
+        "id": "s520t3",
         "text": "naar",
         "role": "vv"
       },
       {
-        "id": "s5008t4",
+        "id": "s520t4",
         "text": "muziek.",
         "role": "vv"
       }
