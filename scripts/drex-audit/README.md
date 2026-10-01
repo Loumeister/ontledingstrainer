@@ -74,6 +74,7 @@ Geraadpleegd: *Online Dutch Grammar Course* (dutchgrammar.com, woordvolgorde en 
 - **Zwak juist op de didactische kern**: MV (45–50%) en BWB → VV (9–47% gevonden). Daar blijft een mens nodig.
 - **Externe validatie (gold-set) weerlegt Drex als foutdetector**: van de gemarkeerde zinsdelen bleek na herbeoordeling maar een klein deel echt fout geannoteerd; de vooraf vastgelegde regel zegt "stoppen" (`resultaten/2026-09-26-goldset-compleet.md`). Het corpus is daarvoor te schoon, en bij lijdende zinnen maakt Drex dezelfde fout als een menselijke beoordelaar.
 - **Gevonden annotatiefouten**: in de metingen was zin 5008 *Wij luisteren **naar muziek*** (BWB, terwijl 435 *luisteren **naar de trainer*** VV is) de enige afwijking waar Drex zeker was. In de gold-set zijn na herbeoordeling 304 (*aan de kijker*: MV) en 5008 (VV) bevestigde annotatiefouten. 118 en 461 heeft de beoordelaar blind fout genoemd, maar die zijn niet herbeoordeeld; ze tellen in de vastgelegde cijfers mee als fout. Correcties staan in #175.
+- **Zin-id's** in deze audit (metingen, gold-set, rapporten) verwijzen naar het corpus op commit `1685590`. In #175 krijgen gecorrigeerde zinnen een nieuw id, omdat gebruiksgegevens alleen op id zijn opgeslagen: 304 wordt 519 en 5008 wordt 520. 442 en de kopie 461 (*schrijven aan de toets*) zijn daar verwijderd; paar 3B is nu 517 *zitten aan de tafel*.
 
 ## Externe validatie (gold-set)
 
