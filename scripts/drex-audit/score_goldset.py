@@ -130,19 +130,27 @@ def load_judgements(design_path, sheets, texts_path=DESIGN_TEXTS):
     return judged
 
 
-def load_adjudication(design_path, path):
-    """Herbeoordeling na het blinde oordeel: {(zin_id, start): (rol, twijfel, reden)}. Vervangt alleen die items."""
+def load_adjudication(design_path, path, texts_path=DESIGN_TEXTS):
+    """Herbeoordeling na het blinde oordeel: {(zin_id, start): (rol, twijfel, reden)}. Vervangt alleen die items.
+
+    Elke regel noemt ook het zinsdeel; dat moet kloppen met het ontwerp, want een zin kan meer doelen hebben.
+    """
     design = {(int(r['blad']), int(r['nr'])): (int(r['zin_id']), int(r['start'])) for r in read_csv(design_path)}
+    texts = {(int(r['blad']), int(r['nr'])): r['zinsdeel'] for r in read_csv(texts_path)}
     out = {}
     for row in read_csv(path):
-        key = design[(int(row['blad']), int(row['nr']))]
+        where = f'herbeoordeling blad {row["blad"]} nr {row["nr"]}'
+        target = (int(row['blad']), int(row['nr']))
+        key = design[target]
         if int(row['zin_id']) != key[0]:
-            raise ValueError(f'herbeoordeling blad {row["blad"]} nr {row["nr"]}: zin_id past niet bij het ontwerp')
+            raise ValueError(f'{where}: zin_id past niet bij het ontwerp')
+        if shown_chunk(row.get('zinsdeel') or '') != texts[target]:
+            raise ValueError(f'{where}: zinsdeel "{row.get("zinsdeel")}" past niet bij het ontwerp ("{texts[target]}")')
         try:
             role, two_readings = parse_role(row['rol'])
             ambiguous = parse_yes_no(row['twijfel']) or two_readings
         except ValueError as e:
-            raise ValueError(f'herbeoordeling blad {row["blad"]} nr {row["nr"]}: {e}') from None
+            raise ValueError(f'{where}: {e}') from None
         out[key] = (role, ambiguous, row['reden'].strip())
     return out
 

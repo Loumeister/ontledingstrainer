@@ -1,7 +1,7 @@
-﻿blad;nr;zin_id;rol;twijfel;reden
-1;54;91;VV / BWB;ja;VV en BWB allebei verdedigbaar, NG niet
-1;49;306;OW;nee;foutje beoordelaar: lijdende vorm, congruentie met werd
-1;17;513;OW;nee;werd enkelvoud, de bezoekers meervoud: een gratis drankje is OW
-1;23;315;VV;nee;nadenken over: vast voorzetsel
-2;36;507;OW;nee;foutje beoordelaar: lijdende vorm, een beker is OW
-2;19;515;OW;nee;foutje beoordelaar: lijdende vorm, een rooster is OW
+﻿blad;nr;zin_id;zinsdeel;rol;twijfel;reden
+1;54;91;als een meesterwerk;VV / BWB;ja;VV en BWB allebei verdedigbaar, NG niet
+1;49;306;inzicht in zijn herkomst;OW;nee;foutje beoordelaar: lijdende vorm, congruentie met werd
+1;17;513;een gratis drankje;OW;nee;werd enkelvoud, de bezoekers meervoud: een gratis drankje is OW
+1;23;315;over jouw toekomst;VV;nee;nadenken over: vast voorzetsel
+2;36;507;een beker;OW;nee;foutje beoordelaar: lijdende vorm, een beker is OW
+2;19;515;een rooster;OW;nee;foutje beoordelaar: lijdende vorm, een rooster is OW

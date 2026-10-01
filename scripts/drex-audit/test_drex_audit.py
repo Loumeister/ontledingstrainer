@@ -227,6 +227,20 @@ class GoldsetTest(unittest.TestCase):
         self.assertEqual(adj[(513, 3)][:2], ('ow', False))
         self.assertTrue(adj[(91, 8)][1])  # VV / BWB: twijfel
 
+    def test_adjudication_checks_the_target_chunk(self):
+        import score_goldset as sg
+        with tempfile.TemporaryDirectory() as d:
+            adj = Path(d) / 'herbeoordeling.csv'
+            # Blad 2 nr 10 en 24 zijn allebei zin 29; nr 24 met de tekst van nr 10 moet falen.
+            texts = {(r['blad'], r['nr']): r['zinsdeel'] for r in sg.read_csv(sg.DESIGN_TEXTS)}
+            adj.write_text('blad;nr;zin_id;zinsdeel;rol;twijfel;reden\n'
+                           f"2;24;29;{texts[('2', '10')]};LV;nee;x\n", encoding='utf-8')
+            with self.assertRaises(ValueError):
+                sg.load_adjudication(sg.DESIGN, adj)
+            adj.write_text('blad;nr;zin_id;zinsdeel;rol;twijfel;reden\n'
+                           f"2;24;29;{texts[('2', '24')]};MV;nee;x\n", encoding='utf-8')
+            self.assertEqual(list(sg.load_adjudication(sg.DESIGN, adj).values()), [('mv', False, 'x')])
+
     def test_compound_role_notations(self):
         import score_goldset as sg
         self.assertEqual(sg.parse_role('NWD+NG'), ('ng', False))
