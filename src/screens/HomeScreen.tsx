@@ -185,10 +185,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       for (const t of s.tokens) {
         present.add(t.role);
         if (t.subRole === 'bijv_bep' && includeBB) present.add(t.subRole);
+        if (t.subRole === 'bijw_bep' && includeBijwBep) present.add(t.subRole);
       }
     }
     return ROLES.filter(r => present.has(r.key));
-  }, [availableSentences, includeBB]);
+  }, [availableSentences, includeBB, includeBijwBep]);
 
   const focusState: Record<FocusKey, [boolean, (v: boolean) => void]> = {
     lv: [focusLV, setFocusLV], mv: [focusMV, setFocusMV], vv: [focusVV, setFocusVV], ng: [focusNG, setFocusNG], bb: [focusBB, setFocusBB],

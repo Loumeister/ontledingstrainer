@@ -459,6 +459,24 @@ export function validateAnswer(
       return;
     }
 
+    // A missing or stray BB/BWB label: one repair step on an otherwise correct chunk. A missing
+    // label does not name the word; a stray label is tested on what the chosen label means.
+    const isBepaling = (r: RoleKey | undefined) => r === 'bijv_bep' || r === 'bijw_bep';
+    const missingBepaling = isBepaling(expectedSub) && !userSub;
+    const strayBepaling = isBepaling(userSub) && !expectedSub;
+    if (missingBepaling || strayBepaling) {
+      const chunkIdx = userChunks.findIndex(c => c.tokens.some(ct => ct.id === t.id));
+      if (chunkIdx < 0 || chunkStatus[chunkIdx] !== 'correct') return;
+      chunkFeedback[chunkIdx] = missingBepaling
+        ? (expectedSub === 'bijw_bep' ? HINTS.MISSING_WORD_BIJW_BEP : HINTS.MISSING_WORD_BIJV_BEP)
+        : (userSub === 'bijw_bep' ? HINTS.WORD_NOT_BIJW_BEP(t.text) : HINTS.WORD_NOT_BIJV_BEP(t.text));
+      chunkStatus[chunkIdx] = 'warning';
+      const mistakeKey = (expectedSub || userSub)!;
+      const mistakeName = ROLES.find(r => r.key === mistakeKey)?.label || mistakeKey;
+      currentMistakes[mistakeName] = (currentMistakes[mistakeName] || 0) + 1;
+      return;
+    }
+
     // Gezegdedelen: give one repair step on an otherwise correct chunk, without naming the answer.
     if (!includeGezegdeDelen) return;
     const userGezegde = userSub === 'wwd' || userSub === 'nwd';

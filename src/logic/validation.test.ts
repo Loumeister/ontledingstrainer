@@ -933,7 +933,11 @@ describe('validateAnswer — bijwoordelijke bepaling binnen een zinsdeel (option
 
   it('vraagt de BWB wel met de schakelaar aan, en laat hem voorgaan op NWD', () => {
     expect(getExpectedSubLabel(tokens[2], false, true, true)).toBe('bijw_bep');
-    expect(run({}, { bijw: true }).isPerfect).toBe(false);
+    const missing = run({}, { bijw: true });
+    expect(missing.isPerfect).toBe(false);
+    // Geen groen zinsdeel zonder uitleg: het zinsdeel krijgt een herstelvraag die het woord niet noemt
+    expect(missing.chunkStatus[2]).toBe('warning');
+    expect(missing.chunkFeedback[2]).toBe(HINTS.MISSING_WORD_BIJW_BEP);
     expect(run({ e3: 'bijw_bep' }, { bijw: true }).isPerfect).toBe(true);
     const asNwd = run({ e2: 'wwd', e3: 'nwd', e4: 'nwd' }, { bijw: true, delen: true });
     expect(asNwd.chunkFeedback[2]).toBe(HINTS.GEZEGDE_DEEL_BIJW_BEP('erg'));
@@ -953,5 +957,21 @@ describe('isBijzinFunctieAsked', () => {
     expect(isBijzinFunctieAsked('bijv_bep', false, 4)).toBe(false);
     expect(isBijzinFunctieAsked('lv', false, 3)).toBe(true);
     expect(isBijzinFunctieAsked(undefined, true, 4)).toBe(false);
+  });
+});
+
+describe('validateAnswer — woordlabel BB/BWB op een woord dat er geen heeft', () => {
+  it('toetst het gekozen label in plaats van alleen "niet perfect" te melden', () => {
+    const tokens: Token[] = [
+      makeToken({ id: 'w1', text: 'Hij', role: 'ow' }),
+      makeToken({ id: 'w2', text: 'leest', role: 'pv' }),
+      makeToken({ id: 'w3', text: 'het', role: 'lv' }),
+      makeToken({ id: 'w4', text: 'boek.', role: 'lv' }),
+    ];
+    const sentence = makeSentence(tokens);
+    const { result } = validateAnswer(sentence, new Set([0, 1]), { w1: 'ow', w2: 'pv', w3: 'lv' }, { w4: 'bijw_bep' }, true, {}, {}, {}, undefined, false, true);
+    expect(result.isPerfect).toBe(false);
+    expect(result.chunkStatus[2]).toBe('warning');
+    expect(result.chunkFeedback[2]).toBe(HINTS.WORD_NOT_BIJW_BEP('boek.'));
   });
 });
