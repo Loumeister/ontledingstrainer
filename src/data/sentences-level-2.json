@@ -1055,71 +1055,68 @@
     ]
   },
   {
-    "id": 81,
-    "label": "Zin 81: Gevaarlijke populist",
-    "predicateType": "NG",
+    "id": 518,
+    "label": "Zin 518: Gevaarlijke populist",
+    "predicateType": "WG",
     "level": 2,
     "tokens": [
       {
-        "id": "s81t1",
+        "id": "s518t1",
         "text": "De",
         "role": "ow"
       },
       {
-        "id": "s81t2",
+        "id": "s518t2",
         "text": "journalist",
         "role": "ow"
       },
       {
-        "id": "s81t3",
+        "id": "s518t3",
         "text": "noemde",
-        "role": "pv",
-        "subRole": "wwd"
+        "role": "pv"
       },
       {
-        "id": "s81t4",
+        "id": "s518t4",
         "text": "de",
         "role": "lv"
       },
       {
-        "id": "s81t5",
+        "id": "s518t5",
         "text": "politicus",
         "role": "lv"
       },
       {
-        "id": "s81t6",
+        "id": "s518t6",
         "text": "tijdens",
         "role": "bwb"
       },
       {
-        "id": "s81t7",
+        "id": "s518t7",
         "text": "het",
         "role": "bwb"
       },
       {
-        "id": "s81t8",
+        "id": "s518t8",
         "text": "debat",
         "role": "bwb"
       },
       {
-        "id": "s81t9",
+        "id": "s518t9",
         "text": "een",
-        "role": "ng",
-        "newChunk": true,
-        "subRole": "nwd"
+        "role": "bwb",
+        "newChunk": true
       },
       {
-        "id": "s81t10",
+        "id": "s518t10",
         "text": "gevaarlijke",
-        "role": "ng",
+        "role": "bwb",
         "subRole": "bijv_bep",
-        "bijvBepTarget": "s81t11"
+        "bijvBepTarget": "s518t11"
       },
       {
-        "id": "s81t11",
+        "id": "s518t11",
         "text": "populist.",
-        "role": "ng",
-        "subRole": "nwd"
+        "role": "bwb"
       }
     ]
   },
@@ -1684,17 +1681,21 @@
       {
         "id": "s91t9",
         "text": "als",
-        "role": "vv"
+        "role": "vv",
+        "alternativeRole": "bwb",
+        "newChunk": true
       },
       {
         "id": "s91t10",
         "text": "een",
-        "role": "vv"
+        "role": "vv",
+        "alternativeRole": "bwb"
       },
       {
         "id": "s91t11",
         "text": "meesterwerk.",
-        "role": "vv"
+        "role": "vv",
+        "alternativeRole": "bwb"
       }
     ]
   },
@@ -3971,148 +3972,6 @@
     ]
   },
   {
-    "id": 128,
-    "label": "Zin 128: Twee duiven",
-    "predicateType": "WG",
-    "level": 2,
-    "tokens": [
-      {
-        "id": "s128t1",
-        "text": "Er",
-        "role": "bwb"
-      },
-      {
-        "id": "s128t2",
-        "text": "zitten",
-        "role": "pv"
-      },
-      {
-        "id": "s128t3",
-        "text": "twee",
-        "role": "ow",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s128t4"
-      },
-      {
-        "id": "s128t4",
-        "text": "duiven",
-        "role": "ow"
-      },
-      {
-        "id": "s128t5",
-        "text": "op",
-        "role": "bwb"
-      },
-      {
-        "id": "s128t6",
-        "text": "het",
-        "role": "bwb"
-      },
-      {
-        "id": "s128t7",
-        "text": "dak.",
-        "role": "bwb"
-      }
-    ]
-  },
-  {
-    "id": 129,
-    "label": "Zin 129: Ernstig ongeluk",
-    "predicateType": "WG",
-    "level": 2,
-    "tokens": [
-      {
-        "id": "s129t1",
-        "text": "Er",
-        "role": "bwb"
-      },
-      {
-        "id": "s129t2",
-        "text": "is",
-        "role": "pv"
-      },
-      {
-        "id": "s129t3",
-        "text": "gisteren",
-        "role": "bwb"
-      },
-      {
-        "id": "s129t4",
-        "text": "een",
-        "role": "ow"
-      },
-      {
-        "id": "s129t5",
-        "text": "ernstig",
-        "role": "ow",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s129t6"
-      },
-      {
-        "id": "s129t6",
-        "text": "ongeluk",
-        "role": "ow"
-      },
-      {
-        "id": "s129t7",
-        "text": "gebeurd.",
-        "role": "wg"
-      }
-    ]
-  },
-  {
-    "id": 130,
-    "label": "Zin 130: Vreemde sfeer",
-    "predicateType": "WG",
-    "level": 2,
-    "tokens": [
-      {
-        "id": "s130t1",
-        "text": "Er",
-        "role": "bwb"
-      },
-      {
-        "id": "s130t2",
-        "text": "hangt",
-        "role": "pv"
-      },
-      {
-        "id": "s130t3",
-        "text": "een",
-        "role": "ow"
-      },
-      {
-        "id": "s130t4",
-        "text": "vreemde",
-        "role": "ow",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s130t5"
-      },
-      {
-        "id": "s130t5",
-        "text": "sfeer",
-        "role": "ow"
-      },
-      {
-        "id": "s130t6",
-        "text": "in",
-        "role": "bwb"
-      },
-      {
-        "id": "s130t7",
-        "text": "dit",
-        "role": "bwb",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s130t8"
-      },
-      {
-        "id": "s130t8",
-        "text": "huis.",
-        "role": "bwb"
-      }
-    ]
-  },
-  {
     "id": 133,
     "label": "Zin 133: Dat geheim",
     "predicateType": "WG",
@@ -5721,17 +5580,20 @@
       {
         "id": "s438t4",
         "text": "op",
-        "role": "bwb"
+        "role": "bwb",
+        "alternativeRole": "vv"
       },
       {
         "id": "s438t5",
         "text": "de",
-        "role": "bwb"
+        "role": "bwb",
+        "alternativeRole": "vv"
       },
       {
         "id": "s438t6",
         "text": "bus.",
-        "role": "bwb"
+        "role": "bwb",
+        "alternativeRole": "vv"
       }
     ]
   },
@@ -5770,44 +5632,6 @@
         "id": "s441t6",
         "text": "toets.",
         "role": "vv"
-      }
-    ]
-  },
-  {
-    "id": 442,
-    "label": "Zin 442: VV vs BWB paar 3B",
-    "predicateType": "WG",
-    "level": 2,
-    "tokens": [
-      {
-        "id": "s442t1",
-        "text": "De",
-        "role": "ow"
-      },
-      {
-        "id": "s442t2",
-        "text": "leerlingen",
-        "role": "ow"
-      },
-      {
-        "id": "s442t3",
-        "text": "schrijven",
-        "role": "pv"
-      },
-      {
-        "id": "s442t4",
-        "text": "aan",
-        "role": "bwb"
-      },
-      {
-        "id": "s442t5",
-        "text": "de",
-        "role": "bwb"
-      },
-      {
-        "id": "s442t6",
-        "text": "toets.",
-        "role": "bwb"
       }
     ]
   },
@@ -6231,6 +6055,72 @@
     "structuralTags": [
       "inversie",
       "samengestelde tijd"
+    ]
+  },
+  {
+    "id": 505,
+    "label": "Zin 505: De juf stelt de nieuwe leerling aan de klas voor",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s505t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s505t2",
+        "text": "juf",
+        "role": "ow"
+      },
+      {
+        "id": "s505t3",
+        "text": "stelt",
+        "role": "pv"
+      },
+      {
+        "id": "s505t4",
+        "text": "de",
+        "role": "lv"
+      },
+      {
+        "id": "s505t5",
+        "text": "nieuwe",
+        "role": "lv",
+        "subRole": "bijv_bep",
+        "bijvBepTarget": "s505t6"
+      },
+      {
+        "id": "s505t6",
+        "text": "leerling",
+        "role": "lv"
+      },
+      {
+        "id": "s505t7",
+        "text": "aan",
+        "role": "mv",
+        "alternativeRole": "vv"
+      },
+      {
+        "id": "s505t8",
+        "text": "de",
+        "role": "mv",
+        "alternativeRole": "vv"
+      },
+      {
+        "id": "s505t9",
+        "text": "klas",
+        "role": "mv",
+        "alternativeRole": "vv"
+      },
+      {
+        "id": "s505t10",
+        "text": "voor.",
+        "role": "wg"
+      }
+    ],
+    "structuralTags": [
+      "LV en MV zijn allebei personen"
     ]
   },
   {
@@ -6669,6 +6559,72 @@
     ],
     "structuralTags": [
       "lijdende vorm: MV zonder LV"
+    ]
+  },
+  {
+    "id": 517,
+    "label": "Zin 517: VV vs BWB paar 3B",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s517t1",
+        "text": "De",
+        "role": "ow"
+      },
+      {
+        "id": "s517t2",
+        "text": "leerlingen",
+        "role": "ow"
+      },
+      {
+        "id": "s517t3",
+        "text": "zitten",
+        "role": "pv"
+      },
+      {
+        "id": "s517t4",
+        "text": "aan",
+        "role": "bwb"
+      },
+      {
+        "id": "s517t5",
+        "text": "de",
+        "role": "bwb"
+      },
+      {
+        "id": "s517t6",
+        "text": "tafel.",
+        "role": "bwb"
+      }
+    ]
+  },
+  {
+    "id": 520,
+    "label": "Zin 520: Luisteren naar muziek",
+    "predicateType": "WG",
+    "level": 2,
+    "tokens": [
+      {
+        "id": "s520t1",
+        "text": "Wij",
+        "role": "ow"
+      },
+      {
+        "id": "s520t2",
+        "text": "luisteren",
+        "role": "pv"
+      },
+      {
+        "id": "s520t3",
+        "text": "naar",
+        "role": "vv"
+      },
+      {
+        "id": "s520t4",
+        "text": "muziek.",
+        "role": "vv"
+      }
     ]
   }
 ]
