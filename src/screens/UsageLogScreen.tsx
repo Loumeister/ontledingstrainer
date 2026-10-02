@@ -8,18 +8,16 @@
  *   Docent   → tabs: Overzicht, Leerlingen, Zinnen, Beheer
  *   Eigenaar → all of the above + Eigenaar tab
  *
- * Data sources:
- *   1. Local usage store (usageData.ts) — per-sentence attempt/perfect/error counts
- *   2. Local session reports (sessionReport.ts) — compact codes decoded into SessionReport
- *   3. Drive reports (googleDriveSync.ts) — fetched from Google Sheet on demand
+ * Central data is loaded from the authorized own API, scoped to student ownership.
+ * Local/offline reports and event logs are not merged into received pupil work.
  */
 import React, { useState, useEffect, useCallback } from 'react';
-import { USAGE_SESSION_KEY, EIGENAAR_SESSION_KEY as EIGENAAR_KEY } from '../components/LoginScreen';
-import { loadUsageData } from '../services/usageData';
-import { loadInteractionLog, computePerUserStats } from '../services/interactionLog';
+import { RequireAccount } from '../components/RequireAccount';
+import { api, type AccountSession } from '../services/secureApi';
+import { fetchReports } from '../services/googleDriveSync';
 import { loadAllSentences } from '../data/sentenceLoader';
 import { getCustomSentences } from '../data/customSentenceStore';
-import { loadReports } from '../services/sessionReport';
+import { decodeReport } from '../services/sessionReport';
 import type { SessionReport } from '../services/sessionReport';
 import type { SentenceUsageData, Sentence } from '../types';
 import type { EnrichedUsage } from '../components/usage/types';
@@ -29,8 +27,8 @@ import type { UserStats } from '../services/interactionLog';
 import { OverviewTab } from '../components/usage/OverviewTab';
 import { LearnersTab } from '../components/usage/LearnersTab';
 import { SentencesTab } from '../components/usage/SentencesTab';
-import { ManagementTab } from '../components/usage/ManagementTab';
 import { OwnerTab } from '../components/usage/OwnerTab';
+import { StudentRegister } from '../components/usage/StudentRegister';
 
 // ---------------------------------------------------------------------------
 // mergeReportDataIntoUsage — overlays imported session reports on local usage
@@ -98,9 +96,10 @@ const TABS: Array<{ id: TabId; label: string; eigenaarOnly?: boolean }> = [
 // ---------------------------------------------------------------------------
 
 export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
-  // Auth state (read once from sessionStorage)
-  const [authenticated] = useState(() => sessionStorage.getItem(USAGE_SESSION_KEY) === 'true');
-  const [isEigenaar] = useState(() => sessionStorage.getItem(EIGENAAR_KEY) === 'true');
+  return <RequireAccount roles={['teacher', 'owner']}>{user => <UsageLogContent onBack={onBack} user={user} />}</RequireAccount>;
+};
+const UsageLogContent: React.FC<UsageLogScreenProps & { user: AccountSession }> = ({ onBack, user }) => {
+  const isEigenaar = user.role === 'owner';
 
   // Tab state
   const [activeTab, setActiveTab] = useState<TabId>('overzicht');
@@ -108,8 +107,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   // Core data
   const [enrichedData, setEnrichedData] = useState<EnrichedUsage[]>([]);
   const [sentenceMap, setSentenceMap] = useState<Map<number, Sentence>>(new Map());
-  const [reports, setReports] = useState(() => loadReports());
-  const [perUserStats, setPerUserStats] = useState<UserStats[]>([]);
+  const perUserStats: UserStats[] = [];
 
   // Drive fetch state (not persisted — fetched fresh each time)
   const [driveStatus, setDriveStatus] = useState<'idle' | 'fetching' | 'success' | 'error'>('idle');
@@ -123,16 +121,20 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
   const [filterTimeFrom, setFilterTimeFrom] = useState('');
   const [filterTimeTo, setFilterTimeTo] = useState('');
 
-  // Redirect unauthenticated users
-  useEffect(() => {
-    if (!authenticated) {
-      window.location.hash = '#/login';
-    }
-  }, [authenticated]);
+  const handleReportsChanged = useCallback(() => {
+    setDriveStatus('fetching'); setDriveError('');
+    void fetchReports().then(rows => {
+      setDriveReports(rows.flatMap(row => {
+        const report = decodeReport(row.code);
+        return report ? [{ ...report, studentId: row.studentId }] : [];
+      }));
+      setDriveStatus('success');
+    }).catch(error => { setDriveReports([]); setDriveStatus('error'); setDriveError(error.message); });
+  }, []);
+  useEffect(handleReportsChanged, [handleReportsChanged]);
 
   // Load sentence data + build enrichedData whenever reports change
   useEffect(() => {
-    if (!authenticated) return;
     const customSentences = getCustomSentences();
     loadAllSentences().then(builtIn => {
       const all = [
@@ -145,7 +147,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
       for (const s of all) tokenMap.set(s.id, s);
       setSentenceMap(tokenMap);
 
-      const mergedStore = mergeReportDataIntoUsage(loadUsageData(), [...reports, ...driveReports]);
+      const mergedStore = mergeReportDataIntoUsage({}, driveReports);
       const enriched: EnrichedUsage[] = [];
 
       for (const s of all) {
@@ -179,25 +181,8 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
 
       setEnrichedData(enriched);
     });
-  }, [authenticated, reports, driveReports]);
-
-  // Load interaction log stats
-  useEffect(() => {
-    if (!authenticated) return;
-    const log = loadInteractionLog();
-    setPerUserStats(computePerUserStats(log));
-  }, [authenticated]);
-
-  // Combined reports: local + Drive
-  const allReports = [...reports, ...driveReports];
-
-  // Callback to refresh local reports (passed to tabs that modify reports)
-  const handleReportsChanged = useCallback(() => {
-    setReports(loadReports());
-  }, []);
-
-
-  if (!authenticated) return null;
+  }, [driveReports]);
+  const allReports = driveReports;
 
   // Visible tabs based on role
   const visibleTabs = TABS.filter(t => !t.eigenaarOnly || isEigenaar);
@@ -222,7 +207,13 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
             <button onClick={onBack} className="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
               ← Terug
             </button>
+            <button type="button" onClick={() => { void api('/auth/logout', {}).then(() => { window.location.hash = '#/'; }).catch(() => setDriveError('Afmelden niet gelukt. Probeer opnieuw.')); }} className="px-3 py-2 border rounded-lg text-slate-700 dark:text-slate-200">Afmelden</button>
           </div>
+        </div>
+        <div className="text-sm text-slate-700 dark:text-slate-200 space-x-3">
+          <span role="status">{driveStatus === 'fetching' ? 'Rapporten laden…' : `${driveReports.length} ingestuurde rapporten`}</span>
+          <button type="button" disabled={driveStatus === 'fetching'} onClick={handleReportsChanged} className="underline">Verversen</button>
+          {driveError && <p role="alert" className="text-red-600 dark:text-red-400">{driveError}</p>}
         </div>
 
         {/* Tab bar */}
@@ -279,10 +270,7 @@ export const UsageLogScreen: React.FC<UsageLogScreenProps> = ({ onBack }) => {
         )}
 
         {activeTab === 'beheer' && (
-          <ManagementTab
-            allReports={allReports}
-            onReportsChanged={handleReportsChanged}
-          />
+          <StudentRegister onChanged={handleReportsChanged} />
         )}
 
         {activeTab === 'eigenaar' && isEigenaar && (

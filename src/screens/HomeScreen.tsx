@@ -7,6 +7,9 @@ import { importCustomSentences, getCustomSentences, parseAndValidateSentences } 
 import { LEVEL_NAMES, LEVEL_SUMMARIES, LEVEL_TOOLTIPS, ROLES } from '../constants';
 import { PredicateMode, FocusKey, FocusAvailability } from '../logic/sentenceFilter';
 import { nextRadioIndex } from '../logic/radioKeys';
+import { StudentAccessDialog } from '../components/StudentEnrollment';
+import { setStudentAccessPreference } from '../services/studentAccessPreference';
+import { api, type StudentSession } from '../services/secureApi';
 import { getPreviousScore, getStreak } from '../services/sessionHistory';
 import { getLadderStage, LADDER_STAGES } from '../logic/rollenladder';
 import { findHistoryStudentId } from '../logic/adaptiveSelection';
@@ -223,9 +226,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
   // Name prompt state
   const [showNamePrompt, setShowNamePrompt] = useState(false);
-  const [nameInput, setNameInput] = useState(studentName);
-  const [initiaalInput, setInitiaalInput] = useState(studentInitiaal);
-  const [klasInput, setKlasInput] = useState(studentKlas);
+  const enrollmentOpener = useRef<HTMLElement | null>(null);
   const [pendingAction, setPendingAction] = useState<{
     type: 'session' | 'quickstart' | 'shared' | 'select' | 'selected' | 'json';
     sentenceId?: number;
@@ -234,10 +235,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   } | null>(null);
 
   const openNamePrompt = (action: typeof pendingAction) => {
+    enrollmentOpener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setPendingAction(action);
-    setNameInput(studentName);
-    setInitiaalInput(studentInitiaal);
-    setKlasInput(studentKlas);
     setShowNamePrompt(true);
   };
 
@@ -267,10 +266,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     }
   };
 
-  const handleNameSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!nameInput.trim() || !initiaalInput.trim() || !klasInput.trim()) return;
-    setStudentInfo(nameInput, initiaalInput, klasInput);
+  const handleStudentAccess = (student: StudentSession | null) => {
+    setStudentAccessPreference(student !== null);
+    if (!student) void api('/student/logout', {}).catch(() => {});
+    setStudentInfo(student?.name ?? 'Vrij oefenen', student?.initial || '-', student?.klas ?? '');
     setShowNamePrompt(false);
     const action = pendingAction;
     // Trigger the pending action after a tick so localStorage is updated
@@ -339,55 +338,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
       {/* Name prompt overlay */}
       {showNamePrompt && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <form onSubmit={handleNameSubmit} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 max-w-sm w-full space-y-4">
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white text-center">Wie ben jij?</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 text-center">Vul je gegevens in zodat je docent kan zien hoe het gaat.</p>
-            <div>
-              <label className="text-xs font-medium text-slate-600 dark:text-slate-300 block mb-1">Voornaam</label>
-              <input
-                type="text"
-                value={nameInput}
-                onChange={e => setNameInput(e.target.value)}
-                className="w-full px-3 py-2 text-sm border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:border-blue-500 outline-none"
-                autoFocus
-                placeholder="bijv. Emma"
-                maxLength={30}
-              />
-            </div>
-            <div className="flex gap-3">
-              <div className="flex-shrink-0">
-                <label className="text-xs font-medium text-slate-600 dark:text-slate-300 block mb-1">Initiaal</label>
-                <input
-                  type="text"
-                  value={initiaalInput}
-                  onChange={e => setInitiaalInput(e.target.value.slice(0, 1))}
-                  className="w-16 px-3 py-2 text-sm text-center font-bold uppercase border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:border-blue-500 outline-none"
-                  placeholder="V"
-                  maxLength={1}
-                />
-              </div>
-              <div className="flex-1">
-                <label className="text-xs font-medium text-slate-600 dark:text-slate-300 block mb-1">Klas</label>
-                <input
-                  type="text"
-                  value={klasInput}
-                  onChange={e => setKlasInput(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:border-blue-500 outline-none"
-                  placeholder="bijv. 2ga"
-                  maxLength={10}
-                />
-              </div>
-            </div>
-            <button
-              type="submit"
-              disabled={!nameInput.trim() || !initiaalInput.trim() || !klasInput.trim()}
-              className="w-full py-2.5 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Klaar, laten we beginnen!
-            </button>
-          </form>
-        </div>
+        <StudentAccessDialog onDone={handleStudentAccess} onCancel={() => {
+          setShowNamePrompt(false); setPendingAction(null);
+          requestAnimationFrame(() => enrollmentOpener.current?.focus());
+        }} />
       )}
 
       <main className="max-w-6xl w-full bg-white dark:bg-slate-800 p-4 md:p-6 rounded-2xl shadow-lg space-y-6 border border-slate-200 dark:border-slate-700 transition-colors duration-300">
@@ -400,7 +354,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm">
               {hasStudentInfo ? (
-                <>Hoi <strong className="text-slate-700 dark:text-slate-200">{studentName} {studentInitiaal}.</strong>{studentKlas ? <> <span className="text-slate-400 dark:text-slate-500">({studentKlas})</span></> : ''} — stel je training samen: <button onClick={() => openNamePrompt(null)} className="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 text-xs underline ml-1">(wijzig)</button></>
+                <>Hoi <strong className="text-slate-700 dark:text-slate-200">{studentName}{studentInitiaal !== '-' ? ` ${studentInitiaal}.` : ''}</strong>{studentKlas ? <> <span className="text-slate-400 dark:text-slate-500">({studentKlas})</span></> : ''} — stel je training samen: <button onClick={() => openNamePrompt(null)} className="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 text-xs underline ml-1">(leerlinglogin wijzigen)</button></>
               ) : 'Stel je training samen:'}
             </p>
           </div>

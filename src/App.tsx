@@ -8,6 +8,7 @@ import { EditorView } from './components/EditorView';
 import { UsageLogScreen } from './screens/UsageLogScreen';
 import { ZinsdeellabScreen } from './screens/ZinsdeellabScreen';
 import LoginScreen from './components/LoginScreen';
+import { RequireAccount } from './components/RequireAccount';
 import { preloadCommonLevels } from './data/sentenceLoader';
 import { decodeShared } from './data/customSentenceStore';
 import { StudentDashboardScreen } from './screens/StudentDashboardScreen';
@@ -137,7 +138,7 @@ export default function App() {
 
   // Docent screen (teacher analytics area)
   if (showDocent) {
-    return <EditorView darkMode={trainer.darkMode} />;
+    return <RequireAccount roles={['teacher', 'owner']}>{() => <EditorView darkMode={trainer.darkMode} />}</RequireAccount>;
   }
 
   // Zinsdeellab screen (hidden route — #/zinnenlab)

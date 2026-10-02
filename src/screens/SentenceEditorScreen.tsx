@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { EDITOR_SESSION_KEY } from '../components/LoginScreen';
+import { RequireAccount } from '../components/RequireAccount';
 import { RoleKey, PredicateType, DifficultyLevel, RoleDefinition } from '../types';
 import { ROLES } from '../constants';
 import { DraggableRole } from '../components/WordChip';
@@ -38,7 +38,6 @@ type ListFilter = 'all' | 'builtin' | 'custom';
 /** The list marks each sentence with _isBuiltIn. Strip it, so it is not taken for data of the sentence. */
 const withoutListMarker = ({ _isBuiltIn: _marker, ...s }: Sentence & { _isBuiltIn?: boolean }): Sentence => s;
 
-const PIN_SESSION_KEY = EDITOR_SESSION_KEY;
 
 type EditorPhase = 'list' | 'input' | 'edit' | 'meta' | 'bijzin' | 'preview';
 type EditorTab = 'zinnen' | 'zinsdeellab';
@@ -1105,20 +1104,10 @@ export const SentenceEditorContent: React.FC<SentenceEditorContentProps> = ({ on
   return null;
 };
 
-// ─── Standalone screen with PIN auth (for #/editor route) ───────────────────
+// Local/public sentence editor; no access to central student administration.
 
 export const SentenceEditorScreen: React.FC<SentenceEditorScreenProps> = ({ onBack }) => {
-  const [authenticated] = useState(() => sessionStorage.getItem(PIN_SESSION_KEY) === 'true');
-
-  useEffect(() => {
-    if (!authenticated) {
-      window.location.hash = '#/login';
-    }
-  }, [authenticated]);
-
-  if (!authenticated) return null;
-
-  return <SentenceEditorContent onBack={onBack} />;
+  return <RequireAccount roles={['teacher', 'editor', 'owner']}>{() => <SentenceEditorContent onBack={onBack} />}</RequireAccount>;
 };
 
 // --- EditorChunk sub-component ---
