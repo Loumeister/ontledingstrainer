@@ -18,6 +18,9 @@ dist-ssr
 # AI agent runtime caches (never commit)
 .ai-sync/
 
+# Lokale Wrangler-state en -cache (Cloudflare Workers)
+.wrangler/
+
 # Editor directories and files
 .vscode
 .idea
