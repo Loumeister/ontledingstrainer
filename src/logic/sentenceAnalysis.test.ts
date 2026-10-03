@@ -214,6 +214,15 @@ describe('compareSentence', () => {
 // computeRecurringErrorStudents
 // ──────────────────────────────────────────────
 describe('computeRecurringErrorStudents', () => {
+  it('keeps identical names separate and tracks renamed server learners by ID', () => {
+    const first = { name: 'Emma', studentId: 'one', err: { ow: 1 }, ts: '2026-09-30T09:00:00Z' };
+    const second = { ...first, studentId: 'two' };
+    expect(computeRecurringErrorStudents([first, second])).toEqual([]);
+    const renamed = { ...first, name: 'Emmy', ts: '2026-09-30T10:00:00Z' };
+    expect(computeRecurringErrorStudents([first, second, renamed])).toEqual([
+      { studentName: 'emmy', studentId: 'one', recurringRoles: ['ow'] },
+    ]);
+  });
   it('returns empty for students with fewer sessions than threshold', () => {
     const reports = [
       { name: 'Jan', err: { pv: 2 }, ts: '2025-01-01T10:00:00Z' },

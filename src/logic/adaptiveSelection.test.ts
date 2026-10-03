@@ -232,9 +232,21 @@ describe('selectAdaptiveQueue', () => {
     const totalRuns = 200;
     const selectCount = 5;
 
-    for (let r = 0; r < totalRuns; r++) {
-      const selected = selectAdaptiveQueue(pool, selectCount, confidences);
-      lvCount += selected.filter(s => s.tokens.some(t => t.role === 'lv')).length;
+    // Fixed sample: an unseeded 1,000-pick test occasionally fails by chance.
+    let seed = 0x9e3779b9;
+    const random = vi.spyOn(Math, 'random').mockImplementation(() => {
+      seed ^= seed << 13;
+      seed ^= seed >>> 17;
+      seed ^= seed << 5;
+      return (seed >>> 0) / 0x100000000;
+    });
+    try {
+      for (let r = 0; r < totalRuns; r++) {
+        const selected = selectAdaptiveQueue(pool, selectCount, confidences);
+        lvCount += selected.filter(s => s.tokens.some(t => t.role === 'lv')).length;
+      }
+    } finally {
+      random.mockRestore();
     }
 
     const lvRate = lvCount / (totalRuns * selectCount);

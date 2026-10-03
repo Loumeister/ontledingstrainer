@@ -1,3 +1,5 @@
+import { getStudentSession, ApiError } from '../services/secureApi';
+import { prefersLocalPractice } from '../services/studentAccessPreference';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { HINTS, ROLES } from '../constants';
 import { Sentence, PlacementMap, RoleKey, DifficultyLevel, SentenceResult } from '../types';
@@ -216,7 +218,7 @@ function loadStudentInfo(): { name: string; initiaal: string; klas: string } {
 export function useTrainer(): TrainerState {
   const [mode, setMode] = useState<Mode>('free');
 
-  // Student identity (persisted in localStorage)
+  // Local display state is never authority for a server identity.
   const [studentName, setStudentName] = useState(() => loadStudentInfo().name);
   const [studentInitiaal, setStudentInitiaal] = useState(() => loadStudentInfo().initiaal);
   const [studentKlas, setStudentKlas] = useState(() => loadStudentInfo().klas);
@@ -233,6 +235,12 @@ export function useTrainer(): TrainerState {
       localStorage.setItem(STUDENT_INFO_KEY, JSON.stringify({ name: trimmedName, initiaal: trimmedInitiaal, klas: trimmedKlas }));
     } catch { /* localStorage may be unavailable */ }
   };
+
+  useEffect(() => {
+    if (!prefersLocalPractice()) void getStudentSession().then(student => {
+      if (!prefersLocalPractice()) setStudentInfo(student.name, student.initial || '-', student.klas);
+    }).catch(() => {});
+  }, []);
 
   // Configuration State
   const [predicateMode, setPredicateMode] = useState<PredicateMode>('ALL');
@@ -762,10 +770,10 @@ export function useTrainer(): TrainerState {
         // Domain failure mag de score-weergave niet blokkeren
       }
 
-      // Auto-send report to Google Drive if student info and Drive are configured
+      // Submit only for a server-enrolled learner; the API derives identity from its cookie.
       const info = loadStudentInfo();
       const scriptUrl = getScriptUrl();
-      if (shouldAutoSendReport(info, scriptUrl)) {
+      if (!prefersLocalPractice() && shouldAutoSendReport(info, scriptUrl)) {
         const sentenceIds = sessionQueue.map(s => s.id);
         const dur = sessionStartTimeRef.current !== null
           ? Math.round((Date.now() - sessionStartTimeRef.current) / 1000)
@@ -791,11 +799,16 @@ export function useTrainer(): TrainerState {
         const code = encodeReport(report);
         setAutoSendStatus('sending');
         setAutoSendError('');
-        postReport(info.name, info.initiaal, info.klas, code)
+        getStudentSession().then(() => {
+          if (prefersLocalPractice()) return;
+          return postReport('', '', '', code);
+        })
           .then(() => setAutoSendStatus('success'))
           .catch((err) => {
             setAutoSendStatus('error');
-            setAutoSendError(err instanceof Error ? err.message : 'Onbekende fout');
+            setAutoSendError(err instanceof ApiError && err.status === 401
+              ? 'Je leerlingaanmelding ontbreekt of is verlopen. Vraag je docent een nieuwe code; dit resultaat is lokaal bewaard.'
+              : err instanceof Error ? err.message : 'Niet beschikbaar.');
           });
       }
     }

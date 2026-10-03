@@ -6,7 +6,7 @@
  */
 import React, { useState } from 'react';
 import type { SessionReport, JaarlaagStats } from '../../services/sessionReport';
-import { computeAggregateStats } from '../../services/sessionReport';
+import { computeAggregateStats, computeStudentStats } from '../../services/sessionReport';
 import type { UserStats } from '../../services/interactionLog';
 import type { EnrichedUsage } from './types';
 import { scoreColorAggregate, scoreColorPerfectRate } from './colorHelpers';
@@ -67,6 +67,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
   });
 
   const aggregateStats = computeAggregateStats(dateFilteredReports, filterKlas || undefined, filterStudent || undefined);
+  const studentOptions = computeStudentStats(dateFilteredReports, filterKlas || undefined);
 
   // --- Primary KPI computations ---
   const firstAttemptCorrectPct = (() => {
@@ -147,7 +148,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{aggregateStats.totalReports}</div>
           <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Afgeronde sessies</div>
         </div>
-        <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-center" title="Percentage zinsdelen dat in de eerste poging correct was">
+        <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-center" title="Percentage geregistreerde zinnen waarvan het eerste resultaat foutloos was">
           <div className="text-3xl mb-1">{firstAttemptCorrectPct >= 70 ? '🎉' : firstAttemptCorrectPct >= 50 ? '💪' : '📚'}</div>
           <div className={`text-2xl font-bold ${scoreColorPerfectRate(firstAttemptCorrectPct)}`}>
             {firstAttemptCorrectPct > 0 ? `${firstAttemptCorrectPct.toFixed(0)}%` : '—'}
@@ -180,13 +181,13 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
               <span className="font-bold text-amber-600 dark:text-amber-400">{totalShowAnswer}</span>
               <br/><span className="text-[11px] text-slate-400">Antwoord bekeken</span>
             </div>
-            <div title="Hoe vaak leerlingen het na een fout opnieuw hebben geprobeerd (uit interactielog van dit apparaat)">
-              <span className="font-bold text-blue-600 dark:text-blue-400">{totalRetries}</span>
+            <div title="Centrale rapporten bevatten geen volledig log van opnieuw proberen">
+              <span className="font-bold text-blue-600 dark:text-blue-400">{perUserStats.length ? totalRetries : 'Niet gemeten'}</span>
               <br/><span className="text-[11px] text-slate-400">Opnieuw geprobeerd</span>
             </div>
-            <div title="Gemiddeld aantal controles voordat een zin correct is">
+            <div title="Aantal ontvangen oefenresultaten per verschillende zin; dit is geen telling van controleklikken">
               <span className="font-bold text-slate-600 dark:text-slate-400">{avgChecksPerSentence.toFixed(1)}</span>
-              <br/><span className="text-[11px] text-slate-400">Gem. controles per zin</span>
+              <br/><span className="text-[11px] text-slate-400">Oefenresultaten per zin</span>
             </div>
           </div>
         )}
@@ -199,7 +200,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         {allReports.length === 0 ? (
           <div className="text-center py-6">
             <p className="text-slate-500 dark:text-slate-400 mb-1">Nog geen leerlingrapporten ontvangen.</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500">Rapporten worden automatisch verzameld via Google Drive, of je kunt ze handmatig importeren via het tabblad Beheer.</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">Registreer leerlingen bij Beheer en geef ieder een eigen leerlingcode. Afgeronde, succesvol ingestuurde sessies verschijnen hier.</p>
           </div>
         ) : (
           <>
@@ -227,7 +228,9 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                   <select value={filterStudent} onChange={e => setFilterStudent(e.target.value)}
                     className="text-sm px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200">
                     <option value="">Alle leerlingen</option>
-                    {aggregateStats.studentNames.map(n => <option key={n} value={n}>{n}</option>)}
+                    {studentOptions.map(student => <option key={student.studentId || student.name} value={student.studentId ? `id:${student.studentId}` : student.name}>
+                      {student.name}{student.studentId ? ` · ${student.klas} · ${student.studentId.slice(0, 8)}` : ''}
+                    </option>)}
                   </select>
                 </div>
               )}

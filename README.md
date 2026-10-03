@@ -1,6 +1,12 @@
 # Ontleedlab - Technische Documentatie
 
-Een interactieve browser-app die leerlingen (12-15 jaar, onderbouw havo/vwo) leert om Nederlandse zinnen te ontleden. Gebouwd met **React 18**, **TypeScript**, **Vite** en **Tailwind CSS**. Volledig client-side, geen backend nodig.
+Een interactieve browser-app die leerlingen (12-15 jaar, onderbouw havo/vwo) leert om Nederlandse zinnen te ontleden. Gebouwd met **React 18**, **TypeScript**, **Vite** en **Tailwind CSS**. De trainer werkt lokaal; centrale leerlinggegevens en autorisatie lopen via een Cloudflare Worker met private D1-opslag. Zie SECURITY.md en SECURITY_DEPLOYMENT.md.
+
+Voor dagelijks gebruik: [logins en docentomgeving](docs/logins-en-docentomgeving.md).
+Voor eigenaarstoegang: [database rechtstreeks beheren](docs/database-toegang.md).
+De gekozen hosting is [Cloudflare Free met eenmalige leerlingcodes](docs/cloudflare-free.md).
+De nieuwe backend/login is lokaal geïntegreerd en getest; productieactivering en
+persoonlijke toegang vereisen nog de stappen in [SECURITY_DEPLOYMENT.md](SECURITY_DEPLOYMENT.md).
 
 ## 📊 Projectstatus (april 2026)
 
@@ -72,35 +78,55 @@ Voor actuele zinnencontrole en docentplanning:
     ```
     De app draait nu op `http://localhost:5173/` (of vergelijkbaar).
 
-## 🚀 Deployment (GitHub Pages)
+## 🚀 Deployment en security
 
-De app moet gebuild worden omdat browsers geen TypeScript (`.tsx`) begrijpen.
+De productiearchitectuur is **browser → dezelfde HTTPS-origin /api → Worker → private D1**.
+De Worker serveert ook de statische Vite-assets en securityheaders. GitHub Pages
+publiceert de app niet meer. De workflow `.github/workflows/deploy.yml` valideert
+wijzigingen en kan na externe configuratie handmatig naar Cloudflare deployen.
 
-**Automatisch deployen (aanbevolen):**
-De productie-deploy loopt via de GitHub Actions workflow in `.github/workflows/deploy.yml`.
-Bij een push naar `main` bouwt die workflow de app en publiceert `dist` naar GitHub Pages.
+- [SECURITY.md](SECURITY.md): vaste grenzen, dreigingsmodel, rollen, data en tests.
+- [SECURITY_DEPLOYMENT.md](SECURITY_DEPLOYMENT.md): alleen de resterende externe handelingen.
+- Frontend: `npm run dev`; lokaal API-proxy naar localhost:8787.
+- Backend: `npm ci --prefix worker`, kopieer `worker/.dev.vars.example` naar
+  `worker/.dev.vars`, pas uitsluitend developmentconfig aan, maak de lokale
+  database aan met `npx wrangler d1 migrations apply ontleedlab --local` vanuit
+  `worker/`, en start `npm --prefix worker run dev`.
+- Validatie: `npm test`, `npm run test:backend`, `npm run build`,
+  `npm --prefix worker run check`, `npm --prefix worker run build`,
+  `npm run security:check`, `npm run security:git` en dependency-audits.
+- Secrets bestaan alleen lokaal/server-side. `VITE_*`-buildvariabelen worden geweigerd.
 
-**Handmatig:**
-1.  Run: `npm run build`
-2.  Upload de inhoud van de map `dist` naar je webserver.
+## Traceerbare leerlingen
 
----
+Een docent meldt aan via Google en registreert leerlingen in **Beheer → Leerlingregister**.
+Het register bevat naam, optionele initiaal en klas, gekoppeld aan een blijvend
+server-ID. De docent geeft iedere leerling persoonlijk een eenmalige code.
+Leerlingen gebruiken die code op het startscherm; inzendingen worden server-side
+gekoppeld aan hun eigen record, zonder naam of leerling-ID in de submitbody.
+
+Docenten zien uitsluitend hun eigen leerlingen. Owner is een afzonderlijke,
+expliciet toegestane rol. Een nieuwe code herstelt hetzelfde leerlingrecord en
+ontvangen rapporten op een andere laptop en trekt oude leerlingsessies in.
+**Vrij oefenen** gebruikt alleen lokale oefenvoortgang; het wordt niet als
+ontvangen docentwerk getoond. Scores blijven clientaangeleverde oefendata,
+geen fraudebestendige cijferregistratie.
 
 ## 👩‍🏫 Docentenmodus
 
-De app bevat een PIN-beveiligde editor waarmee docenten eigen oefen­zinnen kunnen aanmaken en met leerlingen delen.
+De app bevat een editor voor publieke/lokale zinnen waarmee docenten eigen oefen­zinnen kunnen aanmaken en met leerlingen delen.
 
 ### Toegang
 
 *   Navigeer naar `<app-url>/editor` of `<app-url>/#/editor` (geen link in de interface voor leerlingen).
-*   De standaard pincode is **`1234`**.
+*   Meld aan via `#/login` met een expliciet toegestaan Google-account. De server bepaalt docent-, owner- en editorrechten; browseropslag geeft geen rechten.
 
 ### Functies
 
 *   Nieuwe zinnen aanmaken via een visuele stap-voor-stap editor (tekst → opdelen → rollen toekennen).
 *   Ingebouwde zinnen inzien en als sjabloon kopiëren.
 *   Eigen zinnen exporteren als `.json` (`docent-zinnen.json`).
-*   Deellink genereren: zinnen worden versleuteld meegestuurd als `?zinnen=`-parameter. Leerlingen zien een banner op het startscherm en oefenen direct.
+*   Deellink genereren: publieke lescontent wordt gecodeerd meegestuurd (geen encryptie; zet hier geen persoonsgegevens in) als `?zinnen=`-parameter. Leerlingen zien een banner op het startscherm en oefenen direct.
 
 ### Werkwijze
 
@@ -206,7 +232,7 @@ We onderscheiden twee typen voegwoorden:
 
 ## 🗂️ Domeinarchitectuur (maart 2026)
 
-De app heeft een domeinlaag gekregen die naast de bestaande localStorage-services werkt. Alle nieuwe services slaan data lokaal op in een formaat dat klaar is voor centrale sync.
+De app heeft een domeinlaag gekregen die naast de bestaande localStorage-services werkt. Lokale services bewaren oefen-/UI-data; centrale rapporten en identiteiten hebben een afzonderlijk servercontract.
 
 ### Nieuwe types (`src/types.ts`)
 
@@ -277,8 +303,8 @@ De app heeft een domeinlaag gekregen die naast de bestaande localStorage-service
 
 | Route | Scherm | Toegang |
 |-------|--------|---------|
-| `#/mijn-voortgang` | `StudentDashboardScreen` | Openbaar (voor ingelogde leerling) |
-| `#/docent-dashboard` | `TeacherDashboardScreen` | PIN-beveiligd (zelfde PIN als `#/login`) |
+| `#/mijn-voortgang` | `StudentDashboardScreen` | Eigen centrale rapporten via leerlingcookie; lokale oefenvoortgang apart |
+| `#/docent-dashboard` | `TeacherDashboardScreen` | Serveraanmelding; lokale samenvatting met verwijzing naar centrale rapporten |
 | `#/rollenladder` | *(verborgen)* | Schakelt Rollenladder-modus in en landt op HomeScreen; geen zichtbare link |
 
 ### Migratiestatus
@@ -290,7 +316,7 @@ Alle bestaande localStorage-sleutels blijven **leesbaar en beschrijfbaar** tijde
 | `student_info_v1` | `zinsontleding_students_v1` | Beide actief; `getOrCreateStudent()` migreert automatisch |
 | `custom-sentences` | `zinsontleding_assignments_v1` | Beide actief; `migrateFromCustomSentences()` eenmalig |
 | `zinsontleding_interactions_v1` | `zinsontleding_trainer_activity_v1` | Beide worden geschreven; verwijdering later |
-| `zinsontleding_reports_v1` / Google Drive | `zinsontleding_submissions_v1` | SessionReport-formaat behouden; compat-adapter beschikbaar |
+| `zinsontleding_reports_v1` / private API | `zinsontleding_submissions_v1` | Lokale reports blijven apart; API koppelt ontvangen werk aan server-ID |
 
 ---
 

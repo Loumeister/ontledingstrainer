@@ -86,6 +86,34 @@ Dupliceer algemene frontend-, test-, documentatie-, Git- of planningsmethodiek n
 - Report commands, results, and failures honestly.
 - Do not claim work is done until applicable checks and required review pass.
 
+## Security-invarianten
+
+`SECURITY.md` is het vaste securitycontract; controleer dit bij iedere backend-,
+auth-, externe API-, opslag- of deploymentwijziging.
+
+1. Frontendcode en browseropslag zijn publiek en onbetrouwbaar.
+2. Geen secrets in `VITE_*`; deze frontend weigert alle `VITE_*`-buildinjectie.
+3. Client-side hashes/PINs en localStorage/sessionStorage zijn nooit autorisatie.
+4. Privileged data/acties vereisen server-side authenticatie én autorisatie.
+5. Leerlingen krijgen least privilege, gekoppeld aan een geverifieerde serversessie.
+6. Publieke clients lezen nooit alle leerlinggegevens; docenten alleen eigen records.
+7. Geen secrets, authgegevens of persoonsgegevens in URL-querystrings.
+8. Externe geheime API-keys bestaan uitsluitend server-side/lokaal.
+9. Minimaliseer persoonsgegevens; herkenbare leerlingidentiteit staat in de private backend.
+10. Valideer muterende endpoints server-side, inclusief onbekende velden en grootte.
+11. Externe calls krijgen timeout, foutafhandeling en waar nodig rate-/kostenlimieten.
+12. Logs bevatten geen credentials, authheaders of onnodige leerlinggegevens.
+13. Default-deny bij ontbrekende configuratie, onbekende rol of mislukte auth.
+14. CORS is geen autorisatie en vervangt geen recordownership-controle.
+15. Geen bypasses voor ontwikkelgemak en geen fallback naar de oude Apps Script-route.
+16. Securityrelevante wijzigingen vereisen boundarytests.
+17. Dependency-audit en redacted secret-scanning zijn vaste CI-gates.
+18. Geen productiecredentials in tests, fixtures, screenshots, docs, issues of commits.
+
+Checklist: benoem actor/capability/recordownership; test 401/403/CSRF/limieten;
+scan URL's, assets, logs en CI; beschrijf dataminimalisatie en migratie; voer de
+checks uit `SECURITY.md` uit en review de volledige diff vóór voltooiing.
+
 ## Productgrenzen
 
 - Houd lokale parseuitkomsten, `RoleKey`, JSON-shapes, chunkconventies, evaluatorlogica en feedbackflows lokaal.

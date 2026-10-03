@@ -343,3 +343,49 @@ Ontleedlab blijft in deze specificatie:
 - **niet** de vanzelfsprekende runtime-thuisbasis van het volledige toekomstige geïntegreerde grammatica- en spellingplatform
 
 De parsingdidactische rijkdom blijft dus behouden, maar de repo-gecentreerde platformaanname is losgelaten.
+
+## Actueel security- en identiteitscontract (september 2026)
+
+Centrale opslag en autorisatie zijn onderdeel van de huidige lokale productscope.
+De React-trainer blijft statisch; een kleine Cloudflare Worker met private D1
+handhaaft authenticatie, rollen en leerlingownership. Zie `SECURITY.md` voor het
+normatieve securitycontract en `SECURITY_DEPLOYMENT.md` voor externe configuratie.
+Dit verandert geen parsing-, rol-, chunk- of evaluatiesemantiek.
+
+Traceerbare leerlingen hebben een blijvend server-ID met private naam/klas-koppeling.
+De docent registreert ze en deelt een eenmalige toegangscode; inzendingen ontlenen
+hun identiteit uitsluitend aan de serversessie. Browseropslag blijft lokale
+UI-/oefenstate. Docent/owner/editoraanmelding gebruikt server-verifieerde Google
+identiteit en expliciete allowlists. Geen browser-PIN, wachtwoordhash of gedeelde
+browserkey heeft nog een autorisatiefunctie.
+
+### Planstap 22 — handleidingen en publieke repository
+
+De login- en databasehandleidingen beschrijven dagelijkse bediening en activering.
+Accountlijsten zijn deploymentsecrets, zodat geen e-mailadressen in de openbare
+repository of Actions-deploylogs belanden. Persoonlijke inloggegevens en
+databasegegevens blijven privaat; openbare handleidingen gebruiken geen echte
+accounts. De database- en loginhandleidingen beschrijven activering afzonderlijk.
+
+### Planstap 23 — Cloudflare Free (1 oktober 2026)
+
+De gebruiker kiest Cloudflare Free met private D1 en eenmalige leerlingcodes.
+Dit vervangt de nog niet gepubliceerde vaste loginnaam/wachtwoord uit stap 22:
+geen wachtwoordroutes, scrypt, wachtwoordtabel of Paid CPU-configuratie blijven
+onderdeel van de deployment. Docenten/eigenaar blijven via Google aanmelden.
+
+Een persoonlijke code is 24 uur geldig en één keer bruikbaar; de serversessie
+blijft maximaal 30 dagen geldig. Heruitgifte trekt eerdere codes en sessies in
+en behoudt het leerling-ID, eigenaarschap en alle ontvangen rapporten. Er komt
+geen open registratie en geen autorisatie via browseropslag.
+
+Rapportpagina's bevatten maximaal 20 records om verwerking per request te
+begrenzen; clients volgen cursors en verliezen geen historie. Het register
+blijft gepagineerd op 200 records. Extra database-indexen beperken scans voor
+leerlinghistorie, heruitgifte en het opruimen van verlopen authenticatierecords.
+
+Validatie gebruikt HTTP-boundarytests met echte lokale D1 en een native workerd-
+smoke van Google-signatuurcontrole, OTP, ownership, heruitgifte, historie en
+rate limiting. Lokale tests bewijzen niet dat iedere productieaanroep binnen
+de Free CPU-limiet van 10 ms valt; live CPU-/quotacontrole blijft een expliciete
+deploymentstap. Er wordt geen abonnement geactiveerd of upgrade uitgevoerd.

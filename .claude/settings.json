@@ -1,0 +1,5 @@
+{
+  "enabledPlugins": {
+    "grammar-core-toolkit@grammar-core": true
+  }
+}
