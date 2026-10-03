@@ -10,8 +10,6 @@ Ontleedlab is de lokale ontleedapp. De runtime en tests bepalen huidig gedrag; `
 - Ontleedfeedback: `shared/grammar-core/docs/parsing-didactics-kaders.md`, `shared/grammar-core/docs/feedback-authoring.md`, daarna `src/logic/validation.ts` en `src/constants.ts`
 - Gedeelde canon of sync: `shared/grammar-core/README.md`, `shared/grammar-core/docs/repo-sync-strategy.md`
 
-Lees niet standaard alle docs of skills.
-
 ## Productinvarianten
 
 - Op de gewone URL wijst de leerling alle toepasselijke rollen tegelijk aan. Uitzondering: de persoonsvorm moet als eerste worden gevonden (korte melding, geen popup) en krijgt vanaf niveau 1 verplicht een WG/NG-subrol (genest onder de PV-chunk) voordat gecontroleerd kan worden — zie `requiresPredicateChoice` in `src/logic/validation.ts`.
