@@ -27,6 +27,13 @@ Ontleedlab is de lokale ontleedapp. De runtime en tests bepalen huidig gedrag; `
 - Gebruik Nederlandse UI-tekst, toetsenbordbediening en bestaande Tailwindpatronen.
 - Leid aantallen en status uit code/tests af; schrijf ze niet handmatig in docs.
 
+## Taken
+
+- Werk niet op `main`. Elke taak: issue → branch `<issue>-<slug>` → `.tasks/<issue>.md` op die branch → PR.
+- `.tasks/<issue>.md` heeft frontmatter `issue`, `title`, `status` (`active`, `blocked`, `ready`, `done`), `branch`, `updated` en de secties *Doel*, *Volgende stap* en *Notities*. Houd *Volgende stap* actueel na elke betekenisvolle stap; zet `status: done` in de laatste PR.
+- Commit en push na elke werkende stap, zodat niets alleen lokaal staat.
+- Experimenten zonder issue op `scratch/<naam>`. Maximaal drie taken tegelijk `active`.
+
 ## Controle
 
 ```bash
