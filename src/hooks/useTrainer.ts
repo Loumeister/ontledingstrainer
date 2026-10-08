@@ -6,6 +6,7 @@ import { getCustomSentences } from '../data/customSentenceStore';
 import { recordAttempt, recordShowAnswer } from '../services/usageData';
 import { logInteraction } from '../services/interactionLog';
 import { saveSessionToHistory } from '../services/sessionHistory';
+import { getSessionAdvanceAction, shouldTriggerAutoSend } from '../logic/sessionFlow';
 import {
   computeRoleConfidences,
   saveRoleConfidences,
@@ -495,7 +496,7 @@ export function useTrainer(): TrainerState {
 
   const nextSessionSentence = () => {
     const nextIndex = sessionIndex + 1;
-    if (nextIndex < sessionQueue.length) {
+    if (getSessionAdvanceAction(sessionIndex, sessionQueue.length) === 'next_sentence') {
       setSessionIndex(nextIndex);
       loadSentence(sessionQueue[nextIndex]);
     } else {
@@ -572,7 +573,8 @@ export function useTrainer(): TrainerState {
 
       // Auto-send report to Google Drive if student info and Drive are configured
       const info = loadStudentInfo();
-      if (info.name && info.initiaal && info.klas && getScriptUrl()) {
+      const scriptUrl = getScriptUrl();
+      if (shouldTriggerAutoSend({ name: info.name, initiaal: info.initiaal, klas: info.klas, scriptUrl })) {
         const sentenceIds = sessionQueue.map(s => s.id);
         const dur = sessionStartTimeRef.current !== null
           ? Math.round((Date.now() - sessionStartTimeRef.current) / 1000)
