@@ -167,6 +167,19 @@ describe('corpusToLabData', () => {
     }
   });
 
+  it('houdt naamwoordelijk en werkwoordelijk deel samen op de NG-kaart', () => {
+    const zinnen = makePool(3, () => makeSentence([
+      makeToken('Het kind', 'ow'),
+      makeToken('is', 'pv', { subRole: 'wwd' }),
+      makeToken('ziek', 'ng', { subRole: 'nwd' }),
+      makeToken('geworden.', 'ng', { subRole: 'wwd', newChunk: true }),
+    ], { predicateType: 'NG' }));
+    const { cards } = corpusToLabData(zinnen);
+    const ngCards = cards.filter(c => c.role === 'ng');
+    expect(ngCards).toHaveLength(3);
+    ngCards.forEach(c => expect(c.tokens.map(t => t.text)).toEqual(['ziek', 'geworden.']));
+  });
+
   it('genereert 3 kaarten per zin (één per slot)', () => {
     const zinnen = makePool(3, () => makeOwPvLv());
     const { cards } = corpusToLabData(zinnen);

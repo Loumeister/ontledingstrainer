@@ -33,12 +33,18 @@ describe('getEffectiveFeedback', () => {
       expect(getEffectiveFeedback('ow', 'onbekende_target')).toBeUndefined();
     });
 
-    it('geeft een herstelvraag als een bijzin ten onrechte als NG is gelabeld', () => {
-      expect(getEffectiveFeedback('bijzin', 'ng')).toContain('koppelwerkwoord');
+    it('toetst het gekozen label: wie een NG als bijzin aanwijst, zoekt een eigen onderwerp en PV', () => {
+      expect(getEffectiveFeedback('bijzin', 'ng')).toContain('eigen onderwerp en persoonsvorm');
+    });
+
+    it('laat wie een NG als LV aanwijst nagaan of dit deel een handeling ondergaat', () => {
+      const feedback = getEffectiveFeedback('lv', 'ng');
+      expect(feedback).toContain('ondergaat');
+      expect(feedback).not.toContain('koppelwerkwoord');
     });
 
     it('houdt bijzin-naar-bijstelling beschikbaar voor feedbackoverrides', () => {
-      expect(getEffectiveFeedback('bijzin', 'bijst')).toContain('andere naam');
+      expect(getEffectiveFeedback('bijzin', 'bijst')).toBe(getEffectiveFeedback('bijzin', 'ng'));
     });
   });
 
