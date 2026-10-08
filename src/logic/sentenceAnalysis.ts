@@ -293,6 +293,7 @@ export function getSentenceSols(
 
 export interface RecurringErrorInfo {
   studentName: string;
+  studentId?: string;
   recurringRoles: string[];
 }
 
@@ -300,19 +301,19 @@ export interface RecurringErrorInfo {
  * Count students who have the same role error in 2+ separate sessions.
  */
 export function computeRecurringErrorStudents(
-  reports: Array<{ name: string; err: Record<string, number>; ts: string }>,
+  reports: Array<{ name: string; studentId?: string; err: Record<string, number>; ts: string }>,
   threshold: number = 2,
 ): RecurringErrorInfo[] {
-  // Group reports by student name (lowercase)
-  const byStudent = new Map<string, Array<{ err: Record<string, number>; ts: string }>>();
+  // Server records use stable IDs; names are a legacy offline fallback only.
+  const byStudent = new Map<string, typeof reports>();
   for (const r of reports) {
-    const key = r.name.toLowerCase();
+    const key = r.studentId ? `id:${r.studentId}` : `name:${r.name.toLowerCase()}`;
     if (!byStudent.has(key)) byStudent.set(key, []);
     byStudent.get(key)!.push(r);
   }
 
   const result: RecurringErrorInfo[] = [];
-  for (const [name, sessions] of byStudent) {
+  for (const sessions of byStudent.values()) {
     if (sessions.length < threshold) continue;
     // Count in how many sessions each role error appears
     const roleSessionCount = new Map<string, number>();
@@ -327,7 +328,8 @@ export function computeRecurringErrorStudents(
       .filter(([, count]) => count >= threshold)
       .map(([role]) => role);
     if (recurring.length > 0) {
-      result.push({ studentName: name, recurringRoles: recurring });
+      const latest = sessions[sessions.length - 1];
+      result.push({ studentName: latest.name.toLowerCase(), ...(latest.studentId ? { studentId: latest.studentId } : {}), recurringRoles: recurring });
     }
   }
   return result;

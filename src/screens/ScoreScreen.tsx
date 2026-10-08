@@ -244,11 +244,11 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
         {autoSendStatus !== 'idle' && (
           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800 text-center shadow-lg">
             {autoSendStatus === 'sending' && (
-              <p className="text-blue-700 dark:text-blue-300 text-sm font-medium">📤 Resultaten worden verstuurd…</p>
+              <p role="status" className="text-blue-700 dark:text-blue-300 text-sm font-medium">📤 Resultaten worden verstuurd…</p>
             )}
             {autoSendStatus === 'success' && (
               <div>
-                <p className="text-green-700 dark:text-green-300 font-semibold text-sm">
+                <p role="status" className="text-green-700 dark:text-green-300 font-semibold text-sm">
                   ✓ Resultaten verstuurd naar de docent!
                 </p>
                 <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
@@ -258,7 +258,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
             )}
             {autoSendStatus === 'error' && (
               <div className="space-y-2">
-                <p className="text-red-600 dark:text-red-400 text-sm font-medium">Versturen mislukt: {autoSendError}</p>
+                <p role="alert" className="text-red-600 dark:text-red-400 text-sm font-medium">Versturen mislukt: {autoSendError}</p>
                 {/* Fallback: manual send or copy code */}
                 {!reportCode && (
                   <button
@@ -273,7 +273,7 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
                 )}
                 {reportCode && (
                   <div className="pt-2 border-t border-blue-100 dark:border-blue-800">
-                    <p className="text-xs text-blue-700 dark:text-blue-300 mb-1">Reservecode (geef aan je docent):</p>
+                    <p className="text-xs text-blue-700 dark:text-blue-300 mb-1">Reservecode voor lokale controle door je docent. Dit is geen centrale inzending.</p>
                     <div className="flex gap-2">
                       <input
                         readOnly

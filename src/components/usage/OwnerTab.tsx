@@ -18,12 +18,12 @@ import type { SessionReport } from '../../services/sessionReport';
 import { computeAggregateStats, decodeReport, addReport } from '../../services/sessionReport';
 import { loadInteractionLog, clearInteractionLog, exportInteractionLogAsJson, computeClickthroughStats, computeSessionFlowStats } from '../../services/interactionLog';
 import { loadUsageData } from '../../services/usageData';
-import { fetchReports as fetchReportsFromDrive, getScriptUrl, setScriptUrl, getApiKey, setApiKey, isConfigFromEnv } from '../../services/googleDriveSync';
+import { fetchReports as fetchReportsFromDrive } from '../../services/googleDriveSync';
 import type { DriveRow } from '../../services/googleDriveSync';
-import { applyAliases } from '../../services/nameAliases';
 import { normaliseKlas } from '../../services/sessionReport';
 import FeedbackEditorTab from '../FeedbackEditorTab';
 import LabActivitySection from '../LabActivitySection';
+import { api } from '../../services/secureApi';
 
 // ---------------------------------------------------------------------------
 // Props
@@ -54,11 +54,6 @@ export const OwnerTab: React.FC<OwnerTabProps> = ({
   setDriveStatus,
   setDriveError,
 }) => {
-  // Drive settings
-  const [driveUrlInput, setDriveUrlInput] = useState(() => getScriptUrl());
-  const [apiKeyInput, setApiKeyInput] = useState(() => getApiKey());
-  const [driveSettingsSaved, setDriveSettingsSaved] = useState(false);
-
   // Manual import
   const [reportInput, setReportInput] = useState('');
   const [reportMsg, setReportMsg] = useState<{ text: string; ok: boolean } | null>(null);
@@ -66,13 +61,6 @@ export const OwnerTab: React.FC<OwnerTabProps> = ({
   // Collapsible sections
   const [showInteractionLog, setShowInteractionLog] = useState(false);
   const [showRawData, setShowRawData] = useState(false);
-
-  const handleSaveDriveSettings = () => {
-    setScriptUrl(driveUrlInput);
-    setApiKey(apiKeyInput);
-    setDriveSettingsSaved(true);
-    setTimeout(() => setDriveSettingsSaved(false), 2000);
-  };
 
   const handleImportReport = () => {
     const decoded = decodeReport(reportInput);
@@ -99,7 +87,7 @@ export const OwnerTab: React.FC<OwnerTabProps> = ({
           if (!r.initiaal && row.initiaal) r.initiaal = row.initiaal;
           if (!r.klas && row.klas) r.klas = normaliseKlas(row.klas);
           else if (r.klas) r.klas = normaliseKlas(r.klas);
-          applyAliases(r);
+          r.studentId = row.studentId;
           return r;
         })
         .filter((r): r is SessionReport => r !== null);
@@ -123,6 +111,14 @@ export const OwnerTab: React.FC<OwnerTabProps> = ({
 
   return (
     <div className="space-y-6">
+      <section className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+        <h3 className="font-bold text-slate-700 dark:text-white">Accountbeveiliging</h3>
+        <button type="button" className="mt-3 p-2 border rounded-lg text-slate-700 dark:text-slate-200" onClick={() => {
+          if (!confirm('Alle andere docentsessies intrekken? Zij moeten opnieuw aanmelden.')) return;
+          void api('/owner/sessions/revoke', {}).then(() => setReportMsg({ text: 'Andere docentsessies ingetrokken.', ok: true })).catch(() => setReportMsg({ text: 'Intrekken niet gelukt.', ok: false }));
+        }}>Andere docentsessies intrekken</button>
+        {reportMsg && <p role="status" className="text-sm mt-2 text-slate-700 dark:text-slate-200">{reportMsg.text}</p>}
+      </section>
 
       {/* ================================================================= */}
       {/* TIER 1: Owner management tools                                     */}
@@ -148,11 +144,11 @@ export const OwnerTab: React.FC<OwnerTabProps> = ({
 
         {/* Fetch from Drive */}
         <div className="mb-4">
-          <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Haal alle ingestuurde resultaten op uit Google Drive</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Haal alle ingestuurde resultaten op uit de beveiligde opslag</p>
           <button onClick={handleFetchFromDrive}
-            disabled={driveStatus === 'fetching' || !getScriptUrl()}
+            disabled={driveStatus === 'fetching'}
             className="w-full py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            {driveStatus === 'fetching' ? 'Ophalen...' : `Haal resultaten op uit Drive${driveReports.length > 0 ? ` (${driveReports.length} geladen)` : ''}`}
+            {driveStatus === 'fetching' ? 'Ophalen...' : `Haal resultaten op uit de beveiligde opslag${driveReports.length > 0 ? ` (${driveReports.length} geladen)` : ''}`}
           </button>
           {driveStatus === 'success' && (
             <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
@@ -162,11 +158,7 @@ export const OwnerTab: React.FC<OwnerTabProps> = ({
           {driveStatus === 'error' && (
             <p className="text-xs text-red-600 dark:text-red-400 mt-1">{driveError}</p>
           )}
-          {!getScriptUrl() && (
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-              Drive-koppeling niet ingesteld. Configureer de Apps Script URL hieronder.
-            </p>
-          )}
+
         </div>
 
         {/* Manual import */}
@@ -199,45 +191,6 @@ export const OwnerTab: React.FC<OwnerTabProps> = ({
             </p>
           );
         })()}
-      </div>
-
-      {/* Drive Settings */}
-      <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-        <h3 className="font-bold text-slate-700 dark:text-white text-sm mb-3">Google Drive koppeling</h3>
-        <div className="space-y-3">
-          {isConfigFromEnv() && (
-            <p className="text-[10px] text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1.5 rounded-lg border border-green-200 dark:border-green-800">
-              Koppeling is ingebakken in de build (env var). Alle leerlingen uploaden automatisch naar het Google Sheet. Waarden die je hieronder opslaat hebben voorrang.
-            </p>
-          )}
-          <div>
-            <label className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Apps Script Web App URL</label>
-            <input type="url" value={driveUrlInput} onChange={e => setDriveUrlInput(e.target.value)}
-              placeholder="https://script.google.com/macros/s/.../exec"
-              className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:border-blue-500 outline-none" />
-          </div>
-          <div>
-            <label className="text-xs text-slate-500 dark:text-slate-400 block mb-1">
-              API-sleutel <span className="text-[10px] text-slate-400">(kopieer en plak ook in de Apps Script eigenschappen)</span>
-            </label>
-            <div className="flex gap-2">
-              <input type="text" value={apiKeyInput} onChange={e => setApiKeyInput(e.target.value)}
-                className="flex-1 px-3 py-2 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:border-blue-500 outline-none" />
-              <button onClick={() => { const k = crypto.randomUUID(); setApiKeyInput(k); }}
-                className="px-2 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-                title="Genereer nieuwe sleutel">Nieuw</button>
-              <button onClick={() => navigator.clipboard.writeText(apiKeyInput)}
-                className="px-2 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Kopieer</button>
-            </div>
-          </div>
-          <button onClick={handleSaveDriveSettings}
-            className="w-full py-2 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-700 transition-colors">
-            {driveSettingsSaved ? 'Opgeslagen' : 'Sla koppeling op'}
-          </button>
-          <p className="text-[10px] text-slate-400 dark:text-slate-500">
-            Zie <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded">docs/google-drive-koppeling.md</code> voor stap-voor-stap setup-instructies.
-          </p>
-        </div>
       </div>
 
       {/* ================================================================= */}

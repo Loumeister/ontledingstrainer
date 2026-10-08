@@ -3,12 +3,11 @@
  *
  * Stores a history of rename/merge actions in localStorage so that
  * teachers can undo accidental renames. Undo reverses the local rename
- * in reports + aliases and attempts a best-effort Drive update.
+ * in local reports + aliases only. It never changes registered server records.
  */
 
 import { renameKlas, renameStudent } from './sessionReport';
 import { setKlasAlias, clearKlasAlias, setStudentAlias, clearStudentAlias } from './nameAliases';
-import { getScriptUrl, renameKlasOnDrive, renameStudentOnDrive } from './googleDriveSync';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -95,31 +94,20 @@ export function undoMergeAction(id: string): MergeAction | null {
   const action = history.find(a => a.id === id);
   if (!action || action.undone) return null;
 
-  // Reverse the rename locally, then attempt Drive sync.
-  // Set a reverse alias (newValue → oldValue) so future Drive fetches
-  // map correctly even if the Drive rename fails.
+  // Legacy names and local history are unsuitable for central record identity.
+  // Reverse the rename only in the local offline data and aliases.
   switch (action.type) {
     case 'rename_klas':
     case 'merge_klas':
       renameKlas(action.newValue, action.oldValue);
-      // Reverse alias: future Drive rows with newValue → oldValue
+      // Reverse alias for local offline rows only.
       setKlasAlias(action.newValue, action.oldValue);
       clearKlasAlias(action.oldValue);
-      if (getScriptUrl()) {
-        renameKlasOnDrive(action.newValue, action.oldValue)
-          .then(() => clearKlasAlias(action.newValue))
-          .catch(() => { /* alias stays in place as safety net */ });
-      }
       break;
     case 'rename_student':
       renameStudent(action.newValue, action.oldValue);
       setStudentAlias(action.newValue, action.oldValue);
       clearStudentAlias(action.oldValue);
-      if (getScriptUrl()) {
-        renameStudentOnDrive(action.newValue, action.oldValue)
-          .then(() => clearStudentAlias(action.newValue))
-          .catch(() => { /* alias stays in place as safety net */ });
-      }
       break;
   }
 
