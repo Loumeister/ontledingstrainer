@@ -87,18 +87,6 @@
     ]
   },
   {
-    "id": 5008,
-    "label": "Instap 8: Muziek",
-    "predicateType": "WG",
-    "level": 0,
-    "tokens": [
-      { "id": "s5008t1", "text": "Wij", "role": "ow" },
-      { "id": "s5008t2", "text": "luisteren", "role": "pv" },
-      { "id": "s5008t3", "text": "naar", "role": "bwb" },
-      { "id": "s5008t4", "text": "muziek.", "role": "bwb" }
-    ]
-  },
-  {
     "id": 5009,
     "label": "Instap 9: Kaartjes",
     "predicateType": "WG",

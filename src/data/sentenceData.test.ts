@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { Sentence } from '../types';
 import { getBijzinAnalyseProblems, getBijzinTokenGroups } from '../logic/bijzinAnalysis';
-import { BETREKKELIJKE_BIJZIN_LEVEL } from '../logic/validation';
+import { BETREKKELIJKE_BIJZIN_LEVEL, roleMatchesToken, validateAnswer, getExpectedPredicateType } from '../logic/validation';
 import { ROLES_PER_LEVEL } from '../constants';
 import level0 from './sentences-level-0.json';
 import level1 from './sentences-level-1.json';
@@ -29,6 +29,31 @@ describe('zinnendata — identiteit', () => {
 
   it('heeft in elke zin een persoonsvorm', () => {
     expect(all.filter(s => !s.tokens.some(t => t.role === 'pv')).map(s => s.id)).toEqual([]);
+  });
+});
+
+describe('zinnendata — eigen annotatie is na te maken', () => {
+  it('rekent het antwoord volgens de annotatie in elke zin volledig goed', () => {
+    // Vangt o.a. een alternativeRole die de verplichte knip met het vorige zinsdeel opheft (zin 91).
+    const fout = all.flatMap(s => {
+      const splits = new Set<number>();
+      s.tokens.forEach((t, i) => { const n = s.tokens[i + 1]; if (n && (n.role !== t.role || n.newChunk)) splits.add(i); });
+      const labels: Record<string, string> = {};
+      const gezegde: Record<string, string> = {};
+      const functie: Record<string, string> = {};
+      let begin = true;
+      s.tokens.forEach((t, i) => {
+        if (begin) {
+          labels[t.id] = t.role;
+          if (t.role === 'pv') gezegde[t.id] = getExpectedPredicateType(s, t.id);
+          if (t.bijzinFunctie) functie[t.id] = t.bijzinFunctie;
+        }
+        begin = splits.has(i);
+      });
+      const { result } = validateAnswer(s, splits, labels as never, {}, false, functie as never, {}, {}, gezegde as never);
+      return Object.entries(result.chunkStatus).filter(([, v]) => v !== 'correct').map(([i, v]) => `${s.id}:${i} ${v}`);
+    });
+    expect(fout).toEqual([]);
   });
 });
 
@@ -88,6 +113,69 @@ describe('zinnendata — docentcorrecties', () => {
     expect(s.tokens.map(t => t.text).join(' ')).toBe('Aan haar oma stuurt Sara een kaart.');
     expect(s.tokens.filter(t => t.role === 'ow').map(t => t.text)).toEqual(['Sara']);
     expect(s.tokens.filter(t => t.role === 'mv').map(t => t.text)).toEqual(['Aan', 'haar', 'oma']);
+  });
+});
+
+describe('zinnendata — gold-set 2026-09 (blinde docentbeoordeling)', () => {
+  it('geeft zinnen met een gewijzigde antwoordsleutel een nieuw id, zodat oude pogingen niet tegen de nieuwe sleutel worden gelezen', () => {
+    // Gebruiksgegevens, docentnotities en rapporten zijn alleen op zin-id opgeslagen.
+    // 81 → 518 (NG → WG met BWB), 304 → 519 (VV → MV), 5008 → 520 (BWB → VV), 442 → 517 (andere zin).
+    expect(all.filter(s => [81, 304, 442, 5008].includes(s.id))).toEqual([]);
+    expect(byId(518).tokens.map(t => t.text).join(' ')).toBe('De journalist noemde de politicus tijdens het debat een gevaarlijke populist.');
+    expect(byId(519).tokens.map(t => t.text).join(' ')).toBe('Door die ex-voetballer wordt aan de kijker een geweldige analyse gegeven.');
+    expect(byId(520).tokens.map(t => t.text).join(' ')).toBe('Wij luisteren naar muziek.');
+  });
+
+  it('"luisteren naar" is een voorzetselvoorwerp en staat daarom pas op niveau 2 (zin 520)', () => {
+    const s = byId(520);
+    expect(s.level).toBe(2);
+    expect(s.tokens.filter(t => ['naar', 'muziek.'].includes(t.text)).map(t => t.role)).toEqual(['vv', 'vv']);
+  });
+
+  it('"aan de kijker" is het meewerkend voorwerp bij geven (zin 519)', () => {
+    expect(byId(519).tokens.filter(t => ['aan', 'de', 'kijker'].includes(t.text)).map(t => t.role)).toEqual(['mv', 'mv', 'mv']);
+  });
+
+  it.each([
+    [91, ['als', 'een', 'meesterwerk.'], 'vv', 'bwb'],
+    [438, ['op', 'de', 'bus.'], 'bwb', 'vv'],
+    [448, ['voor', 'deze', 'mannen'], 'bwb', 'mv'],
+    [505, ['aan', 'de', 'klas'], 'mv', 'vv'],
+  ] as const)('zin %i: beide verdedigbare lezingen worden goedgekeurd', (id, words, role, alt) => {
+    const chunk = byId(id).tokens.filter(t => (words as readonly string[]).includes(t.text) && t.role === role);
+    expect(chunk.map(t => t.text)).toEqual(words);
+    // Zelfde regel als de leerlingbeoordeling: élk woord van het zinsdeel moet het label toestaan.
+    for (const label of [role, alt]) expect(chunk.every(t => roleMatchesToken(label, t))).toBe(true);
+  });
+
+  it('VV/BWB-paar 3 houdt zijn contrast zonder tweede lezing: denken aan (VV, 441) tegenover zitten aan (BWB, 517)', () => {
+    const pp = (id: number) => byId(id).tokens.slice(3);
+    expect(byId(517).tokens.map(t => t.text).join(' ')).toBe('De leerlingen zitten aan de tafel.');
+    expect(pp(441).map(t => [t.text, t.role, t.alternativeRole])).toEqual([['aan', 'vv', undefined], ['de', 'vv', undefined], ['toets.', 'vv', undefined]]);
+    expect(pp(517).map(t => [t.text, t.role, t.alternativeRole])).toEqual([['aan', 'bwb', undefined], ['de', 'bwb', undefined], ['tafel.', 'bwb', undefined]]);
+  });
+
+  it('staat met de tweede lezing VV op een niveau waar VV kiesbaar is (zin 505)', () => {
+    expect(ROLES_PER_LEVEL[byId(505).level]).toContain('vv');
+  });
+
+  it('annoteert noemen + naamwoordgroep overal als WG met BWB (zinnen 518, 312)', () => {
+    for (const id of [518, 312]) {
+      const s = byId(id);
+      expect(s.predicateType).toBe('WG');
+      expect(s.tokens.some(t => t.role === 'ng')).toBe(false);
+      expect(s.tokens.at(-1)!.role).toBe('bwb');
+    }
+  });
+
+  it('bevat geen letterlijk dubbele zinnen', () => {
+    const texts = all.map(s => s.tokens.map(t => t.text).join(' ').toLowerCase());
+    expect(texts.filter((t, i) => texts.indexOf(t) !== i)).toEqual([]);
+  });
+
+  it('bevat geen zinnen met "er" als eigen zinsdeel (docentbesluit: niet eenduidig te benoemen)', () => {
+    const offenders = all.filter(s => s.tokens.some(t => /^er[.,!?]?$/i.test(t.text))).map(s => s.id);
+    expect(offenders).toEqual([]);
   });
 });
 
