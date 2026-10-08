@@ -6,6 +6,7 @@ import {
   computeRecurringErrorStudents,
   getSentenceSols,
 } from './sentenceAnalysis';
+import { buildUserChunks } from './validation';
 import type { Token, Sentence } from '../types';
 
 // --- Helper factories ---
@@ -78,8 +79,12 @@ describe('buildStudentChunks', () => {
   ]);
 
   it('creates chunks from split indices', () => {
-    const sol = { sp: [2], lb: { s1w0: 'ow', s1w2: 'pv' } };
+    // sp is opgeslagen zoals useTrainer het bewaart: index van het laatste woord van een zinsdeel
+    const sol = { sp: [1], lb: { s1w0: 'ow', s1w2: 'pv' } };
     const chunks = buildStudentChunks(sentence, sol);
+    expect(chunks.map(c => c.tokens.map(t => t.id))).toEqual(
+      buildUserChunks(sentence.tokens, new Set(sol.sp)).map(c => c.tokens.map(t => t.id)),
+    );
     expect(chunks).toHaveLength(2);
     expect(chunks[0].tokens.map(t => t.text)).toEqual(['De', 'kat']);
     expect(chunks[0].role).toBe('ow');
@@ -95,7 +100,7 @@ describe('buildStudentChunks', () => {
   });
 
   it('handles unlabeled chunks (null role)', () => {
-    const sol = { sp: [2], lb: {} };
+    const sol = { sp: [1], lb: {} };
     const chunks = buildStudentChunks(sentence, sol);
     expect(chunks[0].role).toBeNull();
     expect(chunks[1].role).toBeNull();
@@ -112,8 +117,8 @@ describe('compareSentence', () => {
       makeToken({ id: 's1w1', text: 'kat', role: 'ow' }),
       makeToken({ id: 's1w2', text: 'slaapt', role: 'pv' }),
     ]);
-    // Student split at 2 (between "kat" and "slaapt"), labeled correctly
-    const sol = { sp: [2], lb: { s1w0: 'ow', s1w2: 'pv' } };
+    // Student split after "kat" (index 1), labeled correctly
+    const sol = { sp: [1], lb: { s1w0: 'ow', s1w2: 'pv' } };
     const result = compareSentence(sentence, sol);
 
     expect(result.summary.splitErrors).toBe(0);
@@ -129,7 +134,7 @@ describe('compareSentence', () => {
       makeToken({ id: 's1w2', text: 'slaapt', role: 'pv' }),
     ]);
     // Student split correctly but labeled wrong
-    const sol = { sp: [2], lb: { s1w0: 'ow', s1w2: 'lv' } };
+    const sol = { sp: [1], lb: { s1w0: 'ow', s1w2: 'lv' } };
     const result = compareSentence(sentence, sol);
 
     expect(result.summary.labelErrors).toBeGreaterThan(0);
@@ -144,8 +149,8 @@ describe('compareSentence', () => {
       makeToken({ id: 's1w1', text: 'kat', role: 'ow' }),
       makeToken({ id: 's1w2', text: 'slaapt', role: 'pv' }),
     ]);
-    // Student splits at wrong place (index 1 instead of 2)
-    const sol = { sp: [1], lb: { s1w0: 'ow', s1w1: 'ow' } };
+    // Student splits at wrong place (after "De" instead of after "kat")
+    const sol = { sp: [0], lb: { s1w0: 'ow', s1w1: 'ow' } };
     const result = compareSentence(sentence, sol);
 
     expect(result.summary.splitErrors).toBeGreaterThan(0);
@@ -158,10 +163,10 @@ describe('compareSentence', () => {
       makeToken({ id: 's1w2', text: 'slaapt', role: 'pv' }),
     ]);
     // Student splits every word (too many chunks)
-    const sol = { sp: [1, 2], lb: { s1w0: 'ow', s1w1: 'ow', s1w2: 'pv' } };
+    const sol = { sp: [0, 1], lb: { s1w0: 'ow', s1w1: 'ow', s1w2: 'pv' } };
     const result = compareSentence(sentence, sol);
 
-    // Extra split at index 1 is a groepering error
+    // Extra split after "De" is a groepering error
     expect(result.summary.splitErrors).toBeGreaterThan(0);
     // Total should reflect actual boundary points, not just expectedChunks.length
     expect(result.summary.total).toBeGreaterThanOrEqual(
@@ -176,11 +181,32 @@ describe('compareSentence', () => {
       makeToken({ id: 's1w2', text: 'ik', role: 'ow' }),
     ]);
     // Student labels first token with alternativeRole
-    const sol = { sp: [1, 2], lb: { s1w0: 'vv', s1w1: 'pv', s1w2: 'ow' } };
+    const sol = { sp: [0, 1], lb: { s1w0: 'vv', s1w1: 'pv', s1w2: 'ow' } };
     const result = compareSentence(sentence, sol);
 
     expect(result.summary.labelErrors).toBe(0);
     expect(result.summary.splitErrors).toBe(0);
+  });
+
+  it('keurt alternativeRole alleen goed als elk woord van het zinsdeel die rol toestaat (zoals validation.ts)', () => {
+    const sentence = makeSentence([
+      makeToken({ id: 's1w0', text: 'Gisteren', role: 'bwb', alternativeRole: 'vv' }),
+      makeToken({ id: 's1w1', text: 'avond', role: 'bwb' }),
+      makeToken({ id: 's1w2', text: 'liep', role: 'pv' }),
+      makeToken({ id: 's1w3', text: 'ik', role: 'ow' }),
+    ]);
+    const sol = { sp: [1, 2], lb: { s1w0: 'vv', s1w2: 'pv', s1w3: 'ow' } };
+    const result = compareSentence(sentence, sol);
+
+    expect(result.summary.splitErrors).toBe(0);
+    expect(result.summary.labelErrors).toBe(1);
+    expect(result.tokenComparisons[0].errorType).toBe('benoeming');
+
+    // Splitst de leerling het zinsdeel, dan telt alleen het eigen woord: alleen een groeperingsfout
+    const splitSol = { sp: [0, 1, 2], lb: { s1w0: 'vv', s1w1: 'bwb', s1w2: 'pv', s1w3: 'ow' } };
+    const splitResult = compareSentence(sentence, splitSol);
+    expect(splitResult.summary.labelErrors).toBe(0);
+    expect(splitResult.summary.splitErrors).toBe(1);
   });
 
   it('handles missing student splits (fewer chunks than expected)', () => {
