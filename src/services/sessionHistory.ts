@@ -72,10 +72,22 @@ export function saveSessionToHistory(entry: SessionHistoryEntry): void {
 }
 
 /**
- * Calculate streak: number of consecutive days (including today) with at least one session.
+ * Eigen sessies van één leerling. Zonder studentId (anonieme leerling) is er
+ * geen betrouwbare eigen geschiedenis: sessies zonder id delen één bak met
+ * iedereen die deze browser anoniem gebruikte. Rollenladder-sessies
+ * (adaptiveExcluded) dragen bewust geen identiteit en tellen dus niet mee.
  */
-export function getStreak(): number {
-  const history = loadSessionHistory();
+function ownSessions(studentId?: string | null): SessionHistoryEntry[] {
+  if (!studentId) return [];
+  return loadSessionHistory().filter(e => !e.adaptiveExcluded && e.studentId === studentId);
+}
+
+/**
+ * Calculate streak: number of consecutive days (including today) with at least
+ * one session of this student. 0 without studentId.
+ */
+export function getStreak(studentId?: string | null): number {
+  const history = ownSessions(studentId);
   if (history.length === 0) return 0;
 
   // Get unique dates (YYYY-MM-DD), most recent first
@@ -108,10 +120,11 @@ function daysDiff(dateA: string, dateB: string): number {
 }
 
 /**
- * Get the previous session's score percentage (or null if no previous session).
+ * Get this student's previous session score percentage (or null if the
+ * student has no own session yet, or no studentId).
  */
-export function getPreviousScore(): number | null {
-  const history = loadSessionHistory();
+export function getPreviousScore(studentId?: string | null): number | null {
+  const history = ownSessions(studentId);
   // The current session hasn't been saved yet when this is called,
   // so the last entry in history is the previous session
   if (history.length === 0) return null;

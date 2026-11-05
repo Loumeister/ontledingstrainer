@@ -10,8 +10,6 @@ Ontleedlab is de lokale ontleedapp. De runtime en tests bepalen huidig gedrag; `
 - Ontleedfeedback: `shared/grammar-core/docs/parsing-didactics-kaders.md`, `shared/grammar-core/docs/feedback-authoring.md`, daarna `src/logic/validation.ts` en `src/constants.ts`
 - Gedeelde canon of sync: `shared/grammar-core/README.md`, `shared/grammar-core/docs/repo-sync-strategy.md`
 
-Lees niet standaard alle docs of skills.
-
 ## Productinvarianten
 
 - Op de gewone URL wijst de leerling alle toepasselijke rollen tegelijk aan. Uitzondering: de persoonsvorm moet als eerste worden gevonden (korte melding, geen popup) en krijgt vanaf niveau 1 verplicht een WG/NG-subrol (genest onder de PV-chunk) voordat gecontroleerd kan worden — zie `requiresPredicateChoice` in `src/logic/validation.ts`.
@@ -28,6 +26,13 @@ Lees niet standaard alle docs of skills.
 - Voeg bij niet-triviale logica één kleine regressietest toe.
 - Gebruik Nederlandse UI-tekst, toetsenbordbediening en bestaande Tailwindpatronen.
 - Leid aantallen en status uit code/tests af; schrijf ze niet handmatig in docs.
+
+## Taken
+
+- Werk niet op `main`. Elke taak: issue → branch `<issue>-<slug>` → `.tasks/<issue>.md` op die branch → PR.
+- `.tasks/<issue>.md` heeft frontmatter `issue`, `title`, `status` (`active`, `blocked`, `ready`, `done`), `branch`, `updated` en de secties *Doel*, *Volgende stap* en *Notities*. Houd *Volgende stap* actueel na elke betekenisvolle stap; zet `status: done` in de laatste PR.
+- Commit en push na elke werkende stap, zodat niets alleen lokaal staat.
+- Experimenten zonder issue op `scratch/<naam>`. Maximaal drie taken tegelijk `active`.
 
 ## Controle
 

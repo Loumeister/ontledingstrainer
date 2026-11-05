@@ -12,7 +12,7 @@ import {
   getPerfectSessionCount, incrementPerfectSessionCount,
 } from '../services/sessionHistory';
 import { practicedRoleOutcomes, RoleMasteryStore } from '../services/rolemastery';
-import { loadRoleConfidencesFor, type RoleTally } from '../logic/adaptiveSelection';
+import { findHistoryStudentId, loadRoleConfidencesFor, type RoleTally } from '../logic/adaptiveSelection';
 import { buildReport, encodeReport } from '../services/sessionReport';
 import { getScriptUrl } from '../services/googleDriveSync';
 import { getLadderStage } from '../logic/rollenladder';
@@ -74,7 +74,11 @@ export const ScoreScreen: React.FC<ScoreScreenProps> = ({
   // Session history (includes the just-saved session as the last entry)
   const history = useMemo(() => loadSessionHistory(), []);
   const previousScore = history.length >= 2 ? history[history.length - 2].scorePercentage : null;
-  const streak = useMemo(() => getStreak(), []);
+  // Rollenladder-sessies dragen geen identiteit en tellen niet mee in de reeks.
+  const streak = useMemo(
+    () => (ladderEnabled ? 0 : getStreak(findHistoryStudentId(studentNameProp, studentInitiaalProp, studentKlasProp))),
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  []);
 
   // PR: check & update once on mount
   const [isNewPR, prevPR] = useMemo(() => {
