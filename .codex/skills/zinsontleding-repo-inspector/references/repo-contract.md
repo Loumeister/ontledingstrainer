@@ -6,8 +6,8 @@ Dit is een **lokaal productcontract** voor Ontleedlab. Het beschrijft alleen de 
 
 Bronnen: `src/types.ts`, `src/constants.ts`, `src/data/sentences-level-0.json`, `src/data/sentences-level-4.json`.
 
-- Huidige rol-definities in `ROLES`: `pv`, `ow`, `lv`, `mv`, `bwb`, `vv`, `bijst`, `wg`, `wwd`, `ng`, `nwd`, `bijzin`, `vw_neven`, `bijv_bep`, `vw_onder`.
-- In de huidige `ROLES` zijn `wwd`, `nwd`, `bijv_bep` en `vw_onder` gemarkeerd als `isSubOnly`.
+- Huidige rol-definities in `ROLES`: `pv`, `ow`, `lv`, `mv`, `bwb`, `vv`, `bijst`, `wg`, `wwd`, `ng`, `nwd`, `bijzin`, `vw_neven`, `bijv_bep`, `bijw_bep`, `vw_onder`.
+- In de huidige `ROLES` zijn `wwd`, `nwd`, `bijv_bep`, `bijw_bep` en `vw_onder` gemarkeerd als `isSubOnly`.
 - `RoleKey` in `src/types.ts` bevat daarnaast ook `wd`, maar daarvoor is in de huidige `ROLES` geen aparte `RoleDefinition` zichtbaar.
 - `ng` is in de huidige repo wél een expliciete hoofdrol in `ROLES`.
 
@@ -21,6 +21,7 @@ Bronnen: `src/types.ts`, `src/data/sentences-level-0.json`, `src/data/sentences-
 - Een `Token` bevat minimaal: `id`, `text`, `role`.
 - Optionele tokenvelden in het huidige model: `subRole`, `newChunk`, `alternativeRole`, `bijzinFunctie`, `bijvBepTarget`.
 - Chunkgrenzen volgen opeenvolgende tokens en kunnen expliciet worden afgedwongen met `newChunk: true`, ook als de hoofdrol gelijk blijft.
+- Binnen een `ng` zijn naamwoordelijk deel en werkwoorden (`subRole: wwd`) aparte zinsdelen: het eerste token na die grens krijgt `newChunk: true` (*ernstig ziek | geworden*).
 - `subRole` markeert interne rolinformatie binnen een hoofdlabel.
 - `bijzinFunctie` koppelt een bijzin aan zijn functie in de hoofdzin.
 - `bijvBepTarget` koppelt een bijvoeglijke bepaling of bijvoeglijke bijzin aan een doeltoken.
@@ -40,12 +41,13 @@ Bronnen: `src/types.ts`, `src/constants.ts`, `src/data/sentences-level-0.json`, 
 - Nevenschikking via `vw_neven`.
 - Onderschikking wordt in de huidige data gemarkeerd via `subRole: vw_onder` binnen een `bijzin`.
 - Bijvoeglijke bepaling op woordniveau via `subRole: bijv_bep` en `bijvBepTarget`.
+- Een bepaling bij een bijvoeglijk naamwoord (*ernstig* ziek, *veel te* duur, een *erg* productieve) is een bijwoordelijke bepaling: `subRole: bijw_bep`, zonder `bijvBepTarget`. Net als de BB is die woordrol op elk niveau optioneel (schakelaar, standaard uit); zie `isWordBepalingAsked` in `src/logic/validation.ts`.
 
 ## Feedback hooks
 
 Bron: `src/constants.ts`.
 
-- `FEEDBACK_MATRIX` voor korte, controleerbare herstelvragen bij relevante rolverwisselingen.
+- `FEEDBACK_MATRIX[gekozen label][juiste rol]` voor korte, controleerbare herstelvragen bij relevante rolverwisselingen. De vraag toetst het **gekozen** label (bijv. LV: ondergaat dit deel een handeling?), niet de definitie van de juiste rol.
 - `FEEDBACK_STRUCTURE` voor knip- en structuurfeedback.
 - `FEEDBACK_BIJZIN_FUNCTIE` voor vervolgfeedback bij goed gevonden bijzinnen met functiekeuze.
 - `FEEDBACK_SWAP` voor gevallen waarin een bijzin wel een functie heeft maar als vorm anders beoordeeld moet worden.
@@ -92,6 +94,7 @@ De lokale `RoleKey`-waarden in dit repo vallen in de **product-local short label
 | `bijzin` | `bijzin` |
 | `vw_neven` | `nevenschikkend_voegwoord` |
 | `bijv_bep` | `bijvoeglijke_bepaling` |
+| `bijw_bep` | `bijwoordelijke_bepaling` (woordniveau, binnen een zinsdeel) |
 | `vw_onder` | `onderschikkend_voegwoord` |
 | `wwd` | `werkwoordelijk_deel` (canoniek deellabel; niet in shorthand-mapping §1.2 — zie opmerking) |
 | `nwd` | `naamwoordelijk_deel` (canoniek deellabel; wél in shorthand-mapping §1.2) |

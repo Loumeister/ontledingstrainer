@@ -9,6 +9,7 @@ import { PredicateMode, FocusKey, FocusAvailability } from '../logic/sentenceFil
 import { nextRadioIndex } from '../logic/radioKeys';
 import { getPreviousScore, getStreak } from '../services/sessionHistory';
 import { getLadderStage, LADDER_STAGES } from '../logic/rollenladder';
+import { findHistoryStudentId } from '../logic/adaptiveSelection';
 
 type HomeScreenProps = Pick<TrainerState,
   | 'predicateMode' | 'setPredicateMode'
@@ -21,6 +22,7 @@ type HomeScreenProps = Pick<TrainerState,
   | 'focusBB' | 'setFocusBB'
   | 'includeVV' | 'setIncludeVV'
   | 'includeBB' | 'setIncludeBB'
+  | 'includeBijwBep' | 'setIncludeBijwBep'
   | 'includeGezegdeDelen' | 'setIncludeGezegdeDelen'
   | 'includeBijzinAnalyse' | 'setIncludeBijzinAnalyse'
   | 'showHelp' | 'setShowHelp'
@@ -142,6 +144,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   focusBB, setFocusBB,
   includeVV, setIncludeVV,
   includeBB, setIncludeBB,
+  includeBijwBep, setIncludeBijwBep,
   includeGezegdeDelen, setIncludeGezegdeDelen,
   includeBijzinAnalyse, setIncludeBijzinAnalyse,
   bijzinOntledingAvailable,
@@ -183,10 +186,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       for (const t of s.tokens) {
         present.add(t.role);
         if (t.subRole === 'bijv_bep' && includeBB) present.add(t.subRole);
+        if (t.subRole === 'bijw_bep' && includeBijwBep) present.add(t.subRole);
       }
     }
     return ROLES.filter(r => present.has(r.key));
-  }, [availableSentences, includeBB]);
+  }, [availableSentences, includeBB, includeBijwBep]);
 
   const focusState: Record<FocusKey, [boolean, (v: boolean) => void]> = {
     lv: [focusLV, setFocusLV], mv: [focusMV, setFocusMV], vv: [focusVV, setFocusVV], ng: [focusNG, setFocusNG], bb: [focusBB, setFocusBB],
@@ -205,10 +209,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusReasons.lv, focusReasons.mv, focusReasons.vv, focusReasons.ng, focusReasons.bb]);
 
-  // Welcome card data — gelezen eenmalig bij mount; sessionHistory verandert niet
-  // zolang HomeScreen getoond wordt, dus lege deps zijn correct.
-  const previousScore = useMemo(() => getPreviousScore(), []);
-  const streak = useMemo(() => getStreak(), []);
+  // Welkomstkaart: alleen eigen sessies van de huidige leerling (zelfde id als
+  // bij opslaan). sessionHistory verandert niet zolang HomeScreen getoond wordt,
+  // maar de leerling kan hier wel van naam wisselen.
+  const historyStudentId = useMemo(
+    () => findHistoryStudentId(studentName, studentInitiaal, studentKlas),
+    [studentName, studentInitiaal, studentKlas],
+  );
+  const previousScore = useMemo(() => getPreviousScore(historyStudentId), [historyStudentId]);
+  const streak = useMemo(() => getStreak(historyStudentId), [historyStudentId]);
   const motivatieZin = (score: number): string => {
     if (score >= 80) return 'Geweldig gedaan — ga zo door!';
     if (score >= 50) return 'Goed bezig — nog even oefenen!';
@@ -555,6 +564,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   onChange={(v) => { setIncludeBB(v); if (!v) setFocusBB(false); }}
                   onText="Je benoemt ook de bijvoeglijke bepalingen binnen een zinsdeel."
                   offText="Hoef je niet te benoemen. De zinnen blijven hetzelfde."
+                />
+                <ToggleCard
+                  title="Bijwoordelijke bepaling in een zinsdeel"
+                  checked={includeBijwBep}
+                  onChange={setIncludeBijwBep}
+                  onText="Je benoemt ook een BWB binnen een zinsdeel, zoals 'ernstig' in 'ernstig ziek'."
+                  offText="Hoef je niet te benoemen. Het woord hoort gewoon bij zijn zinsdeel."
                 />
                 <ToggleCard
                   title="Werkwoordelijk en naamwoordelijk deel"

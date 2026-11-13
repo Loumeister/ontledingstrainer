@@ -348,8 +348,7 @@
         "id": "s404t4",
         "text": "zeer",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s404t5"
+        "subRole": "bijw_bep"
       },
       {
         "id": "s404t5",
@@ -1142,8 +1141,7 @@
         "id": "s413t11",
         "text": "erg",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s413t12"
+        "subRole": "bijw_bep"
       },
       {
         "id": "s413t12",
@@ -1334,8 +1332,7 @@
         "id": "s422t7",
         "text": "erg",
         "role": "ng",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s422t8"
+        "subRole": "bijw_bep"
       },
       {
         "id": "s422t8",

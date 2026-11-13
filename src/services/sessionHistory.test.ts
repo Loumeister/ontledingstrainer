@@ -109,29 +109,41 @@ describe('trimSessionHistory', () => {
 
 // ── getStreak ─────────────────────────────────────────────────────────────────
 
+const own = (date: string, studentId: string, scorePercentage = 80): SessionHistoryEntry =>
+  ({ ...makeEntry(date, scorePercentage), studentId });
+
+function daysAgo(n: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString();
+}
+
 describe('getStreak', () => {
   it('geeft 0 terug als er geen sessies zijn', () => {
-    expect(getStreak()).toBe(0);
+    expect(getStreak('sam')).toBe(0);
   });
 
   it('geeft 0 terug als de laatste sessie ouder is dan gisteren', () => {
-    store[HIST_KEY] = JSON.stringify([makeEntry('2020-01-01')]);
-    expect(getStreak()).toBe(0);
+    store[HIST_KEY] = JSON.stringify([own('2020-01-01', 'sam')]);
+    expect(getStreak('sam')).toBe(0);
   });
 
   it('telt aaneengesloten dagen correct', () => {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-    const dayBefore = new Date(today);
-    dayBefore.setDate(today.getDate() - 2);
-
     store[HIST_KEY] = JSON.stringify([
-      makeEntry(dayBefore.toISOString()),
-      makeEntry(yesterday.toISOString()),
-      makeEntry(today.toISOString()),
+      own(daysAgo(2), 'sam'),
+      own(daysAgo(1), 'sam'),
+      own(daysAgo(0), 'sam'),
     ]);
-    expect(getStreak()).toBe(3);
+    expect(getStreak('sam')).toBe(3);
+  });
+
+  it('geeft 0 zonder studentId (anoniem) en negeert Rollenladder-sessies', () => {
+    store[HIST_KEY] = JSON.stringify([
+      makeEntry(daysAgo(0)),
+      { ...makeEntry(daysAgo(0)), adaptiveExcluded: true },
+    ]);
+    expect(getStreak()).toBe(0);
+    expect(getStreak(null)).toBe(0);
   });
 });
 
@@ -139,15 +151,45 @@ describe('getStreak', () => {
 
 describe('getPreviousScore', () => {
   it('geeft null terug als er geen sessies zijn', () => {
-    expect(getPreviousScore()).toBeNull();
+    expect(getPreviousScore('sam')).toBeNull();
   });
 
-  it('geeft het scorePercentage van de laatste sessie terug', () => {
+  it('geeft het scorePercentage van de laatste eigen sessie terug', () => {
     store[HIST_KEY] = JSON.stringify([
-      makeEntry('2026-01-01', 60),
-      makeEntry('2026-01-02', 95),
+      own('2026-01-01', 'sam', 60),
+      own('2026-01-02', 'sam', 95),
     ]);
-    expect(getPreviousScore()).toBe(95);
+    expect(getPreviousScore('sam')).toBe(95);
+  });
+
+  it('negeert anonieme en Rollenladder-sessies', () => {
+    store[HIST_KEY] = JSON.stringify([
+      own('2026-01-01', 'sam', 60),
+      makeEntry('2026-01-02', 10),
+      { ...makeEntry('2026-01-03', 20), adaptiveExcluded: true },
+    ]);
+    expect(getPreviousScore('sam')).toBe(60);
+    expect(getPreviousScore()).toBeNull();
+  });
+});
+
+// Regressie: op een gedeelde laptop toonde 'Welkom terug' de score en reeks
+// van de vorige gebruiker van de browser.
+describe('twee leerlingen in één geschiedenis', () => {
+  it('geeft elke leerling de eigen vorige score en reeks', () => {
+    store[HIST_KEY] = JSON.stringify([
+      own(daysAgo(2), 'anna', 50),
+      own(daysAgo(1), 'anna', 70),
+      own(daysAgo(1), 'bram', 30),
+      own(daysAgo(0), 'anna', 90),
+      own(daysAgo(0), 'bram', 40), // bram oefende het laatst op deze browser
+    ]);
+    expect(getPreviousScore('anna')).toBe(90);
+    expect(getStreak('anna')).toBe(3);
+    expect(getPreviousScore('bram')).toBe(40);
+    expect(getStreak('bram')).toBe(2);
+    expect(getPreviousScore('nieuw')).toBeNull();
+    expect(getStreak('nieuw')).toBe(0);
   });
 });
 
