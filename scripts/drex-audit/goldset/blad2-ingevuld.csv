@@ -1,0 +1,51 @@
+﻿nr;zin_id;zin;zinsdeel;human_role (OW/LV/MV/VV/BWB/NWD/BIJST/anders);ambiguous (ja/nee);note
+1;324;De kat is op het dak, maar de hond blijft rustig in de tuin.;de hond;OW;;
+2;505;De juf stelt de nieuwe leerling aan de klas voor.;aan de klas;VV / MV;j;
+3;339;Dat jullie vandaag winnen verrast mij.;mij;LV;;
+4;65;De agent zag de verdachte hard wegrennen.;de verdachte;LV;;
+5;305;De journalist leek tijdens het debat de nieuwe minister met zijn voorganger te vergelijken.;de nieuwe minister;LV;;
+6;494;De scheidsrechter gaf de spits een gele kaart.;de spits;MV;j;Context dwingt MV af
+7;130;Er hangt een vreemde sfeer in dit huis.;Er;BWB;;Er is notoir moeilijk om te benoemen: weglaten.
+8;461;De leerlingen schrijven aan de toets.;aan de toets;VV;;Weinig voorkomend.
+9;5049;Wij wensen jullie een fijne vakantie.;jullie;MV;;
+10;29;De docent vertelt het antwoord aan de klas.;het antwoord;LV;;
+11;312;De onderzoekers noemen deze onverwachte uitkomst in hun publicatie een belangrijke kanteling in het debat.;een belangrijke kanteling in het debat;BWB;j;Twijfel
+12;5042;Het koor zingt vals.;vals;BWB;;
+13;129;Er is gisteren een ernstig ongeluk gebeurd.;Er;BWB;j;Er is notoir moeilijk om te benoemen: weglaten.
+14;76;Na het tentamen gaf de professor elke student uitgebreide feedback.;elke student;MV;;
+15;34;De scheidsrechter start het duel.;het duel;LV;;
+16;5034;Een oud echtpaar bewoont de villa.;de villa;LV;;
+17;118;Dit boek is voor mij een echte aanrader.;voor mij;MV;;
+18;88;Ik probeer al maanden mijn conditie te verbeteren.;al maanden;BWB;;
+19;515;Is aan iedereen een rooster gestuurd?;een rooster;LV;;
+20;315;Denk maar eens goed na over jouw toekomst.;maar;BWB;;
+21;5038;De film duurt twee uur.;twee uur;BWB;j;
+22;327;Het spannende verhaal over de piraten maakte veel indruk op ons.;op ons;BWB;;
+23;27;De timmerman repareert de oude deur.;De timmerman;OW;;
+24;29;De docent vertelt het antwoord aan de klas.;aan de klas;MV;;
+25;442;De leerlingen schrijven aan de toets.;aan de toets;VV / BWB;j;
+26;448;Breien is voor deze mannen een eitje.;voor deze mannen;MV;j;Eventueel BWB?
+27;35;Bloemen koopt Timo.;Timo;OW;j;Context dwingt OW af.
+28;128;Er zitten twee duiven op het dak.;Er;BWB;;Er = moeilijk
+29;328;Gisteren was het grote cadeau van mijn opa een grote verrassing.;een grote verrassing;NWD;;
+30;136;Leveren jullie de boeken vandaag weer in?;de boeken;LV;;
+31;453;Achteraf bleek deze snoeischaar de beste.;deze snoeischaar;OW;;
+32;47;Onze hond wordt langzaam oud.;Onze hond;OW;;
+33;151;De buurman geeft mij elke ochtend een knik.;een knik;LV;;
+34;508;Hem werd de toegang geweigerd.;Hem;MV;;
+35;84;De directeur laat zijn assistent alle documenten zorgvuldig archiveren.;zijn assistent;MV;j;Niet in de klassieke betekenis: geen ontvanger. Hoe los je dat didactisch op?
+36;507;Aan de winnaar werd een beker uitgereikt.;een beker;LV;;
+37;322;Mijn vader kocht mijn moeder een mooie ketting.;een mooie ketting;LV;j;Ongebruikelijke constructie
+38;126;Noteer dat telefoonnummer direct in je agenda.;in je agenda;BWB;;
+39;510;Ons werd niets verteld.;Ons;MV;;
+40;317;Er ontbreken drie belangrijke pagina's in dit rapport.;Er;BWB;;Er=moeilijk: eruit@
+41;83;Hebben jullie hem gisteren nog een eerlijke kans gegeven?;hem;MV;;
+42;15;Bij de ingang zag ik plotseling twee geüniformeerde surveillanten verschijnen.;twee geüniformeerde surveillanten;LV;;
+43;133;Dat geheim vertel ik niemand.;niemand;MV;;
+44;309;Wij vinden het soms lastig om aan ons huiswerk te werken.;lastig;BWB;;
+45;485;Wie heb jij geholpen?;Wie;LV;;
+46;115;De sfeer in de klas is de laatste weken behoorlijk gespannen.;de laatste weken;BWB;;
+47;122;Deze opgave blijkt voor veel leerlingen een grote uitdaging.;een grote uitdaging;NWD;;
+48;62;De kinderen kregen van de juf een sticker na de toets.;van de juf;BWB;j;Een lezing waarbij de kinderen MV is, ligt voor de hand als er puur over actoren wordt nagedacht.
+49;311;Twee tieners op een sneeuwscooter gaven vorige maand uit nood een duw aan een vastgelopen slee.;aan een vastgelopen slee;MV;;
+50;67;Hebben jullie hem toen een kans gegeven?;hem;MV;;

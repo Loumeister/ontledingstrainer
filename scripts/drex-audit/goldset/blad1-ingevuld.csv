@@ -1,0 +1,79 @@
+﻿nr;zin_id;zin;zinsdeel;jouw_rol (OW/LV/MV/VV/BWB/NWD/BIJST/anders);twee_lezingen_verdedigbaar (ja/nee);opmerking
+1;45;Die film was erg spannend.;Die film;OW;n;
+2;304;Door die ex-voetballer wordt aan de kijker een geweldige analyse gegeven.;aan de kijker;MV;n;
+3;42;Na het eten dekt Femke de tafel.;de tafel;LV;n;
+4;300;De bakker, mijn oom Kees, maakt elke vrijdag verse bolussen.;mijn oom Kees;BIJST;n;
+5;77;De bevolking bleef afhankelijk van internationale hulp tijdens de droogte.;van internationale hulp;VV;j;
+6;424;De man bleek een goede vader te zijn.;een goede vader te zijn;NWD+WWD-PV;n;
+7;420;Het liedje dat zij zong klonk prachtig.;prachtig;BWB;n;
+8;309;Wij vinden het soms lastig om aan ons huiswerk te werken.;aan ons huiswerk;VV;j;
+9;403;Sinds vorig jaar is Max, mijn buurjongen, piloot, want hij heeft zijn studie afgerond.;mijn buurjongen;BIJST;n;
+10;301;De chef-kok, meneer Lu, werd vanmorgen woedend.;meneer Lu;BIJST;n;
+11;5027;Slapen de kinderen?;de kinderen;OW;n;
+12;310;Mijn broer, een ervaren gamer, kocht gisteren voor zijn vrienden een nieuwe controller.;een nieuwe controller;LV;n;
+13;16;Veel lawaai maakten ze niet.;niet;BWB;n;
+14;448;Breien is voor deze mannen een eitje.;een eitje;NWD+NG;n;
+15;319;Het team trok zich gisteren terug.;gisteren;BWB;n;
+16;417;De leraar heeft de toets al nagekeken.;de toets;LV;n;
+17;513;De bezoekers werd een gratis drankje aangeboden.;een gratis drankje;LV;n;
+18;504;Heb jij je tante al een kaart gestuurd?;je tante;MV;n;
+19;500;Dat boek heb ik mijn zus gegeven.;Dat boek;LV;;
+20;308;De mentor, mevrouw Van Vliet, blijkt na alle gesprekken heel tevreden.;na alle gesprekken;BWB;;
+21;144;Mijn broer wordt elke winter ziek.;ziek;NWD+NG;;
+22;308;De mentor, mevrouw Van Vliet, blijkt na alle gesprekken heel tevreden.;mevrouw Van Vliet;BIJST;;
+23;315;Denk maar eens goed na over jouw toekomst.;over jouw toekomst;BWB;;
+24;500;Dat boek heb ik mijn zus gegeven.;mijn zus;MV;;
+25;21;Mila leest een spannend boek.;een spannend boek;LV;;
+26;318;Er schijnen in dit gebied wolven te leven.;Er;BWB;;Er is erg moeilijk te benoemen, deze moet er uit.
+27;512;Deze vraag wordt ons vaak gesteld.;vaak;BWB;;
+28;20;De bakker bakt vers brood.;vers brood;LV;;
+29;414;Op het plein wachtten wij op de bus.;op de bus;VV;;
+30;32;Elke avond leest opa de krant.;de krant;LV;;
+31;104;Volgens recente rapporten heeft de regering de structurele problemen jarenlang bewust onderbelicht gelaten.;onderbelicht;BWB;;
+32;90;Het terugvinden van vogelnesten blijft een moeilijke klus.;een moeilijke klus;NWD;;
+33;154;De leerlingen wachten op de bus.;De leerlingen;VV;j;
+34;5008;Wij luisteren naar muziek.;naar muziek;VV;;
+35;120;Mijn buurman is sinds kort voorzitter van de vereniging.;voorzitter van de vereniging;NWD;;
+36;310;Mijn broer, een ervaren gamer, kocht gisteren voor zijn vrienden een nieuwe controller.;een ervaren gamer;BIJST;;
+37;466;Ik vergiste mij in het lokaal, waardoor ik te laat kwam.;in het lokaal;VV;;
+38;514;Aan mijn opa is een lintje toegekend.;een lintje;OW;;
+39;305;De journalist leek tijdens het debat de nieuwe minister met zijn voorganger te vergelijken.;met zijn voorganger;VV;;
+40;446;Cindy is programmeur in Bangladesh.;programmeur;NWD;;
+41;108;De toon van het debat is volgens critici de afgelopen jaren verhard.;volgens critici;BWB;;
+42;24;Aan haar oma stuurt Sara een kaart.;Sara;OW;;
+43;142;Ze weigerde hem de toegang.;hem;MV;;
+44;5019;Stuur jij mij het adres?;jij;OW;;
+45;86;Onze leraar Nederlands lijkt de laatste tijd iets strenger dan vorig jaar.;Onze leraar Nederlands;OW;;
+46;316;Ben eens even stil.;stil;NWD;;
+47;415;Voor de vakantie zorgde mijn moeder altijd voor opa.;altijd;BWB;;
+48;113;Onze leraar Nederlands is een strenge maar rechtvaardige docent.;een strenge maar rechtvaardige docent;NWD;;
+49;306;Tijdens een zoektocht naar zijn ouders werd hem inzicht in zijn herkomst geschonken.;inzicht in zijn herkomst;LV;;
+50;100;De natuurfotograaf rekent op het betere licht van de namiddag.;op het betere licht van de namiddag;VV;j;
+51;24;Aan haar oma stuurt Sara een kaart.;Aan haar oma;MV;;
+52;516;Tijdens de les werd ons een korte film getoond.;ons;MV;;
+53;99;De student gaf zijn moeder trots zijn eerste wetenschappelijke artikel.;zijn moeder;MV;;
+54;91;De kunsthistoricus beschrijft dat schilderij in deze brochure als een meesterwerk.;als een meesterwerk;BWB;;
+55;314;Jouw idee is op dit moment het meest realistische plan.;het meest realistische plan;NWD;;
+56;81;De journalist noemde de politicus tijdens het debat een gevaarlijke populist.;de politicus;OW;j;context leidt tot politicus als OW
+57;99;De student gaf zijn moeder trots zijn eerste wetenschappelijke artikel.;trots;BWB;;
+58;140;Die grapjassen bezorgden de leraar hoofdpijn.;de leraar;MV;;
+59;5025;Leen jij mij je pen?;mij;MV;;
+60;498;Geef jij Daan de bal terug?;Daan;MV;;
+61;322;Mijn vader kocht mijn moeder een mooie ketting.;mijn moeder;MV;j;Eigenlijk geen voorkomende Nederlandse constructie
+62;427;Na de lange vergadering over het rooster besloot de mentor tot uitstel.;tot uitstel;VV;;
+63;81;De journalist noemde de politicus tijdens het debat een gevaarlijke populist.;een gevaarlijke populist;BWB;j;Ik begrijp een lezing waar dit toch als NWD gelezen wordt
+64;49;Mijn zus bakt elke woensdag lekkere koekjes.;lekkere koekjes;LV;;
+65;416;De leerlingen rekenden op hulp op het examen.;op hulp;VV;;
+66;469;Wie heeft gewonnen?;Wie;OW;;
+67;5050;Een voorbijganger wijst ons de weg.;de weg;LV;;Staande uitdrukking?
+68;7;Mijn nichtje raakte per ongeluk haar telefoon kwijt.;Mijn nichtje;OW;;
+69;438;De ouders springen op de bus.;op de bus;VV / BWB;j;Hier kan het echt allebei
+70;5045;Om acht uur begint de les.;Om acht uur;BWB;;
+71;121;De sfeer op het feest werd laat op de avond steeds gezelliger.;steeds gezelliger;NWD;;
+72;497;Opa leest de kinderen een verhaal voor.;de kinderen;MV;;
+73;501;Een jongen bood de oude dame zijn zitplaats aan.;de oude dame;MV;;
+74;334;Ik bak koekjes, dus jij proeft straks.;Ik;OW;;
+75;73;Het huis lijkt na de verbouwing een stuk groter.;een stuk groter;NWD;;
+76;402;Ik ben in de war, maar ik bedenk wel een oplossing.;een oplossing;LV;;
+77;56;Onze groep maakt de presentatie morgen.;de presentatie;LV;;
+78;97;Wij hopen op een oplossing voor dit probleem.;op een oplossing voor dit probleem;VV;;
