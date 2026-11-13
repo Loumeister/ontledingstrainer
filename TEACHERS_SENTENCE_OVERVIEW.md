@@ -197,10 +197,10 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 60 | Moeder wast mijn wedstrijdtenue zorgvuldig. | OW · PV · LV · BWB | WG |
 | 417 | De leraar heeft de toets al nagekeken. | OW · PV · LV · BWB · WG | WG |
 | 418 | Wij waren gisteren naar het strand gefietst. | OW · PV · BWB · BWB · WG | WG |
-| 419 | Mijn zusje is deze week ziek geworden. | OW · PV · BWB · NG | NG |
-| 424 | De man bleek een goede vader te zijn. | OW · PV · NG | NG |
-| 425 | Het kind is ernstig ziek geworden. | OW · PV · NG | NG |
-| 426 | De leraar lijkt een strenge rechter te worden. | OW · PV · NG | NG |
+| 419 | Mijn zusje is deze week ziek geworden. | OW · PV · BWB · NG · NG | NG |
+| 424 | De man bleek een goede vader te zijn. | OW · PV · NG · NG | NG |
+| 425 | Het kind is ernstig ziek geworden. | OW · PV · NG · NG | NG |
+| 426 | De leraar lijkt een strenge rechter te worden. | OW · PV · NG · NG | NG |
 | 428 | Tijdens de laatste minuten van de wedstrijd bleef de aanvoerder kalm. | BWB · PV · OW · NG | NG |
 | 429 | Met al die extra informatie kan de commissie morgen een besluit nemen. | BWB · PV · OW · BWB · LV · WG | WG |
 | 430 | Volgens de nieuwe planning heeft de coördinator de groepen al ingedeeld. | BWB · PV · OW · LV · BWB · WG | WG |
@@ -341,7 +341,7 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 144 | Mijn broer wordt elke winter ziek. | OW · PV · BWB · NG | NG |
 | 145 | Die leraar is altijd streng. | OW · PV · BWB · NG | NG |
 | 146 | De taart was ontzettend lekker. | OW · PV · NG | NG |
-| 147 | Zij wil later dokter worden. | OW · PV · BWB · NG | NG |
+| 147 | Zij wil later dokter worden. | OW · PV · BWB · NG · NG | NG |
 | 148 | Het water in het zwembad bleef lekker warm. | OW · PV · NG | NG |
 | 149 | Jij lijkt precies op je vader. | OW · PV · BWB · VZV | WG |
 | 150 | De buurman groet mij elke ochtend. | OW · PV · LV · BWB | WG |
@@ -368,13 +368,13 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 438 | De ouders springen op de bus. | OW · PV · BWB | WG |
 | 441 | De leerlingen denken aan de toets. | OW · PV · VZV | WG |
 | 442 | De leerlingen schrijven aan de toets. | OW · PV · BWB | WG |
-| 449 | Roosmarijn is alsnog manager geworden. | OW · PV · BWB · NG | NG |
+| 449 | Roosmarijn is alsnog manager geworden. | OW · PV · BWB · NG · NG | NG |
 | 451 | Met die kleuren is het bos prachtig dit seizoen. | BWB · PV · OW · NG · BWB | NG |
-| 452 | Vincent is nooit een betrouwbare jongen geweest. | OW · PV · BWB · NG | NG |
+| 452 | Vincent is nooit een betrouwbare jongen geweest. | OW · PV · BWB · NG · NG | NG |
 | 453 | Achteraf bleek deze snoeischaar de beste. | BWB · PV · OW · NG | NG |
-| 455 | Erna is lang ziek geweest. | OW · PV · BWB · NG | NG |
-| 457 | Mijn vader is nu ook fan van Antoon geworden. | OW · PV · BWB · NG | NG |
-| 458 | Gisteren is Francisca heel de dag vrolijk gebleven. | BWB · PV · OW · BWB · NG | NG |
+| 455 | Erna is lang ziek geweest. | OW · PV · BWB · NG · NG | NG |
+| 457 | Mijn vader is nu ook fan van Antoon geworden. | OW · PV · BWB · NG · NG | NG |
+| 458 | Gisteren is Francisca heel de dag vrolijk gebleven. | BWB · PV · OW · BWB · NG · NG | NG |
 | 459 | Met twee linkerhanden word je nooit een goede bouwvakker. | BWB · PV · OW · BWB · NG | NG |
 | 507 | Aan de winnaar werd een beker uitgereikt. | MV · PV · OW · WG | WG |
 | 508 | Hem werd de toegang geweigerd. | MV · PV · OW · WG | WG |
@@ -424,7 +424,7 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 328 | Gisteren was het grote cadeau van mijn opa een grote verrassing. | BWB · PV · OW · NG | NG |
 | 329 | Ik weet dat hij morgen komt. | OW · PV · BIJZIN (LV) | WG |
 | 330 | Wij bleven binnen omdat het hard regende. | OW · PV · BWB · BIJZIN (BWB) | WG |
-| 331 | Jan bleek een goede koning geworden te zijn. | OW · PV · NG | NG |
+| 331 | Jan bleek een goede koning geworden te zijn. | OW · PV · NG · NG | NG |
 | 332 | De bus vertrekt, en wij wachten geduldig. | OW · PV · NEVEN · OW · PV · BWB | WG |
 | 333 | Nora leest, maar Sam schrijft een verslag. | OW · PV · NEVEN · OW · PV · LV | WG |
 | 334 | Ik bak koekjes, dus jij proeft straks. | OW · PV · LV · NEVEN · OW · PV · BWB | WG |
@@ -436,8 +436,8 @@ OW = S, PV = V, eerste LV of MV = O. Alles waar de PV vóór het OW staat, is in
 | 340 | Noor leest de uitleg, en Sam noteert de kernwoorden. | OW · PV · LV · NEVEN · OW · PV · LV | WG |
 | 341 | De bel gaat, maar de klas blijft opvallend stil. | OW · PV · NEVEN · OW · PV · NG | NG |
 | 450 | Tot onze grote verbazing werd onze collega na de loterijtrekking miljonair. | BWB · PV · OW · BWB · NG | NG |
-| 454 | Taco is nooit een erg productieve werknemer geweest. | OW · PV · BWB · NG | NG |
-| 456 | Die snelle telefoon is veel te duur geworden. | OW · PV · NG | NG |
+| 454 | Taco is nooit een erg productieve werknemer geweest. | OW · PV · BWB · NG · NG | NG |
+| 456 | Die snelle telefoon is veel te duur geworden. | OW · PV · NG · NG | NG |
 | 470 | Mijn broertjes vervelen zich. | OW · PV · WG | WG |
 
 ### Samengesteld (4)
