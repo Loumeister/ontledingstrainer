@@ -179,6 +179,7 @@ export default function App() {
         focusMV={trainer.focusMV} setFocusMV={trainer.setFocusMV}
         includeVV={trainer.includeVV} setIncludeVV={trainer.setIncludeVV}
         includeBB={trainer.includeBB} setIncludeBB={trainer.setIncludeBB}
+        includeBijwBep={trainer.includeBijwBep} setIncludeBijwBep={trainer.setIncludeBijwBep}
         includeGezegdeDelen={trainer.includeGezegdeDelen} setIncludeGezegdeDelen={trainer.setIncludeGezegdeDelen}
         bijzinOntledingAvailable={bijzinOntledingAvailable}
         includeBijzinAnalyse={trainer.includeBijzinAnalyse} setIncludeBijzinAnalyse={trainer.setIncludeBijzinAnalyse}
@@ -256,7 +257,7 @@ export default function App() {
       darkMode={trainer.darkMode} setDarkMode={trainer.setDarkMode}
       largeFont={trainer.largeFont} setLargeFont={trainer.setLargeFont}
       dyslexiaMode={trainer.dyslexiaMode} setDyslexiaMode={trainer.setDyslexiaMode}
-      includeVV={trainer.includeVV} includeBB={trainer.includeBB} includeGezegdeDelen={trainer.includeGezegdeDelen}
+      includeVV={trainer.includeVV} includeBB={trainer.includeBB} includeBijwBep={trainer.includeBijwBep} includeGezegdeDelen={trainer.includeGezegdeDelen}
       bijzinAnalyseEnabled={bijzinOntledingAvailable && trainer.includeBijzinAnalyse}
       focusVV={trainer.focusVV} focusBijzin={trainer.focusBijzin}
       selectedLevel={trainer.selectedLevel}
