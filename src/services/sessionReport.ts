@@ -38,7 +38,7 @@ export interface SessionReport {
   sols?: Array<{
     /** Sentence ID */
     sid: number;
-    /** Token indices where a new chunk starts (splitIndices) */
+    /** Token indices where a chunk ends (splitIndices, see buildUserChunks) */
     sp: number[];
     /** chunkFirstTokenId → roleKey as submitted by the student */
     lb: Record<string, string>;
