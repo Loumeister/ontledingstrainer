@@ -3534,19 +3534,22 @@
       {
         "id": "s448t3",
         "text": "voor",
-        "role": "bwb"
+        "role": "bwb",
+        "alternativeRole": "mv"
       },
       {
         "id": "s448t4",
         "text": "deze",
         "role": "bwb",
+        "alternativeRole": "mv",
         "subRole": "bijv_bep",
         "bijvBepTarget": "s448t5"
       },
       {
         "id": "s448t5",
         "text": "mannen",
-        "role": "bwb"
+        "role": "bwb",
+        "alternativeRole": "mv"
       },
       {
         "id": "s448t6",
@@ -4970,69 +4973,6 @@
     ],
     "structuralTags": [
       "samengestelde tijd"
-    ]
-  },
-  {
-    "id": 505,
-    "label": "Zin 505: De juf stelt de nieuwe leerling aan de klas voor",
-    "predicateType": "WG",
-    "level": 1,
-    "tokens": [
-      {
-        "id": "s505t1",
-        "text": "De",
-        "role": "ow"
-      },
-      {
-        "id": "s505t2",
-        "text": "juf",
-        "role": "ow"
-      },
-      {
-        "id": "s505t3",
-        "text": "stelt",
-        "role": "pv"
-      },
-      {
-        "id": "s505t4",
-        "text": "de",
-        "role": "lv"
-      },
-      {
-        "id": "s505t5",
-        "text": "nieuwe",
-        "role": "lv",
-        "subRole": "bijv_bep",
-        "bijvBepTarget": "s505t6"
-      },
-      {
-        "id": "s505t6",
-        "text": "leerling",
-        "role": "lv"
-      },
-      {
-        "id": "s505t7",
-        "text": "aan",
-        "role": "mv"
-      },
-      {
-        "id": "s505t8",
-        "text": "de",
-        "role": "mv"
-      },
-      {
-        "id": "s505t9",
-        "text": "klas",
-        "role": "mv"
-      },
-      {
-        "id": "s505t10",
-        "text": "voor.",
-        "role": "wg"
-      }
-    ],
-    "structuralTags": [
-      "LV en MV zijn allebei personen"
     ]
   },
   {
