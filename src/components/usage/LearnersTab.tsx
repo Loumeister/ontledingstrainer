@@ -154,7 +154,7 @@ export const LearnersTab: React.FC<LearnersTabProps> = ({
   const studentReports = useMemo(() => {
     if (!filterStudent) return [];
     return allReports
-      .filter(r => (r.name || '').toLowerCase() === filterStudent.toLowerCase())
+      .filter(r => (r.studentId || r.name || '').toLowerCase() === filterStudent.toLowerCase())
       .sort((a, b) => b.ts.localeCompare(a.ts)); // most recent first
   }, [allReports, filterStudent]);
 
@@ -285,23 +285,24 @@ export const LearnersTab: React.FC<LearnersTabProps> = ({
             </thead>
             <tbody>
               {sortedStudentStats.map(st => {
-                const isSelected = filterStudent.toLowerCase() === st.name.toLowerCase();
+                const identity = st.studentId || st.name;
+                const isSelected = filterStudent.toLowerCase() === identity.toLowerCase();
                 const trend = computeTrend(
-                  allReports.filter(r => (r.name || '').toLowerCase() === st.name.toLowerCase()),
+                  allReports.filter(r => (r.studentId || r.name || '').toLowerCase() === identity.toLowerCase()),
                 );
                 const uStats = findUserStats(perUserStats, st.name);
                 return (
                   <tr
-                    key={st.name}
+                    key={identity}
                     className={`border-b border-slate-100 dark:border-slate-700/50 cursor-pointer
                       ${isSelected
                         ? 'bg-blue-50 dark:bg-blue-900/20'
                         : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
                       }`}
-                    onClick={() => setFilterStudent(isSelected ? '' : st.name)}
+                    onClick={() => setFilterStudent(isSelected ? '' : identity)}
                   >
                     <td className="py-2 px-2 font-medium text-slate-800 dark:text-slate-200">
-                      {st.name}
+                      {st.name}{st.studentId && <span className="block text-xs text-slate-500">ID: {st.studentId}</span>}
                     </td>
                     <td className="py-2 px-2 text-slate-600 dark:text-slate-400">
                       {st.sessionCount}
@@ -359,7 +360,7 @@ export const LearnersTab: React.FC<LearnersTabProps> = ({
       {filterStudent && (
         <div className="mt-4 space-y-4">
           <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200">
-            {filterStudent}
+            {studentReports[0]?.name || filterStudent}
           </h3>
 
           {/* Summary cards */}

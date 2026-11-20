@@ -8,6 +8,8 @@
  */
 
 export interface SessionReport {
+  /** Server-assigned identity on centrally received reports; never submitted by browser. */
+  studentId?: string;
   /** Version tag for forward-compat */
   v: 1;
   /** Student first name */
@@ -248,11 +250,16 @@ export function computeAggregateStats(
 
   const filtered = reports.filter(r => {
     if (normFilterKlas && normaliseKlas(r.klas ?? '') !== normFilterKlas) return false;
-    if (normFilterStudent && !r.name.trim().toLowerCase().includes(normFilterStudent)) return false;
+    if (normFilterStudent) {
+      if (normFilterStudent.startsWith('id:')) {
+        if (r.studentId !== normFilterStudent.slice(3)) return false;
+      } else if (!r.name.trim().toLowerCase().includes(normFilterStudent)) return false;
+    }
     return true;
   });
 
   const names = new Set<string>();
+  const identities = new Set<string>();
   let totalCorrect = 0;
   let totalChunks = 0;
   const globalRoleErrors: Record<string, number> = {};
@@ -268,6 +275,7 @@ export function computeAggregateStats(
   for (const r of filtered) {
     const trimmedName = r.name.trim().toLowerCase();
     if (trimmedName) names.add(trimmedName);
+    if (r.studentId || trimmedName) identities.add(r.studentId || trimmedName);
     totalCorrect += r.c;
     totalChunks += r.t;
 
@@ -290,7 +298,7 @@ export function computeAggregateStats(
     if (!klasStatsMap.has(klas)) klasStatsMap.set(klas, { count: 0, students: new Set(), totalC: 0, totalT: 0 });
     const entry = klasStatsMap.get(klas)!;
     entry.count += 1;
-    if (r.name.trim()) entry.students.add(r.name.trim().toLowerCase());
+    if (r.studentId || r.name.trim()) entry.students.add(r.studentId || r.name.trim().toLowerCase());
     entry.totalC += r.c;
     entry.totalT += r.t;
   }
@@ -318,7 +326,7 @@ export function computeAggregateStats(
     if (!jaarlaagMap.has(jl)) jaarlaagMap.set(jl, { count: 0, students: new Set(), klassen: new Set(), totalC: 0, totalT: 0, roleErrors: {} });
     const entry = jaarlaagMap.get(jl)!;
     entry.count += 1;
-    if (r.name.trim()) entry.students.add(r.name.trim().toLowerCase());
+    if (r.studentId || r.name.trim()) entry.students.add(r.studentId || r.name.trim().toLowerCase());
     if (r.klas) entry.klassen.add(normaliseKlas(r.klas));
     entry.totalC += r.c;
     entry.totalT += r.t;
@@ -343,7 +351,7 @@ export function computeAggregateStats(
 
   return {
     totalReports: filtered.length,
-    uniqueStudents: names.size,
+    uniqueStudents: identities.size,
     totalCorrect,
     totalChunks,
     avgScore: totalChunks > 0 ? (totalCorrect / totalChunks) * 100 : 0,
@@ -360,6 +368,7 @@ export function computeAggregateStats(
 // --- Per-student breakdown ---
 
 export interface StudentStats {
+  studentId?: string;
   /** Display name (trimmed, original casing of first occurrence) */
   name: string;
   klas: string;
@@ -375,7 +384,7 @@ export interface StudentStats {
 
 /**
  * Compute per-student stats, optionally filtered to one class.
- * Returns one entry per unique (lowercased) student name, sorted alphabetically.
+ * Uses server IDs, with lowercased names as the legacy offline fallback.
  */
 export function computeStudentStats(
   reports: SessionReport[],
@@ -387,6 +396,7 @@ export function computeStudentStats(
     : reports;
 
   type Bucket = {
+    studentId?: string;
     displayName: string;
     klas: string;
     sessions: Array<{ score: number; ts: string }>;
@@ -395,10 +405,11 @@ export function computeStudentStats(
 
   const map = new Map<string, Bucket>();
   for (const r of filtered) {
-    const key = r.name.trim().toLowerCase();
-    if (!key) continue;
+    if (!r.studentId && !r.name.trim()) continue;
+    const key = r.studentId ? `id:${r.studentId}` : `name:${r.name.trim().toLowerCase()}`;
     if (!map.has(key)) {
       map.set(key, {
+        studentId: r.studentId,
         displayName: r.name.trim(),
         klas: normaliseKlas(r.klas ?? ''),
         sessions: [],
@@ -418,6 +429,7 @@ export function computeStudentStats(
       const scores = b.sessions.map(s => s.score);
       const latest = b.sessions.reduce((a, c) => (c.ts > a.ts ? c : a), b.sessions[0]);
       return {
+        ...(b.studentId ? { studentId: b.studentId } : {}),
         name: b.displayName,
         klas: b.klas,
         sessionCount: b.sessions.length,

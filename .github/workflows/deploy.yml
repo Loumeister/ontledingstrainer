@@ -1,57 +1,98 @@
-name: Deploy to GitHub Pages
+name: Security validation and Worker deployment
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: security-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
+  validate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4.2.2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4.2.0
+      - uses: actions/checkout@v4.2.2
         with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
+          fetch-depth: 0
+      - uses: actions/setup-node@v4.2.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            worker/package-lock.json
+      - run: npm ci
+      - run: npm ci --prefix worker
+      - run: npm audit --audit-level=low
+      - run: npm audit --prefix worker --audit-level=low
+      - run: npm run security:check
+      - run: npm run security:git
+      - run: npm test
+      - run: npm run test:backend
+      - run: npm --prefix worker run check
+      - name: Build frontend with synthetic backend secrets
         run: npm run build
         env:
-          VITE_APPS_SCRIPT_URL: ${{ secrets.VITE_APPS_SCRIPT_URL }}
-          VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
-          VITE_DOCENT_HASH: ${{ secrets.VITE_DOCENT_HASH }}
-          VITE_EDITOR_HASH: ${{ secrets.VITE_EDITOR_HASH }}
-          VITE_EIGENAAR_HASH: ${{ secrets.VITE_EIGENAAR_HASH }}
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3.0.1
+          DREX_API_KEY: SYNTHETIC_DREX_SECRET_CI_SENTINEL
+          GOOGLE_CLIENT_SECRET: SYNTHETIC_GOOGLE_SECRET_CI_SENTINEL
+          BACKEND_SHARED_SECRET: SYNTHETIC_BACKEND_SECRET_CI_SENTINEL
+      - run: npm --prefix worker run build
+      - name: Native Free Worker authentication smoke
+        run: node worker/scripts/smoke-free.mjs
+      - name: Redacted secret scan of Git history
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: false
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false
+      - uses: actions/upload-artifact@v4.6.2
         with:
+          name: frontend
           path: dist
 
   deploy:
-    needs: build
+    # Never publish a Pages fallback. Enable only after the documented setup.
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    environment: production
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4.0.5
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-node@v4.2.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+      - run: npm ci --prefix worker
+      - uses: actions/download-artifact@v4.3.0
+        with:
+          name: frontend
+          path: dist
+      - name: Configure server bindings
+        run: node scripts/configure-worker.mjs
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_D1_DATABASE_ID: ${{ vars.CLOUDFLARE_D1_DATABASE_ID }}
+          APP_ORIGIN: ${{ vars.APP_ORIGIN }}
+          GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+          OWNER_EMAILS: ${{ secrets.OWNER_EMAILS }}
+          TEACHER_EMAILS: ${{ secrets.TEACHER_EMAILS }}
+          EDITOR_EMAILS: ${{ secrets.EDITOR_EMAILS }}
+      - name: Apply additive migrations and deploy
+        working-directory: worker
+        run: |
+          npx wrangler d1 migrations apply ontleedlab --remote --config wrangler.production.json
+          npx wrangler deploy --config wrangler.production.json --secrets-file .wrangler/deploy-secrets.json
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Remove temporary secret file
+        if: always()
+        run: node -e "require('node:fs').rmSync('worker/.wrangler/deploy-secrets.json', {force:true})"

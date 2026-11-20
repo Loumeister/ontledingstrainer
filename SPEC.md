@@ -1,6 +1,6 @@
 # Productspecificatie Ontleedlab
 
-_Actueel op 2026-09-24._
+_Actueel op 2026-10-01; productieactivering nog niet geverifieerd._
 
 ## Doel
 
@@ -60,16 +60,18 @@ Acceptatiecriteria:
 
 ## Gegevens en privacy
 
-De productkern werkt zonder account en backend. Lokale browserdata is apparaatgebonden en geen klasadministratie. Google Sheets blijft voorlopig de gebruikte rapportagekoppeling, maar de Apps Script-route is in de huidige vorm geen beveiligde gegevenslaag: client-side geheimen zijn uitleesbaar en GET-URL's kunnen gegevens loggen.
+De trainer werkt zonder account en backend. Lokale browserdata is apparaatgebonden. Centrale leerlingadministratie gebruikt dezelfde HTTPS-origin /api, een Cloudflare Worker en een private EU-D1. Google Identity Services verifieert staff; exacte server-side allowlists bepalen rechten. Docenten zien uitsluitend eigen records, owner alle records.
 
-De beoogde migratierichting is een server-side geautoriseerde opslag met een willekeurige leerlingcode. De app en database bewaren geen naam of klas; alleen de docent beheert buiten het systeem de koppeling tussen code en leerling. Dit is een ontwerpbesluit, geen al gebouwde backend.
+Een persoonlijke eenmalige code geeft een HttpOnly/Secure/SameSite=Strict-leerlingsessie. Heruitgifte trekt oude toegang in en behoudt UUID en ontvangen rapporten. Naam, optionele initiaal en klas staan alleen in het private register. Rapportinzending gebruikt de identiteit uit de serversessie. Leerlingen hebben geen vaste wachtwoorden.
+
+Geen browsersecrets, gevoelige querystrings, Pages- of Apps Script-fallback. Bewaar de bestaande Sheets-data privé; automatische import op naam is verboden. Zie SECURITY.md voor HTTP-, CSRF-, payload-, ownership- en rategrenzen, en SECURITY_DEPLOYMENT.md voor backup/herstel en live verificatie. Free-quota en productie-CPU moeten daadwerkelijk worden gemeten; lokale tests bewijzen de 10 ms-limiet niet.
 
 ## Niet-doelen
 
 - geen geïntegreerde derde grammatica-app
 - geen generatieve beoordeling van leerlingantwoorden
 - geen echte beheersingsclaim op basis van enkele lokale pogingen
-- geen nieuwe backend voordat identiteit, beheer, privacy en autorisatie expliciet zijn ontworpen
+- geen uitbreiding van de backend buiten het expliciete securitycontract
 - geen opsplitsing van `useTrainer.ts` zonder concrete wijziging die daarvan profiteert
 
 ## Gedeelde grens

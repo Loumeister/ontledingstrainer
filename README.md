@@ -1,6 +1,6 @@
 # Ontleedlab
 
-Client-side oefenapp voor Nederlandse zinsontleding. Leerlingen knippen een volledige zin in zinsdelen en benoemen daarna alle toepasselijke functies. De app draait als statische Vite/React-site.
+Client-side oefenapp voor Nederlandse zinsontleding. Leerlingen knippen een volledige zin in zinsdelen en benoemen daarna alle toepasselijke functies. De trainer werkt lokaal; één Cloudflare Worker serveert de Vite/React-site en de geautoriseerde API met private D1-opslag.
 
 ## Huidige productkern
 
@@ -18,6 +18,7 @@ De standaardflow vraagt altijd alle toepasselijke rollen tegelijk, met één uit
 
 ```bash
 npm ci
+npm ci --prefix worker
 npm run dev
 npm test
 npm run build
@@ -35,7 +36,7 @@ npm run build
 | `src/constants.ts` | rollen, korte feedback en hints |
 | `src/logic/rollenladder.ts` | alleen het verborgen ladderexperiment |
 | `src/data/sentences-level-*.json` | ingebouwde zinnen en annotaties |
-| `src/services/*` | lokale opslag en optionele externe rapportage |
+| `src/services/*` | lokale oefenopslag en server-side geautoriseerde rapportage |
 | `SPEC.md` | productcontract |
 | `TODO.md` | nog open werk |
 
@@ -45,15 +46,15 @@ npm run build
 |---|---|
 | `#/rollenladder` | activeert het ladderexperiment voor deze route |
 | `#/zinnenlab` | experimenteel Zinsdeellab |
-| `#/login` | client-side toegangsscherm |
-| `#/usage` | lokaal docentoverzicht |
+| `#/login` | Google-aanmelding voor expliciet toegestane accounts |
+| `#/usage` | centrale docentomgeving met recordownership |
 | `#/editor` | lokale zinnen-editor |
 
 ## Gegevensgrens
 
-Zonder geconfigureerde Apps Script-koppeling blijft informatie in de browser. Met die koppeling worden voornaam, initiaal, klas en een decodeerbaar sessierapport naar een Google Sheet gestuurd.
+Zie [SECURITY.md](SECURITY.md) voor het servercontract en [SECURITY_DEPLOYMENT.md](SECURITY_DEPLOYMENT.md) voor activering. Docenten en eigenaar gebruiken Google; leerlingen krijgen persoonlijke eenmalige codes voor een blijvend leerling-ID en ontvangen rapporten. Rollenlijsten blijven uitsluitend Worker Secrets. De oude Sheets-data blijft behouden als private historische bron.
 
-De huidige PIN-hashes en `VITE_API_KEY` worden in de publieke browserbundel opgenomen; de API-sleutel gaat bovendien mee in GET-URL's. Dit is toegangsbeperking voor laag-risicogebruik, geen beveiligde leerlingadministratie. Gebruik geen gevoelige of grootschalige leerlinggegevens totdat een echte server-side autorisatie- en privacygrens is gekozen.
+Voor dagelijks gebruik: [logins en docentomgeving](docs/logins-en-docentomgeving.md). Voor directe infrastructuurtoegang: [databasebeheer](docs/database-toegang.md). Hosting gebruikt uitsluitend [Cloudflare Free](docs/cloudflare-free.md). De productieconfiguratie en live controles zijn nog niet voltooid.
 
 ## Gedeelde canon
 

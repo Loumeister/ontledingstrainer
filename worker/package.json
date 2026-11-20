@@ -1,0 +1,22 @@
+{
+  "name": "ontleedlab-api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8787",
+    "deploy": "wrangler deploy",
+    "check": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "wrangler deploy --dry-run --outdir dist"
+  },
+  "dependencies": {
+    "jose": "^6.1.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260930.1",
+    "miniflare": "^5.20260926.1-alpha",
+    "typescript": "^5.5.3",
+    "vitest": "^4.1.0",
+    "wrangler": "^4.0.0"
+  }
+}

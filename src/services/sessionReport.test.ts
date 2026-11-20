@@ -31,6 +31,22 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+describe('stable server identity', () => {
+  it('keeps same-named learners separate and groups a renamed learner by ID', () => {
+    const base: SessionReport = { v: 1, name: 'Emma', klas: '2a', ts: '2026-09-30T10:00:00.000Z', c: 1, t: 2, lvl: 1, err: {}, sids: [1] };
+    const reports = [{ ...base, studentId: 'student-a' }, { ...base, studentId: 'student-b' }, { ...base, studentId: 'student-a', name: 'Emma renamed' }];
+    expect(computeAggregateStats(reports.slice(0, 2)).uniqueStudents).toBe(2);
+    const stats = computeStudentStats(reports);
+    expect(stats).toHaveLength(2);
+    expect(stats.find(s => s.studentId === 'student-a')?.sessionCount).toBe(2);
+    expect(computeAggregateStats(reports).uniqueStudents).toBe(2);
+    expect(computeAggregateStats(reports).klasStats[0].uniqueStudents).toBe(2);
+      expect(computeAggregateStats(reports).jaarlaagStats[0].uniqueStudents).toBe(2);
+      expect(computeAggregateStats(reports, undefined, 'id:student-a').totalReports).toBe(2);
+      expect(computeAggregateStats(reports, undefined, 'id:student-b').totalReports).toBe(1);
+  });
+});
+
 describe('encodeReport / decodeReport', () => {
   it('round-trips a valid report', () => {
     const report: SessionReport = {

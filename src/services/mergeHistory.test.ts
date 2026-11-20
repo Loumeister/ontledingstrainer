@@ -162,11 +162,11 @@ describe('undoMergeAction — rename_klas', () => {
     expect(renameKlasOnDrive).not.toHaveBeenCalled();
   });
 
-  it('calls Drive rename when script URL is set', () => {
+  it('keeps legacy class undo local even when a central API is configured', () => {
     vi.mocked(getScriptUrl).mockReturnValue('https://script.google.com/abc');
     const entry = addMergeAction({ type: 'rename_klas', oldValue: '1a', newValue: '1b' });
     undoMergeAction(entry.id);
-    expect(renameKlasOnDrive).toHaveBeenCalledWith('1b', '1a');
+    expect(renameKlasOnDrive).not.toHaveBeenCalled();
   });
 });
 
@@ -191,11 +191,11 @@ describe('undoMergeAction — rename_student', () => {
     expect(renameStudentOnDrive).not.toHaveBeenCalled();
   });
 
-  it('calls Drive rename when script URL is set', () => {
+  it('keeps legacy student undo local even when a central API is configured', () => {
     vi.mocked(getScriptUrl).mockReturnValue('https://script.google.com/abc');
     const entry = addMergeAction({ type: 'rename_student', oldValue: 'jan', newValue: 'jan b.' });
     undoMergeAction(entry.id);
-    expect(renameStudentOnDrive).toHaveBeenCalledWith('jan b.', 'jan');
+    expect(renameStudentOnDrive).not.toHaveBeenCalled();
   });
 });
 

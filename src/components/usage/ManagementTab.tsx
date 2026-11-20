@@ -8,7 +8,6 @@ import type { SessionReport } from '../../services/sessionReport';
 import { computeAggregateStats, decodeReport, addReport, clearReports, renameKlas, renameStudent } from '../../services/sessionReport';
 import { loadUsageData, clearUsageData, exportUsageDataAsJson } from '../../services/usageData';
 import { setKlasAlias, setStudentAlias } from '../../services/nameAliases';
-import { getScriptUrl, renameKlasOnDrive, renameStudentOnDrive } from '../../services/googleDriveSync';
 import { getMergeHistory, addMergeAction, undoMergeAction } from '../../services/mergeHistory';
 
 // ---------------------------------------------------------------------------
@@ -60,9 +59,6 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({ allReports, onRepo
       addMergeAction({ type: 'rename_klas', oldValue: oldKlas, newValue: newKlas });
       setMergeHistory(getMergeHistory());
       onReportsChanged();
-      if (getScriptUrl()) {
-        renameKlasOnDrive(oldKlas, newKlas).catch(() => {});
-      }
     }
     setEditingKlas(null);
     setEditingKlasValue('');
@@ -80,9 +76,6 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({ allReports, onRepo
       addMergeAction({ type: 'merge_klas', oldValue: sourceKlas, newValue: target });
       setMergeHistory(getMergeHistory());
       onReportsChanged();
-      if (getScriptUrl()) {
-        await renameKlasOnDrive(sourceKlas, target);
-      }
       setMergeStatus('success');
       setMergingKlas(null);
       setMergeTargetKlas('');
@@ -108,9 +101,6 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({ allReports, onRepo
       addMergeAction({ type: 'rename_student', oldValue: oldName, newValue: newName });
       setMergeHistory(getMergeHistory());
       onReportsChanged();
-      if (getScriptUrl()) {
-        await renameStudentOnDrive(oldName, newName);
-      }
       setStudentRenameStatus('success');
       setEditingStudent(null);
       setEditingStudentValue('');
@@ -160,7 +150,7 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({ allReports, onRepo
       {/* Klas hernoemen / samenvoegen */}
       <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
         <h3 className="font-bold text-slate-700 dark:text-white text-base mb-1">Klassen beheren</h3>
-        <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Hernoem of voeg klassen samen. Wijzigingen worden ook doorgevoerd in het Google Sheet (als gekoppeld).</p>
+        <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Hernoem of voeg lokale klassen samen. Dit wijzigt alleen de gegevens op dit apparaat.</p>
 
         {aggregateStats.klasStats.length === 0 ? (
           <p className="text-slate-400 text-sm italic">Nog geen klassen gevonden in de rapporten.</p>

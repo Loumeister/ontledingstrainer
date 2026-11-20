@@ -13,11 +13,11 @@
  * Vervangt die schermen niet — beide draaien parallel tijdens de migratie.
  *
  * Databron: trainerSubmissionStore + trainerAssignmentStore + analyticsHelpers
- * Authenticatie: PIN via sessionStorage (zelfde key als editor/usage).
+ * Local device summary only. Central reports are in #/usage.
  */
 
 import React, { useState, useMemo } from 'react';
-import { EDITOR_SESSION_KEY } from '../components/LoginScreen';
+import { RequireAccount } from '../components/RequireAccount';
 import { getSubmissions } from '../services/trainerSubmissionStore';
 import { getAssignments } from '../services/trainerAssignmentStore';
 import {
@@ -37,7 +37,7 @@ interface TeacherDashboardScreenProps {
   darkMode?: boolean;
 }
 
-const PIN_SESSION_KEY = EDITOR_SESSION_KEY;
+
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -52,7 +52,7 @@ function scoreColor(pct: number): string {
 /**
  * Docentdashboard: overzicht van klassen, studenten en rolfouten.
  *
- * Toont een PIN-gate als de docent nog niet is ingelogd via `#/login`.
+ * Toont een aanmeldcontrole als de docent nog niet is ingelogd via `#/login`.
  * Na authenticatie wordt het interne `TeacherDashboardContent`-component getoond.
  *
  * Supplement aan de bestaande `UsageLogScreen` (`#/usage`): vervangt dat scherm
@@ -63,28 +63,13 @@ export const TeacherDashboardScreen: React.FC<TeacherDashboardScreenProps> = ({
   onBack,
   darkMode,
 }) => {
-  const authenticated = sessionStorage.getItem(PIN_SESSION_KEY) === 'true';
-
-  if (!authenticated) {
-    return (
-      <div className={`min-h-screen p-4 ${darkMode ? 'dark bg-slate-900' : 'bg-slate-100'} flex items-center justify-center`}>
-        <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg text-center">
-          <p className="text-slate-700 dark:text-slate-200 mb-4">
-            Dit dashboard is alleen toegankelijk na inloggen via <code className="text-blue-600">#/login</code>.
-          </p>
-          <button onClick={onBack} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Terug</button>
-        </div>
-      </div>
-    );
-  }
-
-  return <TeacherDashboardContent onBack={onBack} darkMode={darkMode} />;
+  return <RequireAccount roles={['teacher', 'owner']}>{() => <><p className="p-4">Dit overzicht bevat lokale oefendata. <a href="#/usage" className="text-blue-600 underline">Bekijk ingestuurd werk en het leerlingregister</a></p><TeacherDashboardContent onBack={onBack} darkMode={darkMode} /></>}</RequireAccount>;
 };
 
 /**
  * Inhoudelijk deel van het docentdashboard.
  *
- * Opgesplitst van `TeacherDashboardScreen` zodat de PIN-check en de data-logica
+ * Opgesplitst van `TeacherDashboardScreen` zodat de aanmeldcontrole en de data-logica
  * van elkaar gescheiden zijn. Wordt alleen gerenderd na succesvolle authenticatie.
  *
  * Interne state:

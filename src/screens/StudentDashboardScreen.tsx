@@ -17,6 +17,7 @@ import { getOrCreateStudent } from '../services/studentStore';
 import { getSubmissionsForStudent } from '../services/trainerSubmissionStore';
 import { computeTrainerStudentProgress } from '../logic/analyticsHelpers';
 import { ROLES } from '../constants';
+import { StudentServerHistory } from '../components/StudentServerHistory';
 
 interface StudentDashboardScreenProps {
   /** Volledige naam van de student, zoals ingevoerd bij het aanmelden. */
@@ -98,6 +99,8 @@ export const StudentDashboardScreen: React.FC<StudentDashboardScreenProps> = ({
             </button>
           </div>
 
+          <StudentServerHistory />
+          <h2 className="font-semibold text-slate-700 dark:text-slate-200 mb-3">Oefenvoortgang op dit apparaat</h2>
           {completedSubs.length === 0 ? (
             <p className="text-slate-500 dark:text-slate-400 text-sm py-8 text-center">
               Nog geen voltooide oefensessies gevonden. Start een sessie om je voortgang bij te houden.
