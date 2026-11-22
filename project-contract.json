@@ -1,0 +1,19 @@
+{
+  "repository": { "name": "Loumeister/ontledingstrainer", "base_branch": "main" },
+  "commands": {
+    "check": [["npm", "ci"], ["npm", "test"], ["npm", "run", "build"]],
+    "test": [["npm", "test"]],
+    "start": { "command": ["npm", "run", "dev"], "url": "http://localhost:5173/" }
+  },
+  "ready_work": { "label": "ready-for-agent", "issue_sections": ["## Doel", "## Klaar als"] },
+  "merge": {
+    "base_branch": { "by": "user" },
+    "plan_branch": {
+      "by": "conductor",
+      "conditions": ["checks-green", "review-nothing-blocking", "no-owner-path-changed", "no-open-product-choice"]
+    },
+    "owner_paths": ["project-contract.json", "AGENTS.md", "CLAUDE.md", ".codex/", ".github/", "CNAME", "package.json", "package-lock.json"]
+  },
+  "off_limits": ["shared/grammar-core/"],
+  "product_mandate": "SPEC.md"
+}
