@@ -34,6 +34,10 @@ Ontleedlab is de lokale ontleedapp. De runtime en tests bepalen huidig gedrag; `
 - Commit en push na elke werkende stap, zodat niets alleen lokaal staat.
 - Experimenten zonder issue op `scratch/<naam>`. Maximaal drie taken tegelijk `active`.
 
+## Publiceren
+
+De site is openbaar en wordt alleen gedeployd bij een push naar `production`; een merge naar `main` gaat niet live. Publiceren is `main` fast-forward in `production` brengen (`git fetch origin` en dan `git push origin origin/main:production`), alleen op uitdrukkelijk ja van de eigenaar voor die publicatie. Start de deployworkflow niet handmatig vanaf `main` en draai geen oude deployrun van `main` opnieuw.
+
 ## Controle
 
 ```bash
