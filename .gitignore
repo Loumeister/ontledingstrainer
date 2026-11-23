@@ -10,6 +10,11 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+
+# Playwright-uitvoer
+test-results/
+playwright-report/
+playwright/.cache/
 *.local
 
 # Server-side secrets (DREX_API_KEY). Nooit committen; geen VITE_-prefix, anders belandt de sleutel in de bundel.
