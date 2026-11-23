@@ -2,7 +2,7 @@
   "repository": { "name": "Loumeister/ontledingstrainer", "base_branch": "main" },
   "commands": {
     "check": [["npm", "ci"], ["npm", "test"], ["npm", "run", "build"]],
-    "test": [["npm", "test"]],
+    "test": [["npm", "ci"], ["npm", "test"]],
     "start": { "command": ["npm", "run", "dev"], "url": "http://localhost:5173/" }
   },
   "ready_work": { "label": "ready-for-agent", "issue_sections": ["## Doel", "## Klaar als"] },
